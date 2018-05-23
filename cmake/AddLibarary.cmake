@@ -1,5 +1,5 @@
 
-SET(is_gen_dynamic_lib TRUE) #控制是否产生动态库
+SET(is_gen_dynamic_lib True) #控制是否产生动态库
 ADD_LIBRARY(${ProjectName} STATIC ${SourceFiles})
 if (is_gen_dynamic_lib)
 	ADD_LIBRARY(${ProjectName}_dynamic SHARED ${SourceFiles})
