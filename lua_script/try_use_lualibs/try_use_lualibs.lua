@@ -15,3 +15,5 @@ print("package.cpath:")
 print(package.cpath)
 print("package.path:")
 print(package.path)
+
+print("End")

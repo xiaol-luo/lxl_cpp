@@ -8,6 +8,7 @@ import shlex
 import shutil
 import requests
 import platform
+import codecs
 
 parser = argparse.ArgumentParser()
 
@@ -76,9 +77,12 @@ class git_project_data(object):
         self.ws_dir = None
         self.cmake_dir = None
         self.cmake_params = ""
+        self.inc_dirs = ""
+        self.lib_dirs = ""
+        self.lib_names = None
 
 
-def quick_create_git_project_data(parse_ret, name, git_url, cmake_dir, cmake_params):
+def quick_create_git_project_data(parse_ret, name, git_url, cmake_dir, cmake_params, inc_dirs, lib_dirs, lib_names):
     ret = git_project_data()
     ret.name = name
     ret.git_url = git_url
@@ -87,24 +91,34 @@ def quick_create_git_project_data(parse_ret, name, git_url, cmake_dir, cmake_par
     if cmake_dir:
         ret.cmake_dir = os.path.abspath(os.path.join(ret.code_dir, cmake_dir)).replace('\\', '/')
     ret.cmake_params = cmake_params
+    ret.inc_dirs = inc_dirs
+    ret.lib_dirs = lib_dirs
+    ret.lib_names = lib_names
     return ret
 
 lrdb_name = "LRDB"
 git_project_datas = [
     quick_create_git_project_data(parse_ret, "LRDB",  "https://github.com/satoren/LRDB.git", 
-        None, ""),
+        None, "", [os.path.join(parse_ret.lcdp, "LRDB/include"), 
+                    os.path.join(parse_ret.lcdp, "LRDB/third_party/picojson"),
+                    os.path.join(parse_ret.lcdp, "LRDB/third_party/asio/asio/include"),], 
+        None, None),
     
     quick_create_git_project_data(parse_ret, "behaviac",  "https://github.com/Tencent/behaviac.git", 
-        ".", ""),
+        ".", "", [os.path.join(parse_ret.lcdp, "behaviac/inc")], 
+        [os.path.join(parse_ret.lcdp, "behaviac/lib")], ["libbehaviac_msvc_debug"]),
 
     quick_create_git_project_data(parse_ret, "sol2",  "https://github.com/ThePhD/sol2.git", 
-        None, ""),
+        None, "", [os.path.join(parse_ret.lcdp, "sol2/single/sol")], 
+        None, None),
     
     quick_create_git_project_data(parse_ret, "Libevent",  "https://github.com/nmathewson/Libevent.git", 
-        ".", "-DEVENT__DISABLE_BENCHMARK=ON -DEVENT__DISABLE_OPENSSL=ON"),
+        ".", "-DEVENT__DISABLE_BENCHMARK=ON -DEVENT__DISABLE_OPENSSL=ON", [os.path.join(parse_ret.lcdp, "Libevent/include")],
+        [os.path.join(parse_ret.wsdp, "Libevent/lib/Debug")], ["event", "event_core", "event_extra"]),
     
     quick_create_git_project_data(parse_ret, "protobuf",  "https://github.com/google/protobuf.git", 
-        "cmake", "-Dprotobuf_WITH_ZLIB=OFF -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_SHARED_LIBS=ON"),
+        "cmake", "-Dprotobuf_WITH_ZLIB=OFF -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_SHARED_LIBS=ON", [os.path.join(parse_ret.lcdp, "protobuf/src")],
+        [os.path.join(parse_ret.wsdp, "protobuf/Debug")], ["libprotocd", "libprotobufd", "libprotobuf-lited"]),
 ]
 
 def is_window_platform():
@@ -141,6 +155,7 @@ def handle_git_project(data):
             else:
                 cmake_cmd = "cd '{}' && cmake {} && make".format(data.ws_dir, data.cmake_dir)
             ret = subprocess.run(shlex.split(cmake_cmd), shell = True)
+
     except Exception as e:
         print(e)
         is_ok = False
@@ -157,6 +172,19 @@ for git_project in git_project_datas:
     if not all_ok:
         continue
         #break
+with (codecs.open(os.path.join(parse_ret.scdp, "cmake/Libs.cmake"), 'w', 'utf-8')) as f:
+    for git_project in git_project_datas:
+        if git_project.inc_dirs:
+            for inc_dir in git_project.inc_dirs:
+                f.write("INCLUDE_DIRECTORIES({})\n".format(inc_dir).replace('\\', '/'))
+        if git_project.lib_dirs:
+            for lib_dir in git_project.lib_dirs:
+                f.write("LINK_DIRECTORIES({})\n".format(lib_dir).replace('\\', '/'))
+        if git_project.lib_names:
+            for lib_name in git_project.lib_names:
+                f.write("LINK_LIBRARIES({})\n".format(lib_name).replace('\\', '/'))
+        f.write("\n")
+
 if not all_ok:
     exit(-10000)
 
