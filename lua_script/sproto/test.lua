@@ -22,6 +22,7 @@ local sp = sproto.parse [[
 }
 ]]
 
+
 -- core.dumpproto only for debug use
 core.dumpproto(sp.__cobj)
 

@@ -23,7 +23,7 @@ extern "C" {
 	#define SPROTO_REQUEST 0
 	#define SPROTO_RESPONSE 1
 
-		// type (sproto_arg.type)
+	// type (sproto_arg.type)
 	#define SPROTO_TINTEGER 0
 	#define SPROTO_TBOOLEAN 1
 	#define SPROTO_TSTRING 2
