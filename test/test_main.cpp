@@ -1,57 +1,25 @@
 #include <stdio.h>
 
-struct Elem
-{
-	int select_order = -1;
-};
-
-void cal_order(int n, int *out_array)
-{
-	if (nullptr == out_array || n <= 0)
-		return;
-
-	Elem *elems = new Elem[n];
-
-	bool is_pick = true;
-	int select_order = 0;
-
-	int elem_idx = 0;
-	while (select_order < n)
-	{
-		if (!is_pick)
-		{
-			is_pick = true;
-		}
-		else
-		{
-			Elem &elem = elems[elem_idx];
-			if (elem.select_order < 0)
-			{
-				is_pick = false;
-				elem.select_order = select_order;
-				++select_order;
-			}
-		}
-		elem_idx = (elem_idx + 1) % n;
-	}
-
-	for (int i = 0; i < n; ++i)
-	{
-		out_array[i] = elems[i].select_order;
-	}
-	delete[]elems; elems = nullptr;
-}
+// ADD_COMPILE_DEFINITIONS(TEST_DEF TEST_DEF_VAL_STR = Def_Val_STR TEST_DEF_VAL_INT = Def_Val_INT)
 
 int main(int argc, char **argv)
 {
-	const int n = 100;
-	int out_array[n];
-	cal_order(n, out_array);
+	printf("hello world \n");
 
-	printf("n is %d, and orders is \n", n);
+#ifdef TEST_DEF
+	printf("TEST_DEF is Define"); 
+#endif 
 
-	for (int i = 0; i < n; ++i)
-	{
-		printf("%d \n", out_array[i]);
-	}
+#ifdef TEST_DEF_VAL_STR
+	printf("TEST_DEF_VAL_STR is %s\n", TEST_DEF_VAL_STR);
+#endif
+
+#ifdef TEST_DEF_VAL_INT
+	printf("TEST_DEF_VAL_STR %d\n", TEST_DEF_VAL_INT);
+#endif
+
+#if TEST_DEF_VAL_INT == 10
+	printf("TEST_DEF_VAL_INT is equal to %d", TEST_DEF_VAL_INT);
+#endif
+
 }

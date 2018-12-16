@@ -1,20 +1,37 @@
 cmake_minimum_required(VERSION 2.6)
 
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/Utils.cmake)
+
 PROJECT(lxl_cpp)
 
-option(address "hello world" ON)
-set(OPT2 "Default" CACHE STRING "Helpstring")
+OPTION(address "hello world" ON)
+SET(OPT2 "Default" CACHE STRING "Helpstring")
 
-include (${CMAKE_SOURCE_DIR}/cmake/AllInclude.cmake)
-MESSAGE(STATUS ${CMAKE_BINARY_DIR})
-MESSAGE(STATUS ${CMAKE_SOURCE_DIR})
+#∂ØÃ¨ø‚…Ë∂®
+OPTION(use_dyn_lib "use dynamic lib to link excutable" ON)
+
+IF (use_dyn_lib)
+	SET(dyn_lib_subfix "dyn")
+	MESSAGE(STATUS "use_dyn_lib true")
+ELSE()
+	MESSAGE(STATUS "use_dyn_lib false")
+ENDIF()
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR})
 
-ADD_SUBDIRECTORY(luas)
-ADD_SUBDIRECTORY(test)
+IF (WIN32)
+	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) 
+	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) 
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	ADD_COMPILE_OPTIONS(/wd4018)
+ELSE()
 
+ENDIF(WIN32)
+
+ADD_SUBDIRECTORY(test) 
+ADD_SUBDIRECTORY(lua53)
+ADD_SUBDIRECTORY(lua_libs)
 
 
 

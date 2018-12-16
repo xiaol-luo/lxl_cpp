@@ -1,23 +1,20 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(project_name test)
-PROJECT(${project_name})
+SET(project_name luac53)
+PROJECT(project_name})
 
 SET(Cpp_File_Pattern "*.hpp" "*.cpp" "*.h" "*.c")
 FileGlobRecurse(${PROJECT_SOURCE_DIR} "${Cpp_File_Pattern}" dir_files)
 SET(all_files ${all_files} ${dir_files})
 FileGroupByDir(${PROJECT_SOURCE_DIR} "${all_files}" "")
 
-ADD_EXECUTABLE(${project_name} ${all_files})
-
-ADD_COMPILE_DEFINITIONS(TEST_DEF TEST_DEF_VAL_STR="Def_Val_STR" TEST_DEF_VAL_INT=10) 
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lua53/lib)
+LINK_LIBRARIES(lualib53)
 
 IF (WIN32)
 
 ELSE()
-	TARGET_LINK_LIBRARIES(${project_name} m)
+	LINK_LIBRARIES(m)
 ENDIF (WIN32)
 
-
-
-
+ADD_EXECUTABLE(${project_name} ${all_files})

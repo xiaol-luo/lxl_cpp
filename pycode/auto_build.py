@@ -1,20 +1,20 @@
-if __name__ != "__main__":
-    exit(0)
-
 import argparse
 import subprocess
 import os
 import shlex
-import shutil
+# import shutil
 import requests
+
 import platform
 import codecs
 
+if __name__ != "__main__":
+    exit(0)
 parser = argparse.ArgumentParser()
 
-#srouce code dir path
+# srouce code dir path
 parser.add_argument('scdp', help='srouce code dir path')
-#lib code dir path
+# lib code dir path
 parser.add_argument('lcdp', help='lib code dir path')
 # workspace dir path
 parser.add_argument('wsdp', help='workspace dir path')
@@ -121,14 +121,17 @@ git_project_datas = [
         [os.path.join(parse_ret.wsdp, "protobuf/Debug")], ["libprotocd", "libprotobufd", "libprotobuf-lited"]),
 ]
 
+
 def is_window_platform():
     return platform.system() == 'Windows'
+
 
 def shell_cd_cmd(cd_path):
     ret = "cd {}".format(cd_path)
     if os.path.isabs(cd_path) and is_window_platform():
         ret = "{}: && cd {}".format(cd_path[0], cd_path)
     return ret
+
 
 def handle_git_project(data):
     is_ok = True
@@ -143,12 +146,13 @@ def handle_git_project(data):
         if data.cmake_dir:
             os.makedirs(data.ws_dir, exist_ok=True)
             if is_window_platform():
-                
-                vstoll_cmd = "{} && VsMSBuildCmd.bat".format(shell_cd_cmd("d:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Common7/Tools"))
+                vstoll_cmd = "{} && VsMSBuildCmd.bat".format(shell_cd_cmd(
+                    "d:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Common7/Tools"))
                 cmake_cmd = "{} && {} && cmake {} -G 'Visual Studio 15 2017' {} ".format(
                     vstoll_cmd, shell_cd_cmd(data.ws_dir), data.cmake_params,  data.cmake_dir)
                 '''
-                vstoll_cmd = "{} && vcvarsall.bat setup_buildsku".format(shell_cd_cmd("D:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"))
+                vstoll_cmd = "{} && vcvarsall.bat setup_buildsku".format(
+                    shell_cd_cmd("D:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"))
                 cmake_cmd = "{} && {} && cmake {} -G 'NMake Makefiles' {} && nmake ".format(
                     vstoll_cmd, shell_cd_cmd(data.ws_dir), data.cmake_params,  data.cmake_dir)
                 '''
