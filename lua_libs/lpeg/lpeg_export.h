@@ -2,13 +2,13 @@
 #define __LPEG_EXPORT_H__
 
 #ifdef __GNUC__
-#define LPEG_API 
+	#define LPEG_API 
 #else
-#ifdef LPEG_EXPORTS  
-#define LPEG_API extern __declspec(dllexport)  
-#else  
-#define LPEG_API extern __declspec(dllimport)  
-#endif
+	#ifdef LPEG_EXPORTS  
+		#define LPEG_API extern __declspec(dllexport)  
+	#else  
+		#define LPEG_API extern __declspec(dllimport)  
+	#endif
 #endif  
 
 #include "lua.h"

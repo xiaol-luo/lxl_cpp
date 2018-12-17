@@ -6,13 +6,13 @@ extern "C" {
 #endif
 
 	#ifdef __GNUC__
-	#define SPROTO_API 
+		#define SPROTO_API 
 	#else
-	#ifdef SPROTO_EXPORTS  
-	#define SPROTO_API extern __declspec(dllexport)  
-	#else  
-	#define SPROTO_API extern __declspec(dllimport)  
-	#endif
+		#ifdef SPROTO_EXPORTS  
+			#define SPROTO_API extern __declspec(dllexport)  
+		#else  
+			#define SPROTO_API extern __declspec(dllimport)  
+		#endif
 	#endif  
 
 	#include <stddef.h>

@@ -1,12 +1,12 @@
 #pragma once
 
 #ifdef __GNUC__
-	#define TRY_USE_LUALIB_API extern "C" 
+	#define Dll_API extern "C" 
 #else
-	#ifdef TRY_USE_LUALIB_EXPORTS  
-		#define TRY_USE_LUALIB_API extern "C" __declspec(dllexport)  
+	#ifdef BUILD_AS_DLL  
+		#define Dll_API extern "C" __declspec(dllexport)  
 	#else  
-		#define TRY_USE_LUALIB_API extern "C" __declspec(dllimport)  
+		#define Dll_API extern "C" __declspec(dllimport)  
 	#endif
 #endif  
 
@@ -16,4 +16,4 @@ extern "C" {
 	#include <lauxlib.h>
 }
 
-TRY_USE_LUALIB_API int luaopen_tryuselualib(lua_State *L);
+Dll_API int luaopen_tryuselualib(lua_State *L);
