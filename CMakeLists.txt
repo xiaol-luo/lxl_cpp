@@ -7,15 +7,7 @@ PROJECT(lxl_cpp)
 OPTION(address "hello world" ON)
 SET(OPT2 "Default" CACHE STRING "Helpstring")
 
-#∂ØÃ¨ø‚…Ë∂®
-OPTION(use_dyn_lib "use dynamic lib to link excutable" ON)
-
-IF (use_dyn_lib)
-	SET(dyn_lib_subfix "dyn")
-	MESSAGE(STATUS "use_dyn_lib true")
-ELSE()
-	MESSAGE(STATUS "use_dyn_lib false")
-ENDIF()
+SET(static_lib_subfix "static")
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR})

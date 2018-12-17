@@ -9,7 +9,7 @@ SET(all_files ${all_files} ${dir_files})
 FileGroupByDir(${PROJECT_SOURCE_DIR} "${all_files}" "")
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lua53/lib)
-LINK_LIBRARIES(lualib53)
+LINK_LIBRARIES(lua53)
 
 IF (WIN32)
 

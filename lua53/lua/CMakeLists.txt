@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(project_name lua53)
+SET(project_name luavm53)
 PROJECT(project_name})
 
 SET(Cpp_File_Pattern "*.hpp" "*.cpp" "*.h" "*.c")
@@ -9,7 +9,7 @@ SET(all_files ${all_files} ${dir_files})
 FileGroupByDir(${PROJECT_SOURCE_DIR} "${all_files}" "")
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lua53/lib)
-LINK_LIBRARIES(lualib53)
+LINK_LIBRARIES(lua53)
 
 IF (WIN32)
 
