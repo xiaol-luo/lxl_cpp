@@ -25,5 +25,7 @@ ADD_SUBDIRECTORY(test)
 ADD_SUBDIRECTORY(lua53)
 ADD_SUBDIRECTORY(lua_libs)
 
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/test/test_macro.cmake)
+
 
 

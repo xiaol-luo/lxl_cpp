@@ -13,10 +13,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lua53/lib)
 LINK_LIBRARIES(lua53)
 ADD_COMPILE_DEFINITIONS(LPEG_EXPORTS)
 
-# 生成动态库
-SET(lib_name ${project_name})
-ADD_LIBRARY(${lib_name} SHARED ${all_files})
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/StaticLib.cmake)
+MakeLib(${project_name} "${all_files}" true)
 
 IF (WIN32)
 ELSE()

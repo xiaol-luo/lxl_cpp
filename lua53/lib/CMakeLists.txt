@@ -10,15 +10,8 @@ SET(all_files ${all_files} ${dir_files})
 FileGroupByDir(${PROJECT_SOURCE_DIR} "${all_files}" "")
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
-
 ADD_COMPILE_DEFINITIONS(LUA_BUILD_AS_DLL)
-
-# Éú³É¶¯Ì¬¿â
-SET(lib_name ${project_name})
-ADD_LIBRARY(${lib_name} SHARED ${all_files})
-
-#SET(build_static_lib ON)
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/StaticLib.cmake)
+MakeLib(${project_name} "${all_files}" true)
 
 
 
