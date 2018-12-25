@@ -7,6 +7,10 @@ PROJECT(lxl_cpp)
 OPTION(address "hello world" ON)
 SET(OPT2 "Default" CACHE STRING "Helpstring")
 
+IF (NOT CMAKE_BUILD_TYPE)
+	SET(CMAKE_BUILD_TYPE Debug CACHE STRING "set Debug or Release")
+ENDIF()
+
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR})
 LINK_DIRECTORIES(${CMAKE_SOURCE_DIR})
@@ -27,6 +31,7 @@ ADD_SUBDIRECTORY(lua53)
 ADD_SUBDIRECTORY(lua_libs)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/test/test_macro.cmake)
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/test/test_cmake_opt_D.cmake)
 
 
 

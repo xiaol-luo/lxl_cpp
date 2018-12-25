@@ -1,3 +1,5 @@
+MESSAGE(STATUS "-------------------- test_macro.cmake --------------------")
+
 MACRO(test_macro p1 p2 p3)
 	MESSAGE(STATUS "NOT WRAP " p1 " " p2 " " p3)
 	MESSAGE(STATUS "WRAP " "${p1} ${p2} ${p3}")
