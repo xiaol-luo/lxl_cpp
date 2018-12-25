@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 #endif
 
 #if TEST_DEF_VAL_INT == 10
-	printf("TEST_DEF_VAL_INT is equal to %d", TEST_DEF_VAL_INT);
+	printf("TEST_DEF_VAL_INT is equal to %d \n", TEST_DEF_VAL_INT);
 #endif
 
 }
