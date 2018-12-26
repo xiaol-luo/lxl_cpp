@@ -29,6 +29,7 @@ ENDIF(WIN32)
 ADD_SUBDIRECTORY(test_code) 
 ADD_SUBDIRECTORY(lua53)
 ADD_SUBDIRECTORY(lua_libs)
+ADD_SUBDIRECTORY(third_party)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/test/test_macro.cmake)
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/test/test_cmake_opt_D.cmake)
