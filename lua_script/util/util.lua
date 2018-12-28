@@ -3,6 +3,7 @@ util = util or {}
 local c_one_gang = "-"
 local opt_lua_path = "lua_path"
 local opt_c_path = "c_path"
+local opt_logic = "logic"
 
 function util.parse_main_args(input_args, out_ret)
     local fn_is_cmd_prefix = function(s)
@@ -33,6 +34,10 @@ function util.parse_main_args(input_args, out_ret)
     parse_fns[c_one_gang .. opt_c_path] = function(args, arg_idx, ret)
         return fn_fill_args(args, arg_idx, ret, opt_c_path)
     end
+    parse_fns[c_one_gang .. opt_logic] = function(args, arg_idx, ret)
+        return fn_fill_args(args, arg_idx, ret, opt_logic)
+    end
+
 
     out_ret = out_ret or {}
     local argc = #input_args
