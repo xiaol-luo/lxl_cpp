@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(project_name try_use_lualib)
+SET(project_name tryuselualib)
 PROJECT(${project_name})
 
 SET(Cpp_File_Pattern "*.hpp" "*.cpp" "*.h" "*.c")

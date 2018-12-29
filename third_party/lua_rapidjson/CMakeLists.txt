@@ -1,6 +1,6 @@
 ﻿CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(project_name lua_rapidjson)
+SET(project_name rapidjson)
 PROJECT(${project_name})
 
 SET(Cpp_File_Pattern "*.hpp" "*.cpp" "*.h" "*.c")

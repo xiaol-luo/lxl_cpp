@@ -8,7 +8,7 @@ local opt_logic = "logic"
 function util.parse_main_args(input_args, out_ret)
     local fn_is_cmd_prefix = function(s)
         local ret = string.match(s, c_one_gang .. "%S+")
-        print(string.format("parse_main_args %s %s", s, string.match(s, c_one_gang .. "%S+" )))
+        -- print(string.format("parse_main_args %s %s", s, string.match(s, c_one_gang .. "%S+" )))
         return ret
     end
     local fn_fill_args = function (args, arg_idx, ret, opt_name)
@@ -18,10 +18,10 @@ function util.parse_main_args(input_args, out_ret)
         while idx <= #args do
             local val = args[idx]
             if fn_is_cmd_prefix(val) then
-                print(string.format("break %s %s %s",  "fn_fill_args ", opt_name, val))
+                -- print(string.format("break %s %s %s",  "fn_fill_args ", opt_name, val))
                 break
             end
-            print(string.format("%s %s %s",  "fn_fill_args ", opt_name, val))
+            -- print(string.format("%s %s %s",  "fn_fill_args ", opt_name, val))
             table.insert(t, val)
             idx = idx + 1
         end

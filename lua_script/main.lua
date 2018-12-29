@@ -6,12 +6,20 @@ local pre_require_files = function()
     end
 end
 
+local add_search_paths = function()
+    for _, v in ipairs(require("lua_search_paths")) do
+        util.append_lua_search_path(v)
+    end
+    for _, v in ipairs(require("c_search_paths")) do
+        util.append_c_search_path(v)
+    end
+end
+
 function start_script()
     require("util.util")
-    -- util.append_lua_search_path("./libs")
-    -- util.append_c_search_path("./dyn_libs")
     ret = util.parse_main_args(arg)
     util.use_parse_main_ret(ret)
+    add_search_paths()
     pre_require_files()
     print(ret)
     assert(ret.logic and ret.logic[1], "assert ret.logic can not be null")
