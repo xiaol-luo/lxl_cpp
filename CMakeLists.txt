@@ -30,6 +30,7 @@ ADD_SUBDIRECTORY(test_code)
 ADD_SUBDIRECTORY(lua53)
 ADD_SUBDIRECTORY(lua_libs)
 ADD_SUBDIRECTORY(third_party)
+ADD_SUBDIRECTORY(lua_service)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/test/test_macro.cmake)
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/test/test_cmake_opt_D.cmake)

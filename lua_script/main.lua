@@ -3,7 +3,10 @@ util = util or {}
 local c_one_gang = "-"
 local opt_lua_path = "lua_path"
 local opt_c_path = "c_path"
-local opt_logic = "logic"
+MAIN_ARGS_LOGIC = "logic"
+MAIN_ARGS_LOGIC_PARAM = "logic_param"
+MAIN_ARGS_WORK_DIR = "work_dir"
+MAIN_ARGS_DATA_DIR = "data_dir"
 
 
 function util.parse_main_args(input_args, out_ret)
@@ -28,6 +31,15 @@ function util.parse_main_args(input_args, out_ret)
         end
         return idx - arg_idx
     end
+    local fn_fill_one_args = function(args, arg_idx, ret, opt_name)
+        local consume_idx = fn_fill_args(args, arg_idx, ret, opt_name)
+        if ret[opt_name] and #ret[opt_name] > 0 then
+            ret[opt_name] = ret[opt_name][1]
+        else
+            ret[opt_name] = nil
+        end
+        return consume_idx
+    end
     local parse_fns = {}
     parse_fns[c_one_gang .. opt_lua_path] = function(args, arg_idx, ret)
         return fn_fill_args(args, arg_idx, ret, opt_lua_path)
@@ -35,8 +47,17 @@ function util.parse_main_args(input_args, out_ret)
     parse_fns[c_one_gang .. opt_c_path] = function(args, arg_idx, ret)
         return fn_fill_args(args, arg_idx, ret, opt_c_path)
     end
-    parse_fns[c_one_gang .. opt_logic] = function(args, arg_idx, ret)
-        return fn_fill_args(args, arg_idx, ret, opt_logic)
+    parse_fns[c_one_gang .. MAIN_ARGS_LOGIC] = function(args, arg_idx, ret)
+        return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_LOGIC)
+    end
+    parse_fns[c_one_gang .. MAIN_ARGS_LOGIC_PARAM] = function(args, arg_idx, ret)
+        return fn_fill_args(args, arg_idx, ret, MAIN_ARGS_LOGIC_PARAM)
+    end
+    parse_fns[c_one_gang .. MAIN_ARGS_WORK_DIR] = function(args, arg_idx, ret)
+        return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_WORK_DIR)
+    end
+    parse_fns[c_one_gang .. MAIN_ARGS_DATA_DIR] = function(args, arg_idx, ret)
+        return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_DATA_DIR)
     end
 
 
@@ -103,12 +124,11 @@ function start_script()
     add_search_paths()
     pre_require_files()
     print(MAIN_ARGS)
-    assert(MAIN_ARGS.logic and MAIN_ARGS.logic[1], "assert ret.logic can not be null")
-    MAIN_ARGS.logic_name = MAIN_ARGS.logic[1]
-    local logic_main_file = string.format("logics.%s.logic_main", MAIN_ARGS.logic_name)
+    local logic_main_file = string.format("logics.%s.logic_main", MAIN_ARGS[MAIN_ARGS_LOGIC])
     print(logic_main_file)
     require(logic_main_file)
     LogicMain.start()
 end
 
 start_script()
+print("here")
