@@ -1,4 +1,4 @@
-
+--[[
 util = util or {}
 local c_one_gang = "-"
 local opt_lua_path = "lua_path"
@@ -78,3 +78,4 @@ end
 function util.append_c_search_path(v)
     package.cpath = string.format("%s;%s/?.dll;", package.cpath, v)
 end
+--]]
