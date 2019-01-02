@@ -6,4 +6,8 @@ function LogicMain.start()
     -- test tryuselualib
     tryuselualib.log_msg("1234")
     othertryuselualib.log_msg("3345")
+
+    print("work dir is ", lfs.currentdir())
+    -- lfs.chdir(lfs.currentdir() .. "/..")
+    -- print("work dir is ", lfs.currentdir())
 end

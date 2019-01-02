@@ -5,6 +5,7 @@ local opt_lua_path = "lua_path"
 local opt_c_path = "c_path"
 local opt_logic = "logic"
 
+
 function util.parse_main_args(input_args, out_ret)
     local fn_is_cmd_prefix = function(s)
         local ret = string.match(s, c_one_gang .. "%S+")
@@ -95,15 +96,16 @@ local add_search_paths = function()
     end
 end
 
+MAIN_ARGS = nil
 function start_script()
-    ret = util.parse_main_args(arg)
-    use_parse_main_ret(ret)
+    MAIN_ARGS = util.parse_main_args(arg)
+    use_parse_main_ret(MAIN_ARGS)
     add_search_paths()
     pre_require_files()
-    print(ret)
-    assert(ret.logic and ret.logic[1], "assert ret.logic can not be null")
-    local logic_name = ret.logic[1]
-    local logic_main_file = string.format("logics.%s.logic_main", logic_name)
+    print(MAIN_ARGS)
+    assert(MAIN_ARGS.logic and MAIN_ARGS.logic[1], "assert ret.logic can not be null")
+    MAIN_ARGS.logic_name = MAIN_ARGS.logic[1]
+    local logic_main_file = string.format("logics.%s.logic_main", MAIN_ARGS.logic_name)
     print(logic_main_file)
     require(logic_main_file)
     LogicMain.start()

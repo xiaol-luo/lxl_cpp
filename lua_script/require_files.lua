@@ -11,5 +11,6 @@ local files = {
     "pb",
     "lpeg",
     "tryuselualib",
+    "lfs"
 }
 return files
