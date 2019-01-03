@@ -99,6 +99,9 @@ local use_parse_main_ret = function(ret)
             util.append_lua_search_path(v)
         end
     end
+    if ret[MAIN_ARGS_WORK_DIR] and #ret[MAIN_ARGS_WORK_DIR] > 0 then
+        native.chdir(ret[MAIN_ARGS_WORK_DIR])
+    end
 end
 
 local pre_require_files = function()
@@ -131,4 +134,3 @@ function start_script()
 end
 
 start_script()
-print("here")
