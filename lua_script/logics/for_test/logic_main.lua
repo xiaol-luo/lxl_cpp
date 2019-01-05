@@ -10,4 +10,6 @@ function LogicMain.start()
     print("work dir is ", lfs.currentdir())
     -- lfs.chdir(lfs.currentdir() .. "/..")
     -- print("work dir is ", lfs.currentdir())
+
+    xml.print_table(LOGIC_SETTING)
 end

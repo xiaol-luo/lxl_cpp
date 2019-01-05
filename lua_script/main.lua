@@ -121,12 +121,16 @@ local add_search_paths = function()
 end
 
 MAIN_ARGS = nil
+LOGIC_SETTING = nil
+
 function start_script()
     MAIN_ARGS = util.parse_main_args(arg)
     use_parse_main_ret(MAIN_ARGS)
     add_search_paths()
     pre_require_files()
-    print(MAIN_ARGS)
+    local setting_file = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], MAIN_ARGS[MAIN_ARGS_LOGIC], "setting.xml")
+    LOGIC_SETTING = xml.parse_file(setting_file)
+    -- xml.print_table(LOGIC_SETTING)
     local logic_main_file = string.format("logics.%s.logic_main", MAIN_ARGS[MAIN_ARGS_LOGIC])
     print(logic_main_file)
     require(logic_main_file)

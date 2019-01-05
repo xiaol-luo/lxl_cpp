@@ -7,6 +7,8 @@ local files = {
     "libs.table_ext",
     "libs.type_check",
     "libs.assert",
+    "libs.path_ext",
+    "libs.xml2lua.xml2lua_ext",
     "rapidjson",
     "pb",
     "lpeg",

@@ -546,28 +546,35 @@ function string.limitRichChar( str , limit)
 	end
 end
 
---去除末尾的空格，换行
-function string.rtrim( str )
+function string.rtrim(str, chs)
+	local chs_val = {}
+	for _, v in ipairs({string.byte(chs, 1, #chs)}) do
+		chs_val[v] = true
+	end
+	local idx = 0
 	for i = #str,1,-1 do
-		local char = string.sub(str,i,i)
-		if char ~= '\n' and char ~= ' ' then
-			return string.sub(str,1,i)
+		if not chs_val[string.byte(str, i)] then
+			idx = i
+			break
 		end
 	end
-
-	return ""
+	return idx < 1 and "" or string.sub(str,1, idx)
 end
 
 --去除前面的空格,换行
 function ltrim( str )
+	local chs_val = {}
+	for _, v in ipairs({string.byte(chs, 1, #chs)}) do
+		chs_val[v] = true
+	end
+	local idx = #str + 1
 	for i = 1, #str do
-		local char = string.sub(str,i,i)
-		if char ~= '\n' and char ~= ' ' then
-			return string.sub(str,i,#str)
+		if not chs_val[string.byte(str, i)] then
+			idx = i
+			break
 		end
 	end
-
-	return ""
+	return idx > #str and "" or string.sub(str,idx)
 end
 
 --去除前后的空格和换行
