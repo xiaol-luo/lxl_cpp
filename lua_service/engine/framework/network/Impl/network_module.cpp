@@ -426,6 +426,7 @@ void NetworkModule::ProcessNetDatas()
 			while (!net_datas->empty())
 			{
 				NetworkData &data = net_datas->front();
+				net_datas->pop();
 				std::shared_ptr<INetworkHandler> handler = data.handler.lock();
 				if (nullptr == handler)
 				{
@@ -441,8 +442,6 @@ void NetworkModule::ProcessNetDatas()
 						if (ENetWorkDataAction_Read == data.action)
 						{
 							tmp_handler->OnRecvData(data.binary, data.binary_len);
-							free(data.binary); data.binary = nullptr; 
-							data.binary_len = 0;
 						}
 					}
 					if (ENetworkHandler_Listen == handler->HandlerType())
@@ -468,7 +467,9 @@ void NetworkModule::ProcessNetDatas()
 						}
 					}
 				}
-				net_datas->pop();
+
+				free(data.binary); data.binary = nullptr;
+				data.binary_len = 0;
 			}
 		}
 		for (NetId netid : to_remove_netids)
