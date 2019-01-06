@@ -23,7 +23,7 @@ namespace Net
 	{
 		return false;
 	}
-	bool NetWorker::GetNetDatas(std::queue<NetWorkData, std::deque<NetWorkData>>*& out_datas)
+	bool NetWorker::GetNetDatas(std::queue<NetworkData, std::deque<NetworkData>>*& out_datas)
 	{
 		return false;
 	}

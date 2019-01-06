@@ -8,7 +8,7 @@
 #include "network/i_network_module.h"
 #include "net_task.h"
 
-struct ConnectTaskThread;
+struct NetTaskThread;
 namespace Net
 {
 	class INetWorker;
@@ -21,10 +21,10 @@ enum ENetWorkDataAction
 	ENetWorkDataAction_Max,
 };
 
-struct NetWorkData
+struct NetworkData
 {
-	NetWorkData() {}
-	NetWorkData(NetId _netid, int _fd, std::weak_ptr<INetworkHandler> _handle, 
+	NetworkData() {}
+	NetworkData(NetId _netid, int _fd, std::weak_ptr<INetworkHandler> _handle, 
 		ENetWorkDataAction _action, int _err_num, int _new_fd, char *_binary, uint32_t _binary_len) 
 		: netid(_netid), fd(_fd), handler(_handle), action(_action), err_num(_err_num), 
 		new_fd(_new_fd), binary(_binary), binary_len(_binary_len) {}
@@ -60,13 +60,13 @@ public:
 	int LogId() { return m_log_Id; }
 
 protected:
-	std::mutex *m_cnn_task_mutex = nullptr;
-	std::queue<Net::NetTask *, std::deque<Net::NetTask *>> m_cnn_tasks;
-	std::mutex *m_cnn_results_mutex = nullptr;
-	std::queue<Net::NetTaskResult, std::deque<Net::NetTaskResult>> m_cnn_results;
-	int m_cnn_task_thread_num = 2;
-	ConnectTaskThread **m_cnn_task_threads = nullptr;
-	void ProcessConnectResult();
+	std::mutex *m_net_task_mutex = nullptr;
+	std::queue<Net::NetTask *> m_net_tasks;
+	std::mutex *m_net_task_results_mutex = nullptr;
+	std::queue<Net::NetTaskResult> m_net_task_results;
+	int m_net_task_thread_num = 2;
+	NetTaskThread **m_net_task_threads = nullptr;
+	void ProcessNetTaskResult();
 
 protected:
 	std::unordered_map<int64_t, std::weak_ptr<INetworkHandler>> m_async_network_handlers;

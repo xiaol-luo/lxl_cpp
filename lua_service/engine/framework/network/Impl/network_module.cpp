@@ -8,20 +8,20 @@
 #define close closesocket
 #endif
 
-struct ConnectTaskThread
+struct NetTaskThread
 {
-	using ThreadAction = void(*)(ConnectTaskThread *);
-	ConnectTaskThread(std::function<void(ConnectTaskThread *)> _action, std::mutex *_task_mutex,
-		std::queue<Net::NetTask *, std::deque<Net::NetTask *>> *_cnn_tasks, 
+	using ThreadAction = void(*)(NetTaskThread *);
+	NetTaskThread(std::function<void(NetTaskThread *)> _action, std::mutex *_task_mutex,
+		std::queue<Net::NetTask *> *_net_tasks, 
 		std::mutex *_result_mutex,
-		std::queue<Net::NetTaskResult, std::deque<Net::NetTaskResult>> *_cnn_results) :
-		task_mutex(_task_mutex), cnn_tasks(_cnn_tasks), result_mutex(_result_mutex),
+		std::queue<Net::NetTaskResult> *_cnn_results) :
+		task_mutex(_task_mutex), net_tasks(_net_tasks), result_mutex(_result_mutex),
 		cnn_results(_cnn_results), action(_action)
 	{
 
 	}
 
-	~ConnectTaskThread()
+	~NetTaskThread()
 	{
 
 	}
@@ -53,20 +53,20 @@ struct ConnectTaskThread
 
 	bool is_exit = false;
 	std::mutex *task_mutex;
-	std::queue<Net::NetTask *, std::deque<Net::NetTask *>> *cnn_tasks;
+	std::queue<Net::NetTask *, std::deque<Net::NetTask *>> *net_tasks;
 	std::mutex *result_mutex;
 	std::queue<Net::NetTaskResult, std::deque<Net::NetTaskResult>> *cnn_results;
-	std::function<void(ConnectTaskThread *)> action = nullptr;
+	std::function<void(NetTaskThread *)> action = nullptr;
 	std::thread *self_thread = nullptr;
 };
 
-void CnnTaskWorker(ConnectTaskThread *task_thread)
+void NetTaskWorker(NetTaskThread *task_thread)
 {
 	if (nullptr == task_thread) return;
 
 	bool is_exit = false;
 	std::mutex *task_mutex = task_thread->task_mutex;
-	std::queue<Net::NetTask *, std::deque<Net::NetTask *>> *cnn_tasks = task_thread->cnn_tasks;
+	std::queue<Net::NetTask *, std::deque<Net::NetTask *>> *cnn_tasks = task_thread->net_tasks;
 	std::mutex *result_mutex = task_thread->result_mutex;
 	std::queue<Net::NetTaskResult, std::deque<Net::NetTaskResult>> *cnn_results = task_thread->cnn_results;
 
@@ -100,19 +100,19 @@ void CnnTaskWorker(ConnectTaskThread *task_thread)
 
 NetworkModule::NetworkModule(ModuleMgr *module_mgr) : INetworkModule(module_mgr)
 {
-	m_cnn_task_mutex = new std::mutex();
-	m_cnn_results_mutex = new std::mutex();
+	m_net_task_mutex = new std::mutex();
+	m_net_task_results_mutex = new std::mutex();
 
-	if (m_cnn_task_thread_num <= 0)
-		m_cnn_task_thread_num = 1;
-	int malloc_size = sizeof(ConnectTaskThread *) * m_cnn_task_thread_num;
-	m_cnn_task_threads = (ConnectTaskThread **)malloc(malloc_size);
-	memset(m_cnn_task_threads, 0, malloc_size);
-	for (int i = 0; i < m_cnn_task_thread_num; ++i)
+	if (m_net_task_thread_num <= 0)
+		m_net_task_thread_num = 1;
+	int malloc_size = sizeof(NetTaskThread *) * m_net_task_thread_num;
+	m_net_task_threads = (NetTaskThread **)malloc(malloc_size);
+	memset(m_net_task_threads, 0, malloc_size);
+	for (int i = 0; i < m_net_task_thread_num; ++i)
 	{
-		m_cnn_task_threads[i] = new ConnectTaskThread(
-			CnnTaskWorker, m_cnn_task_mutex, &m_cnn_tasks,
-			m_cnn_results_mutex, &m_cnn_results);
+		m_net_task_threads[i] = new NetTaskThread(
+			NetTaskWorker, m_net_task_mutex, &m_net_tasks,
+			m_net_task_results_mutex, &m_net_task_results);
 	}
 
 	if (m_net_worker_num <= 0)
@@ -128,29 +128,29 @@ NetworkModule::NetworkModule(ModuleMgr *module_mgr) : INetworkModule(module_mgr)
 
 NetworkModule::~NetworkModule()
 {
-	if (nullptr != m_cnn_task_threads)
+	if (nullptr != m_net_task_threads)
 	{
-		for (int i = 0; i < m_cnn_task_thread_num; ++i)
+		for (int i = 0; i < m_net_task_thread_num; ++i)
 		{
-			if (nullptr != m_cnn_task_threads[i])
+			if (nullptr != m_net_task_threads[i])
 			{
-				delete m_cnn_task_threads[i];
-				m_cnn_task_threads[i] = nullptr;
+				delete m_net_task_threads[i];
+				m_net_task_threads[i] = nullptr;
 			}
 		}
-		free(m_cnn_task_threads); 
-		m_cnn_task_threads = nullptr;
+		free(m_net_task_threads); 
+		m_net_task_threads = nullptr;
 	}
 
-	if (nullptr != m_cnn_task_mutex)
+	if (nullptr != m_net_task_mutex)
 	{
-		delete 	m_cnn_task_mutex;
-		m_cnn_task_mutex = nullptr;
+		delete 	m_net_task_mutex;
+		m_net_task_mutex = nullptr;
 	}
-	if (nullptr != m_cnn_results_mutex)
+	if (nullptr != m_net_task_results_mutex)
 	{
-		delete m_cnn_results_mutex;
-		m_cnn_results_mutex = nullptr;
+		delete m_net_task_results_mutex;
+		m_net_task_results_mutex = nullptr;
 	}
 	if (nullptr != m_net_workers)
 	{
@@ -185,9 +185,9 @@ EModuleRetCode NetworkModule::Awake()
 	}
 	if (ret)
 	{
-		for (int i = 0; i < m_cnn_task_thread_num; ++i)
+		for (int i = 0; i < m_net_task_thread_num; ++i)
 		{
-			if (!m_cnn_task_threads[i]->Start())
+			if (!m_net_task_threads[i]->Start())
 			{
 				ret = false;
 				break;
@@ -200,27 +200,29 @@ EModuleRetCode NetworkModule::Awake()
 
 EModuleRetCode NetworkModule::Update()
 {
-	this->ProcessConnectResult();
+	this->ProcessNetTaskResult();
 	this->ProcessNetDatas();
 	return EModuleRetCode_Succ;
 }
 
 EModuleRetCode NetworkModule::Release()
 {
-	for (int i = 0; i < m_cnn_task_thread_num; ++i)
+	for (int i = 0; i < m_net_task_thread_num; ++i)
 	{
-		m_cnn_task_threads[i]->Exit();
+		m_net_task_threads[i]->Exit();
 	}
-	for (int i = 0; i < m_cnn_task_thread_num; ++i)
+	for (int i = 0; i < m_net_task_thread_num; ++i)
 	{
-		m_cnn_task_threads[i]->Join();
+		m_net_task_threads[i]->Join();
 	}
-	while (!m_cnn_results.empty())
-		m_cnn_results.pop();
-	while (!m_cnn_tasks.empty())
+	while (!m_net_task_results.empty())
 	{
-		delete m_cnn_tasks.front();
-		m_cnn_tasks.pop();
+		m_net_task_results.pop();
+	}
+	while (!m_net_tasks.empty())
+	{
+		delete m_net_tasks.front();
+		m_net_tasks.pop();
 	}
 
 	return EModuleRetCode_Succ;
@@ -316,9 +318,9 @@ int64_t NetworkModule::ListenAsync(std::string ip, uint16_t port, void *opt, std
 	m_async_network_handlers[async_id] = handler;
 	Net::NetTaskListen *task = new Net::NetTaskListen(
 		async_id, ip, port, opt);
-	m_cnn_task_mutex->lock();
-	m_cnn_tasks.push(task);
-	m_cnn_task_mutex->unlock();
+	m_net_task_mutex->lock();
+	m_net_tasks.push(task);
+	m_net_task_mutex->unlock();
 	return async_id;
 }
 
@@ -330,9 +332,9 @@ int64_t NetworkModule::ConnectAsync(std::string ip, uint16_t port, void *opt, st
 	m_async_network_handlers[async_id] = handler;
 	Net::NetTaskConnect *task = new Net::NetTaskConnect(
 		async_id, ip, port, opt);
-	m_cnn_task_mutex->lock();
-	m_cnn_tasks.push(task);
-	m_cnn_task_mutex->unlock();
+	m_net_task_mutex->lock();
+	m_net_tasks.push(task);
+	m_net_task_mutex->unlock();
 	return async_id;
 }
 
@@ -367,12 +369,12 @@ Net::INetWorker * NetworkModule::ChoseWorker(NetId netid)
 	return m_net_workers[netid % m_net_worker_num];
 }
 
-void NetworkModule::ProcessConnectResult()
+void NetworkModule::ProcessNetTaskResult()
 {
-	std::queue<Net::NetTaskResult, std::deque<Net::NetTaskResult>> cnn_results_swap;
-	m_cnn_results_mutex->lock();
-	cnn_results_swap.swap(m_cnn_results);
-	m_cnn_results_mutex->unlock();
+	std::queue<Net::NetTaskResult> cnn_results_swap;
+	m_net_task_results_mutex->lock();
+	cnn_results_swap.swap(m_net_task_results);
+	m_net_task_results_mutex->unlock();
 	if (cnn_results_swap.empty())
 		return;
 
@@ -418,12 +420,12 @@ void NetworkModule::ProcessNetDatas()
 	for (int i = 0; i < m_net_worker_num; ++i)
 	{
 		std::set<NetId, std::less<NetId>> to_remove_netids;
-		std::queue<NetWorkData, std::deque<NetWorkData>> *net_datas = nullptr;
+		std::queue<NetworkData, std::deque<NetworkData>> *net_datas = nullptr;
 		if (m_net_workers[i]->GetNetDatas(net_datas))
 		{
 			while (!net_datas->empty())
 			{
-				NetWorkData &data = net_datas->front();
+				NetworkData &data = net_datas->front();
 				std::shared_ptr<INetworkHandler> handler = data.handler.lock();
 				if (nullptr == handler)
 				{
