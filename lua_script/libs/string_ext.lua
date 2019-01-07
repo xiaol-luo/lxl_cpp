@@ -562,7 +562,7 @@ function string.rtrim(str, chs)
 end
 
 --去除前面的空格,换行
-function ltrim( str )
+function string.ltrim(str, chs)
 	local chs_val = {}
 	for _, v in ipairs({string.byte(chs, 1, #chs)}) do
 		chs_val[v] = true
@@ -579,7 +579,7 @@ end
 
 --去除前后的空格和换行
 function string.lrtrim( str )
-	return rtrim(ltrim(str))
+	return string.rtrim(string.ltrim(str))
 end
 
 function string.contains(str, pattern, plain)
