@@ -12,7 +12,7 @@ namespace Net
 	NetWorker::~NetWorker()
 	{
 	}
-	bool NetWorker::AddCnn(NetId id, int fd, std::weak_ptr<INetworkHandler> handler)
+	bool NetWorker::AddCnn(NetId id, int fd, std::shared_ptr<INetworkHandler> handler)
 	{
 		return false;
 	}
@@ -23,7 +23,7 @@ namespace Net
 	{
 		return false;
 	}
-	bool NetWorker::GetNetDatas(std::queue<NetworkData, std::deque<NetworkData>>*& out_datas)
+	bool NetWorker::GetNetDatas(std::queue<NetworkData *>*& out_datas)
 	{
 		return false;
 	}

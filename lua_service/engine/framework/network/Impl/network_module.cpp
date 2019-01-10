@@ -253,7 +253,7 @@ NetId NetworkModule::Listen(std::string ip, uint16_t port, void *opt, std::weak_
 	if (0 == err_num)
 	{
 		netid = this->GenNetId();
-		if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, handler))
+		if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, sp_handler))
 		{
 			err_num = 1;
 			if (ret.fd >= 0)
@@ -286,7 +286,7 @@ NetId NetworkModule::Connect(std::string ip, uint16_t port, void *opt, std::weak
 	if (0 == err_num)
 	{
 		netid = this->GenNetId();
-		if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, handler))
+		if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, sp_handler))
 		{
 			err_num = 1;
 			if (ret.fd >= 0)
@@ -420,56 +420,64 @@ void NetworkModule::ProcessNetDatas()
 	for (int i = 0; i < m_net_worker_num; ++i)
 	{
 		std::set<NetId, std::less<NetId>> to_remove_netids;
-		std::queue<NetworkData, std::deque<NetworkData>> *net_datas = nullptr;
+		std::queue<NetworkData *> *net_datas = nullptr;
 		if (m_net_workers[i]->GetNetDatas(net_datas))
 		{
 			while (!net_datas->empty())
 			{
-				NetworkData &data = net_datas->front();
+				NetworkData *data = net_datas->front();
 				net_datas->pop();
-				std::shared_ptr<INetworkHandler> handler = data.handler.lock();
+				std::shared_ptr<INetworkHandler> handler = data->handler.lock();
 				if (nullptr == handler)
 				{
-					to_remove_netids.insert(data.netid);
+					to_remove_netids.insert(data->netid);
 				}
 				else
 				{
 					if (ENetworkHandler_Connect == handler->HandlerType())
 					{
 						std::shared_ptr<INetConnectHander> tmp_handler = std::dynamic_pointer_cast<INetConnectHander>(handler);
-						if (ENetWorkDataAction_Close == data.action)
-							tmp_handler->OnClose(data.err_num);
-						if (ENetWorkDataAction_Read == data.action)
+						if (ENetWorkDataAction_Close == data->action)
 						{
-							tmp_handler->OnRecvData(data.binary, data.binary_len);
+							tmp_handler->OnClose(data->err_num);
+						}
+						if (ENetWorkDataAction_Read == data->action)
+						{
+							tmp_handler->OnRecvData(data->binary, data->binary_len);
 						}
 					}
 					if (ENetworkHandler_Listen == handler->HandlerType())
 					{
 						std::shared_ptr<INetListenHander> tmp_handler = std::dynamic_pointer_cast<INetListenHander>(handler);
-						if (ENetWorkDataAction_Close == data.action)
-							tmp_handler->OnClose(data.err_num);
-						if (ENetWorkDataAction_Read == data.action)
+						if (ENetWorkDataAction_Close == data->action)
+							tmp_handler->OnClose(data->err_num);
+						if (ENetWorkDataAction_Read == data->action)
 						{
 							NetId netid = this->GenNetId();
 							std::shared_ptr<INetConnectHander> new_handler = tmp_handler->GenConnectorHandler(netid);
 							int err_num = 0;
-							if (nullptr == new_handler || 
-								!ChoseWorker(netid)->AddCnn(netid, data.new_fd, new_handler))
+							if (nullptr == new_handler ||
+								!ChoseWorker(netid)->AddCnn(netid, data->new_fd, new_handler))
+							{
 								err_num = 1;
+							}
 							if (nullptr != new_handler)
+							{
 								new_handler->OnOpen(err_num);
+							}
 							if (0 != err_num)
 							{
-								if (data.new_fd >= 0)
-									close(data.new_fd);
+								if (data->new_fd >= 0)
+								{
+									close(data->new_fd);
+								}
 							}
 						}
 					}
 				}
-
-				free(data.binary); data.binary = nullptr;
-				data.binary_len = 0;
+				free(data->binary); data->binary = nullptr;
+				data->binary_len = 0;
+				delete data; data = nullptr;
 			}
 		}
 		for (NetId netid : to_remove_netids)
