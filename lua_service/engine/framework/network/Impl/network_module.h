@@ -24,10 +24,11 @@ enum ENetWorkDataAction
 struct NetworkData
 {
 	NetworkData() {}
-	NetworkData(NetId _netid, int _fd, std::weak_ptr<INetworkHandler> _handle, 
+	NetworkData(ENetworkHandlerType _handler_type, NetId _netid, int _fd, std::weak_ptr<INetworkHandler> _handle,
 		ENetWorkDataAction _action, int _err_num, int _new_fd, char *_binary, uint32_t _binary_len) 
-		: netid(_netid), fd(_fd), handler(_handle), action(_action), err_num(_err_num), 
+		: handler_type(_handler_type), netid(_netid), fd(_fd), handler(_handle), action(_action), err_num(_err_num),
 		new_fd(_new_fd), binary(_binary), binary_len(_binary_len) {}
+	ENetworkHandlerType handler_type = ENetworkHandlerType_Max;
 	NetId netid = 0;
 	int fd = -1;
 	std::weak_ptr<INetworkHandler> handler;

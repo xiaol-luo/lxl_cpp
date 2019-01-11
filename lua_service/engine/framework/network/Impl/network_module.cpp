@@ -421,7 +421,7 @@ void NetworkModule::ProcessNetDatas()
 	{
 		std::set<NetId, std::less<NetId>> to_remove_netids;
 		std::queue<NetworkData *> *net_datas = nullptr;
-		if (m_net_workers[i]->GetNetDatas(net_datas))
+		if (m_net_workers[i]->GetNetDatas(&net_datas))
 		{
 			while (!net_datas->empty())
 			{
@@ -430,6 +430,14 @@ void NetworkModule::ProcessNetDatas()
 				std::shared_ptr<INetworkHandler> handler = data->handler.lock();
 				if (nullptr == handler)
 				{
+					if (ENetworkHandler_Listen == data->handler_type && ENetWorkDataAction_Read == data->action)
+					{
+						if (data->new_fd >= 0)
+						{
+							close(data->new_fd);
+							data->new_fd = -1;
+						}
+					}
 					to_remove_netids.insert(data->netid);
 				}
 				else
@@ -450,7 +458,9 @@ void NetworkModule::ProcessNetDatas()
 					{
 						std::shared_ptr<INetListenHander> tmp_handler = std::dynamic_pointer_cast<INetListenHander>(handler);
 						if (ENetWorkDataAction_Close == data->action)
+						{
 							tmp_handler->OnClose(data->err_num);
+						}
 						if (ENetWorkDataAction_Read == data->action)
 						{
 							NetId netid = this->GenNetId();
