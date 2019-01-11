@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "network/i_network_module.h"
 #include "net_task.h"
+#include "buffer/net_buffer.h"
 
 struct NetTaskThread;
 namespace Net
@@ -24,10 +25,17 @@ enum ENetWorkDataAction
 struct NetworkData
 {
 	NetworkData() {}
-	NetworkData(ENetworkHandlerType _handler_type, NetId _netid, int _fd, std::weak_ptr<INetworkHandler> _handle,
-		ENetWorkDataAction _action, int _err_num, int _new_fd, char *_binary, uint32_t _binary_len) 
+	NetworkData(
+		ENetworkHandlerType _handler_type, 
+		NetId _netid, 
+		int _fd, 
+		std::weak_ptr<INetworkHandler> _handle,
+		ENetWorkDataAction _action, 
+		int _err_num, 
+		int _new_fd, 
+		NetBuffer *_binary) 
 		: handler_type(_handler_type), netid(_netid), fd(_fd), handler(_handle), action(_action), err_num(_err_num),
-		new_fd(_new_fd), binary(_binary), binary_len(_binary_len) {}
+		new_fd(_new_fd), binary(_binary) {}
 	ENetworkHandlerType handler_type = ENetworkHandlerType_Max;
 	NetId netid = 0;
 	int fd = -1;
@@ -35,8 +43,7 @@ struct NetworkData
 	ENetWorkDataAction action = ENetWorkDataAction_Max;
 	int err_num = 0;
 	int new_fd = -1;
-	char *binary = nullptr;
-	uint32_t binary_len = 0;
+	NetBuffer *binary = nullptr;
 };
 
 class NetworkModule : public INetworkModule

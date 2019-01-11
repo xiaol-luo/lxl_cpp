@@ -451,7 +451,7 @@ void NetworkModule::ProcessNetDatas()
 						}
 						if (ENetWorkDataAction_Read == data->action)
 						{
-							tmp_handler->OnRecvData(data->binary, data->binary_len);
+							tmp_handler->OnRecvData(data->binary->Ptr(), data->binary->Size());
 						}
 					}
 					if (ENetworkHandler_Listen == handler->HandlerType())
@@ -486,7 +486,6 @@ void NetworkModule::ProcessNetDatas()
 					}
 				}
 				free(data->binary); data->binary = nullptr;
-				data->binary_len = 0;
 				delete data; data = nullptr;
 			}
 		}

@@ -83,6 +83,11 @@ bool NetBuffer::ResetHead(char *help_buff, uint32_t buff_len)
 	return ret;
 }
 
+uint32_t NetBuffer::ReadFd(int fd, uint32_t read_len, int *err_num)
+{
+	return -1;
+}
+
 void NetBuffer::CheckExpend(uint32_t need_capacity)
 {
 	if (need_capacity > m_capacity)

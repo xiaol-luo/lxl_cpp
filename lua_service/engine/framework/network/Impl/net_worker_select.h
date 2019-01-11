@@ -27,14 +27,20 @@ namespace Net
 			bool closed = false;
 			std::queue<NetBuffer *> send_buffs;
 
-			bool AddSendBuff(char *buff, uint32_t buff_len);
+			void AddSendBuff(NetBuffer *net_buffer);
 		};
+
+		std::unordered_map<NetId, Node *> m_id2nodes;
 
 		std::mutex m_new_nodes_mutex;
 		std::unordered_map<NetId, Node *> m_new_nodes;
-		std::unordered_map<NetId, Node *> m_id2nodes;
+
 		std::mutex m_to_remove_netids_mutex;
 		std::set<NetId> m_to_remove_netids;
+
+		std::mutex m_wait_send_buffs_mutex;
+		std::unordered_map<NetId, NetBuffer *> m_wait_send_buffs;
+
 		
 		static const int Net_Data_Queue_Size = 2;
 		int m_net_datas_using_idx = 0;
@@ -45,5 +51,13 @@ namespace Net
 		bool m_is_started = false;
 		bool m_is_exits = false;
 		static void WorkLoop(NetWorkerSelect *self);
+		static void WorkLoop_AddConn(NetWorkerSelect *self);
+		static void WorkLoop_RemoveConn(NetWorkerSelect *self);
+		static void WorkLoop_SendBuff(NetWorkerSelect *self);
+		void HandleNetRead(int fd);
+		void HandleNetWrite(int fd);
+		void HandleNetError(int fd);
+		Node * GetNodeByFd(int fd);
+		void AddNetworkData(NetworkData *data);
 	};
 }
