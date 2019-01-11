@@ -19,10 +19,10 @@ namespace Net
 	public:
 		NetWorker();
 		virtual ~NetWorker();
-		virtual bool AddCnn(NetId id, int fd, std::weak_ptr<INetworkHandler> handler);
+		virtual bool AddCnn(NetId id, int fd, std::shared_ptr<INetworkHandler> handler);
 		virtual void RemoveCnn(NetId id);
 		virtual bool Send(NetId netId, char *buffer, uint32_t len);
-		virtual bool GetNetDatas(std::queue<NetworkData, std::deque<NetworkData>> *&out_datas);
+		virtual bool GetNetDatas(std::queue<NetworkData*>* &out_datas);
 		virtual bool Start();
 		virtual void Stop();
 	};
