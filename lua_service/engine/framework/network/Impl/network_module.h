@@ -24,7 +24,6 @@ enum ENetWorkDataAction
 
 struct NetworkData
 {
-	NetworkData() {}
 	NetworkData(
 		ENetworkHandlerType _handler_type, 
 		NetId _netid, 

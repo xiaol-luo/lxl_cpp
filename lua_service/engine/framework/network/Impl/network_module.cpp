@@ -1,7 +1,7 @@
 #include "network_module.h"
 #include "module_def/module_mgr.h"
 #include "log/log_module.h"
-#include "net_worker.h"
+#include "net_worker_select.h"
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -122,7 +122,7 @@ NetworkModule::NetworkModule(ModuleMgr *module_mgr) : INetworkModule(module_mgr)
 	memset(m_net_workers, 0, malloc_size);
 	for (int i = 0; i < m_net_worker_num; ++i)
 	{
-		m_net_workers[i] = new Net::NetWorker();
+		m_net_workers[i] = new Net::NetWorkerSelect();
 	}
 }
 

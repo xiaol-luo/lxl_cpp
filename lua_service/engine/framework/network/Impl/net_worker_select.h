@@ -28,6 +28,7 @@ namespace Net
 			std::queue<NetBuffer *> send_buffs;
 
 			void AddSendBuff(NetBuffer *net_buffer);
+			static void DestroyNode(Node *node);
 		};
 
 		std::unordered_map<NetId, Node *> m_id2nodes;
@@ -56,8 +57,9 @@ namespace Net
 		static void WorkLoop_SendBuff(NetWorkerSelect *self);
 		void HandleNetRead(int fd);
 		void HandleNetWrite(int fd);
-		void HandleNetError(int fd);
+		void HandleNetError(int fd, int err_num);
 		Node * GetNodeByFd(int fd);
 		void AddNetworkData(NetworkData *data);
+		int MakeFdUnblock(int fd);
 	};
 }
