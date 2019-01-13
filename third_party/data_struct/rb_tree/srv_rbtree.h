@@ -1,7 +1,6 @@
 #ifndef __SRV_RBTREE_H__
 #define __SRV_RBTREE_H__
 
-#include "def.h"
 #include <stdint.h>
 
 #ifdef _cplusplus
@@ -50,11 +49,11 @@ struct srv_rbtree_s
 	(tree)->sentinel = s; \
 	(tree)->insert = i;
 
-DATA_STRUCT_API void srv_rbtree_insert(srv_rbtree_t *tree, srv_rbtree_node_t *node);
-DATA_STRUCT_API void srv_rbtree_delete(srv_rbtree_t *tree, srv_rbtree_node_t *node);
-DATA_STRUCT_API srv_rbtree_node_t * srv_rbtree_min(srv_rbtree_node_t *node, srv_rbtree_node_t *sentinel);
+void srv_rbtree_insert(srv_rbtree_t *tree, srv_rbtree_node_t *node);
+void srv_rbtree_delete(srv_rbtree_t *tree, srv_rbtree_node_t *node);
+srv_rbtree_node_t * srv_rbtree_min(srv_rbtree_node_t *node, srv_rbtree_node_t *sentinel);
 
-DATA_STRUCT_API void srv_rbtree_insert_value(srv_rbtree_node_t *root, srv_rbtree_node_t *node, srv_rbtree_node_t *sentinel);
+void srv_rbtree_insert_value(srv_rbtree_node_t *root, srv_rbtree_node_t *node, srv_rbtree_node_t *sentinel);
 
 #endif
 

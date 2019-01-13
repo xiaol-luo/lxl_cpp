@@ -61,6 +61,5 @@ namespace Net
 		Node * GetNodeByFd(int fd);
 		void AddNetworkData(NetworkData *data);
 		int MakeFdUnblock(int fd);
-		void PrintExitValue();
 	};
 }

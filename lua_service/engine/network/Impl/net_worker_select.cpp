@@ -137,38 +137,24 @@ namespace Net
 	void NetWorkerSelect::Stop()
 	{
 		m_is_exits = true;
-		log_debug("NetWorkerSelect::Stop 1 {0}  {1}", m_is_exits, (char *)this);
 		if (m_work_thread->joinable())
 		{
-			log_debug("NetWorkerSelect::Stop 3");
 			m_work_thread->join();
-			log_debug("NetWorkerSelect::Stop 4");
 		}
-		log_debug("NetWorkerSelect::Stop 5");
 
 		// 所有东西在这里销毁一下
 
 	}
 
-#include <functional>
-	void NetWorkerSelect::PrintExitValue()
-	{
-		log_debug("PrintExitValue {0}", m_is_exits);
-	}
-
 	void NetWorkerSelect::WorkLoop()
 	{
-		auto self = this;
-		TimerID tid = add_firm_timer(std::bind(&NetWorkerSelect::PrintExitValue, self), 1000, -1);
-
+		const int MS_PER_LOOP = 25;
 		int max_fd = -1;
 		fd_set read_set, write_set, err_set;
-		timeval timeout_tv; 
-		timeout_tv.tv_sec = 0; 
-		timeout_tv.tv_usec = 50 * 1000; // 50毫秒
+		timeval timeout_tv;
 
 		int loop_times = 0;
-		while (!self->m_is_exits)
+		while (!this->m_is_exits)
 		{
 			WorkLoop_SendBuff();
 			{
@@ -178,9 +164,9 @@ namespace Net
 				FD_ZERO(&err_set);
 
 				// 设置fd_set
-				if (!self->m_id2nodes.empty())
+				if (!this->m_id2nodes.empty())
 				{
-					for (auto kv : self->m_id2nodes)
+					for (auto kv : this->m_id2nodes)
 					{
 						Node *node = kv.second;
 						if (node->closed || node->fd < 0)
@@ -199,21 +185,25 @@ namespace Net
 					}
 				}
 			}
-			int ret = select(max_fd + 1, &read_set, &write_set, &err_set, &timeout_tv) > 0;
+
+
+			timeout_tv.tv_sec = 0;
+			timeout_tv.tv_usec = MS_PER_LOOP * 1000; // 50毫秒
+			int ret = select(max_fd + 1, &read_set, &write_set, nullptr, &timeout_tv) > 0;
 			if (ret > 0)
 			{
 				int hited_count = 0;
-				for (int i = 0; i < max_fd; ++ i)
+				for (int i = 0; i <= max_fd; ++ i)
 				{
 					bool hited = false;
-					// if (FD_ISSET(i, &read_set) || FD_ISSET(i, &err_set))
+					if (FD_ISSET(i, &read_set))
 					{
 						hited = true;
-						self->HandleNetRead(i);
+						this->HandleNetRead(i);
 					}
 					if (FD_ISSET(i, &write_set))
 					{
-						self->HandleNetWrite(i);
+						this->HandleNetWrite(i);
 						hited = true;
 					}
 					if (hited)
@@ -228,56 +218,60 @@ namespace Net
 			}
 			WorkLoop_AddConn();
 			WorkLoop_RemoveConn();
-		}
-		log_debug("select loop leave 2");
-		self->m_to_remove_netids_mutex.lock();
-		if (!self->m_to_remove_netids.empty())
-		{
-			for (auto kv : self->m_id2nodes)
+
+			// 如果不加sleep，那么线程就无法join，不理解是为什么 debian9上是这样
+			if (ret <= 0)
 			{
-				self->m_to_remove_netids.insert(kv.first);
+				std::this_thread::sleep_for(std::chrono::milliseconds(MS_PER_LOOP));
 			}
+			
 		}
-		self->m_to_remove_netids_mutex.unlock();
+		this->m_to_remove_netids_mutex.lock();
+		if (!this->m_id2nodes.empty())
+		for (auto kv : this->m_id2nodes)
+		{
+			this->m_to_remove_netids.insert(kv.first);
+		}
+		this->m_to_remove_netids_mutex.unlock();
 		WorkLoop_AddConn();
 		WorkLoop_RemoveConn();
 		WorkLoop_SendBuff();
-		log_debug("select loop leave 1");
-		remove_timer(tid);
 	}
 
 	void NetWorkerSelect::WorkLoop_AddConn()
 	{
-		auto self = this;
 		// 加入节点
-		self->m_new_nodes_mutex.lock();
-		if (!self->m_new_nodes.empty())
+		if (!this->m_new_nodes.empty())
 		{
-			for (auto kv : self->m_new_nodes)
+			this->m_new_nodes_mutex.lock();
+			std::unordered_map<NetId, Node *> new_nodes; new_nodes.swap(this->m_new_nodes);
+			this->m_new_nodes_mutex.unlock();
+
+			for (auto kv : new_nodes)
 			{
-				self->m_id2nodes.insert(kv);
+				this->m_id2nodes.insert(kv);
 			}
-			self->m_new_nodes.clear();
 		}
-		self->m_new_nodes_mutex.unlock();
 	}
 
 	void NetWorkerSelect::WorkLoop_RemoveConn()
 	{
-		auto self = this;
 		// 删除节点
-		self->m_to_remove_netids_mutex.lock();
-		if (!self->m_to_remove_netids.empty())
+		if (!this->m_to_remove_netids.empty())
 		{
-			for (auto netid : self->m_to_remove_netids)
+			this->m_to_remove_netids_mutex.lock();
+			std::set<NetId> to_remove_netids; to_remove_netids.swap(this->m_to_remove_netids);
+			this->m_to_remove_netids_mutex.unlock();
+
+			for (auto netid : to_remove_netids)
 			{
 				{
-					auto it = self->m_id2nodes.find(netid);
-					if (it != self->m_id2nodes.end())
+					auto it = this->m_id2nodes.find(netid);
+					if (it != this->m_id2nodes.end())
 					{
 						Node *node = it->second;
-						self->m_id2nodes.erase(it);
-						it = self->m_id2nodes.end();
+						this->m_id2nodes.erase(it);
+						it = this->m_id2nodes.end();
 						if (!node->closed && node->fd >= 0)
 						{
 							node->closed = true;
@@ -287,37 +281,37 @@ namespace Net
 						NetworkData *network_data = new NetworkData(node->handler_type,
 							node->netid, node->fd, node->handler, ENetWorkDataAction_Close,
 							0, -1, nullptr);
-						self->AddNetworkData(network_data);
+						this->AddNetworkData(network_data);
 						Node::DestroyNode(node); node = nullptr;
 					}
 				}
 				{
-					self->m_wait_send_buffs_mutex.lock();
-					auto it = self->m_wait_send_buffs.find(netid);
-					if (self->m_wait_send_buffs.end() != it)
+					this->m_wait_send_buffs_mutex.lock();
+					auto it = this->m_wait_send_buffs.find(netid);
+					if (this->m_wait_send_buffs.end() != it)
 					{
 						delete it->second;
-						self->m_wait_send_buffs.erase(it);
+						this->m_wait_send_buffs.erase(it);
 					}
-					self->m_wait_send_buffs_mutex.unlock();
+					this->m_wait_send_buffs_mutex.unlock();
 				}
 			}
-			self->m_to_remove_netids.clear();
 		}
-		self->m_to_remove_netids_mutex.unlock();
 	}
 
 	void NetWorkerSelect::WorkLoop_SendBuff()
 	{
-		auto self = this;
 		// 处理将要被发送的NetBuffer
-		self->m_wait_send_buffs_mutex.lock();
-		if (!self->m_wait_send_buffs.empty())
+		if (!this->m_wait_send_buffs.empty())
 		{
-			for (auto kv : self->m_wait_send_buffs)
+			this->m_wait_send_buffs_mutex.lock();
+			std::unordered_map<NetId, NetBuffer *> wait_send_buffs; wait_send_buffs.swap(this->m_wait_send_buffs);
+			this->m_wait_send_buffs_mutex.unlock();
+
+			for (auto kv : wait_send_buffs)
 			{
-				auto it = self->m_id2nodes.find(kv.first);
-				if (self->m_id2nodes.end() == it || ENetworkHandler_Connect != it->second->handler_type)
+				auto it = this->m_id2nodes.find(kv.first);
+				if (this->m_id2nodes.end() == it || ENetworkHandler_Connect != it->second->handler_type)
 				{
 					delete kv.second;
 				}
@@ -326,9 +320,7 @@ namespace Net
 					it->second->AddSendBuff(kv.second);
 				}
 			}
-			self->m_wait_send_buffs.clear();
 		}
-		self->m_wait_send_buffs_mutex.unlock();
 	}
 
 	void NetWorkerSelect::HandleNetRead(int fd)
@@ -362,12 +354,12 @@ namespace Net
 				}
 				if (read_len < 0)
 				{
-					int err_num = GetLastError();
+					err_num = GetLastError();
 					if (EWOULDBLOCK != err_num && EAGAIN != err_num)
 					{
 						close_fd = true;
-						break;
 					}
+					break;
 				}
 			}
 			if (buff->Size() > 0)
@@ -438,7 +430,7 @@ namespace Net
 					}
 					if (write_len < 0)
 					{
-						int err_num = GetLastError();
+						err_num = GetLastError();
 						if (EWOULDBLOCK != err_num && EAGAIN != err_num)
 						{
 							close_fd = true;

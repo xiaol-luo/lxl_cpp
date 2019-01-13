@@ -7,6 +7,7 @@ extern "C"
 
 #include "sol/sol.hpp"
 #include <signal.h>
+#include <memory>
 
 #if WIN32
 #include <WinSock2.h>
@@ -88,6 +89,12 @@ class PureLuaService : public IService
 
 };
 
+class LsHandler;
+class CnnHandler;
+static std::shared_ptr<LsHandler> ls_handler = nullptr;
+std::set<NetId> cnn_ids;
+static std::vector<std::shared_ptr<INetConnectHander>> net_handlers;
+
 class CnnHandler : public INetConnectHander
 {
 public:
@@ -96,11 +103,17 @@ public:
 
 	virtual void OnClose(int err_num) 
 	{
-		log_debug("ls CnnHandler OnClose netid:{0} err_num {1}", m_netid, err_num);
+		cnn_ids.erase(m_netid);
+		log_debug("ls CnnHandler OnClose netid:{0} err_num {1} cnn_ids.size={2}", m_netid, err_num, cnn_ids.size());
 	}
 	virtual void OnOpen(int err_num) 
 	{
-		log_debug("ls CnnHandler OnOpen netid:{0} err_num {1}", m_netid, err_num);
+		if (0 == err_num)
+		{
+			cnn_ids.insert(m_netid);
+			net_handlers.push_back(this->GetSharedPtr());
+		}
+		log_debug("ls CnnHandler OnOpen netid:{0} err_num {1} cnn_ids.size()={2}", m_netid, err_num, cnn_ids.size());
 	}
 	virtual void OnRecvData(char *data, uint32_t len)
 	{
@@ -133,38 +146,38 @@ static std::string ip = "127.0.0.1";
 static int port = 2233;
 static bool first_tick = true;
 
-
-std::vector<std::shared_ptr<CnnHandler>> net_handlers;
-static std::shared_ptr<LsHandler> ls_handler = nullptr;
 void OnTick()
 {
 	if (first_tick)
 	{
 		first_tick = false;
 		ls_handler = std::make_shared<LsHandler>();
-		net_listen_async("0.0.0.0", port, nullptr, ls_handler);
+		NetId netid = net_listen("0.0.0.0", port, nullptr, ls_handler);
+		if (netid == INVALID_NET_ID)
+		{
+			printf("Listen fail\n");
+			exit(-1);
+		}
 	}
 
-	// log_debug("OnTick !");
+	log_debug("OnTick cnn_ids.size()  {}!", cnn_ids.size());
 
-	if (net_handlers.size() <= 0)
+	if (cnn_ids.size() <= 1)
 	{
 		auto cnn_handler = std::make_shared<CnnHandler>();
 		NetId netid = net_connect(ip, port, nullptr, cnn_handler);
 		if (netid > 0)
 		{
 			net_handlers.push_back(cnn_handler);
-			char xxx[128];
-			net_send(cnn_handler->GetNetId(), xxx, sizeof(xxx));
+			char xxx[1280];
+			// net_send(cnn_handler->GetNetId(), xxx, sizeof(xxx));
 		}
 	}
-	else
+
+	for (auto v : cnn_ids)
 	{
-		for (auto v : net_handlers)
-		{
-			char xxx[128];
-			net_send(v->GetNetId(), xxx, sizeof(xxx));
-		}
+		char xxx[128];
+		net_send(v, xxx, sizeof(xxx));
 	}
 }
 
@@ -189,7 +202,7 @@ int main (int argc, char **argv)
 
 	PureLuaService xxx;
 	engine_init();
-	engine_loop_span(200);
+	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
 	setup_service(&xxx);
 	add_firm_timer(OnTick, 100, EXECUTE_UNLIMIT_TIMES);

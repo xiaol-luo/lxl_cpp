@@ -10,7 +10,7 @@ enum ENetworkHandlerType
 	ENetworkHandlerType_Max,
 };
 
-class INetworkHandler
+class INetworkHandler : public std::enable_shared_from_this<INetworkHandler>
 {
 public:
 	INetworkHandler(ENetworkHandlerType handler_type) : m_handler_type(handler_type) {}
@@ -31,6 +31,10 @@ public:
 	INetConnectHander() : INetworkHandler(ENetworkHandler_Connect) {}
 	virtual ~INetConnectHander() {}
 	virtual void OnRecvData(char *data, uint32_t len) = 0;
+	std::shared_ptr<INetConnectHander> GetSharedPtr()
+	{
+		return std::dynamic_pointer_cast<INetConnectHander>(this->shared_from_this());
+	}
 };
 class INetListenHander : public INetworkHandler
 {
@@ -38,5 +42,9 @@ public:
 	INetListenHander() : INetworkHandler(ENetworkHandler_Listen) {}
 	virtual ~INetListenHander() {}
 	virtual std::shared_ptr<INetConnectHander> GenConnectorHandler() = 0;
+	std::shared_ptr<INetListenHander> GetSharedPtr() 
+	{
+		return std::dynamic_pointer_cast<INetListenHander>(this->shared_from_this());
+	}
 };
 
