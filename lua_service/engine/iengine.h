@@ -3,10 +3,11 @@
 
 #if defined(WIN32)
 	#if defined(ENGINE_BUILD_AS_DLL)
-		#define ENGINE_API __declspec(dllexport)
+		// #define ENGINE_API __declspec(dllexport)
 	#else
-		#define ENGINE_API __declspec(dllimport)
+		// #define ENGINE_API __declspec(dllimport)
 	#endif
+	#define ENGINE_API
 #else
 	#define ENGINE_API extern
 #endif

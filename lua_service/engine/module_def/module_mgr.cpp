@@ -142,14 +142,6 @@ EModuleRetCode ModuleMgr::Destroy()
 		if (EModuleRetCode_Succ == ret)
 			module->SetState(EModuleState_Destroyed);
 	}
-	if (EModuleRetCode_Succ == retCode)
-	{
-		for (int i = EMoudleName_Invalid + 1; i < EMoudleName_Max; ++i)
-		{
-			delete m_modules[i];
-			m_modules[i] = nullptr;
-		}
-	}
 	return retCode;
 }
 

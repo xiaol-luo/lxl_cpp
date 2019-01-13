@@ -170,10 +170,6 @@ namespace Net
 		int loop_times = 0;
 		while (!self->m_is_exits)
 		{
-			if (loop_times++ > 10000)
-			{
-				break;
-			}
 			WorkLoop_SendBuff();
 			{
 				max_fd = -1;

@@ -195,6 +195,7 @@ int main (int argc, char **argv)
 	add_firm_timer(OnTick, 100, EXECUTE_UNLIMIT_TIMES);
 	engine_loop();
 	engine_destroy();
+	return 0;
 
 	lua_State *L = luaL_newstate();
 	if (L == NULL) 

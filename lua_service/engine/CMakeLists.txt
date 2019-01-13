@@ -15,7 +15,8 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lua53/lib)
 LINK_LIBRARIES(lua53)
 LINK_LIBRARIES(data_struct)
 
-add_compile_options(-DENGINE_BUILD_AS_DLL)
+add_compile_options(-D ENGINE_BUILD_AS_DLL)
+#ADD_COMPILE_DEFINITIONS(ENGINE_BUILD_AS_DLL)
 
 IF (WIN32)
 	ADD_DEFINITIONS(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
@@ -24,5 +25,5 @@ ELSE()
 	LINK_LIBRARIES(pthread)
 ENDIF (WIN32)
 
-MakeLib(${project_name} "${all_files}" true)
+MakeLib(${project_name} "${all_files}" false)
 
