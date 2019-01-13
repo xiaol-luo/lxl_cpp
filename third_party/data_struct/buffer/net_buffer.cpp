@@ -105,3 +105,12 @@ void NetBuffer::CheckExpend(uint32_t need_capacity)
 		}
 	}
 }
+
+uint32_t NetBuffer::LeftSpace() { return m_capacity - m_pos; }
+uint32_t NetBuffer::StepSize() { return m_step_size; }
+uint32_t NetBuffer::Capacity() { return m_capacity; }
+char * NetBuffer::Ptr() { return m_buff + m_pos; }
+uint32_t NetBuffer::Pos() { return m_pos; }
+uint32_t NetBuffer::Head() { return m_head; }
+char * NetBuffer::HeadPtr() { return m_buff + m_head; }
+uint32_t NetBuffer::Size() { return m_pos - m_head; }

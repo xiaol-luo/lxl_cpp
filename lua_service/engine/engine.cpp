@@ -6,7 +6,6 @@ extern "C"
 }
 
 #include "sol/sol.hpp"
-#include "iengine.h"
 
 #define LUA_EXIT_FAILURE -1
 #define lUA_EXIT_SUCCESS 0
@@ -46,7 +45,6 @@ static int lua_error_handler(lua_State *L)
 #define chdir _chdir
 #else
 #include <unistd.h>
-#include "engine.h"
 #endif
 
 int64_t RealMs()
