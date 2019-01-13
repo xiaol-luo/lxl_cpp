@@ -173,5 +173,5 @@ void ServerLogic::OnFrame()
 		m_delta_ms = 0;
 	}
 	m_timer_mgr->UpdateTime(m_logic_ms);
-	m_log_mgr->Flush();
+	// m_log_mgr->Flush();
 }

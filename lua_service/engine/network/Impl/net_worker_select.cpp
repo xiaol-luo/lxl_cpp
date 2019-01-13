@@ -16,11 +16,28 @@
 #endif
 
 #ifndef WIN32
-int GetLastError()
+static int GetLastError()
 {
 	return errno;
 }
 #endif
+
+static bool IsFdUnready(int err_num)
+{
+	bool ret = false;
+#ifndef WIN32
+	if (EWOULDBLOCK != err_num && EAGAIN != err_num)
+	{
+		ret = true;
+	}
+#else
+	if (WSAEWOULDBLOCK == err_num)
+	{
+		ret = true;
+	}
+#endif // !WIN32
+	return ret;
+}
 
 #include "iengine.h"
 
@@ -355,7 +372,7 @@ namespace Net
 				if (read_len < 0)
 				{
 					err_num = GetLastError();
-					if (EWOULDBLOCK != err_num && EAGAIN != err_num)
+					if (!IsFdUnready(err_num))
 					{
 						close_fd = true;
 					}
@@ -431,7 +448,7 @@ namespace Net
 					if (write_len < 0)
 					{
 						err_num = GetLastError();
-						if (EWOULDBLOCK != err_num && EAGAIN != err_num)
+						if (!IsFdUnready(err_num))
 						{
 							close_fd = true;
 							break;

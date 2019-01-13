@@ -170,7 +170,7 @@ void OnTick()
 		{
 			net_handlers.push_back(cnn_handler);
 			char xxx[1280];
-			// net_send(cnn_handler->GetNetId(), xxx, sizeof(xxx));
+			net_send(cnn_handler->GetNetId(), xxx, sizeof(xxx));
 		}
 	}
 
