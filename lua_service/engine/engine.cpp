@@ -6,6 +6,7 @@ extern "C"
 }
 
 #include "sol/sol.hpp"
+#include <chrono>
 
 #define LUA_EXIT_FAILURE -1
 #define lUA_EXIT_SUCCESS 0

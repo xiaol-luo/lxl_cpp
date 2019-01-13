@@ -128,7 +128,9 @@ EModuleRetCode ModuleMgr::Destroy()
 		if (nullptr == module || EModuleState_Destroying != module->GetState())
 			continue;
 
+		m_server_logic->GetLogMgr()->Debug("ModuleMgr::Destroy loop 1 {0}", module->ModuleName());
 		EModuleRetCode ret = module->Destroy();
+		m_server_logic->GetLogMgr()->Debug("ModuleMgr::Destroy loop 2 {0} {1}", module->ModuleName(), ret);
 		if (EModuleRetCode_Failed == ret)
 		{
 			module->SetState(EModuleState_Error);

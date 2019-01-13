@@ -50,6 +50,7 @@ public:
 	~LogMgr();
 	bool Start(ELogLevel log_lvl);
 	void Stop();
+	void Flush();
 
 public:
 	template <typename... Args>

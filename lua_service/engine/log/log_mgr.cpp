@@ -109,3 +109,14 @@ void LogMgr::Stop()
 	}
 	spdlog::drop_all();
 }
+
+void LogMgr::Flush()
+{
+	for (int i = 0; i < ELogger_Max; ++i)
+	{
+		if (nullptr != m_loggers[i])
+		{
+			m_loggers[i]->flush();
+		}
+	}
+}

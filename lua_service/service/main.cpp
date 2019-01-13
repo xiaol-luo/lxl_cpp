@@ -170,7 +170,9 @@ void OnTick()
 
 void QuitGame(int signal)
 {
+	log_debug("QuitGame");
 	engine_stop();
+	// exit(0);
 }
 
 int main (int argc, char **argv) 

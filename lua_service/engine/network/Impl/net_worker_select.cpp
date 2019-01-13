@@ -1,9 +1,10 @@
 #include "net_worker_select.h"
+#include <fcntl.h>
 #ifdef WIN32
 #include <winsock2.h>
-// #include <io.h>
 #else
 #include <sys/select.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #endif
 
@@ -20,6 +21,8 @@ int GetLastError()
 	return errno;
 }
 #endif
+
+#include "iengine.h"
 
 namespace Net
 {
@@ -126,7 +129,7 @@ namespace Net
 		if (m_is_started || nullptr != m_work_thread)
 			return false;
 
-		m_work_thread = new std::thread(&NetWorkerSelect::WorkLoop, this);
+		m_work_thread = new std::thread(std::bind(&NetWorkerSelect::WorkLoop, this));
 		m_is_started = true;
 		return true;
 	}
@@ -134,22 +137,44 @@ namespace Net
 	void NetWorkerSelect::Stop()
 	{
 		m_is_exits = true;
-		m_work_thread->join();
+		log_debug("NetWorkerSelect::Stop 1 {0}  {1}", m_is_exits, (char *)this);
+		if (m_work_thread->joinable())
+		{
+			log_debug("NetWorkerSelect::Stop 3");
+			m_work_thread->join();
+			log_debug("NetWorkerSelect::Stop 4");
+		}
+		log_debug("NetWorkerSelect::Stop 5");
 
 		// 所有东西在这里销毁一下
 
 	}
 
-	void NetWorkerSelect::WorkLoop(NetWorkerSelect * self)
+#include <functional>
+	void NetWorkerSelect::PrintExitValue()
 	{
+		log_debug("PrintExitValue {0}", m_is_exits);
+	}
+
+	void NetWorkerSelect::WorkLoop()
+	{
+		auto self = this;
+		TimerID tid = add_firm_timer(std::bind(&NetWorkerSelect::PrintExitValue, self), 1000, -1);
+
 		int max_fd = -1;
 		fd_set read_set, write_set, err_set;
 		timeval timeout_tv; 
 		timeout_tv.tv_sec = 0; 
 		timeout_tv.tv_usec = 50 * 1000; // 50毫秒
+
+		int loop_times = 0;
 		while (!self->m_is_exits)
 		{
-			WorkLoop_SendBuff(self);
+			if (loop_times++ > 10000)
+			{
+				break;
+			}
+			WorkLoop_SendBuff();
 			{
 				max_fd = -1;
 				FD_ZERO(&read_set);
@@ -205,9 +230,10 @@ namespace Net
 					}
 				}
 			}
-			WorkLoop_AddConn(self);
-			WorkLoop_RemoveConn(self);
+			WorkLoop_AddConn();
+			WorkLoop_RemoveConn();
 		}
+		log_debug("select loop leave 2");
 		self->m_to_remove_netids_mutex.lock();
 		if (!self->m_to_remove_netids.empty())
 		{
@@ -217,13 +243,16 @@ namespace Net
 			}
 		}
 		self->m_to_remove_netids_mutex.unlock();
-		WorkLoop_AddConn(self);
-		WorkLoop_RemoveConn(self);
-		WorkLoop_SendBuff(self);
+		WorkLoop_AddConn();
+		WorkLoop_RemoveConn();
+		WorkLoop_SendBuff();
+		log_debug("select loop leave 1");
+		remove_timer(tid);
 	}
 
-	void NetWorkerSelect::WorkLoop_AddConn(NetWorkerSelect * self)
+	void NetWorkerSelect::WorkLoop_AddConn()
 	{
+		auto self = this;
 		// 加入节点
 		self->m_new_nodes_mutex.lock();
 		if (!self->m_new_nodes.empty())
@@ -237,8 +266,9 @@ namespace Net
 		self->m_new_nodes_mutex.unlock();
 	}
 
-	void NetWorkerSelect::WorkLoop_RemoveConn(NetWorkerSelect * self)
+	void NetWorkerSelect::WorkLoop_RemoveConn()
 	{
+		auto self = this;
 		// 删除节点
 		self->m_to_remove_netids_mutex.lock();
 		if (!self->m_to_remove_netids.empty())
@@ -281,8 +311,9 @@ namespace Net
 		self->m_to_remove_netids_mutex.unlock();
 	}
 
-	void NetWorkerSelect::WorkLoop_SendBuff(NetWorkerSelect * self)
+	void NetWorkerSelect::WorkLoop_SendBuff()
 	{
+		auto self = this;
 		// 处理将要被发送的NetBuffer
 		self->m_wait_send_buffs_mutex.lock();
 		if (!self->m_wait_send_buffs.empty())
@@ -322,7 +353,7 @@ namespace Net
 				{
 					buff->CheckExpend(buff->Capacity() + buff->StepSize());
 				}
-				int read_len = recv(node->fd, buff->Ptr(), buff->LeftSpace(), 0);
+				int read_len = read(node->fd, buff->Ptr(), buff->LeftSpace());
 				if (read_len > 0)
 				{
 					buff->SetPos(buff->Pos() + read_len);
@@ -398,7 +429,7 @@ namespace Net
 				{
 					uint32_t buf_size = buff->Size();
 					char *p = buff->HeadPtr();
-					int write_len = send(node->fd, p, buf_size, 0);
+					int write_len = write(node->fd, p, buf_size);
 					if (write_len > 0)
 					{
 						buff->PopBuff(write_len, nullptr);
@@ -475,11 +506,12 @@ namespace Net
 	int NetWorkerSelect::MakeFdUnblock(int fd)
 	{
 		int ret;
-		unsigned long b = 1;
 #ifdef WIN32
+		unsigned long b = 1;
 		ret = ioctlsocket((SOCKET)fd, FIONBIO, &b);
 #else
-		ret = ioctl(fd, FIONBIO, &b);
+		int flag = fcntl(fd, F_GETFL, 0) | O_NONBLOCK;
+		ret = fcntl(fd, F_SETFL, flag);
 #endif
 		return ret;
 	}

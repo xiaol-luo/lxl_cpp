@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lua53/lib)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/third_party/rapidjson)
 LINK_LIBRARIES(lua53)
 
-ADD_COMPILE_DEFINITIONS(LUA_BUILD_AS_DLL LUA_LIB)
+add_compile_options(-DLUA_BUILD_AS_DLL LUA_LIB)
 MakeLib(${project_name} "${all_files}" true)
 
 IF (WIN32)

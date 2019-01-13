@@ -1,5 +1,6 @@
 #include "timer_mgr.h"
 #include <queue>
+#include <string.h>
 
 TimerMgr::TimerMgr(uint64_t now_ms) : m_now_ms(now_ms)
 {

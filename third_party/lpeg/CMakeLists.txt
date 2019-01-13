@@ -11,7 +11,7 @@ FileGroupByDir(${PROJECT_SOURCE_DIR} "${all_files}" "")
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lua53/lib)
 LINK_LIBRARIES(lua53)
-ADD_COMPILE_DEFINITIONS(LPEG_EXPORTS)
+add_compile_options(-DLPEG_EXPORTS)
 
 MakeLib(${project_name} "${all_files}" true)
 

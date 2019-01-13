@@ -102,6 +102,7 @@ void ServerLogic::Update()
 
 void ServerLogic::Realse()
 {
+	this->GetLogMgr()->Debug("ServerLogic::Realse enter");
 	m_state = EServerLogicState_Release;
 	int loop_times = 0;
 	EModuleRetCode retCode = EModuleRetCode_Succ;
@@ -112,17 +113,22 @@ void ServerLogic::Realse()
 		std::this_thread::sleep_for(std::chrono::milliseconds(m_loop_span_ms));
 		
 	} while (EModuleRetCode_Pending == retCode && loop_times++ < TRY_MAX_TIMES);
+	this->GetLogMgr()->Debug("ServerLogic::Realse leave");
 }
 
 void ServerLogic::Destroy()
 {
+	this->GetLogMgr()->Debug("ServerLogic::Destroy enter");
 	m_state = EServerLogicState_Destroy;
 	int loop_times = 0;
 	EModuleRetCode retCode = EModuleRetCode_Succ;
 	do
 	{
+		this->GetLogMgr()->Debug("ServerLogic::Destroy loop 1 {0}", retCode);
 		this->OnFrame();
 		retCode = m_module_mgr->Destroy();
+		this->GetLogMgr()->Debug("ServerLogic::Destroy loop 2 {0}", retCode);
+		this->OnFrame();
 		std::this_thread::sleep_for(std::chrono::milliseconds(m_loop_span_ms));
 	} while (EModuleRetCode_Pending == retCode && loop_times++ < TRY_MAX_TIMES);
 
@@ -130,6 +136,7 @@ void ServerLogic::Destroy()
 	{
 		m_module_params_clear_fn(m_module_params);
 	}
+	this->GetLogMgr()->Debug("ServerLogic::Destroy leave");
 }
 
 void ServerLogic::Loop()
@@ -172,4 +179,5 @@ void ServerLogic::OnFrame()
 		m_delta_ms = 0;
 	}
 	m_timer_mgr->UpdateTime(m_logic_ms);
+	m_log_mgr->Flush();
 }
