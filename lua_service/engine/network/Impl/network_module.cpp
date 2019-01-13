@@ -1,7 +1,8 @@
 #include "network_module.h"
 #include "module_def/module_mgr.h"
-#include "log/log_module.h"
+#include "log/log_mgr.h"
 #include "net_worker_select.h"
+#include "iengine.h"
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -164,7 +165,7 @@ NetworkModule::~NetworkModule()
 	}
 }
 
-EModuleRetCode NetworkModule::Init(void *param)
+EModuleRetCode NetworkModule::Init(void **param)
 {
 	return EModuleRetCode_Succ;
 }
@@ -266,8 +267,7 @@ NetId NetworkModule::Listen(std::string ip, uint16_t port, void *opt, std::weak_
 	if (0 != err_num)
 	{
 		netid = 0;
-		auto log = m_module_mgr->GetModule<LogModule>();
-		log->Error(this->LogId(), "NetworkModule::Listen {0}:{1} fail, errno {2}", ip, port, err_num);
+		MODULE_LOG_MGR->Error("NetworkModule::Listen {0}:{1} fail, errno {2}", ip, port, err_num);
 	}
 	return netid;
 }
@@ -290,7 +290,9 @@ NetId NetworkModule::Connect(std::string ip, uint16_t port, void *opt, std::weak
 		{
 			err_num = 1;
 			if (ret.fd >= 0)
+			{
 				close(ret.fd);
+			}
 			err_msg = "NetWorker::Add fail";
 		}
 	}
@@ -299,8 +301,7 @@ NetId NetworkModule::Connect(std::string ip, uint16_t port, void *opt, std::weak
 	if (0 != err_num)
 	{
 		netid = 0;
-		auto log = m_module_mgr->GetModule<LogModule>();
-		log->Error(this->LogId(), "NetworkModule::Connect {0}:{1} fail, errno {2}", ip, port, err_num);
+		MODULE_LOG_MGR->Error("NetworkModule::Connect {0}:{1} fail, errno {2}", ip, port, err_num);
 	}
 	return netid;
 }
@@ -360,7 +361,7 @@ NetId NetworkModule::GenNetId()
 int64_t NetworkModule::GenAsyncId()
 {
 	++ m_last_async_id;
-	if (m_last_netid <= 0) m_last_async_id = 1;
+	if (m_last_async_id <= 0) m_last_async_id = 1;
 	return m_last_async_id;
 }
 
@@ -399,16 +400,13 @@ void NetworkModule::ProcessNetTaskResult()
 				if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, handler))
 				{
 					err_num = 1;
-					if (ret.fd >= 0)
-						close(ret.fd);
 					err_msg = "NetWorker::Add fail";
 				}
 			}
 			handler->OnOpen(err_num);
 			if (0 != err_num)
 			{
-				auto log = m_module_mgr->GetModule<LogModule>();
-				log->Error(this->LogId(), "NetworkModule::ProcessConnectResult errno {0}", err_num);
+				MODULE_LOG_MGR->Error("NetworkModule::ProcessConnectResult errno {0}", err_num);
 			}
 		}
 		m_async_network_handlers.erase(ret.id);
@@ -463,11 +461,10 @@ void NetworkModule::ProcessNetDatas()
 						}
 						if (ENetWorkDataAction_Read == data->action)
 						{
+							std::shared_ptr<INetConnectHander> new_handler = tmp_handler->GenConnectorHandler();
 							NetId netid = this->GenNetId();
-							std::shared_ptr<INetConnectHander> new_handler = tmp_handler->GenConnectorHandler(netid);
 							int err_num = 0;
-							if (nullptr == new_handler ||
-								!ChoseWorker(netid)->AddCnn(netid, data->new_fd, new_handler))
+							if (nullptr == new_handler || !ChoseWorker(netid)->AddCnn(netid, data->new_fd, new_handler))
 							{
 								err_num = 1;
 							}

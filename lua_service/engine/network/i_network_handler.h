@@ -37,6 +37,6 @@ class INetListenHander : public INetworkHandler
 public:
 	INetListenHander() : INetworkHandler(ENetworkHandler_Listen) {}
 	virtual ~INetListenHander() {}
-	virtual std::shared_ptr<INetConnectHander> GenConnectorHandler(NetId netid) = 0;
+	virtual std::shared_ptr<INetConnectHander> GenConnectorHandler() = 0;
 };
 

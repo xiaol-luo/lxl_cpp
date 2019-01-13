@@ -16,6 +16,7 @@ public:
 	DATA_STRUCT_API char * Ptr() { return m_buff + m_pos; }
 	DATA_STRUCT_API uint32_t Pos() { return m_pos; }
 	DATA_STRUCT_API uint32_t Head() { return m_head; }
+	DATA_STRUCT_API char * HeadPtr() { return m_buff + m_head; }
 	DATA_STRUCT_API uint32_t Size() { return m_pos - m_head; }
 	DATA_STRUCT_API void SetPos(uint32_t new_pos);
 	DATA_STRUCT_API void SetHead(uint32_t new_head);

@@ -6,6 +6,16 @@ extern "C"
 }
 
 #include "sol/sol.hpp"
+#include <signal.h>
+
+#if WIN32
+#include <WinSock2.h>
+#include <direct.h>
+#else
+#include <arpa/inet.h>
+#include <unistd.h>
+#endif
+
 
 #define LUA_EXIT_FAILURE -1
 #define lUA_EXIT_SUCCESS 0
@@ -47,6 +57,7 @@ static int lua_error_handler(lua_State *L)
 #include <unistd.h>
 #endif
 
+/*
 static void change_dir(std::string dir_path)
 {
 	if (dir_path.length() <= 0)
@@ -69,8 +80,120 @@ static void register_native_fns(lua_State *L)
 	sol::table t = sv.create_named_table(NATIVE);
 	t.set_function("chdir", change_dir);
 }
+*/
+
+#include "iengine.h"
+class PureLuaService : public IService
+{
+
+};
+
+class CnnHandler : public INetConnectHander
+{
+public:
+	CnnHandler() : INetConnectHander() {}
+	virtual ~CnnHandler() {}
+
+	virtual void OnClose(int err_num) 
+	{
+		log_debug("ls CnnHandler OnClose netid:{0} err_num {1}", m_netid, err_num);
+	}
+	virtual void OnOpen(int err_num) 
+	{
+		log_debug("ls CnnHandler OnOpen netid:{0} err_num {1}", m_netid, err_num);
+	}
+	virtual void OnRecvData(char *data, uint32_t len)
+	{
+		log_debug("ls CnnHandler OnRecvData netid:{0} len {1}", m_netid, len);
+	}
+};
+
+class LsHandler : public INetListenHander
+{
+public:
+	LsHandler() : INetListenHander() {}
+	virtual ~LsHandler() {}
+
+	virtual void OnClose(int err_num)
+	{
+		log_debug("ls handler OnClose netid:{0} errnu{1}", m_netid, err_num);
+	}
+	virtual void OnOpen(int err_num)
+	{
+		log_debug("ls handler OnOpen netid:{0} errnu{1}", m_netid, err_num);
+	}
+	virtual std::shared_ptr<INetConnectHander> GenConnectorHandler()
+	{
+		log_debug("ls handler GenConnectorHandler netid:{0} ", m_netid);
+		return std::make_shared<CnnHandler>();
+	}
+};
+
+static std::string ip = "127.0.0.1";
+static int port = 2233;
+static bool first_tick = true;
+
+
+std::vector<std::shared_ptr<CnnHandler>> net_handlers;
+static std::shared_ptr<LsHandler> ls_handler = nullptr;
+void OnTick()
+{
+	if (first_tick)
+	{
+		first_tick = false;
+		ls_handler = std::make_shared<LsHandler>();
+		net_listen_async("0.0.0.0", port, nullptr, ls_handler);
+	}
+
+	// log_debug("OnTick !");
+
+	if (net_handlers.size() <= 0)
+	{
+		auto cnn_handler = std::make_shared<CnnHandler>();
+		NetId netid = net_connect(ip, port, nullptr, cnn_handler);
+		if (netid > 0)
+		{
+			net_handlers.push_back(cnn_handler);
+			char xxx[128];
+			net_send(cnn_handler->GetNetId(), xxx, sizeof(xxx));
+		}
+	}
+	else
+	{
+		for (auto v : net_handlers)
+		{
+			char xxx[128];
+			net_send(v->GetNetId(), xxx, sizeof(xxx));
+		}
+	}
+}
+
+void QuitGame(int signal)
+{
+	engine_stop();
+}
+
 int main (int argc, char **argv) 
 {
+#ifdef WIN32
+	WSADATA wsa_data;
+	WSAStartup(0x0201, &wsa_data);
+	signal(SIGINT, QuitGame);
+	signal(SIGBREAK, QuitGame);
+#else
+	signal(SIGINT, QuitGame);
+	signal(SIGPIPE, SIG_IGN);
+#endif
+
+	PureLuaService xxx;
+	engine_init();
+	engine_loop_span(200);
+	start_log(ELogLevel_Debug);
+	setup_service(&xxx);
+	add_firm_timer(OnTick, 100, EXECUTE_UNLIMIT_TIMES);
+	engine_loop();
+	engine_destroy();
+
 	lua_State *L = luaL_newstate();
 	if (L == NULL) 
 	{

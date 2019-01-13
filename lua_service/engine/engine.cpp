@@ -6,7 +6,6 @@ extern "C"
 }
 
 #include "sol/sol.hpp"
-
 #include "iengine.h"
 
 #define LUA_EXIT_FAILURE -1
@@ -47,7 +46,15 @@ static int lua_error_handler(lua_State *L)
 #define chdir _chdir
 #else
 #include <unistd.h>
+#include "engine.h"
 #endif
+
+int64_t RealMs()
+{
+	std::chrono::high_resolution_clock::time_point tp = std::chrono::high_resolution_clock::now();
+	long long now = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count();
+	return now;
+}
 
 static void change_dir(std::string dir_path)
 {
@@ -63,12 +70,169 @@ static void change_dir(std::string dir_path)
 	}
 }
 
-#define NATIVE "native"
+#include "server_logic/ServerLogic.h"
+ServerLogic *g_server_logic;
 
-static void register_native_fns(lua_State *L)
+ServerLogic * GServerLogic()
+{
+	return g_server_logic;
+}
+
+void engine_init()
+{
+	if (nullptr == g_server_logic)
+	{
+		g_server_logic = new ServerLogic();
+	}
+}
+
+void engine_loop()
+{
+	g_server_logic->Loop();
+}
+
+void engine_stop()
+{
+	g_server_logic->Quit();
+}
+
+void engine_destroy()
+{
+	delete g_server_logic; g_server_logic = nullptr;
+}
+
+void engine_loop_span(int ms)
+{
+	g_server_logic->SetLoopSpan(ms);
+}
+
+EServerLogicState engine_state()
+{
+	EServerLogicState ret = EServerLogicState_Max;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetState();
+	}
+	return ret;
+}
+
+bool start_log(ELogLevel log_lvl)
+{
+	return g_server_logic->GetLogMgr()->Start(log_lvl);
+}
+
+void setup_service(IService *service)
+{
+	g_server_logic->SetService(service);
+}
+
+TimerID add_timer(TimerCallback cb_fn, int64_t start_ts_ms, int64_t execute_span_ms, int64_t execute_times)
+{
+	TimerID ret = INVALID_TIMER_ID;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetTimerMgr()->Add(cb_fn, start_ts_ms, execute_span_ms, execute_times);
+	}
+	return ret;
+}
+TimerID add_next_timer(TimerCallback cb_fn, int64_t start_ts_ms)
+{
+	TimerID ret = INVALID_TIMER_ID;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetTimerMgr()->AddNext(cb_fn, start_ts_ms);
+	}
+	return ret;
+}
+
+TimerID add_firm_timer(TimerCallback cb_fn, int64_t execute_span_ms, int64_t execute_times)
+{
+	TimerID ret = INVALID_TIMER_ID;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetTimerMgr()->AddFirm(cb_fn, execute_span_ms, execute_times);
+	}
+	return ret;
+}
+
+void remove_timer(TimerID timer_id)
+{
+	if (nullptr != g_server_logic)
+	{
+		g_server_logic->GetTimerMgr()->Remove(timer_id);
+	}
+}
+
+NetId net_listen(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler)
+{
+	NetId ret = INVALID_NET_ID;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetNet()->Listen(ip, port, opt, handler);
+	}
+	return ret;
+}
+
+NetId net_connect(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler)
+{
+	NetId ret = INVALID_NET_ID;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetNet()->Connect(ip, port, opt, handler);
+	}
+	return ret;
+}
+
+void net_close(NetId netid)
+{
+	if (nullptr != g_server_logic)
+	{
+		g_server_logic->GetNet()->Close(netid);
+	}
+}
+
+int64_t net_listen_async(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler)
+{
+	int64_t ret = 0;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetNet()->ListenAsync(ip, port, opt, handler);
+	}
+	return ret;
+}
+
+int64_t net_connect_async(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler)
+{
+	int64_t ret = 0;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetNet()->ConnectAsync(ip, port, opt, handler);
+	}
+	return ret;
+}
+
+void net_cancel_async(uint64_t async_id)
+{
+	if (nullptr != g_server_logic)
+	{
+		g_server_logic->GetNet()->CancelAsync(async_id);
+	}
+}
+
+bool net_send(NetId netId, char *buffer, uint32_t len)
+{
+	bool ret = false;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetNet()->Send(netId, buffer, len);
+	}
+	return ret;
+}
+
+#define NATIVE "native"
+void register_native_fns(lua_State *L)
 {
 	sol::state_view sv(L);
 	sol::table t = sv.create_named_table(NATIVE);
 	t.set_function("chdir", change_dir);
 }
-

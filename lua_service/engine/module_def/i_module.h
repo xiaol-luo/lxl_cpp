@@ -7,11 +7,7 @@ class ModuleMgr;
 enum EMoudleName
 {
 	EMoudleName_Invalid,
-	EMoudleName_TIMER,
-	EMoudleName_Log,
 	EMoudleName_Network,
-	EModuleName_Event,
-	EMoudleName_GameLogic,
 	EMoudleName_Max,
 };
 
@@ -50,7 +46,7 @@ public:
 	}
 	virtual ~IModule() {}
 
-	virtual EModuleRetCode Init(void *param) = 0;
+	virtual EModuleRetCode Init(void **param) = 0;
 	virtual EModuleRetCode Awake() = 0;
 	virtual EModuleRetCode Update() = 0;
 	virtual EModuleRetCode Release() = 0;
@@ -67,7 +63,7 @@ protected:
 
 #define WaitModuleState(module_name, wait_state, tolerate_nullptr) do				\
 {																					\
-	auto module = m_module_mgr->GetModule(module_name);							\
+	auto module = m_module_mgr->GetModule(module_name);								\
 	if (nullptr == module && !tolerate_nullptr)										\
 		return EModuleRetCode_Failed;												\
 	if (nullptr != module && EModuleState_Error == module->GetState())				\
@@ -75,3 +71,7 @@ protected:
 	if (nullptr != module && wait_state != module->GetState())						\
 		return EModuleRetCode_Pending;												\
 } while(false)
+
+#define MODULE_LOG_MGR m_module_mgr->GetServerLogic()->GetLogMgr()
+#define MODULE_TIMER_MGR m_module_mgr->GetServerLogic()->GetTimerMgr()
+#define MODULE_Service m_module_mgr->GetServerLogic()->GetService()

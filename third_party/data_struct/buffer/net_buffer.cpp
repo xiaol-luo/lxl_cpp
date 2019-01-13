@@ -64,7 +64,7 @@ uint32_t NetBuffer::PopBuff(uint32_t pop_len, char ** pop_head)
 	{
 		consume_len = m_pos - m_head;
 	}
-	m_pos += consume_len;
+	m_head += consume_len;
 	return consume_len;
 }
 

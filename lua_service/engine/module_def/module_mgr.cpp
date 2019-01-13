@@ -1,9 +1,11 @@
 #include "module_mgr.h"
 #include <assert.h>
+#include "network/Impl/network_module.h"
 
-ModuleMgr::ModuleMgr(ServerLogic *server_logic)
+ModuleMgr::ModuleMgr(ServerLogic *server_logic) : m_server_logic(server_logic)
 {
 	memset(m_modules, 0, sizeof(m_modules));
+	m_modules[EMoudleName_Network] = new NetworkModule(this);
 }
 
 ModuleMgr::~ModuleMgr()
@@ -15,7 +17,7 @@ ModuleMgr::~ModuleMgr()
 	}
 }
 
-EModuleRetCode ModuleMgr::Init(void * init_params[EMoudleName_Max])
+EModuleRetCode ModuleMgr::Init(void ** init_params[EMoudleName_Max])
 {
 	m_is_free = false;
 
@@ -23,7 +25,7 @@ EModuleRetCode ModuleMgr::Init(void * init_params[EMoudleName_Max])
 	for (int i = EMoudleName_Invalid + 1; i < EMoudleName_Max; ++ i)
 	{
 		auto module = m_modules[i];
-		void *param = init_params[i];
+		void **param = init_params[i];
 		if (nullptr != module && EModuleState_Free == module->GetState())
 			module->SetState(EModuleState_Initing);
 		if (nullptr == module || EModuleState_Initing != module->GetState())
@@ -147,21 +149,6 @@ EModuleRetCode ModuleMgr::Destroy()
 		}
 	}
 	return retCode;
-}
-
-bool ModuleMgr::SetModule(IModule *module)
-{
-	if (m_is_free)
-	{
-		EMoudleName module_name = module->ModuleName();
-		assert(module_name > EMoudleName_Invalid && module_name < EMoudleName_Max);
-		if (nullptr == m_modules[module_name])
-		{
-			m_modules[module_name] = module;
-			return true;
-		}
-	}
-	return false;
 }
 
 IModule *ModuleMgr::GetModule(EMoudleName module_name)

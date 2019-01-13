@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 using NetId = uint64_t;
+const static NetId INVALID_NET_ID = 0;
 
 namespace Net
 {
