@@ -4,6 +4,7 @@
 #include "network/i_network_module.h"
 #include "timer/timer_mgr.h"
 #include "log/log_mgr.h"
+#include "memory_pool/MemoryPoolMgr.h"
 #include "i_service.h"
 
 enum EServerLogicState
@@ -59,11 +60,16 @@ private:
 public:
 	LogMgr * GetLogMgr() { return m_log_mgr; }
 private:
-	LogMgr *m_log_mgr;
+	LogMgr *m_log_mgr = nullptr;
 
 public:
 	TimerMgr * GetTimerMgr() { return m_timer_mgr; }
 private:
-	TimerMgr *m_timer_mgr;
+	TimerMgr *m_timer_mgr = nullptr;
+
+public:
+	MemoryPoolMgr *GetMemPool() { return m_memory_pool_mgr; }
+private:
+	MemoryPoolMgr *m_memory_pool_mgr = nullptr;
 };
 

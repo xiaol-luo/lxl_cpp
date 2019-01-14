@@ -5,7 +5,6 @@ local opt_lua_path = "lua_path"
 local opt_c_path = "c_path"
 MAIN_ARGS_LOGIC = "logic"
 MAIN_ARGS_LOGIC_PARAM = "logic_param"
-MAIN_ARGS_WORK_DIR = "work_dir"
 MAIN_ARGS_DATA_DIR = "data_dir"
 
 
@@ -53,9 +52,6 @@ function util.parse_main_args(input_args, out_ret)
     parse_fns[c_one_gang .. MAIN_ARGS_LOGIC_PARAM] = function(args, arg_idx, ret)
         return fn_fill_args(args, arg_idx, ret, MAIN_ARGS_LOGIC_PARAM)
     end
-    parse_fns[c_one_gang .. MAIN_ARGS_WORK_DIR] = function(args, arg_idx, ret)
-        return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_WORK_DIR)
-    end
     parse_fns[c_one_gang .. MAIN_ARGS_DATA_DIR] = function(args, arg_idx, ret)
         return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_DATA_DIR)
     end
@@ -98,9 +94,6 @@ local use_parse_main_ret = function(ret)
         for _, v in pairs(ret[opt_lua_path]) do
             util.append_lua_search_path(v)
         end
-    end
-    if ret[MAIN_ARGS_WORK_DIR] and #ret[MAIN_ARGS_WORK_DIR] > 0 then
-        native.chdir(ret[MAIN_ARGS_WORK_DIR])
     end
 end
 

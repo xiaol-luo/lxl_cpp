@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 ADD_SUBDIRECTORY(sproto2)
 ADD_SUBDIRECTORY(lpeg)
 ADD_SUBDIRECTORY(pb)
-#ADD_SUBDIRECTORY(lua_rapidjson)
+ADD_SUBDIRECTORY(lua_rapidjson)
 ADD_SUBDIRECTORY(lfs)
 ADD_SUBDIRECTORY(data_struct)
 

@@ -17,11 +17,6 @@ extern "C"
 #include <unistd.h>
 #endif
 
-
-#define LUA_EXIT_FAILURE -1
-#define lUA_EXIT_SUCCESS 0
-#define LUA_SCRIPT_IDX 1
-
 static int lua_status_report(lua_State *L, int status) 
 {
 	if (status != LUA_OK) 
@@ -57,31 +52,6 @@ static int lua_error_handler(lua_State *L)
 #else
 #include <unistd.h>
 #endif
-
-/*
-static void change_dir(std::string dir_path)
-{
-	if (dir_path.length() <= 0)
-	{
-		printf("chdir: not accept dir_path length which is 0 \n");
-		return;
-	}
-	int ret = chdir(dir_path.c_str());
-	if (0 != ret)
-	{
-		printf("chdir to dir %s fail, errno is %d \n", dir_path.c_str(), ret);
-	}
-}
-
-#define NATIVE "native"
-
-static void register_native_fns(lua_State *L)
-{
-	sol::state_view sv(L);
-	sol::table t = sv.create_named_table(NATIVE);
-	t.set_function("chdir", change_dir);
-}
-*/
 
 #include "iengine.h"
 class PureLuaService : public IService
@@ -162,7 +132,7 @@ void OnTick()
 
 	log_debug("OnTick cnn_ids.size()  {}!", cnn_ids.size());
 
-	if (cnn_ids.size() <= 1)
+	if (cnn_ids.size() <= 512)
 	{
 		auto cnn_handler = std::make_shared<CnnHandler>();
 		NetId netid = net_connect(ip, port, nullptr, cnn_handler);
@@ -188,48 +158,20 @@ void QuitGame(int signal)
 	// exit(0);
 }
 
-int main (int argc, char **argv) 
+#define LUA_SCRIPT_IDX 2
+
+void StartLuaScript(lua_State *L, int argc, char **argv)
 {
-#ifdef WIN32
-	WSADATA wsa_data;
-	WSAStartup(0x0201, &wsa_data);
-	signal(SIGINT, QuitGame);
-	signal(SIGBREAK, QuitGame);
-#else
-	signal(SIGINT, QuitGame);
-	signal(SIGPIPE, SIG_IGN);
-#endif
-
-	PureLuaService xxx;
-	engine_init();
-	engine_loop_span(100);
-	start_log(ELogLevel_Debug);
-	setup_service(&xxx);
-	add_firm_timer(OnTick, 100, EXECUTE_UNLIMIT_TIMES);
-	engine_loop();
-	engine_destroy();
-	return 0;
-
-	lua_State *L = luaL_newstate();
-	if (L == NULL) 
-	{
-		printf("cannot create state: not enough memory");
-		return LUA_EXIT_FAILURE;
-	}
-
-	{
-		// open libs
-		luaL_openlibs(L);
-		register_native_fns(L);
-	}
+	// open libs
+	luaL_openlibs(L);
+	register_native_fns(L);
 
 	lua_newtable(L);
 	int top = lua_gettop(L);
 	int status = LUA_OK;
-
-	do 
+	do
 	{
-		for (int i = LUA_SCRIPT_IDX + 1; i < argc; i++) 
+		for (int i = LUA_SCRIPT_IDX + 1; i < argc; i++)
 		{
 			lua_pushstring(L, argv[i]);
 			lua_rawseti(L, -2, i - LUA_SCRIPT_IDX);
@@ -237,7 +179,7 @@ int main (int argc, char **argv)
 		}
 		lua_setglobal(L, "arg");
 		char *lua_file = argv[LUA_SCRIPT_IDX];
-		int status = luaL_loadfile(L, lua_file);
+		status = luaL_loadfile(L, lua_file);
 		if (LUA_OK != status)
 		{
 			lua_status_report(L, status);
@@ -254,9 +196,59 @@ int main (int argc, char **argv)
 			break;
 		}
 	} while (false);
-
 	lua_settop(L, top);
+
+	if (LUA_OK != status)
+	{
+		log_error("StartLuaScript fail engine_stop, status: {}", status);
+		engine_stop();
+	}
+}
+
+int main (int argc, char **argv) 
+{
+	// argv: exe_name work_dir lua_file lua_file_params...
+	if (argc < 3)
+	{
+		printf("exe_name work_dir lua_file ...\n");
+		return -10;
+	}
+	char *work_dir = argv[1];
+	std::string lua_file = argv[LUA_SCRIPT_IDX];
+
+	printf("work dir is %s\n", work_dir);
+	if (chdir(work_dir))
+	{
+		printf("change work dir fail errno %d , dir is %s\n", errno, work_dir);
+		return -20;
+	}
+	lua_State *L = luaL_newstate();
+	if (L == NULL)
+	{
+		printf("cannot create state: not enough memory");
+		return -30;
+	}
+
+#ifdef WIN32
+	WSADATA wsa_data;
+	WSAStartup(0x0201, &wsa_data);
+	signal(SIGINT, QuitGame);
+	signal(SIGBREAK, QuitGame);
+#else
+	signal(SIGINT, QuitGame);
+	signal(SIGPIPE, SIG_IGN);
+#endif
+
+	PureLuaService xxx;
+	engine_init();
+	engine_loop_span(100);
+	start_log(ELogLevel_Debug);
+	setup_service(&xxx);
+	// timer_firm(OnTick, 100, EXECUTE_UNLIMIT_TIMES);
+	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
+	engine_loop();
 	lua_close(L);
-	return status;
+	engine_destroy();
+	return 0;
 }
 

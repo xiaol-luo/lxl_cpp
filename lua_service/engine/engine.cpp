@@ -115,6 +115,21 @@ EServerLogicState engine_state()
 	return ret;
 }
 
+void * mempool_malloc(uint32_t malloc_size)
+{
+	return g_server_logic->GetMemPool()->Malloc(malloc_size);
+}
+
+void * mempool_realloc(void *ptr, uint32_t new_malloc_size)
+{
+	return g_server_logic->GetMemPool()->Realloc(ptr, new_malloc_size);
+}
+
+void mempool_free(void *ptr)
+{
+	g_server_logic->GetMemPool()->Free(ptr);
+}
+
 bool start_log(ELogLevel log_lvl)
 {
 	return g_server_logic->GetLogMgr()->Start(log_lvl);
@@ -125,7 +140,7 @@ void setup_service(IService *service)
 	g_server_logic->SetService(service);
 }
 
-TimerID add_timer(TimerCallback cb_fn, int64_t start_ts_ms, int64_t execute_span_ms, int64_t execute_times)
+TimerID timer_add(TimerCallback cb_fn, int64_t start_ts_ms, int64_t execute_span_ms, int64_t execute_times)
 {
 	TimerID ret = INVALID_TIMER_ID;
 	if (nullptr != g_server_logic)
@@ -134,7 +149,7 @@ TimerID add_timer(TimerCallback cb_fn, int64_t start_ts_ms, int64_t execute_span
 	}
 	return ret;
 }
-TimerID add_next_timer(TimerCallback cb_fn, int64_t start_ts_ms)
+TimerID timer_next(TimerCallback cb_fn, int64_t start_ts_ms)
 {
 	TimerID ret = INVALID_TIMER_ID;
 	if (nullptr != g_server_logic)
@@ -144,7 +159,7 @@ TimerID add_next_timer(TimerCallback cb_fn, int64_t start_ts_ms)
 	return ret;
 }
 
-TimerID add_firm_timer(TimerCallback cb_fn, int64_t execute_span_ms, int64_t execute_times)
+TimerID timer_firm(TimerCallback cb_fn, int64_t execute_span_ms, int64_t execute_times)
 {
 	TimerID ret = INVALID_TIMER_ID;
 	if (nullptr != g_server_logic)
@@ -154,7 +169,7 @@ TimerID add_firm_timer(TimerCallback cb_fn, int64_t execute_span_ms, int64_t exe
 	return ret;
 }
 
-void remove_timer(TimerID timer_id)
+void timer_remove(TimerID timer_id)
 {
 	if (nullptr != g_server_logic)
 	{
