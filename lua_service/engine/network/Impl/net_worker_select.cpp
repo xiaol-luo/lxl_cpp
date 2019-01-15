@@ -114,7 +114,7 @@ namespace Net
 		auto it = m_wait_send_buffs.find(netId);
 		if (m_wait_send_buffs.end() == it)
 		{
-			NetBuffer *buff = new NetBuffer(64, 64);
+			NetBuffer *buff = new NetBuffer(64, 64, nullptr, nullptr, nullptr);
 			auto ret = m_wait_send_buffs.insert(std::make_pair(netId, buff));
 			if (!ret.second)
 			{
@@ -348,7 +348,7 @@ namespace Net
 
 		if (ENetworkHandler_Connect == node->handler_type)
 		{
-			NetBuffer *buff = new NetBuffer(64, 64);
+			NetBuffer *buff = new NetBuffer(64, 64, nullptr, nullptr, nullptr);
 			int read_len = 0;
 			int err_num = 0;
 			bool close_fd = false;

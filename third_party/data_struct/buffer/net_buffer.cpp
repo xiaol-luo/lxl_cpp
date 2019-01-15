@@ -3,14 +3,26 @@
 #include <assert.h>
 #include <string.h>
 
-NetBuffer::NetBuffer(uint32_t init_size, uint32_t step_size)
+NetBuffer::NetBuffer(uint32_t init_size, uint32_t step_size, MallocFn malloc_fn, FreeFn free_fn, ReallocFn realloc_fn)
 {
 	m_init_size = init_size; 
 	m_step_size = step_size;
 	assert(m_step_size > 0);
+
+	// 这三个函数必须配套
+	bool fn_match = false;
+	if ((nullptr == malloc_fn && nullptr == free_fn && nullptr == realloc_fn) ||
+		(nullptr != malloc_fn && nullptr != free_fn && nullptr != realloc_fn))
+	{
+		fn_match = true;
+	}
+	assert(fn_match);
+	m_malloc_fn = nullptr != malloc_fn ? malloc_fn : malloc;
+	m_free_fn = nullptr != free_fn ? free_fn : free;
+	m_realloc_fn = nullptr != realloc_fn ? realloc_fn : realloc;
 }
 
-NetBuffer::NetBuffer(char * buff, uint32_t buff_size, uint32_t step_size)
+NetBuffer::NetBuffer(char * buff, uint32_t buff_size, uint32_t step_size, MallocFn malloc_fn, FreeFn free_fn, ReallocFn realloc_fn)
 {
 	m_buff = buff;
 	m_capacity = buff_size;
@@ -19,38 +31,55 @@ NetBuffer::NetBuffer(char * buff, uint32_t buff_size, uint32_t step_size)
 	assert(m_buff);
 	assert(m_capacity > 0);
 	assert(m_step_size > 0);
+	// 这三个函数必须配套
+	bool fn_match = false;
+	if ((nullptr == malloc_fn && nullptr == free_fn && nullptr == realloc_fn) ||
+		(nullptr != malloc_fn && nullptr != free_fn && nullptr != realloc_fn))
+	{
+		fn_match = true;
+	}
+	assert(fn_match);
+	m_malloc_fn = nullptr != malloc_fn ? malloc_fn : malloc;
+	m_free_fn = nullptr != free_fn ? free_fn : free;
+	m_realloc_fn = nullptr != realloc_fn ? realloc_fn : realloc;
 }
 
 NetBuffer::~NetBuffer()
 {
-	free(m_buff); m_buff = nullptr;
+	m_free_fn(m_buff); m_buff = nullptr;
 }
 
-void NetBuffer::SetPos(uint32_t new_pos)
+bool NetBuffer::SetPos(uint32_t new_pos)
 {
-	this->CheckExpend(new_pos);
+	if (!this->CheckExpend(new_pos))
+		return false;
 	m_pos = new_pos;
 	if (m_head > m_pos)
 	{
 		m_head = m_pos;
 	}
+	return true;
 }
 
-void NetBuffer::SetHead(uint32_t new_head)
+bool NetBuffer::SetHead(uint32_t new_head)
 {
-	this->CheckExpend(new_head);
+	if (!this->CheckExpend(new_head))
+		return false;
 	m_head = new_head;
 	if (m_head > m_pos)
 	{
 		m_pos = m_head;
 	}
+	return true;
 }
 
-void NetBuffer::AppendBuff(char * buff, uint32_t len)
+bool NetBuffer::AppendBuff(char * buff, uint32_t len)
 {
-	this->CheckExpend(m_pos + len);
+	if (!this->CheckExpend(m_pos + len))
+		return false;
 	memcpy(this->Ptr(), buff, len);
 	m_pos += len;
+	return true;
 }
 
 uint32_t NetBuffer::PopBuff(uint32_t pop_len, char ** pop_head)
@@ -68,11 +97,11 @@ uint32_t NetBuffer::PopBuff(uint32_t pop_len, char ** pop_head)
 	return consume_len;
 }
 
-bool NetBuffer::ResetHead(char *help_buff, uint32_t buff_len)
+bool NetBuffer::ResetHead(char *help_buff, uint32_t help_buff_len)
 {
 	uint32_t size = this->Size();
 	bool ret = false;
-	if (buff_len >= size)
+	if (help_buff_len >= size)
 	{
 		ret = true;
 		memcpy(help_buff, m_buff + m_head, size);
@@ -83,14 +112,15 @@ bool NetBuffer::ResetHead(char *help_buff, uint32_t buff_len)
 	return ret;
 }
 
-void NetBuffer::CheckExpend(uint32_t need_capacity)
+bool NetBuffer::CheckExpend(uint32_t need_capacity)
 {
 	if (need_capacity > m_capacity)
 	{
 		if (nullptr == m_buff)
 		{
-			m_buff = (char *)malloc(m_init_size);
-			m_capacity = m_init_size;
+			m_buff = (char *)m_malloc_fn(m_init_size);
+			if (nullptr != m_buff)
+				m_capacity = m_init_size;
 		}		
 		if (need_capacity > m_capacity)
 		{
@@ -100,10 +130,13 @@ void NetBuffer::CheckExpend(uint32_t need_capacity)
 			{
 				new_capacity += m_step_size;
 			}
-			m_buff = (char *)realloc(m_buff, new_capacity);
-			m_capacity = new_capacity;
+			m_buff = (char *)m_realloc_fn(m_buff, new_capacity);
+			if (nullptr != m_buff)
+				m_capacity = new_capacity;
+			
 		}
 	}
+	return nullptr != m_buff;
 }
 
 uint32_t NetBuffer::LeftSpace() { return m_capacity - m_pos; }

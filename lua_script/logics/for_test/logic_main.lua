@@ -13,3 +13,10 @@ function LogicMain.start()
 
     xml.print_table(LOGIC_SETTING)
 end
+
+
+tcp_cnn_logic = tcp_cnn_logic or {}
+
+function tcp_cnn_logic.on_close() end
+function tcp_cnn_logic.on_open() end
+function tcp_cnn_logic.on_recv() end

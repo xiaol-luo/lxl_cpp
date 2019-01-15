@@ -81,7 +81,7 @@ public:
 		if (0 == err_num)
 		{
 			cnn_ids.insert(m_netid);
-			net_handlers.push_back(this->GetSharedPtr());
+			net_handlers.push_back(this->GetSharedPtr<CnnHandler>());
 		}
 		log_debug("ls CnnHandler OnOpen netid:{0} err_num {1} cnn_ids.size()={2}", m_netid, err_num, cnn_ids.size());
 	}
@@ -158,6 +158,10 @@ void QuitGame(int signal)
 	// exit(0);
 }
 
+
+#include "net/lua_tcp_connection.h"
+#include "net/lua_tcp_listen.h"
+
 #define LUA_SCRIPT_IDX 2
 
 void StartLuaScript(lua_State *L, int argc, char **argv)
@@ -203,6 +207,11 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 		log_error("StartLuaScript fail engine_stop, status: {}", status);
 		engine_stop();
 	}
+
+	sol::state_view lsv(L);
+	LuaTcpConnection *ltc = new LuaTcpConnection();
+	ltc->Init(lsv["tcp_cnn_logic"]);
+	delete ltc;
 }
 
 int main (int argc, char **argv) 

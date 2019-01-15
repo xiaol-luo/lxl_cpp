@@ -21,6 +21,12 @@ public:
 	NetId GetNetId() { return m_netid; }
 	void SetNetId(NetId netid) { m_netid = netid; }
 
+	template <typename T>
+	std::shared_ptr<T> GetSharedPtr()
+	{
+		return std::dynamic_pointer_cast<T>(this->shared_from_this());
+	}
+
 protected:
 	ENetworkHandlerType m_handler_type = ENetworkHandlerType_Max;
 	NetId m_netid = 0;
@@ -31,10 +37,6 @@ public:
 	INetConnectHander() : INetworkHandler(ENetworkHandler_Connect) {}
 	virtual ~INetConnectHander() {}
 	virtual void OnRecvData(char *data, uint32_t len) = 0;
-	std::shared_ptr<INetConnectHander> GetSharedPtr()
-	{
-		return std::dynamic_pointer_cast<INetConnectHander>(this->shared_from_this());
-	}
 };
 class INetListenHander : public INetworkHandler
 {
@@ -42,9 +44,5 @@ public:
 	INetListenHander() : INetworkHandler(ENetworkHandler_Listen) {}
 	virtual ~INetListenHander() {}
 	virtual std::shared_ptr<INetConnectHander> GenConnectorHandler() = 0;
-	std::shared_ptr<INetListenHander> GetSharedPtr() 
-	{
-		return std::dynamic_pointer_cast<INetListenHander>(this->shared_from_this());
-	}
 };
 
