@@ -242,11 +242,3 @@ bool net_send(NetId netId, char *buffer, uint32_t len)
 	}
 	return ret;
 }
-
-#define NATIVE "native"
-void register_native_fns(lua_State *L)
-{
-	sol::state_view sv(L);
-	sol::table t = sv.create_named_table(NATIVE);
-	t.set_function("chdir", change_dir);
-}

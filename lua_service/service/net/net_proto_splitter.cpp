@@ -1,5 +1,11 @@
 #include "net_proto_splitter.h"
 #include "iengine.h"
+#if WIN32
+#include <WinSock2.h>
+#else
+#include <arpa/inet.h>
+#include <unistd.h>
+#endif
 
 NetContentSplitter::NetContentSplitter()
 {
@@ -31,7 +37,7 @@ bool NetContentSplitter::ParseNext()
 	if (buff_size < LEN_BYTES)
 		return false;
 	char *p = m_buff->HeadPtr();
-	uint32_t ctx_len = *(uint32_t *)p;
+	uint32_t ctx_len = ntohl(*(uint32_t *)p);
 	assert(ctx_len <= 102400);
 	if (ctx_len >= 102400)
 	{
@@ -88,7 +94,7 @@ bool NetPidContentSplitter::ParseNext()
 		}
 		else
 		{
-			m_pid = *(uint32_t *)m_ctx;
+			m_pid = ntohl(*(uint32_t *)m_ctx);
 			m_ctx = m_ctx + PID_BYTES;
 			m_ctx_len = m_ctx_len - PID_BYTES;
 			ret = true;

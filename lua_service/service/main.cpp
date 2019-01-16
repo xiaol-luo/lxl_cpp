@@ -17,6 +17,9 @@ extern "C"
 #include <unistd.h>
 #endif
 
+#include "lua_reg/lua_reg.h"
+
+
 static int lua_status_report(lua_State *L, int status) 
 {
 	if (status != LUA_OK) 
@@ -159,7 +162,7 @@ void QuitGame(int signal)
 }
 
 
-#include "net/lua_tcp_connection.h"
+#include "net/lua_tcp_connect.h"
 #include "net/lua_tcp_listen.h"
 
 #define LUA_SCRIPT_IDX 2
@@ -168,7 +171,7 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 {
 	// open libs
 	luaL_openlibs(L);
-	register_native_fns(L);
+	register_native_libs(L);
 
 	lua_newtable(L);
 	int top = lua_gettop(L);
@@ -209,7 +212,7 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 	}
 
 	sol::state_view lsv(L);
-	LuaTcpConnection *ltc = new LuaTcpConnection();
+	LuaTcpConnect *ltc = new LuaTcpConnect();
 	ltc->Init(lsv["tcp_cnn_logic"]);
 	delete ltc;
 }

@@ -11,7 +11,6 @@ extern "C"
 
 extern ServerLogic *g_server_logic;
 
-void register_native_fns(lua_State *L);
 void engine_init();
 void engine_loop();
 void engine_stop();

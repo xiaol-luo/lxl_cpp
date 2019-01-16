@@ -154,9 +154,13 @@ namespace Net
 	void NetWorkerSelect::Stop()
 	{
 		m_is_exits = true;
-		if (m_work_thread->joinable())
+		if (nullptr != m_work_thread)
 		{
-			m_work_thread->join();
+			if (m_work_thread->joinable())
+			{
+				m_work_thread->join();
+			}
+			delete m_work_thread; m_work_thread = nullptr;
 		}
 
 		// 所有东西在这里销毁一下
