@@ -449,7 +449,7 @@ void NetworkModule::ProcessNetDatas()
 						}
 						if (ENetWorkDataAction_Read == data->action)
 						{
-							tmp_handler->OnRecvData(data->binary->Ptr(), data->binary->Size());
+							tmp_handler->OnRecvData(data->binary->HeadPtr(), data->binary->Size());
 						}
 					}
 					if (ENetworkHandler_Listen == handler->HandlerType())

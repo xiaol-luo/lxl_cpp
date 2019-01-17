@@ -7,9 +7,10 @@
 #include <unistd.h>
 #endif
 
-NetContentSplitter::NetContentSplitter()
+NetContentSplitter::NetContentSplitter(uint32_t package_max_size)
 {
 	m_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+	m_package_max_size = package_max_size;
 }
 
 NetContentSplitter::~NetContentSplitter()
@@ -38,9 +39,9 @@ bool NetContentSplitter::ParseNext()
 		return false;
 	char *p = m_buff->HeadPtr();
 	uint32_t ctx_len = ntohl(*(uint32_t *)p);
-	assert(ctx_len <= 102400);
-	if (ctx_len >= 102400)
+	if (ctx_len >= m_package_max_size)
 	{
+		log_error("NetContentSplitter::ParseNext ctx_len: {}, limit is {}", ctx_len, m_package_max_size);
 		m_is_fail = true;
 		return false;
 	}
@@ -59,6 +60,16 @@ bool NetContentSplitter::ParseNext()
 	return true;
 }
 
+void NetContentSplitter::PopUsingBuffer()
+{
+	if (nullptr != m_ctx)
+	{
+		m_buff->PopBuff(LEN_BYTES + m_ctx_len, nullptr);
+		m_ctx = nullptr;
+		m_ctx_len = 0;
+	}
+}
+
 bool NetContentSplitter::IsFail()
 {
 	return m_is_fail;
@@ -74,7 +85,7 @@ char * NetContentSplitter::Ctx()
 	return m_ctx;
 }
 
-NetPidContentSplitter::NetPidContentSplitter() : NetContentSplitter()
+NetPidContentSplitter::NetPidContentSplitter(uint32_t package_max_size) : NetContentSplitter(package_max_size)
 {
 }
 
@@ -101,6 +112,16 @@ bool NetPidContentSplitter::ParseNext()
 		}
 	}
 	return ret;
+}
+
+void NetPidContentSplitter::PopUsingBuffer()
+{
+	if (nullptr != m_ctx)
+	{
+		NetContentSplitter::PopUsingBuffer();
+		m_buff->PopBuff(PID_BYTES, nullptr);
+		m_pid = 0;
+	}
 }
 
 uint32_t NetPidContentSplitter::Pid()

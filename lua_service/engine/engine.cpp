@@ -177,22 +177,22 @@ void timer_remove(TimerID timer_id)
 	}
 }
 
-NetId net_listen(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler)
+NetId net_listen(std::string ip, uint16_t port, std::weak_ptr<INetListenHander> handler)
 {
 	NetId ret = INVALID_NET_ID;
 	if (nullptr != g_server_logic)
 	{
-		ret = g_server_logic->GetNet()->Listen(ip, port, opt, handler);
+		ret = g_server_logic->GetNet()->Listen(ip, port, nullptr, handler);
 	}
 	return ret;
 }
 
-NetId net_connect(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler)
+NetId net_connect(std::string ip, uint16_t port, std::weak_ptr<INetConnectHander> handler)
 {
 	NetId ret = INVALID_NET_ID;
 	if (nullptr != g_server_logic)
 	{
-		ret = g_server_logic->GetNet()->Connect(ip, port, opt, handler);
+		ret = g_server_logic->GetNet()->Connect(ip, port, nullptr, handler);
 	}
 	return ret;
 }

@@ -65,14 +65,13 @@ public:
 	virtual int64_t ConnectAsync(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler);
 	virtual void CancelAsync(uint64_t async_id);
 	virtual bool Send(NetId netId, char *buffer, uint32_t len);
-	int LogId() { return m_log_Id; }
 
 protected:
 	std::mutex *m_net_task_mutex = nullptr;
 	std::queue<Net::NetTask *> m_net_tasks;
 	std::mutex *m_net_task_results_mutex = nullptr;
 	std::queue<Net::NetTaskResult> m_net_task_results;
-	int m_net_task_thread_num = 6;
+	int m_net_task_thread_num = 1;
 	NetTaskThread **m_net_task_threads = nullptr;
 	void ProcessNetTaskResult();
 
@@ -82,10 +81,9 @@ protected:
 	int64_t m_last_async_id = 0;
 	NetId GenNetId();
 	int64_t GenAsyncId();
-	int m_log_Id = 3;
 
 protected:
-	int m_net_worker_num = 12;
+	int m_net_worker_num = 1;
 	Net::INetWorker **m_net_workers = nullptr;
 	Net::INetWorker * ChoseWorker(NetId netid);
 	void ProcessNetDatas();

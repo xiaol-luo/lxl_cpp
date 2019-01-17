@@ -29,8 +29,8 @@ TimerID timer_next(TimerCallback cb_fn, int64_t start_ts_ms);
 TimerID timer_firm(TimerCallback cb_fn, int64_t execute_span_ms, int64_t execute_times);
 void timer_remove(TimerID timer_id);
 
-NetId net_listen(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler);
-NetId net_connect(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler);
+NetId net_listen(std::string ip, uint16_t port, std::weak_ptr<INetListenHander> handler);
+NetId net_connect(std::string ip, uint16_t port, std::weak_ptr<INetConnectHander> handler);
 void net_close(NetId netid);
 int64_t net_listen_async(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler);
 int64_t net_connect_async(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler);

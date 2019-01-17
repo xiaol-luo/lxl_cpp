@@ -21,12 +21,12 @@ LuaTcpConnect::~LuaTcpConnect()
 
 void LuaTcpConnect::OnClose(int err_num)
 {
-	m_lua_logic[LUA_CNN_CB_ONCLOSE](err_num);
+	m_lua_logic[LUA_CNN_CB_ONCLOSE](m_lua_logic, err_num);
 }
 
 void LuaTcpConnect::OnOpen(int err_num)
 {
-	m_lua_logic[LUA_CNN_CB_ONOPEN](err_num);
+	m_lua_logic[LUA_CNN_CB_ONOPEN](m_lua_logic, err_num);
 }
 
 void LuaTcpConnect::OnRecvData(char * data, uint32_t len)
@@ -43,12 +43,13 @@ void LuaTcpConnect::OnRecvData(char * data, uint32_t len)
 			{
 
 				std::string bin(ctx, ctx_len);
-				m_lua_logic[LUA_CNN_CB_ONRECV](pid, bin);
+				m_lua_logic[LUA_CNN_CB_ONRECV](m_lua_logic, pid, bin);
 			}
 			else
 			{
-				m_lua_logic[LUA_CNN_CB_ONRECV](pid);
+				m_lua_logic[LUA_CNN_CB_ONRECV](m_lua_logic, pid);
 			}
+			m_pid_ctx_splitter->PopUsingBuffer();
 		}
 		if (m_pid_ctx_splitter->IsFail())
 		{
@@ -101,10 +102,11 @@ bool LuaTcpConnect::Send(uint32_t pid, std::string & data)
 	uint32_t ctx_len = sizeof(pid) + data.size();
 	uint32_t buff_len = sizeof(uint32_t) + ctx_len;
 	char *buff = (char *)mempool_malloc(buff_len);
-	*(uint32_t *)buff = htonl(ctx_len); buff += sizeof(uint32_t);
-	*(uint32_t *)buff = htonl(pid); buff += sizeof(uint32_t);
-	memcpy(buff, data.data(), data.size());
+	char *p = buff;
+	*(uint32_t *)p = htonl(ctx_len); p += sizeof(uint32_t);
+	*(uint32_t *)p = htonl(pid); p += sizeof(uint32_t);
+	memcpy(p, data.data(), data.size());
 	net_send(m_netid, buff, buff_len);
-	delete buff; buff = nullptr;
+	mempool_free(buff); buff = nullptr;
 	return true;
 }

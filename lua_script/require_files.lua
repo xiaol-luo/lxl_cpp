@@ -14,6 +14,8 @@ local files = {
     "lpeg",
     "tryuselualib",
     "lfs",
-    "util.util",
+    "common.net.net_handler",
+    "common.net.tcp_connect",
+    "common.net.tcp_listen",
 }
 return files

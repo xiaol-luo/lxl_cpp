@@ -125,7 +125,7 @@ void OnTick()
 	{
 		first_tick = false;
 		ls_handler = std::make_shared<LsHandler>();
-		NetId netid = net_listen("0.0.0.0", port, nullptr, ls_handler);
+		NetId netid = net_listen("0.0.0.0", port, ls_handler);
 		if (netid == INVALID_NET_ID)
 		{
 			printf("Listen fail\n");
@@ -138,7 +138,7 @@ void OnTick()
 	if (cnn_ids.size() <= 512)
 	{
 		auto cnn_handler = std::make_shared<CnnHandler>();
-		NetId netid = net_connect(ip, port, nullptr, cnn_handler);
+		NetId netid = net_connect(ip, port, cnn_handler);
 		if (netid > 0)
 		{
 			net_handlers.push_back(cnn_handler);
@@ -210,11 +210,12 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 		log_error("StartLuaScript fail engine_stop, status: {}", status);
 		engine_stop();
 	}
+}
 
+void TickTestSend(lua_State *L)
+{
 	sol::state_view lsv(L);
-	LuaTcpConnect *ltc = new LuaTcpConnect();
-	ltc->Init(lsv["tcp_cnn_logic"]);
-	delete ltc;
+	lsv["test_send"](1);
 }
 
 int main (int argc, char **argv) 
@@ -258,6 +259,7 @@ int main (int argc, char **argv)
 	setup_service(&xxx);
 	// timer_firm(OnTick, 100, EXECUTE_UNLIMIT_TIMES);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
+	timer_firm(std::bind(TickTestSend, L), 1000, 100);
 	engine_loop();
 	lua_close(L);
 	engine_destroy();

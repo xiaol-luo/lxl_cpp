@@ -15,7 +15,7 @@ struct BlockSet
 	uint32_t total_num = 0;
 	uint32_t used_num = 0;
 	BlockLink free_block;
-	// char blocks_begin[0];
+	char blocks_begin[0];
 };
 
 MemoryPool::MemoryPool(uint32_t block_size, uint32_t memory_page_size) : m_block_size(block_size), m_memory_page_size(memory_page_size)
@@ -80,8 +80,8 @@ void * MemoryPool::Malloc()
 			block_set->id = block_id;
 			block_set->block_size = real_block_size;
 			block_set->total_num = (malloc_size - sizeof(BlockSet)) / block_set->block_size;
-			// block_set->free_block.next = &block_set->blocks_begin;
-			block_set->free_block.next = &block_set + sizeof(BlockSet);
+			block_set->free_block.next = &block_set->blocks_begin;
+			// block_set->free_block.next = &block_set + sizeof(BlockSet);
 			{
 				char *p = (char *)block_set->free_block.next;
 				char *q = (char *)block_set + malloc_size;
