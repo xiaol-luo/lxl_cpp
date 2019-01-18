@@ -257,9 +257,7 @@ int main (int argc, char **argv)
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
 	setup_service(&xxx);
-	// timer_firm(OnTick, 100, EXECUTE_UNLIMIT_TIMES);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
-	timer_firm(std::bind(TickTestSend, L), 1000, 100);
 	engine_loop();
 	lua_close(L);
 	engine_destroy();

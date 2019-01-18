@@ -18,25 +18,25 @@ g_cnn_handler_accept = nil
 
 
 function test_net_open(t, err_num)
-    print("test_net_open t", t:get_netid())
+    print("test_net_open t", t:netid())
     print("test_net_open err_num", err_num)
 end
 
 function test_net_close(t, err_num)
-    print("test_net_close t", t:get_netid())
+    print("test_net_close t", t:netid())
     print("test_net_close err_num", err_num)
 end
 
 
 function test_net_recv(t, pid, bin)
-    print("test_net_recv t", t:get_netid())
+    print("test_net_recv t", t:netid())
     print("test_net_recv pid", pid)
     print("test_net_recv bin", bin)
 end
 
 function test_net_gen_cnn(t)
     -- print("test_net_gen_cnn t", t)
-    print("test_net_gen_cnn t", t:get_netid())
+    print("test_net_gen_cnn t", t:netid())
     local cnn = TcpConnect:new()
     cnn:set_recv_cb(test_net_recv)
     cnn:set_open_cb(test_net_open)

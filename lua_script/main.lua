@@ -3,7 +3,7 @@ util = util or {}
 local c_one_gang = "-"
 local opt_lua_path = "lua_path"
 local opt_c_path = "c_path"
-MAIN_ARGS_LOGIC = "logic"
+MAIN_ARGS_SERVICE = "service"
 MAIN_ARGS_LOGIC_PARAM = "logic_param"
 MAIN_ARGS_DATA_DIR = "data_dir"
 
@@ -46,8 +46,8 @@ function util.parse_main_args(input_args, out_ret)
     parse_fns[c_one_gang .. opt_c_path] = function(args, arg_idx, ret)
         return fn_fill_args(args, arg_idx, ret, opt_c_path)
     end
-    parse_fns[c_one_gang .. MAIN_ARGS_LOGIC] = function(args, arg_idx, ret)
-        return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_LOGIC)
+    parse_fns[c_one_gang .. MAIN_ARGS_SERVICE] = function(args, arg_idx, ret)
+        return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_SERVICE)
     end
     parse_fns[c_one_gang .. MAIN_ARGS_LOGIC_PARAM] = function(args, arg_idx, ret)
         return fn_fill_args(args, arg_idx, ret, MAIN_ARGS_LOGIC_PARAM)
@@ -121,13 +121,13 @@ function start_script()
     use_parse_main_ret(MAIN_ARGS)
     add_search_paths()
     pre_require_files()
-    local setting_file = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], MAIN_ARGS[MAIN_ARGS_LOGIC], "setting.xml")
+    local setting_file = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], MAIN_ARGS[MAIN_ARGS_SERVICE], "setting.xml")
     LOGIC_SETTING = xml.parse_file(setting_file)
     -- xml.print_table(LOGIC_SETTING)
-    local logic_main_file = string.format("logics.%s.logic_main", MAIN_ARGS[MAIN_ARGS_LOGIC])
+    local logic_main_file = string.format("services.%s.service_main", MAIN_ARGS[MAIN_ARGS_SERVICE])
     print(logic_main_file)
     require(logic_main_file)
-    LogicMain.start()
+    ServiceMain.start()
 end
 
 start_script()

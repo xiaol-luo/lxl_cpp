@@ -23,11 +23,10 @@ function net_handler:on_close(err_num)
     self.close_cb(self, err_num)
 end
 
-function net_handler:get_netid()
+function net_handler:netid()
     local ret = 0
     if nil ~= self.native_handler then
-        print(self.native_handler)
-        ret = self.native_handler:get_netid()
+        ret = self.native_handler.netid
     end
     return ret
 end

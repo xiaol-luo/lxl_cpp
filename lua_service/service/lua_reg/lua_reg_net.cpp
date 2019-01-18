@@ -14,8 +14,7 @@ void lua_reg_net(lua_State *L)
 			"on_close", &INetworkHandler::OnClose, 
 			"on_open", &INetworkHandler::OnOpen,
 			"netid", sol::property(&INetworkHandler::GetNetId, &INetworkHandler::SetNetId),
-			"handle_type", sol::property(&INetworkHandler::HandlerType),
-			"get_netid", &INetworkHandler::GetNetId
+			"handle_type", sol::property(&INetworkHandler::HandlerType)
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}

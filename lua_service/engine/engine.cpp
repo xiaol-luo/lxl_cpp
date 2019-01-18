@@ -205,22 +205,22 @@ void net_close(NetId netid)
 	}
 }
 
-int64_t net_listen_async(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler)
+int64_t net_listen_async(std::string ip, uint16_t port, std::weak_ptr<INetListenHander> handler)
 {
 	int64_t ret = 0;
 	if (nullptr != g_server_logic)
 	{
-		ret = g_server_logic->GetNet()->ListenAsync(ip, port, opt, handler);
+		ret = g_server_logic->GetNet()->ListenAsync(ip, port, nullptr, handler);
 	}
 	return ret;
 }
 
-int64_t net_connect_async(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler)
+int64_t net_connect_async(std::string ip, uint16_t port, std::weak_ptr<INetConnectHander> handler)
 {
 	int64_t ret = 0;
 	if (nullptr != g_server_logic)
 	{
-		ret = g_server_logic->GetNet()->ConnectAsync(ip, port, opt, handler);
+		ret = g_server_logic->GetNet()->ConnectAsync(ip, port, nullptr, handler);
 	}
 	return ret;
 }
