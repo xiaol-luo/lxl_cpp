@@ -6,6 +6,7 @@ ADD_SUBDIRECTORY(pb)
 ADD_SUBDIRECTORY(lua_rapidjson)
 ADD_SUBDIRECTORY(lfs)
 ADD_SUBDIRECTORY(data_struct)
+ADD_SUBDIRECTORY(http_parser)
 
 
 
