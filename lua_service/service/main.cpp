@@ -133,6 +133,7 @@ void TickTestSend(lua_State *L)
 std::shared_ptr<HttpRspCnnMgr> g_http_rsp_mg = nullptr;
 void TestListenForHttp()
 {
+	log_debug("TestListenForHttp");
 	g_http_rsp_mg = std::make_shared<HttpRspCnnMgr>();
 	net_listen("0.0.0.0", 20480, g_http_rsp_mg);
 }

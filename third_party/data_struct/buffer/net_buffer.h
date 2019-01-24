@@ -30,7 +30,7 @@ public:
 	{
 		char *p = (char *)(&t);
 		uint32_t len = sizeof(T);
-		AppendBuff(p, len);
+		return AppendBuff(p, len);
 	}
 	uint32_t PopBuff(uint32_t pop_len, char **pop_head);
 	bool ResetHead(char *help_buff, uint32_t help_buff_len); // buff和buff+head之间的内容丢弃，buff+head和buff+pos之间的内容移动到buff和buff+pos-head

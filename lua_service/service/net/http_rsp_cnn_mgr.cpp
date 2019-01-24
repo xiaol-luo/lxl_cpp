@@ -25,6 +25,10 @@ void HttpRspCnnMgr::OnOpen(int err_num)
 	{
 		log_error("HttpRspCnnMgr OnOpen Fail", err_num);
 	}
+	else
+	{
+		log_debug("HttpRspCnnMgr::OnOpen");
+	}
 }
 
 std::shared_ptr<INetConnectHander> HttpRspCnnMgr::GenConnectorHandler()
