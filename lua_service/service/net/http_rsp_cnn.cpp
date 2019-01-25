@@ -73,10 +73,12 @@ void HttpRspCnn::OnOpen(int err_num)
 void HttpRspCnn::OnRecvData(char * data, uint32_t len)
 {
 	m_buff->AppendBuff(data, len);
-	m_buff->Append<char>('\0');
-	log_debug("HttpRspCnn::OnRecvData {} {}\n{}", m_netid, len, m_buff->HeadPtr());
-	int parsed = http_parser_execute(m_parser, m_parser_setting, m_buff->HeadPtr(), len);
-	log_debug("HttpRspCnn::OnRecvData parsed/recv_len = {}/{}", parsed, len);
+	int parsed = http_parser_execute(m_parser, m_parser_setting, m_buff->HeadPtr(), m_buff->Size());
+	if (parsed > 0)
+	{
+		m_buff->PopBuff(parsed, nullptr);
+	}
+	log_debug("HttpRspCnn::OnRecvData {} {}", m_netid, len);
 }
 
 int HttpRspCnn::on_message_begin(http_parser * parser)
@@ -145,7 +147,32 @@ int HttpRspCnn::on_headers_complete(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	log_debug("HttpRspCnn::on_headers_complete {}", self->m_netid);
+	log_debug("HttpRspCnn::on_headers_complete {}, content_length {}", self->m_netid, self->m_parser->content_length);
+
+	NetBuffer *send_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+
+	std::string state_line = fmt::format("HTTP/1.1 {} {}\r\n", 200, "OK");
+	send_buff->Append(state_line);
+
+	std::string content_str = "hello world";
+	char *head_line_format = "{}:{}\r\n";
+	std::unordered_map<std::string, std::string> heads = {
+		{"Date", "123455"},
+		{"Content-Type", "text/html;charset=UTF-8"},
+		{"Content-Length", fmt::format("{}", content_str.size())},
+	};
+	for (auto kv : heads)
+	{
+		std::string head_str = fmt::format(head_line_format, kv.first, kv.second);
+		send_buff->Append(head_str);
+	}
+	send_buff->Append(std::string("\r\n"));
+	send_buff->Append(content_str);
+	net_send(self->m_netid, send_buff->HeadPtr(), send_buff->Size());
+
+	net_close(self->m_netid);
+	delete send_buff;
+
 	return 0;
 }
 
@@ -187,7 +214,5 @@ int HttpRspCnn::on_chunk_complete(http_parser * parser)
 		return PARSE_HTTP_FAIL;
 
 	log_debug("HttpRspCnn::on_chunk_complete {}", self->m_netid);
-
-	net_close(self->m_netid);
 	return 0;
 }

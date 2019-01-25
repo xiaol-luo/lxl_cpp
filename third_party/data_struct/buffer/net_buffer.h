@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
+
 typedef void * (*MallocFn)(size_t);
 typedef void (*FreeFn)(void *);
 typedef void * (*ReallocFn)(void *, size_t);
@@ -31,6 +33,11 @@ public:
 		char *p = (char *)(&t);
 		uint32_t len = sizeof(T);
 		return AppendBuff(p, len);
+	}
+	template<>
+	bool Append<std::string>(std::string data)
+	{
+		return AppendBuff((char *)data.data(), data.size());
 	}
 	uint32_t PopBuff(uint32_t pop_len, char **pop_head);
 	bool ResetHead(char *help_buff, uint32_t help_buff_len); // buff和buff+head之间的内容丢弃，buff+head和buff+pos之间的内容移动到buff和buff+pos-head
