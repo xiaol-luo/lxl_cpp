@@ -1,19 +1,20 @@
 #include "http_rsp_cnn.h"
-#include "http_rsp_cnn_mgr.h"
 #include "iengine.h"
 
 static const int PARSE_HTTP_FAIL = -100;
 static const int PARSE_HTTP_SUCC = 0;
 
-HttpRspCnn::HttpRspCnn(std::weak_ptr<HttpRspCnnMgr> mgr)
+HttpRspCnn::HttpRspCnn(std::weak_ptr<IAcceptCnnHandlerMgr> mgr)
 {
 	m_mgr = mgr;
-	m_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+	m_recv_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+	m_req_body = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
 }
 
 HttpRspCnn::~HttpRspCnn()
 {
-	delete m_buff; m_buff = nullptr;
+	delete m_recv_buff; m_recv_buff = nullptr;
+	delete m_req_body; m_req_body = nullptr;
 	mempool_free(m_parser); m_parser = nullptr;
 	mempool_free(m_parser_setting); m_parser_setting = nullptr;
 }
@@ -22,15 +23,12 @@ void HttpRspCnn::OnClose(int err_num)
 {
 	if (0 != err_num)
 	{
-		log_error("HttpRspCnn::OnClose", err_num);
+		log_error("HttpRspCnn::OnClose {}", err_num);
 	}
-	else
+	std::shared_ptr<IAcceptCnnHandlerMgr> sp_mgr = m_mgr.lock();
+	if (sp_mgr)
 	{
-		std::shared_ptr<HttpRspCnnMgr> sp_mgr = m_mgr.lock();
-		if (sp_mgr)
-		{
-			sp_mgr->RemoveRspCnn(m_netid);
-		}
+		sp_mgr->RemoveCnn(m_netid);
 	}
 }
 
@@ -43,10 +41,10 @@ void HttpRspCnn::OnOpen(int err_num)
 	else
 	{
 		log_debug("HttpRspCnn::OnOpen", m_netid);
-		std::shared_ptr<HttpRspCnnMgr> sp_mgr = m_mgr.lock();
+		std::shared_ptr<IAcceptCnnHandlerMgr> sp_mgr = m_mgr.lock();
 		if (sp_mgr)
 		{
-			sp_mgr->AddRspCnn(this->GetSharedPtr<HttpRspCnn>());
+			sp_mgr->AddCnn(this->GetSharedPtr<HttpRspCnn>());
 			m_parser = (http_parser *)mempool_malloc(sizeof(http_parser));
 			m_parser->data = this;
 			http_parser_init(m_parser, HTTP_REQUEST);
@@ -72,13 +70,43 @@ void HttpRspCnn::OnOpen(int err_num)
 
 void HttpRspCnn::OnRecvData(char * data, uint32_t len)
 {
-	m_buff->AppendBuff(data, len);
-	int parsed = http_parser_execute(m_parser, m_parser_setting, m_buff->HeadPtr(), m_buff->Size());
+	m_recv_buff->AppendBuff(data, len);
+	int parsed = http_parser_execute(m_parser, m_parser_setting, m_recv_buff->HeadPtr(), m_recv_buff->Size());
 	if (parsed > 0)
 	{
-		m_buff->PopBuff(parsed, nullptr);
+		m_recv_buff->PopBuff(parsed, nullptr);
 	}
 	log_debug("HttpRspCnn::OnRecvData {} {}", m_netid, len);
+}
+
+int HttpRspCnn::ProcessReq()
+{
+	// for test
+	NetBuffer *send_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+
+	std::string state_line = fmt::format("HTTP/1.1 {} {}\r\n", 200, "OK");
+	send_buff->Append(state_line);
+
+	std::string content_str = "hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world";
+	char *head_line_format = "{}:{}\r\n";
+	std::unordered_map<std::string, std::string> heads = {
+		{"Date", "123455"},
+		{"Content-Type", "text/html;charset=UTF-8"},
+		{"Content-Length", fmt::format("{}", content_str.size())},
+	};
+	for (auto kv : heads)
+	{
+		std::string head_str = fmt::format(head_line_format, kv.first, kv.second);
+		send_buff->Append(head_str);
+	}
+	send_buff->Append(std::string("\r\n"));
+	send_buff->Append(content_str);
+	net_send(m_netid, send_buff->HeadPtr(), send_buff->Size());
+
+	// timer_next(std::bind(net_close, m_netid), 100);
+	delete send_buff;
+
+	return 0;
 }
 
 int HttpRspCnn::on_message_begin(http_parser * parser)
@@ -88,6 +116,13 @@ int HttpRspCnn::on_message_begin(http_parser * parser)
 		return PARSE_HTTP_FAIL;
 
 	log_debug("HttpRspCnn::on_message_begin {} ", self->m_netid);
+	self->m_recv_buff->ResetHead();
+	self->m_handling_head = EHandlingHead_None;
+	self->m_req_head_kv.Reset();
+	self->m_req_url = std::string();
+	self->m_req_heads.clear();
+	self->m_req_body->PopBuff(self->m_req_body->Size(), nullptr);
+	self->m_req_body->ResetHead();
 	return 0;
 }
 
@@ -97,8 +132,8 @@ int HttpRspCnn::on_url(http_parser * parser, const char * at, size_t length)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	std::string str(at, length); str.push_back(0);
-	log_debug("HttpRspCnn::on_url {} {} ", self->m_netid, str);
+	self->m_req_url.append(at, length);
+	log_debug("HttpRspCnn::on_url {} {} ", self->m_netid, self->m_req_url);
 	return 0;
 }
 
@@ -119,11 +154,15 @@ int HttpRspCnn::on_header_field(http_parser * parser, const char * at, size_t le
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	self->m_handling_head_field = std::string(at, length);
-	self->m_handling_head_field.push_back(0);
+	if (EHandlingHead_Key != self->m_handling_head)
+	{
+		self->CollectReqHead();
+	}
+	
+	self->m_handling_head = EHandlingHead_Key;
+	self->m_req_head_kv.key.append(at, length);
+	log_debug("HttpRspCnn::on_header_field {} {} {}", self->m_netid, self->m_req_head_kv.key, length);
 
-	std::string str(at, length); str.push_back(0);
-	log_debug("HttpRspCnn::on_header_field {} {} ", self->m_netid, str);
 	return 0;
 }
 
@@ -134,10 +173,11 @@ int HttpRspCnn::on_header_value(http_parser * parser, const char * at, size_t le
 		return PARSE_HTTP_FAIL;
 
 	std::string head_val(at, length); head_val.push_back(0);
-	self->m_heads.insert(std::make_pair(self->m_handling_head_field, head_val));
-	self->m_handling_head_field.clear();
 
-	log_debug("HttpRspCnn::on_header_value {} {} {} {} {}", self->m_netid, head_val, head_val.length(), head_val.size(), length);
+	self->m_handling_head = EHandlingHead_Val;
+	self->m_req_head_kv.val.append(at, length);
+
+	log_debug("HttpRspCnn::on_header_value {} {}", self->m_netid, self->m_req_head_kv.val);
 	return 0;
 }
 
@@ -148,31 +188,7 @@ int HttpRspCnn::on_headers_complete(http_parser * parser)
 		return PARSE_HTTP_FAIL;
 
 	log_debug("HttpRspCnn::on_headers_complete {}, content_length {}", self->m_netid, self->m_parser->content_length);
-
-	NetBuffer *send_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
-
-	std::string state_line = fmt::format("HTTP/1.1 {} {}\r\n", 200, "OK");
-	send_buff->Append(state_line);
-
-	std::string content_str = "hello world";
-	char *head_line_format = "{}:{}\r\n";
-	std::unordered_map<std::string, std::string> heads = {
-		{"Date", "123455"},
-		{"Content-Type", "text/html;charset=UTF-8"},
-		{"Content-Length", fmt::format("{}", content_str.size())},
-	};
-	for (auto kv : heads)
-	{
-		std::string head_str = fmt::format(head_line_format, kv.first, kv.second);
-		send_buff->Append(head_str);
-	}
-	send_buff->Append(std::string("\r\n"));
-	send_buff->Append(content_str);
-	net_send(self->m_netid, send_buff->HeadPtr(), send_buff->Size());
-
-	net_close(self->m_netid);
-	delete send_buff;
-
+	self->CollectReqHead();
 	return 0;
 }
 
@@ -182,8 +198,8 @@ int HttpRspCnn::on_body(http_parser * parser, const char * at, size_t length)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	std::string str(at, length); str.push_back(0);
-	log_debug("HttpRspCnn::on_body {} {} ", self->m_netid, str);
+	self->m_req_body->AppendBuff(at, length);
+	log_debug("HttpRspCnn::on_body {} {} ", self->m_netid, std::string(self->m_req_body->HeadPtr(), self->m_req_body->Size()));
 	return 0;
 }
 
@@ -193,7 +209,10 @@ int HttpRspCnn::on_message_complete(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	log_debug("HttpRspCnn::on_message_complete {}", self->m_netid);
+	self->m_req_body->AppendBuff("\0", 1);
+	log_debug("HttpRspCnn::on_message_complete {} body:\n{}", self->m_netid, self->m_req_body->HeadPtr());
+	self->ProcessReq();
+
 	return 0;
 }
 
@@ -215,4 +234,14 @@ int HttpRspCnn::on_chunk_complete(http_parser * parser)
 
 	log_debug("HttpRspCnn::on_chunk_complete {}", self->m_netid);
 	return 0;
+}
+
+void HttpRspCnn::CollectReqHead()
+{
+	if (m_req_head_kv.key.size() > 0)
+	{
+		m_req_heads.insert_or_assign(m_req_head_kv.key, m_req_head_kv.val);
+	}
+	m_handling_head = EHandlingHead_None;
+	m_req_head_kv.Reset();
 }

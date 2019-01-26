@@ -75,6 +75,15 @@ bool NetBuffer::SetHead(uint32_t new_head)
 
 bool NetBuffer::AppendBuff(char * buff, uint32_t len)
 {
+	return this->AppendBuff((const char *)buff, len);
+}
+
+bool NetBuffer::AppendBuff(const char * buff, uint32_t len)
+{
+	if (len <= 0)
+		return true;
+	if (nullptr == buff)
+		return false;
 	if (!this->CheckExpend(m_pos + len))
 		return false;
 	memcpy(this->Ptr(), buff, len);
@@ -99,15 +108,38 @@ uint32_t NetBuffer::PopBuff(uint32_t pop_len, char ** pop_head)
 
 bool NetBuffer::ResetHead(char *help_buff, uint32_t help_buff_len)
 {
-	uint32_t size = this->Size();
 	bool ret = false;
-	if (help_buff_len >= size)
+	uint32_t size = this->Size();
+	if (size <= 0)
+	{
+		ret = true;
+		m_head = 0;
+		m_pos = 0;
+	}
+	else if (help_buff_len >= size)
 	{
 		ret = true;
 		memcpy(help_buff, m_buff + m_head, size);
 		memcpy(m_buff, help_buff, size);
 		m_head = 0;
 		m_pos = size;
+	}
+	return ret;
+}
+
+bool NetBuffer::ResetHead()
+{
+	bool ret = false;
+	uint32_t size = this->Size();
+	if (size <= 0)
+	{
+		ret = this->ResetHead(nullptr, 0);
+	}
+	else
+	{
+		char *help_buff = (char *)m_malloc_fn(size);
+		ret = this->ResetHead(help_buff, size);
+		m_free_fn(help_buff); help_buff = nullptr;
 	}
 	return ret;
 }

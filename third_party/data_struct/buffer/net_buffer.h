@@ -25,6 +25,7 @@ public:
 	bool SetPos(uint32_t new_pos);
 	bool SetHead(uint32_t new_head);
 	bool AppendBuff(char *buff, uint32_t len);
+	bool AppendBuff(const char *buff, uint32_t len);
 	bool CheckExpend(uint32_t need_capacity);
 
 	template <typename T>
@@ -41,6 +42,7 @@ public:
 	}
 	uint32_t PopBuff(uint32_t pop_len, char **pop_head);
 	bool ResetHead(char *help_buff, uint32_t help_buff_len); // buff和buff+head之间的内容丢弃，buff+head和buff+pos之间的内容移动到buff和buff+pos-head
+	bool ResetHead();
 	   
 private:
 	uint32_t m_init_size = 0;

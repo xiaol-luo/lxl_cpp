@@ -129,13 +129,15 @@ void TickTestSend(lua_State *L)
 	lsv["test_send"](1);
 }
 
-#include "net/http_rsp_cnn_mgr.h"
-std::shared_ptr<HttpRspCnnMgr> g_http_rsp_mg = nullptr;
+#include "net/accept_cnn_handler_mgr.h"
+#include "net/http_rsp_cnn.h"
+
+std::shared_ptr<AcceptCnnHandlerMgr<HttpRspCnn> > g_test_cnn_mgr = nullptr;
 void TestListenForHttp()
 {
 	log_debug("TestListenForHttp");
-	g_http_rsp_mg = std::make_shared<HttpRspCnnMgr>();
-	net_listen("0.0.0.0", 20480, g_http_rsp_mg);
+	g_test_cnn_mgr = std::make_shared<AcceptCnnHandlerMgr<HttpRspCnn> >();
+	net_listen("0.0.0.0", 20480, g_test_cnn_mgr);
 }
 
 int main (int argc, char **argv) 
