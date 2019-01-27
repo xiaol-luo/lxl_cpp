@@ -9,7 +9,7 @@ const static char * LUA_CNN_CB_ONRECV = "on_recv";
 #include "buffer/net_buffer.h"
 #include "net_proto_splitter.h"
 
-class LuaTcpConnect : public INetConnectHander
+class LuaTcpConnect : public INetConnectHandler
 {
 public:
 	LuaTcpConnect();

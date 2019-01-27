@@ -177,6 +177,7 @@ namespace Net
 		int loop_times = 0;
 		while (!this->m_is_exits)
 		{
+			WorkLoop_AddConn();
 			WorkLoop_SendBuff();
 			{
 				max_fd = -1;
@@ -206,8 +207,6 @@ namespace Net
 					}
 				}
 			}
-
-
 			timeout_tv.tv_sec = 0;
 			timeout_tv.tv_usec = MS_PER_LOOP * 1000; // 50毫秒
 			int ret = select(max_fd + 1, &read_set, &write_set, nullptr, &timeout_tv) > 0;
@@ -237,7 +236,6 @@ namespace Net
 					}
 				}
 			}
-			WorkLoop_AddConn();
 			WorkLoop_RemoveConn();
 
 			// 如果不加sleep，那么线程就无法join，不理解是为什么 debian9上是这样
@@ -283,16 +281,42 @@ namespace Net
 			this->m_to_remove_netids_mutex.lock();
 			std::set<NetId> to_remove_netids; to_remove_netids.swap(this->m_to_remove_netids);
 			this->m_to_remove_netids_mutex.unlock();
+			std::set<NetId> delay_remove_netids;
 
 			for (auto netid : to_remove_netids)
 			{
+				bool is_remove = true;
+				auto node_it = this->m_id2nodes.find(netid);
+				if (node_it != this->m_id2nodes.end())
 				{
-					auto it = this->m_id2nodes.find(netid);
-					if (it != this->m_id2nodes.end())
+					Node *node = node_it->second;
+					bool need_send = false;
+					if (!node->closed && node->fd > 0)
 					{
-						Node *node = it->second;
-						this->m_id2nodes.erase(it);
-						it = this->m_id2nodes.end();
+						if (!node->send_buffs.empty())
+						{
+							need_send = true;
+						}
+						else
+						{
+							this->m_wait_send_buffs_mutex.lock();
+							auto it = this->m_wait_send_buffs.find(netid);
+							if (this->m_wait_send_buffs.end() != it)
+							{
+								need_send = true;
+							}
+							this->m_wait_send_buffs_mutex.unlock();
+						}
+					}
+					if (need_send)
+					{
+						is_remove = false;
+						delay_remove_netids.insert(netid);
+					}
+					else
+					{
+						this->m_id2nodes.erase(node_it);
+						node_it = this->m_id2nodes.end();
 						if (!node->closed && node->fd >= 0)
 						{
 							node->closed = true;
@@ -306,6 +330,7 @@ namespace Net
 						Node::DestroyNode(node); node = nullptr;
 					}
 				}
+				if (is_remove)
 				{
 					this->m_wait_send_buffs_mutex.lock();
 					auto it = this->m_wait_send_buffs.find(netid);
@@ -316,6 +341,12 @@ namespace Net
 					}
 					this->m_wait_send_buffs_mutex.unlock();
 				}
+			}
+			if (!delay_remove_netids.empty())
+			{
+				this->m_to_remove_netids_mutex.lock();
+				this->m_to_remove_netids.insert(delay_remove_netids.begin(), delay_remove_netids.end());
+				this->m_to_remove_netids_mutex.unlock();
 			}
 		}
 	}

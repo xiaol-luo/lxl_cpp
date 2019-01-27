@@ -7,7 +7,7 @@ const static char * LUA_LISTEN_GEN_CNN = "gen_cnn";
 #include "network/i_network_handler.h"
 #include <sol/sol.hpp>
 
-class LuaTcpListen : public INetListenHander
+class LuaTcpListen : public INetListenHandler
 {
 
 public:
@@ -18,7 +18,7 @@ public:
 
 	virtual void OnClose(int err_num) override;
 	virtual void OnOpen(int err_num) override;
-	virtual std::shared_ptr<INetConnectHander> GenConnectorHandler() override;
+	virtual std::shared_ptr<INetConnectHandler> GenConnectorHandler() override;
 
 protected:
 	sol::table m_lua_logic;

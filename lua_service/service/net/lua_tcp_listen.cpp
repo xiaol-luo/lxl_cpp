@@ -40,9 +40,9 @@ void LuaTcpListen::OnOpen(int err_num)
 	m_lua_logic[LUA_LISTEN_CB_ONOPEN](m_lua_logic, err_num);
 }
 
-std::shared_ptr<INetConnectHander> LuaTcpListen::GenConnectorHandler()
+std::shared_ptr<INetConnectHandler> LuaTcpListen::GenConnectorHandler()
 {
-	std::shared_ptr<INetConnectHander> ptr = nullptr;
+	std::shared_ptr<INetConnectHandler> ptr = nullptr;
 	sol::object ret = m_lua_logic[LUA_LISTEN_GEN_CNN](m_lua_logic);
 	if (ret.is<std::shared_ptr<LuaTcpConnect>>())
 	{

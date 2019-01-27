@@ -19,22 +19,22 @@ void lua_reg_net(lua_State *L)
 		native_tb.set_usertype(class_name, meta_table);
 	}
 	{
-		std::string class_name = "INetConnectHander";
+		std::string class_name = "INetConnectHandler";
 		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
 		assert(!v.valid());
-		sol::usertype<INetConnectHander> meta_table(
+		sol::usertype<INetConnectHandler> meta_table(
 			sol::base_classes, sol::bases<INetworkHandler>(),
-			"on_recv", &INetConnectHander::OnRecvData
+			"on_recv", &INetConnectHandler::OnRecvData
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}
 	{
-		std::string class_name = "INetListenHander";
+		std::string class_name = "INetListenHandler";
 		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
 		assert(!v.valid());
-		sol::usertype<INetListenHander> meta_table(
+		sol::usertype<INetListenHandler> meta_table(
 			sol::base_classes, sol::bases<INetworkHandler>(),
-			"gen_cnn", &INetListenHander::GenConnectorHandler
+			"gen_cnn", &INetListenHandler::GenConnectorHandler
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}
@@ -44,7 +44,7 @@ void lua_reg_net(lua_State *L)
 		assert(!v.valid());
 		sol::usertype<LuaTcpConnect> meta_table(
 			sol::constructors<LuaTcpConnect()>(),
-			sol::base_classes, sol::bases<INetConnectHander, INetworkHandler>(),
+			sol::base_classes, sol::bases<INetConnectHandler, INetworkHandler>(),
 			"init", &LuaTcpConnect::Init,
 			"send", sol::overload(
 				[](LuaTcpConnect *self, uint32_t pid) { return self->Send(pid); },
@@ -59,7 +59,7 @@ void lua_reg_net(lua_State *L)
 		assert(!v.valid());
 		sol::usertype<LuaTcpListen> meta_table(
 			sol::constructors<LuaTcpListen()>(),
-			sol::base_classes, sol::bases<INetListenHander, INetworkHandler>(),
+			sol::base_classes, sol::bases<INetListenHandler, INetworkHandler>(),
 			"init", &LuaTcpListen::Init
 		);
 		native_tb.set_usertype(class_name, meta_table);

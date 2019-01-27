@@ -240,7 +240,7 @@ EModuleRetCode NetworkModule::Destroy()
 	return EModuleRetCode_Succ;
 }
 
-NetId NetworkModule::Listen(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler)
+NetId NetworkModule::Listen(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHandler> handler)
 {
 	std::shared_ptr<INetworkHandler> sp_handler = handler.lock();
 	if (nullptr == sp_handler) return 0;
@@ -272,7 +272,7 @@ NetId NetworkModule::Listen(std::string ip, uint16_t port, void *opt, std::weak_
 	return netid;
 }
 
-NetId NetworkModule::Connect(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler)
+NetId NetworkModule::Connect(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHandler> handler)
 {
 	std::shared_ptr<INetworkHandler> sp_handler = handler.lock();
 	if (nullptr == sp_handler) return 0;
@@ -311,7 +311,7 @@ void NetworkModule::Close(NetId netid)
 	this->ChoseWorker(netid)->RemoveCnn(netid);
 }
 
-int64_t NetworkModule::ListenAsync(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHander> handler)
+int64_t NetworkModule::ListenAsync(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHandler> handler)
 {
 	if (nullptr == handler.lock()) return 0;
 
@@ -325,7 +325,7 @@ int64_t NetworkModule::ListenAsync(std::string ip, uint16_t port, void *opt, std
 	return async_id;
 }
 
-int64_t NetworkModule::ConnectAsync(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHander> handler)
+int64_t NetworkModule::ConnectAsync(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHandler> handler)
 {
 	if (nullptr == handler.lock()) return 0;
 
@@ -442,7 +442,7 @@ void NetworkModule::ProcessNetDatas()
 				{
 					if (ENetworkHandler_Connect == handler->HandlerType())
 					{
-						std::shared_ptr<INetConnectHander> tmp_handler = std::dynamic_pointer_cast<INetConnectHander>(handler);
+						std::shared_ptr<INetConnectHandler> tmp_handler = std::dynamic_pointer_cast<INetConnectHandler>(handler);
 						if (ENetWorkDataAction_Close == data->action)
 						{
 							tmp_handler->OnClose(data->err_num);
@@ -454,14 +454,14 @@ void NetworkModule::ProcessNetDatas()
 					}
 					if (ENetworkHandler_Listen == handler->HandlerType())
 					{
-						std::shared_ptr<INetListenHander> tmp_handler = std::dynamic_pointer_cast<INetListenHander>(handler);
+						std::shared_ptr<INetListenHandler> tmp_handler = std::dynamic_pointer_cast<INetListenHandler>(handler);
 						if (ENetWorkDataAction_Close == data->action)
 						{
 							tmp_handler->OnClose(data->err_num);
 						}
 						if (ENetWorkDataAction_Read == data->action)
 						{
-							std::shared_ptr<INetConnectHander> new_handler = tmp_handler->GenConnectorHandler();
+							std::shared_ptr<INetConnectHandler> new_handler = tmp_handler->GenConnectorHandler();
 							NetId netid = this->GenNetId();
 							int err_num = 0;
 							if (nullptr == new_handler || !ChoseWorker(netid)->AddCnn(netid, data->new_fd, new_handler))

@@ -4,30 +4,42 @@
 #include "buffer/net_buffer.h"
 #include <string>
 #include <unordered_map>
-#include "accept_cnn_handler_mgr.h"
+#include "net_handler_map.h"
+#include <functional>
 
 extern "C" 
 {
 	#include "http_parser/http_parser.h"
 }
 
-class HttpRspCnn : public INetConnectHander
+class HttpRspCnn;
+
+using FnProcessReq = std::function<void(HttpRspCnn * /*self*/, 
+	uint32_t /*get/post*/, 
+	std::string /*url*/, 
+	std::unordered_map<std::string, std::string> /*heads*/,
+	std::string /*body*/,
+	uint64_t /*body_len*/
+	)>;
+
+class HttpRspCnn : public INetConnectHandler
 {
 public:
-	HttpRspCnn(std::weak_ptr<IAcceptCnnHandlerMgr> mgr);
+	HttpRspCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>> cnn_map);
 	virtual ~HttpRspCnn();
 	virtual void OnClose(int err_num) override;
 	virtual void OnOpen(int err_num) override;
 	virtual void OnRecvData(char *data, uint32_t len) override;
 
+	void SetProcessReqFn(FnProcessReq fn) { m_process_req_fn = fn; }
+
 protected:
-	virtual int ProcessReq();
+	void ProcessReq();
 
 protected:
 	// http parse callback
 	static int on_message_begin(http_parser *parser);
 	static int on_url(http_parser *parser, const char *at, size_t length);
-	static int on_status(http_parser *parser, const char *at, size_t length);
 	static int on_header_field(http_parser *parser, const char *at, size_t length);
 	static int on_header_value(http_parser *parser, const char *at, size_t length);
 	static int on_headers_complete(http_parser *parser);
@@ -37,7 +49,8 @@ protected:
 	static int on_chunk_complete(http_parser *parser);
 
 protected:
-	std::weak_ptr<IAcceptCnnHandlerMgr> m_mgr;
+	FnProcessReq m_process_req_fn;
+	std::weak_ptr<NetHandlerMap<INetConnectHandler>> m_cnn_map;
 	http_parser * m_parser = nullptr;
 	http_parser_settings *m_parser_setting = nullptr;
 	NetBuffer *m_recv_buff = nullptr;
@@ -60,5 +73,5 @@ protected:
 	std::unordered_map<std::string, std::string> m_req_heads; // 请求头
 	NetBuffer *m_req_body = nullptr; // 请求数据
 
-	void CollectReqHead();
+	void CollectHead();
 };

@@ -129,15 +129,35 @@ void TickTestSend(lua_State *L)
 	lsv["test_send"](1);
 }
 
-#include "net/accept_cnn_handler_mgr.h"
 #include "net/http_rsp_cnn.h"
+#include "net/common_listener.h"
+#include "net/http_req_cnn.h"
 
-std::shared_ptr<AcceptCnnHandlerMgr<HttpRspCnn> > g_test_cnn_mgr = nullptr;
+std::shared_ptr<CommonListener> g_common_listener = nullptr;
+
 void TestListenForHttp()
 {
 	log_debug("TestListenForHttp");
-	g_test_cnn_mgr = std::make_shared<AcceptCnnHandlerMgr<HttpRspCnn> >();
-	net_listen("0.0.0.0", 20480, g_test_cnn_mgr);
+	g_common_listener = std::make_shared<CommonListener>();
+	CommonListenCallback listen_cb;
+	listen_cb.do_gen_cnn_handler = [](CommonListener *self)
+	{
+		return std::make_shared<HttpRspCnn>(self->GetCnnMap());
+	};
+	g_common_listener->SetCb(listen_cb);
+	// g_common_listener->Listen(20480);
+	g_common_listener->ListenAsync(20480);
+}
+
+std::shared_ptr<NetHandlerMap<INetConnectHandler>> g_http_cnns = nullptr;
+
+void TestCnnForHttp()
+{
+	log_debug("-------------- TestCnnForHttp");
+	std::string ctx = "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss";
+	std::shared_ptr<HttpReqCnn> cnn = std::make_shared<HttpReqCnn>(g_http_cnns);
+	cnn->SetReqData("/abcdefg", false, std::unordered_map<std::string, std::string>(), ctx);
+	net_connect("127.0.0.1", 20480, cnn);
 }
 
 int main (int argc, char **argv) 
@@ -174,6 +194,8 @@ int main (int argc, char **argv)
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
+	g_http_cnns = std::make_shared<NetHandlerMap<INetConnectHandler>>();
+
 	engine_init();
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
@@ -181,6 +203,7 @@ int main (int argc, char **argv)
 	setup_service(&xxx);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
 	timer_next(TestListenForHttp, 1000);
+	timer_firm(TestCnnForHttp, 1 * 200, -1);
 	engine_loop();
 	lua_close(L);
 	engine_destroy();

@@ -1,0 +1,248 @@
+#include "http_req_cnn.h"
+#include "iengine.h"
+#include <regex>
+#include <chrono>
+#include <ctime>
+
+static const int PARSE_HTTP_FAIL = -100;
+static const int PARSE_HTTP_SUCC = 0;
+
+HttpReqCnn::HttpReqCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>>  cnn_map)
+{
+	m_cnn_map = cnn_map;
+	m_recv_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+	m_rsp_body = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+	m_req_data_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+}
+
+HttpReqCnn::~HttpReqCnn()
+{
+	delete m_recv_buff; m_recv_buff = nullptr;
+	delete m_rsp_body; m_rsp_body = nullptr;
+	delete m_rsp_body; m_rsp_body = nullptr;
+	mempool_free(m_parser); m_parser = nullptr;
+	mempool_free(m_parser_setting); m_parser_setting = nullptr;
+}
+
+void HttpReqCnn::OnClose(int err_num)
+{
+	if (0 != err_num)
+	{
+		log_error("HttpReqCnn::OnClose {}", err_num);
+	}
+	auto ap_cnn_map = m_cnn_map.lock();
+	if (ap_cnn_map)
+	{
+		ap_cnn_map->Remove(m_netid);
+	}
+}
+
+void HttpReqCnn::OnOpen(int err_num)
+{
+	log_debug("HttpReqCnn::OnOpen {} {}", m_netid, err_num);
+
+	if (0 != err_num)
+	{
+		
+	}
+	else
+	{
+		auto sp_cnn_map = m_cnn_map.lock();
+		if (sp_cnn_map)
+		{
+			sp_cnn_map->Add(this->GetSharedPtr<HttpReqCnn>());
+		}
+
+		m_parser = (http_parser *)mempool_malloc(sizeof(http_parser));
+		m_parser->data = this;
+		http_parser_init(m_parser, HTTP_RESPONSE);
+		m_parser_setting = (http_parser_settings *)mempool_malloc(sizeof(http_parser_settings));
+		http_parser_settings_init(m_parser_setting);
+		m_parser_setting->on_message_begin = HttpReqCnn::on_message_begin;
+		m_parser_setting->on_status = HttpReqCnn::on_status;
+		m_parser_setting->on_header_field = HttpReqCnn::on_header_field;
+		m_parser_setting->on_header_value = HttpReqCnn::on_header_value;
+		m_parser_setting->on_headers_complete = HttpReqCnn::on_headers_complete;
+		m_parser_setting->on_body = HttpReqCnn::on_body;
+		m_parser_setting->on_message_complete = HttpReqCnn::on_message_complete;
+		m_parser_setting->on_chunk_header = HttpReqCnn::on_chunk_header;
+		m_parser_setting->on_chunk_complete = HttpReqCnn::on_chunk_complete;
+		net_send(m_netid, m_req_data_buff->HeadPtr(), m_req_data_buff->Size());
+	}
+}
+
+
+void HttpReqCnn::OnRecvData(char * data, uint32_t len)
+{
+	m_recv_buff->AppendBuff(data, len);
+	std::string recv_str = std::string(m_recv_buff->HeadPtr(), m_recv_buff->Size());
+	int parsed = http_parser_execute(m_parser, m_parser_setting, m_recv_buff->HeadPtr(), m_recv_buff->Size());
+	if (parsed > 0)
+	{
+		m_recv_buff->PopBuff(parsed, nullptr);
+	}
+	log_debug("HttpReqCnn::OnRecvData {} {} \n{}", m_netid, len, recv_str);
+}
+
+void HttpReqCnn::SetReqData(std::string url, bool is_get, std::unordered_map<std::string, std::string> heads, std::string content)
+{
+	std::string req_line = fmt::format("{} {} HTTP/1.1\r\n", is_get ? "GET" : "POST", url);
+	m_req_data_buff->Append(req_line);
+	heads.insert_or_assign("User-Agent", "utopia-http-client");
+	// heads.insert_or_assign("Accept", "*/*");
+	heads.insert_or_assign("Content-Length", fmt::format("{}", content.size()));
+	
+	char time_str[256];
+	{
+		std::time_t t = std::time(nullptr);
+		std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+	}
+	heads.insert_or_assign("Date", time_str);
+
+	char *head_line_format = "{}:{}\r\n";
+	for (auto kv : heads)
+	{
+		std::string head_str = fmt::format(head_line_format, kv.first, kv.second);
+		m_req_data_buff->Append(head_str);
+	}
+	m_req_data_buff->Append(std::string("\r\n"));
+	m_req_data_buff->Append(content);
+
+	log_debug("req strs {}", std::string(m_req_data_buff->HeadPtr(), m_req_data_buff->Size()));
+}
+
+void HttpReqCnn::ProcessRsp()
+{
+	if (nullptr != m_process_rsp_fn)
+	{
+
+		uint64_t body_len = std::min<uint64_t>(m_rsp_body->Size(), m_parser->content_length);
+		m_process_rsp_fn(this, m_rsp_state, m_rsp_heads, 
+			std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()), body_len);
+	}
+}
+
+int HttpReqCnn::on_message_begin(http_parser * parser)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	log_debug("HttpReqCnn::on_message_begin {} ", self->m_netid);
+	self->m_recv_buff->ResetHead();
+	self->m_handling_head = EHandlingHead_None;
+	self->m_req_head_kv.Reset();
+	self->m_rsp_state = std::string();
+	self->m_rsp_heads.clear();
+	self->m_rsp_body->PopBuff(self->m_rsp_body->Size(), nullptr);
+	self->m_rsp_body->ResetHead();
+	return 0;
+}
+
+int HttpReqCnn::on_status(http_parser * parser, const char * at, size_t length)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	self->m_rsp_state.append(at, length);
+	log_debug("HttpReqCnn::on_status {} {} ", self->m_netid, self->m_rsp_state);
+	return 0;
+}
+
+int HttpReqCnn::on_header_field(http_parser * parser, const char * at, size_t length)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	if (EHandlingHead_Key != self->m_handling_head)
+	{
+		self->CollectHead();
+	}
+
+	self->m_handling_head = EHandlingHead_Key;
+	self->m_req_head_kv.key.append(at, length);
+	log_debug("HttpReqCnn::on_header_field {} {} {}", self->m_netid, self->m_req_head_kv.key, length);
+
+	return 0;
+}
+
+int HttpReqCnn::on_header_value(http_parser * parser, const char * at, size_t length)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	std::string head_val(at, length); head_val.push_back(0);
+
+	self->m_handling_head = EHandlingHead_Val;
+	self->m_req_head_kv.val.append(at, length);
+
+	log_debug("HttpReqCnn::on_header_value {} {}", self->m_netid, self->m_req_head_kv.val);
+	return 0;
+}
+
+int HttpReqCnn::on_headers_complete(http_parser * parser)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	log_debug("HttpReqCnn::on_headers_complete {}, content_length {}", self->m_netid, self->m_parser->content_length);
+	self->CollectHead();
+	return 0;
+}
+
+int HttpReqCnn::on_body(http_parser * parser, const char * at, size_t length)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	self->m_rsp_body->AppendBuff(at, length);
+	log_debug("HttpReqCnn::on_body {} {} ", self->m_netid, std::string(self->m_rsp_body->HeadPtr(), self->m_rsp_body->Size()));
+	return 0;
+}
+
+int HttpReqCnn::on_message_complete(http_parser * parser)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	self->m_rsp_body->AppendBuff("\0", 1);
+	log_debug("HttpReqCnn::on_message_complete {} body:\n{}", self->m_netid, self->m_rsp_body->HeadPtr());
+	self->ProcessRsp();
+	return 0;
+}
+
+int HttpReqCnn::on_chunk_header(http_parser * parser)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	log_debug("HttpReqCnn::on_chunk_header {}", self->m_netid);
+	return 0;
+}
+
+int HttpReqCnn::on_chunk_complete(http_parser * parser)
+{
+	HttpReqCnn *self = (HttpReqCnn *)parser->data;
+	if (nullptr == self)
+		return PARSE_HTTP_FAIL;
+
+	log_debug("HttpReqCnn::on_chunk_complete {}", self->m_netid);
+	return 0;
+}
+
+void HttpReqCnn::CollectHead()
+{
+	if (m_req_head_kv.key.size() > 0)
+	{
+		m_rsp_heads.insert_or_assign(m_req_head_kv.key, m_req_head_kv.val);
+	}
+	m_handling_head = EHandlingHead_None;
+	m_req_head_kv.Reset();
+}

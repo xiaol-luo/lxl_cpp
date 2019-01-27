@@ -177,7 +177,7 @@ void timer_remove(TimerID timer_id)
 	}
 }
 
-NetId net_listen(std::string ip, uint16_t port, std::weak_ptr<INetListenHander> handler)
+NetId net_listen(std::string ip, uint16_t port, std::weak_ptr<INetListenHandler> handler)
 {
 	NetId ret = INVALID_NET_ID;
 	if (nullptr != g_server_logic)
@@ -187,7 +187,7 @@ NetId net_listen(std::string ip, uint16_t port, std::weak_ptr<INetListenHander> 
 	return ret;
 }
 
-NetId net_connect(std::string ip, uint16_t port, std::weak_ptr<INetConnectHander> handler)
+NetId net_connect(std::string ip, uint16_t port, std::weak_ptr<INetConnectHandler> handler)
 {
 	NetId ret = INVALID_NET_ID;
 	if (nullptr != g_server_logic)
@@ -205,7 +205,7 @@ void net_close(NetId netid)
 	}
 }
 
-int64_t net_listen_async(std::string ip, uint16_t port, std::weak_ptr<INetListenHander> handler)
+int64_t net_listen_async(std::string ip, uint16_t port, std::weak_ptr<INetListenHandler> handler)
 {
 	int64_t ret = 0;
 	if (nullptr != g_server_logic)
@@ -215,7 +215,7 @@ int64_t net_listen_async(std::string ip, uint16_t port, std::weak_ptr<INetListen
 	return ret;
 }
 
-int64_t net_connect_async(std::string ip, uint16_t port, std::weak_ptr<INetConnectHander> handler)
+int64_t net_connect_async(std::string ip, uint16_t port, std::weak_ptr<INetConnectHandler> handler)
 {
 	int64_t ret = 0;
 	if (nullptr != g_server_logic)

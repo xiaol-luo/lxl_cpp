@@ -1,12 +1,13 @@
 #include "http_rsp_cnn.h"
 #include "iengine.h"
+#include <algorithm>
 
 static const int PARSE_HTTP_FAIL = -100;
 static const int PARSE_HTTP_SUCC = 0;
 
-HttpRspCnn::HttpRspCnn(std::weak_ptr<IAcceptCnnHandlerMgr> mgr)
+HttpRspCnn::HttpRspCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>>  cnn_map)
 {
-	m_mgr = mgr;
+	m_cnn_map = cnn_map;
 	m_recv_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
 	m_req_body = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
 }
@@ -25,26 +26,25 @@ void HttpRspCnn::OnClose(int err_num)
 	{
 		log_error("HttpRspCnn::OnClose {}", err_num);
 	}
-	std::shared_ptr<IAcceptCnnHandlerMgr> sp_mgr = m_mgr.lock();
-	if (sp_mgr)
+	auto ap_cnn_map = m_cnn_map.lock();
+	if (ap_cnn_map)
 	{
-		sp_mgr->RemoveCnn(m_netid);
+		ap_cnn_map->Remove(m_netid);
 	}
 }
 
 void HttpRspCnn::OnOpen(int err_num)
 {
+	log_debug("HttpRspCnn::OnOpen {} {}", m_netid, err_num);
 	if (0 != err_num)
 	{
-		log_error("HttpRspCnn::OnOpen", err_num);
 	}
 	else
 	{
-		log_debug("HttpRspCnn::OnOpen", m_netid);
-		std::shared_ptr<IAcceptCnnHandlerMgr> sp_mgr = m_mgr.lock();
-		if (sp_mgr)
+		auto sp_cnn_map = m_cnn_map.lock();
+		if (sp_cnn_map)
 		{
-			sp_mgr->AddCnn(this->GetSharedPtr<HttpRspCnn>());
+			sp_cnn_map->Add(this->GetSharedPtr<HttpRspCnn>());
 			m_parser = (http_parser *)mempool_malloc(sizeof(http_parser));
 			m_parser->data = this;
 			http_parser_init(m_parser, HTTP_REQUEST);
@@ -52,7 +52,6 @@ void HttpRspCnn::OnOpen(int err_num)
 			http_parser_settings_init(m_parser_setting);
 			m_parser_setting->on_message_begin = HttpRspCnn::on_message_begin;
 			m_parser_setting->on_url = HttpRspCnn::on_url;
-			m_parser_setting->on_status = HttpRspCnn::on_status;
 			m_parser_setting->on_header_field = HttpRspCnn::on_header_field;
 			m_parser_setting->on_header_value = HttpRspCnn::on_header_value;
 			m_parser_setting->on_headers_complete = HttpRspCnn::on_headers_complete;
@@ -76,37 +75,44 @@ void HttpRspCnn::OnRecvData(char * data, uint32_t len)
 	{
 		m_recv_buff->PopBuff(parsed, nullptr);
 	}
-	log_debug("HttpRspCnn::OnRecvData {} {}", m_netid, len);
+	log_debug("HttpRspCnn::OnRecvData {} {} used: {}/{}", m_netid, len, m_recv_buff->Head(), m_recv_buff->Pos());
 }
 
-int HttpRspCnn::ProcessReq()
+void HttpRspCnn::ProcessReq()
 {
-	// for test
-	NetBuffer *send_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
-
-	std::string state_line = fmt::format("HTTP/1.1 {} {}\r\n", 200, "OK");
-	send_buff->Append(state_line);
-
-	std::string content_str = "hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world";
-	char *head_line_format = "{}:{}\r\n";
-	std::unordered_map<std::string, std::string> heads = {
-		{"Date", "123455"},
-		{"Content-Type", "text/html;charset=UTF-8"},
-		{"Content-Length", fmt::format("{}", content_str.size())},
-	};
-	for (auto kv : heads)
+	if (nullptr != m_process_req_fn)
 	{
-		std::string head_str = fmt::format(head_line_format, kv.first, kv.second);
-		send_buff->Append(head_str);
+		uint64_t body_len = std::min<uint64_t>(m_req_body->Size(), m_parser->content_length);
+		m_process_req_fn(this, m_parser->method, m_req_url, m_req_heads, 
+			std::string(m_req_body->HeadPtr(), m_req_body->Size()), body_len);
 	}
-	send_buff->Append(std::string("\r\n"));
-	send_buff->Append(content_str);
-	net_send(m_netid, send_buff->HeadPtr(), send_buff->Size());
+	else
+	{
+		NetBuffer *send_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
+		std::string state_line = fmt::format("HTTP/1.1 {} {}\r\n", 404, "NotProcessLogic");
+		send_buff->Append(state_line);
+		char *head_line_format = "{}:{}\r\n";
 
-	// timer_next(std::bind(net_close, m_netid), 100);
-	delete send_buff;
-
-	return 0;
+		char time_str[256];
+		{
+			std::time_t t = std::time(nullptr);
+			std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+		}
+		std::unordered_map<std::string, std::string> heads = {
+			{"Date", time_str},
+			// {"Content-Type", "text/html;charset=UTF-8"},
+			{"Content-Length", fmt::format("{}", 0)},
+		};
+		for (auto kv : heads)
+		{
+			std::string head_str = fmt::format(head_line_format, kv.first, kv.second);
+			send_buff->Append(head_str);
+		}
+		send_buff->Append(std::string("\r\n"));
+		net_send(m_netid, send_buff->HeadPtr(), send_buff->Size());
+		net_close(m_netid);
+		delete send_buff;
+	}
 }
 
 int HttpRspCnn::on_message_begin(http_parser * parser)
@@ -137,17 +143,6 @@ int HttpRspCnn::on_url(http_parser * parser, const char * at, size_t length)
 	return 0;
 }
 
-int HttpRspCnn::on_status(http_parser * parser, const char * at, size_t length)
-{
-	HttpRspCnn *self = (HttpRspCnn *)parser->data;
-	if (nullptr == self)
-		return PARSE_HTTP_FAIL;
-
-	std::string str(at, length); str.push_back(0);
-	log_debug("HttpRspCnn::on_status {} {} ", self->m_netid, str);
-	return 0;
-}
-
 int HttpRspCnn::on_header_field(http_parser * parser, const char * at, size_t length)
 {
 	HttpRspCnn *self = (HttpRspCnn *)parser->data;
@@ -156,7 +151,7 @@ int HttpRspCnn::on_header_field(http_parser * parser, const char * at, size_t le
 
 	if (EHandlingHead_Key != self->m_handling_head)
 	{
-		self->CollectReqHead();
+		self->CollectHead();
 	}
 	
 	self->m_handling_head = EHandlingHead_Key;
@@ -188,7 +183,7 @@ int HttpRspCnn::on_headers_complete(http_parser * parser)
 		return PARSE_HTTP_FAIL;
 
 	log_debug("HttpRspCnn::on_headers_complete {}, content_length {}", self->m_netid, self->m_parser->content_length);
-	self->CollectReqHead();
+	self->CollectHead();
 	return 0;
 }
 
@@ -211,6 +206,7 @@ int HttpRspCnn::on_message_complete(http_parser * parser)
 
 	self->m_req_body->AppendBuff("\0", 1);
 	log_debug("HttpRspCnn::on_message_complete {} body:\n{}", self->m_netid, self->m_req_body->HeadPtr());
+
 	self->ProcessReq();
 
 	return 0;
@@ -236,7 +232,7 @@ int HttpRspCnn::on_chunk_complete(http_parser * parser)
 	return 0;
 }
 
-void HttpRspCnn::CollectReqHead()
+void HttpRspCnn::CollectHead()
 {
 	if (m_req_head_kv.key.size() > 0)
 	{
