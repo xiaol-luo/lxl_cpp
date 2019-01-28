@@ -22,7 +22,7 @@ NetId CommonListener::Listen(int port)
 	if (m_port >= 0)
 		return INVALID_NET_ID;
 
-	return net_listen("0.0.0.0", port, this->GetSharedPtr<CommonListener>());
+	return net_listen("0.0.0.0", port, this->GetSharedPtr());
 }
 
 int64_t CommonListener::ListenAsync(int port)
@@ -30,7 +30,7 @@ int64_t CommonListener::ListenAsync(int port)
 	if (m_port >= 0)
 		return 0;
 
-	return net_listen_async("0.0.0.0", port, this->GetSharedPtr<CommonListener>());
+	return net_listen_async("0.0.0.0", port, this->GetSharedPtr());
 }
 
 bool CommonListener::AddCnn(std::shared_ptr<INetConnectHandler> cnn)

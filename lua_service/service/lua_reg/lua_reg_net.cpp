@@ -1,11 +1,14 @@
 #include "lua_reg.h"
 #include "net/lua_tcp_connect.h"
 #include "net/lua_tcp_listen.h"
+#include "net/common_listener.h"
+#include "net/common_cnn_handler.h"
 
 void lua_reg_net(lua_State *L)
 {
 	sol::table native_tb = get_or_create_table(L, TB_NATIVE);
 	{
+		// INetworkHandler
 		std::string class_name = "INetworkHandler";
 		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
 		assert(!v.valid());
@@ -19,25 +22,87 @@ void lua_reg_net(lua_State *L)
 		native_tb.set_usertype(class_name, meta_table);
 	}
 	{
+		// INetConnectHandler
 		std::string class_name = "INetConnectHandler";
 		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
 		assert(!v.valid());
 		sol::usertype<INetConnectHandler> meta_table(
 			sol::base_classes, sol::bases<INetworkHandler>(),
-			"on_recv", &INetConnectHandler::OnRecvData
+			"on_recv", &INetConnectHandler::OnRecvData,
+			"get_shared_ptr", &INetConnectHandler::GetSharedPtr,
+			"get_ptr", &INetConnectHandler::GetPtr
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}
 	{
+		// INetListenHandler
 		std::string class_name = "INetListenHandler";
 		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
 		assert(!v.valid());
 		sol::usertype<INetListenHandler> meta_table(
 			sol::base_classes, sol::bases<INetworkHandler>(),
-			"gen_cnn", &INetListenHandler::GenConnectorHandler
+			"gen_cnn", &INetListenHandler::GenConnectorHandler,
+			"get_shared_ptr", &INetListenHandler::GetSharedPtr,
+			"get_ptr", &INetListenHandler::GetPtr
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}
+	{
+		// CommonListenCallback
+		std::string class_name = "CommonListenCallback";
+		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
+		assert(!v.valid());
+		sol::usertype<CommonListenCallback> meta_table(
+			"on_add_cnn", &CommonListenCallback::on_add_cnn,
+			"on_remove_cnn", &CommonListenCallback::on_remove_cnn,
+			"on_open", &CommonListenCallback::on_open,
+			"on_close", &CommonListenCallback::on_close,
+			"do_gen_cnn_handler", &CommonListenCallback::do_gen_cnn_handler
+		);
+		native_tb.set_usertype(class_name, meta_table);
+	}
+	{
+		// CommonListener
+		std::string class_name = "CommonListener";
+		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
+		assert(!v.valid());
+		sol::usertype<CommonListener> meta_table(
+			sol::constructors<CommonListener()>(),
+			sol::base_classes, sol::bases<INetListenHandler, INetworkHandler>(),
+			"add_cnn", &CommonListener::AddCnn,
+			"remove_cnn", &CommonListener::RemoveCnn,
+			"listen", &CommonListener::Listen,
+			"listen_async", &CommonListener::ListenAsync,
+			"set_cb", &CommonListener::SetCb,
+			"get_cnn_map", &CommonListener::GetCnnMap
+		);
+		native_tb.set_usertype(class_name, meta_table);
+	}
+	{
+		// CommonCnnCallback
+		std::string class_name = "CommonCnnCallback";
+		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
+		assert(!v.valid());
+		sol::usertype<CommonCnnCallback> meta_table(
+			"on_open", &CommonCnnCallback::on_open,
+			"on_close", &CommonCnnCallback::on_close,
+			"on_recv", &CommonCnnCallback::on_recv
+		);
+		native_tb.set_usertype(class_name, meta_table);
+	}
+	{
+		// CommonConnecter
+		std::string class_name = "CommonConnecter";
+		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
+		assert(!v.valid());
+		sol::usertype<CommonConnecter> meta_table(
+			sol::constructors<CommonConnecter()>(),
+			sol::base_classes, sol::bases<INetConnectHandler, INetworkHandler>(),
+			"set_cb", &CommonConnecter::SetCb
+		);
+		native_tb.set_usertype(class_name, meta_table);
+	}
+
 	{
 		std::string class_name = "LuaTcpConnect";
 		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);

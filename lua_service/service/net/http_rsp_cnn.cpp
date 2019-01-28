@@ -44,7 +44,7 @@ void HttpRspCnn::OnOpen(int err_num)
 		auto sp_cnn_map = m_cnn_map.lock();
 		if (sp_cnn_map)
 		{
-			sp_cnn_map->Add(this->GetSharedPtr<HttpRspCnn>());
+			sp_cnn_map->Add(this->GetSharedPtr());
 			m_parser = (http_parser *)mempool_malloc(sizeof(http_parser));
 			m_parser->data = this;
 			http_parser_init(m_parser, HTTP_REQUEST);

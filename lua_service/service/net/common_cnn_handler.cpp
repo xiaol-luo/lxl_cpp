@@ -40,7 +40,7 @@ void CommonConnecter::OnOpen(int err_num)
 		auto sp_cnn_map = m_cnn_map.lock();
 		if (nullptr != sp_cnn_map)
 		{
-			sp_cnn_map->Add(this->GetSharedPtr<CommonConnecter>());
+			sp_cnn_map->Add(this->GetSharedPtr());
 		}
 	}
 	if (nullptr != m_cb.on_open)

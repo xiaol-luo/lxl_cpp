@@ -50,7 +50,7 @@ void HttpReqCnn::OnOpen(int err_num)
 		auto sp_cnn_map = m_cnn_map.lock();
 		if (sp_cnn_map)
 		{
-			sp_cnn_map->Add(this->GetSharedPtr<HttpReqCnn>());
+			sp_cnn_map->Add(this->GetSharedPtr());
 		}
 
 		m_parser = (http_parser *)mempool_malloc(sizeof(http_parser));
