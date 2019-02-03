@@ -1,8 +1,10 @@
 #include "lua_reg.h"
-#include "net/lua_tcp_connect.h"
-#include "net/lua_tcp_listen.h"
-#include "net/common_listener.h"
-#include "net/common_cnn_handler.h"
+#include "net_handler/lua_tcp_connect.h"
+#include "net_handler/lua_tcp_listen.h"
+#include "net_handler/common_listener.h"
+#include "net_handler/common_cnn_handler.h"
+#include "net_handler/http_rsp_cnn.h"
+#include "net_handler/http_req_cnn.h"
 
 void lua_reg_net(lua_State *L)
 {
@@ -126,6 +128,33 @@ void lua_reg_net(lua_State *L)
 			sol::constructors<LuaTcpListen()>(),
 			sol::base_classes, sol::bases<INetListenHandler, INetworkHandler>(),
 			"init", &LuaTcpListen::Init
+		);
+		native_tb.set_usertype(class_name, meta_table);
+	}
+	{
+		// HttpRspCnn
+		std::string class_name = "HttpRspCnn";
+		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
+		assert(!v.valid());
+		sol::usertype<HttpRspCnn> meta_table(
+			sol::constructors<HttpRspCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>>)>(),
+			sol::base_classes, sol::bases<INetConnectHandler, INetworkHandler>(),
+			"set_req_cb", &HttpRspCnn::SetReqCbFn,
+			"set_event_cb", &HttpRspCnn::SetEventCbFn
+		);
+		native_tb.set_usertype(class_name, meta_table);
+	}
+	{
+		// HttpRspCnn
+		std::string class_name = "HttpReqCnn";
+		sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
+		assert(!v.valid());
+		sol::usertype<HttpReqCnn> meta_table(
+			sol::constructors<HttpReqCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>>)>(),
+			sol::base_classes, sol::bases<INetConnectHandler, INetworkHandler>(),
+			"set_req_cb", &HttpReqCnn::SetRspCbFn,
+			"set_event_cb", &HttpReqCnn::SetEventCbFn,
+			"set_req_data", &HttpReqCnn::SetReqData
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}

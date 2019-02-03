@@ -17,5 +17,6 @@ local files = {
     "common.net.net_handler",
     "common.net.tcp_connect",
     "common.net.tcp_listen",
+    "common.http.http_service",
 }
 return files

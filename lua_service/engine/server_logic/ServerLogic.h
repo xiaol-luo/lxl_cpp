@@ -6,6 +6,7 @@
 #include "log/log_mgr.h"
 #include "memory_pool/MemoryPoolMgr.h"
 #include "i_service.h"
+#include "http/http_client_mgr.h"
 
 enum EServerLogicState
 {
@@ -71,5 +72,11 @@ public:
 	MemoryPoolMgr *GetMemPool() { return m_memory_pool_mgr; }
 private:
 	MemoryPoolMgr *m_memory_pool_mgr = nullptr;
+
+public:
+	HttpClientMgr * GetHttpClientMgr() { return m_http_client_mgr; }
+private:
+	HttpClientMgr * m_http_client_mgr;
+
 };
 

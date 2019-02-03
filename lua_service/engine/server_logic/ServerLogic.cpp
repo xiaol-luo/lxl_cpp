@@ -22,6 +22,7 @@ ServerLogic::ServerLogic()
 	m_module_mgr = new ModuleMgr(this);
 	m_log_mgr = new LogMgr();
 	m_timer_mgr = new TimerMgr(RealMs());
+	m_http_client_mgr = new HttpClientMgr(this);
 	memset(m_module_params, 0, sizeof(m_module_params));
 
 	std::vector<uint32_t> bolck_sizes = { 8, 16, 32, 64, 96, 128, 256, 384, 512, 1024, 2048, 5120};
@@ -30,6 +31,7 @@ ServerLogic::ServerLogic()
 
 ServerLogic::~ServerLogic()
 {
+	delete m_http_client_mgr; m_http_client_mgr = nullptr;
 	delete m_module_mgr; m_module_mgr = nullptr;
 	delete m_timer_mgr; m_timer_mgr = nullptr;
 	m_log_mgr->Stop();

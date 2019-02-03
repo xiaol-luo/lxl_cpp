@@ -3,6 +3,7 @@
 #include <regex>
 #include <chrono>
 #include <ctime>
+#include <regex>
 
 static const int PARSE_HTTP_FAIL = -100;
 static const int PARSE_HTTP_SUCC = 0;
@@ -26,6 +27,10 @@ HttpReqCnn::~HttpReqCnn()
 
 void HttpReqCnn::OnClose(int err_num)
 {
+	if (nullptr != m_process_event_fn)
+	{
+		m_process_event_fn(this, eActionType_Open, err_num);
+	}
 	if (0 != err_num)
 	{
 		log_error("HttpReqCnn::OnClose {}", err_num);
@@ -41,9 +46,13 @@ void HttpReqCnn::OnOpen(int err_num)
 {
 	log_debug("HttpReqCnn::OnOpen {} {}", m_netid, err_num);
 
+	if (nullptr != m_process_event_fn)
+	{
+		m_process_event_fn(this, eActionType_Close, err_num);
+	}
+
 	if (0 != err_num)
 	{
-		
 	}
 	else
 	{
@@ -81,24 +90,64 @@ void HttpReqCnn::OnRecvData(char * data, uint32_t len)
 	{
 		m_recv_buff->PopBuff(parsed, nullptr);
 	}
+	if (m_parser->http_errno)
+	{
+		if (nullptr != m_process_event_fn)
+		{
+			m_process_event_fn(this, eActionType_Parse, m_parser->http_errno);
+		}
+		net_close(m_netid);
+	}
 	log_debug("HttpReqCnn::OnRecvData {} {} \n{}", m_netid, len, recv_str);
 }
 
-void HttpReqCnn::SetReqData(std::string url, bool is_get, std::unordered_map<std::string, std::string> heads, std::string content)
+bool HttpReqCnn::SetReqData(bool is_get, std::string url, std::unordered_map<std::string, std::string> heads, std::string content)
 {
-	std::string req_line = fmt::format("{} {} HTTP/1.1\r\n", is_get ? "GET" : "POST", url);
+	std::string match_pattern_str = R"raw(((http[s]?://)?([\S]+?))(:([1-9][0-9]*))?(/[\S]+)?)raw";
+	log_debug("HttpReqCnn::SetReqData match_pattern {}", match_pattern_str);
+	std::regex match_pattern(match_pattern_str, std::regex::icase);
+	std::smatch match_ret;
+	bool is_match = regex_match(url, match_ret, match_pattern);
+	if (!is_match)
+	{
+		return false;
+	}/*
+	for (int i = 0; i < match_ret.size(); ++i)
+	{
+		std::ssub_match sub_match = match_ret[i];
+		log_debug(" sub_match {} {}", i, sub_match.str());
+	}
+	*/
+	m_port = 80;
+	std::string port = match_ret[5].str();
+	if (port.size() > 0)
+	{
+		try { m_port = std::stoi(port); }
+		catch (std::exception) 
+		{
+			return false;
+		}
+	}
+	m_host = match_ret[1].str();
+	if (m_host.size() <= 0)
+	{
+		return false;
+	}
+	m_ip = match_ret[3].str();; // TODO: just for test 
+	m_method = match_ret[6].str();
+
+	std::string req_line = fmt::format("{} {} HTTP/1.1\r\n", is_get ? "GET" : "POST", m_method);
 	m_req_data_buff->Append(req_line);
 	heads.insert_or_assign("User-Agent", "utopia-http-client");
-	// heads.insert_or_assign("Accept", "*/*");
+	heads.insert_or_assign("Accept", "*/*");
+	heads.insert_or_assign("Host", m_host);
 	heads.insert_or_assign("Content-Length", fmt::format("{}", content.size()));
-	
-	char time_str[256];
 	{
+		char time_str[256];
 		std::time_t t = std::time(nullptr);
 		std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+		heads.insert_or_assign("Date", time_str);
 	}
-	heads.insert_or_assign("Date", time_str);
-
 	char *head_line_format = "{}:{}\r\n";
 	for (auto kv : heads)
 	{
@@ -107,18 +156,26 @@ void HttpReqCnn::SetReqData(std::string url, bool is_get, std::unordered_map<std
 	}
 	m_req_data_buff->Append(std::string("\r\n"));
 	m_req_data_buff->Append(content);
-
 	log_debug("req strs {}", std::string(m_req_data_buff->HeadPtr(), m_req_data_buff->Size()));
+	return true;
 }
 
 void HttpReqCnn::ProcessRsp()
 {
+	if (nullptr != m_process_event_fn)
+	{
+		m_process_event_fn(this, eActionType_Parse, 0);
+	}
 	if (nullptr != m_process_rsp_fn)
 	{
 
 		uint64_t body_len = std::min<uint64_t>(m_rsp_body->Size(), m_parser->content_length);
 		m_process_rsp_fn(this, m_rsp_state, m_rsp_heads, 
 			std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()), body_len);
+	}
+	else
+	{
+		net_close(m_netid);
 	}
 }
 

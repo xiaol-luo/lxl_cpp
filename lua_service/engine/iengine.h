@@ -38,6 +38,15 @@ void net_cancel_async(uint64_t async_id);
 bool net_send(NetId netId, char *buffer, uint32_t len);
 ServerLogic * GServerLogic();
 
+// http
+int64_t http_get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
+int64_t http_get(std::string url, std::unordered_map<std::string, std::string> heads,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
+int64_t http_post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
+int64_t http_post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
+void http_cancel(int64_t async_id);
+
 template <typename... Args>
 void log(ELogLevel log_level, const char* fmt, const Args&... args)
 {

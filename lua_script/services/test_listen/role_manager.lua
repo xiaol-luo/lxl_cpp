@@ -4,8 +4,6 @@ RoleManager = RoleManager or {}
 RoleManager.listen_handler = nil
 RoleManager.roles = {}
 
-
-
 function RoleManager.start(listen_port)
     RoleManager.listen_handler = TcpListen:new()
     RoleManager.listen_handler:set_gen_cnn_cb(RoleManager.listen_gen_cnn)

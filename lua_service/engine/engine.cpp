@@ -70,11 +70,60 @@ static void change_dir(std::string dir_path)
 }
 
 #include "server_logic/ServerLogic.h"
+#include "iengine.h"
 ServerLogic *g_server_logic;
 
 ServerLogic * GServerLogic()
 {
 	return g_server_logic;
+}
+
+int64_t http_get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+{
+	int64_t ret = 0;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetHttpClientMgr()->Get(url, rsp_cb, err_cb);
+	}
+	return ret;
+}
+
+int64_t http_get(std::string url, std::unordered_map<std::string, std::string> heads, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+{
+	int64_t ret = 0;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetHttpClientMgr()->Get(url, heads, rsp_cb, err_cb);
+	}
+	return ret;
+}
+
+int64_t http_post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+{
+	int64_t ret = 0;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetHttpClientMgr()->Post(url, heads, content, rsp_cb, err_cb);
+	}
+	return ret;
+}
+
+int64_t http_post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+{
+	int64_t ret = 0;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetHttpClientMgr()->Post(url, rsp_cb, err_cb);
+	}
+	return ret;
+}
+
+void http_cancel(int64_t async_id)
+{
+	if (nullptr != g_server_logic)
+	{
+		g_server_logic->GetHttpClientMgr()->Cancel(async_id);
+	}
 }
 
 void engine_init()

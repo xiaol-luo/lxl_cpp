@@ -22,6 +22,10 @@ HttpRspCnn::~HttpRspCnn()
 
 void HttpRspCnn::OnClose(int err_num)
 {
+	if (nullptr != m_process_event_fn)
+	{
+		m_process_event_fn(this, eActionType_Close, err_num);
+	}
 	if (0 != err_num)
 	{
 		log_error("HttpRspCnn::OnClose {}", err_num);
@@ -35,6 +39,10 @@ void HttpRspCnn::OnClose(int err_num)
 
 void HttpRspCnn::OnOpen(int err_num)
 {
+	if (nullptr != m_process_event_fn)
+	{
+		m_process_event_fn(this, eActionType_Open, err_num);
+	}
 	log_debug("HttpRspCnn::OnOpen {} {}", m_netid, err_num);
 	if (0 != err_num)
 	{
@@ -75,18 +83,32 @@ void HttpRspCnn::OnRecvData(char * data, uint32_t len)
 	{
 		m_recv_buff->PopBuff(parsed, nullptr);
 	}
+	if (m_parser->http_errno)
+	{
+		if (nullptr != m_process_event_fn)
+		{
+			m_process_event_fn(this, eActionType_Parse, m_parser->http_errno);
+		}
+		net_close(m_netid);
+	}
 	log_debug("HttpRspCnn::OnRecvData {} {} used: {}/{}", m_netid, len, m_recv_buff->Head(), m_recv_buff->Pos());
 }
 
 void HttpRspCnn::ProcessReq()
 {
+	if (nullptr != m_process_event_fn)
+	{
+		m_process_event_fn(this, eActionType_Parse, 0);
+	}
+
+	bool is_processed = false;
+
 	if (nullptr != m_process_req_fn)
 	{
-		uint64_t body_len = std::min<uint64_t>(m_req_body->Size(), m_parser->content_length);
-		m_process_req_fn(this, m_parser->method, m_req_url, m_req_heads, 
-			std::string(m_req_body->HeadPtr(), m_req_body->Size()), body_len);
+		is_processed = m_process_req_fn(this, m_parser->method, m_req_url, m_req_heads,
+			std::string(m_req_body->HeadPtr(), m_req_body->Size()), m_req_body->Size());
 	}
-	else
+	if (!is_processed)
 	{
 		NetBuffer *send_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
 		std::string state_line = fmt::format("HTTP/1.1 {} {}\r\n", 404, "NotProcessLogic");
@@ -204,8 +226,8 @@ int HttpRspCnn::on_message_complete(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	self->m_req_body->AppendBuff("\0", 1);
-	log_debug("HttpRspCnn::on_message_complete {} body:\n{}", self->m_netid, self->m_req_body->HeadPtr());
+	// self->m_req_body->AppendBuff("\0", 1);
+	log_debug("HttpRspCnn::on_message_complete {} body:\n{}", self->m_netid, std::string(self->m_req_body->HeadPtr(), self->m_req_body->Size()));
 
 	self->ProcessReq();
 

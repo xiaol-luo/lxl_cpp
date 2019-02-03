@@ -73,8 +73,8 @@ void QuitGame(int signal)
 }
 
 
-#include "net/lua_tcp_connect.h"
-#include "net/lua_tcp_listen.h"
+#include "net_handler/lua_tcp_connect.h"
+#include "net_handler/lua_tcp_listen.h"
 
 #define LUA_SCRIPT_IDX 2
 
@@ -129,12 +129,21 @@ void TickTestSend(lua_State *L)
 	lsv["test_send"](1);
 }
 
-#include "net/http_rsp_cnn.h"
-#include "net/common_listener.h"
-#include "net/http_req_cnn.h"
+#include "net_handler/http_rsp_cnn.h"
+#include "net_handler/common_listener.h"
+#include "net_handler/http_req_cnn.h"
+
+static bool cnn_process_req_fn(HttpRspCnn *self,
+	uint32_t req_way,
+	std::string url,
+	std::unordered_map<std::string, std::string> heads,
+	std::string body,
+	uint64_t body_len) {
+	log_debug("cnn_process_req_fn {} {} {} {}", req_way, url, body, body_len);
+	return false;
+};
 
 std::shared_ptr<CommonListener> g_common_listener = nullptr;
-
 void TestListenForHttp()
 {
 	log_debug("TestListenForHttp");
@@ -142,7 +151,9 @@ void TestListenForHttp()
 	CommonListenCallback listen_cb;
 	listen_cb.do_gen_cnn_handler = [](CommonListener *self)
 	{
-		return std::make_shared<HttpRspCnn>(self->GetCnnMap());
+		auto cnn = std::make_shared<HttpRspCnn>(self->GetCnnMap());
+		cnn->SetReqCbFn(cnn_process_req_fn);
+		return cnn;
 	};
 	g_common_listener->SetCb(listen_cb);
 	// g_common_listener->Listen(20480);
@@ -154,14 +165,59 @@ std::shared_ptr<NetHandlerMap<INetConnectHandler>> g_http_cnns = nullptr;
 void TestCnnForHttp()
 {
 	log_debug("-------------- TestCnnForHttp");
-	std::string ctx = "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss";
+	std::string ctx = "sssssssssssssssssssssssss";
 	std::shared_ptr<HttpReqCnn> cnn = std::make_shared<HttpReqCnn>(g_http_cnns);
-	cnn->SetReqData("/abcdefg", false, std::unordered_map<std::string, std::string>(), ctx);
+	cnn->SetReqData(true, "www.baidu.com/abcdefg?a=1", std::unordered_map<std::string, std::string>(), ctx);
 	net_connect("127.0.0.1", 20480, cnn);
 }
 
+#include <regex>
+
 int main (int argc, char **argv) 
 {
+	{
+		// std::string url = "https://zh.cppreference.com/w/cpp/regex/regex_match";
+		// std::string url = "http://zh.cppreference.com/w/cpp/regex/regex_match";
+		// std::string url = "https://zh.cppreference.com:8090/w/cpp/regex/regex_match";
+		std::string url = "https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=87048150_dg&wd=c%2B%2B11%20reference&oq=c%252B%252B11%2520regex&rsv_pq=b15e9b6900010368&rsv_t=3cdazysxh6Lwn7W9fA3jT5Y%2B%2F6jMfimmaoU8EETuET7z2mYP%2BK9rzhCbDShsuyDPoaY&rqlang=cn&rsv_enter=0&inputT=4398&rsv_sug3=84&rsv_sug1=63&rsv_sug7=100&rsv_sug2=0&rsv_sug4=5001&rsv_sug=1";
+		std::string match_pattern_str = R"raw(((http[s]?://)?([\S]+?))(:([1-9][0-9]*))?(/[\S]+)?)raw";
+		printf("HttpReqCnn::SetReqData match_pattern %s\n", match_pattern_str.c_str());
+		std::regex match_pattern(match_pattern_str, std::regex::icase);
+		std::smatch match_ret;
+		bool is_match = regex_match(url, match_ret, match_pattern);
+		if (is_match)
+		{
+
+			for (int i = 0; i < match_ret.size(); ++i)
+			{
+				std::ssub_match sub_match = match_ret[i];
+				printf(" sub_match %d %s\n", i, sub_match.str().c_str());
+			}
+			std::string host = match_ret[1].str();
+			std::string port = match_ret[5].str();
+			std::string method = match_ret[6].str();
+
+			{
+				std::string method = match_ret[6].str();
+				std::string m_method;
+				std::string params;
+				int idx = method.find('?');
+				if (std::string::npos == idx)
+				{
+					m_method = method;
+				}
+				else
+				{
+					m_method = method.substr(0, idx);
+					params = method.substr(idx+1);
+				}
+			}
+		}
+		int a = 0;
+		++ a;
+	}
+
+
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc < 3)
 	{
@@ -203,7 +259,7 @@ int main (int argc, char **argv)
 	setup_service(&xxx);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
 	timer_next(TestListenForHttp, 1000);
-	timer_firm(TestCnnForHttp, 1 * 200, -1);
+	// timer_firm(TestCnnForHttp, 1 * 2000, -1);
 	engine_loop();
 	lua_close(L);
 	engine_destroy();
