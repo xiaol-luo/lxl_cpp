@@ -30,4 +30,17 @@ void register_native_libs(lua_State *L)
 	t.set_function("timer_add", timer_add);
 	t.set_function("timer_firm", timer_firm);
 	t.set_function("timer_next", timer_next);
+
+	t.set_function("http_get", sol::overload(
+		[](std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb) { return http_get(url, rsp_cb, err_cb); },
+		[](std::string url, std::unordered_map<std::string, std::string> heads,	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb) 
+			{ return http_get(url, heads, rsp_cb, err_cb); }
+	));
+	t.set_function("http_post", sol::overload(
+		[](std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb) { return http_post(url, rsp_cb, err_cb); },
+		[](std::string url, std::unordered_map<std::string, std::string> heads, std::string content,
+			HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+				{ return http_post(url, heads, content, rsp_cb, err_cb); }
+	));
+	t.set_function("http_cancel", http_cancel);
 }

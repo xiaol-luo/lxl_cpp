@@ -29,7 +29,7 @@ void HttpReqCnn::OnClose(int err_num)
 {
 	if (nullptr != m_process_event_fn)
 	{
-		m_process_event_fn(this, eActionType_Open, err_num);
+		m_process_event_fn(this, eActionType_Close, err_num);
 	}
 	if (0 != err_num)
 	{
@@ -48,7 +48,7 @@ void HttpReqCnn::OnOpen(int err_num)
 
 	if (nullptr != m_process_event_fn)
 	{
-		m_process_event_fn(this, eActionType_Close, err_num);
+		m_process_event_fn(this, eActionType_Open, err_num);
 	}
 
 	if (0 != err_num)
@@ -168,10 +168,8 @@ void HttpReqCnn::ProcessRsp()
 	}
 	if (nullptr != m_process_rsp_fn)
 	{
-
-		uint64_t body_len = std::min<uint64_t>(m_rsp_body->Size(), m_parser->content_length);
 		m_process_rsp_fn(this, m_rsp_state, m_rsp_heads, 
-			std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()), body_len);
+			std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()), m_rsp_body->Size());
 	}
 	else
 	{
