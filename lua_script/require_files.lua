@@ -1,4 +1,6 @@
 local files = {
+    "common.log",
+    "common.error_handler",
     "libs.serpent",
     "libs.print_ext",
     "libs.class",

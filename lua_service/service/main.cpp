@@ -31,23 +31,6 @@ static int lua_status_report(lua_State *L, int status)
 	return status;
 }
 
-static int lua_error_handler(lua_State *L) 
-{
-	const char *msg = lua_tostring(L, 1);
-	if (msg == NULL) 
-	{
-		if (luaL_callmeta(L, 1, "__tostring") && lua_type(L, -1) == LUA_TSTRING)
-		{
-			return 1;
-		}
-		else
-		{
-			msg = lua_pushfstring(L, "(error object is a %s value)",luaL_typename(L, 1));
-		}
-	}
-	luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
-	return 1;  /* return the traceback */
-}
 
 #ifdef WIN32
 #include <direct.h>
@@ -62,10 +45,6 @@ class PureLuaService : public IService
 
 };
 
-static std::string ip = "127.0.0.1";
-static int port = 2233;
-static bool first_tick = true;
-
 void QuitGame(int signal)
 {
 	log_debug("QuitGame");
@@ -75,6 +54,57 @@ void QuitGame(int signal)
 
 #include "net_handler/lua_tcp_connect.h"
 #include "net_handler/lua_tcp_listen.h"
+
+
+static int lua_panic_error(lua_State* L) {
+	size_t messagesize;
+	std::string err_str;
+	const char* message = lua_tolstring(L, -1, &messagesize);
+	if (!message)
+	{
+		message = "lua_at_panic unexpected error";
+		messagesize = strlen(message);
+	}
+	std::string err_msg(message, messagesize);
+	log_error("lua_at_panic {}", err_msg.c_str());
+	throw sol::error(err_msg);
+}
+
+static int lua_pcall_error(lua_State* L) {
+	std::string msg = "An unknown error has triggered the default error handler";
+	sol::optional<sol::string_view> maybetopmsg = sol::stack::check_get<sol::string_view>(L, 1);
+	if (maybetopmsg) {
+		const sol::string_view& topmsg = maybetopmsg.value();
+		msg.assign(topmsg.data(), topmsg.size());
+	}
+	luaL_traceback(L, L, msg.c_str(), 1);
+	sol::optional<sol::string_view> maybetraceback = sol::stack::check_get<sol::string_view>(L, -1);
+	if (maybetraceback) {
+		const sol::string_view& traceback = maybetraceback.value();
+		msg.assign(traceback.data(), traceback.size());
+	}
+	log_error("lua_traceback_error\n{}", msg.c_str());
+	return sol::stack::push(L, msg);
+}
+
+//static int lua_pcall_error(lua_State *L) 
+//{
+//	const char *msg = lua_tostring(L, 1);
+//	if (msg == NULL) 
+//	{
+//		if (luaL_callmeta(L, 1, "__tostring") && lua_type(L, -1) == LUA_TSTRING)
+//		{
+//			return 1;
+//		}
+//		else
+//		{
+//			msg = lua_pushfstring(L, "(error object is a %s value)",luaL_typename(L, 1));
+//		}
+//	}
+//
+//	luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
+//	return 1;  /* return the traceback */
+//}
 
 #define LUA_SCRIPT_IDX 2
 
@@ -104,7 +134,7 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 			break;
 		}
 		int base = lua_gettop(L);
-		lua_pushcfunction(L, lua_error_handler);
+		lua_pushcfunction(L, lua_pcall_error);
 		lua_insert(L, base);
 		status = lua_pcall(L, 0, LUA_MULTRET, base);
 		lua_remove(L, base);
@@ -133,91 +163,11 @@ void TickTestSend(lua_State *L)
 #include "net_handler/common_listener.h"
 #include "net_handler/http_req_cnn.h"
 
-static bool cnn_process_req_fn(HttpRspCnn *self,
-	uint32_t req_way,
-	std::string url,
-	std::unordered_map<std::string, std::string> heads,
-	std::string body,
-	uint64_t body_len) {
-	log_debug("cnn_process_req_fn {} {} {} {}", req_way, url, body, body_len);
-	return false;
-};
-
-std::shared_ptr<CommonListener> g_common_listener = nullptr;
-void TestListenForHttp()
-{
-	log_debug("TestListenForHttp");
-	g_common_listener = std::make_shared<CommonListener>();
-	CommonListenCallback listen_cb;
-	listen_cb.do_gen_cnn_handler = [](CommonListener *self)
-	{
-		auto cnn = std::make_shared<HttpRspCnn>(self->GetCnnMap());
-		cnn->SetReqCbFn(cnn_process_req_fn);
-		return cnn;
-	};
-	g_common_listener->SetCb(listen_cb);
-	// g_common_listener->Listen(20480);
-	g_common_listener->ListenAsync(20480);
-}
-
-std::shared_ptr<NetHandlerMap<INetConnectHandler>> g_http_cnns = nullptr;
-
-void TestCnnForHttp()
-{
-	log_debug("-------------- TestCnnForHttp");
-	std::string ctx = "sssssssssssssssssssssssss";
-	std::shared_ptr<HttpReqCnn> cnn = std::make_shared<HttpReqCnn>(g_http_cnns);
-	cnn->SetReqData(true, "www.baidu.com/abcdefg?a=1", std::unordered_map<std::string, std::string>(), ctx);
-	net_connect("127.0.0.1", 20480, cnn);
-}
 
 #include <regex>
 
 int main (int argc, char **argv) 
 {
-	{
-		// std::string url = "https://zh.cppreference.com/w/cpp/regex/regex_match";
-		// std::string url = "http://zh.cppreference.com/w/cpp/regex/regex_match";
-		// std::string url = "https://zh.cppreference.com:8090/w/cpp/regex/regex_match";
-		std::string url = "https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=87048150_dg&wd=c%2B%2B11%20reference&oq=c%252B%252B11%2520regex&rsv_pq=b15e9b6900010368&rsv_t=3cdazysxh6Lwn7W9fA3jT5Y%2B%2F6jMfimmaoU8EETuET7z2mYP%2BK9rzhCbDShsuyDPoaY&rqlang=cn&rsv_enter=0&inputT=4398&rsv_sug3=84&rsv_sug1=63&rsv_sug7=100&rsv_sug2=0&rsv_sug4=5001&rsv_sug=1";
-		std::string match_pattern_str = R"raw(((http[s]?://)?([\S]+?))(:([1-9][0-9]*))?(/[\S]+)?)raw";
-		printf("HttpReqCnn::SetReqData match_pattern %s\n", match_pattern_str.c_str());
-		std::regex match_pattern(match_pattern_str, std::regex::icase);
-		std::smatch match_ret;
-		bool is_match = regex_match(url, match_ret, match_pattern);
-		if (is_match)
-		{
-
-			for (int i = 0; i < match_ret.size(); ++i)
-			{
-				std::ssub_match sub_match = match_ret[i];
-				printf(" sub_match %d %s\n", i, sub_match.str().c_str());
-			}
-			std::string host = match_ret[1].str();
-			std::string port = match_ret[5].str();
-			std::string method = match_ret[6].str();
-
-			{
-				std::string method = match_ret[6].str();
-				std::string m_method;
-				std::string params;
-				int idx = method.find('?');
-				if (std::string::npos == idx)
-				{
-					m_method = method;
-				}
-				else
-				{
-					m_method = method.substr(0, idx);
-					params = method.substr(idx+1);
-				}
-			}
-		}
-		int a = 0;
-		++ a;
-	}
-
-
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc < 3)
 	{
@@ -225,20 +175,15 @@ int main (int argc, char **argv)
 		return -10;
 	}
 	char *work_dir = argv[1];
-	std::string lua_file = argv[LUA_SCRIPT_IDX];
-
 	printf("work dir is %s\n", work_dir);
-	if (chdir(work_dir))
+	if (0 != chdir(work_dir))
 	{
 		printf("change work dir fail errno %d , dir is %s\n", errno, work_dir);
 		return -20;
 	}
-	lua_State *L = luaL_newstate();
-	if (L == NULL)
-	{
-		printf("cannot create state: not enough memory");
-		return -30;
-	}
+	sol::state ls(lua_panic_error);
+	lua_State *L = ls.lua_state();
+	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 
 #ifdef WIN32
 	WSADATA wsa_data;
@@ -249,19 +194,13 @@ int main (int argc, char **argv)
 	signal(SIGINT, QuitGame);
 	signal(SIGPIPE, SIG_IGN);
 #endif
-
-	g_http_cnns = std::make_shared<NetHandlerMap<INetConnectHandler>>();
-
 	engine_init();
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
 	PureLuaService xxx;
 	setup_service(&xxx);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
-	timer_next(TestListenForHttp, 1000);
-	// timer_firm(TestCnnForHttp, 1 * 2000, -1);
 	engine_loop();
-	lua_close(L);
 	engine_destroy();
 	return 0;
 }

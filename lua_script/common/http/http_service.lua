@@ -8,7 +8,11 @@ end
 
 local make_cb = function(fn, self, ...)
     local ret = function(...)
-        return fn(self, ...) 
+        local is_ok, fn_ret = xpcall(fn, error_handler, self, ...)
+        if is_ok then 
+            return fn_ret
+        end
+        return nil
     end
     return ret
 end

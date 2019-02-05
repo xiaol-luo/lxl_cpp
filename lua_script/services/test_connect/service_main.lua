@@ -9,8 +9,8 @@ function http_event_cb(...)
     print("http_event_cb")
 end
 
-function try_connect()
-    native.http_get("127.0.0.1:20480/xxxxx", http_rsp_cb, http_event_cb)
+function try_connect()       
+    native.http_get("127.0.0.1:20481/xxxxx", http_rsp_cb, http_event_cb)
 end
 
 function ServiceMain.start()

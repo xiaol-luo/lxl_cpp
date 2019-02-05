@@ -1,5 +1,6 @@
 #include "common_listener.h"
 #include "iengine.h"
+#include <sol/sol.hpp>
 
 CommonListener::CommonListener()
 {
@@ -77,5 +78,14 @@ void CommonListener::OnOpen(int err_num)
 
 std::shared_ptr<INetConnectHandler> CommonListener::GenConnectorHandler()
 {
-	return m_cb.do_gen_cnn_handler(this);
+	std::shared_ptr<INetConnectHandler> ret = nullptr;
+	try
+	{
+		ret = m_cb.do_gen_cnn_handler(this);
+	}
+	catch (sol::error e)
+	{
+		ret = nullptr;
+	}
+	return ret;
 }
