@@ -29,6 +29,7 @@ public:
 		eActionType_Open,
 		eActionType_Close,
 		eActionType_Parse,
+		eActionType_Count,
 	};
 	using FnProcessEvent = std::function<void(
 		HttpReqCnn * /*self*/,
@@ -46,7 +47,6 @@ public:
 	void SetEventCbFn(FnProcessEvent fn) { m_process_event_fn = fn; }
 
 	std::string GetHost() { return m_host; }
-	std::string GetIp() { return m_ip; }
 	std::string GetMethod() { return m_method; }
 	int GetPort() { return m_port; }
 	bool IsGet() { return m_is_get; }
@@ -94,7 +94,6 @@ protected:
 
 	void CollectHead();
 	NetBuffer *m_req_data_buff = nullptr;
-	std::string m_ip;
 	std::string m_host;
 	std::string m_method;
 	int m_port = 0;

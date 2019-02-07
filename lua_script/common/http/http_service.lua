@@ -6,9 +6,10 @@ function HttpService:ctor()
     self.fn_map = {}
 end
 
-local make_cb = function(fn, self, ...)
+local make_cb = function(fn, ...)
+    local t = {...}
     local ret = function(...)
-        local is_ok, fn_ret = xpcall(fn, error_handler, self, ...)
+        local is_ok, fn_ret = xpcall(fn, error_handler, table.unpack(t), ...)
         if is_ok then 
             return fn_ret
         end

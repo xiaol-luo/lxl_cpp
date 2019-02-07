@@ -19,14 +19,16 @@ const int TRY_MAX_TIMES = 100000;
 
 ServerLogic::ServerLogic()
 {
+	std::vector<uint32_t> bolck_sizes = { 8, 16, 32, 64, 96, 128, 256, 384, 512, 1024, 2048, 5120 };
+	m_memory_pool_mgr = new MemoryPoolMgr(bolck_sizes, getpagesize(), 8, 32);
+
 	m_module_mgr = new ModuleMgr(this);
 	m_log_mgr = new LogMgr();
 	m_timer_mgr = new TimerMgr(RealMs());
 	m_http_client_mgr = new HttpClientMgr(this);
 	memset(m_module_params, 0, sizeof(m_module_params));
-
-	std::vector<uint32_t> bolck_sizes = { 8, 16, 32, 64, 96, 128, 256, 384, 512, 1024, 2048, 5120};
-	m_memory_pool_mgr = new MemoryPoolMgr(bolck_sizes, getpagesize(), 8, 32);
+	m_async_task_mgr = new AsyncTaskMgr();
+	m_dns_service = new DnsService();
 }
 
 ServerLogic::~ServerLogic()
@@ -34,6 +36,8 @@ ServerLogic::~ServerLogic()
 	delete m_http_client_mgr; m_http_client_mgr = nullptr;
 	delete m_module_mgr; m_module_mgr = nullptr;
 	delete m_timer_mgr; m_timer_mgr = nullptr;
+	delete m_async_task_mgr; m_async_task_mgr = nullptr;
+	delete m_dns_service; m_dns_service = nullptr;
 	m_log_mgr->Stop();
 	delete m_log_mgr; m_log_mgr = nullptr;
 	delete m_memory_pool_mgr;
@@ -50,6 +54,11 @@ bool ServerLogic::Init()
 		return false;
 
 	m_state = EServerLogicState_Init;
+	{
+		const static int ASYNC_TASK_THREAD_NUM = 2;
+		m_async_task_mgr->Start(ASYNC_TASK_THREAD_NUM);
+		m_dns_service->Start();
+	}
 	int loop_times = 0;
 	EModuleRetCode retCode = EModuleRetCode_Succ;
 	do
@@ -131,8 +140,13 @@ void ServerLogic::Realse()
 void ServerLogic::Destroy()
 {
 	m_state = EServerLogicState_Destroy;
+	{
+		m_async_task_mgr->Stop();
+		m_dns_service->Stop();
+	}
 	int loop_times = 0;
 	EModuleRetCode retCode = EModuleRetCode_Succ;
+
 	do
 	{
 		this->OnFrame();
@@ -187,5 +201,7 @@ void ServerLogic::OnFrame()
 		m_delta_ms = 0;
 	}
 	m_timer_mgr->UpdateTime(m_logic_ms);
+	m_async_task_mgr->OnFrame();
+	m_dns_service->OnFrame();
 	// m_log_mgr->Flush();
 }

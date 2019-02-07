@@ -7,6 +7,8 @@
 #include "memory_pool/MemoryPoolMgr.h"
 #include "i_service.h"
 #include "http/http_client_mgr.h"
+#include "common/task/async_task_mgr.h"
+#include "dns/dns_service.h"
 
 enum EServerLogicState
 {
@@ -76,7 +78,16 @@ private:
 public:
 	HttpClientMgr * GetHttpClientMgr() { return m_http_client_mgr; }
 private:
-	HttpClientMgr * m_http_client_mgr;
+	HttpClientMgr * m_http_client_mgr = nullptr;
 
+public:
+	AsyncTaskMgr * GetAsyncTaskMgr() { return m_async_task_mgr; }
+private:
+	AsyncTaskMgr * m_async_task_mgr = nullptr;
+
+public:
+	DnsService * GetDnsService() { return m_dns_service; }
+private:
+	DnsService * m_dns_service = nullptr;
 };
 

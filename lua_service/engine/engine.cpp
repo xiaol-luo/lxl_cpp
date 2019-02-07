@@ -78,9 +78,9 @@ ServerLogic * GServerLogic()
 	return g_server_logic;
 }
 
-int64_t http_get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t http_get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
 {
-	int64_t ret = 0;
+	uint64_t ret = 0;
 	if (nullptr != g_server_logic)
 	{
 		ret = g_server_logic->GetHttpClientMgr()->Get(url, rsp_cb, err_cb);
@@ -88,9 +88,9 @@ int64_t http_get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::F
 	return ret;
 }
 
-int64_t http_get(std::string url, std::unordered_map<std::string, std::string> heads, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t http_get(std::string url, std::unordered_map<std::string, std::string> heads, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
 {
-	int64_t ret = 0;
+	uint64_t ret = 0;
 	if (nullptr != g_server_logic)
 	{
 		ret = g_server_logic->GetHttpClientMgr()->Get(url, heads, rsp_cb, err_cb);
@@ -98,9 +98,9 @@ int64_t http_get(std::string url, std::unordered_map<std::string, std::string> h
 	return ret;
 }
 
-int64_t http_post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t http_post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
 {
-	int64_t ret = 0;
+	uint64_t ret = 0;
 	if (nullptr != g_server_logic)
 	{
 		ret = g_server_logic->GetHttpClientMgr()->Post(url, heads, content, rsp_cb, err_cb);
@@ -108,9 +108,9 @@ int64_t http_post(std::string url, std::unordered_map<std::string, std::string> 
 	return ret;
 }
 
-int64_t http_post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t http_post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
 {
-	int64_t ret = 0;
+	uint64_t ret = 0;
 	if (nullptr != g_server_logic)
 	{
 		ret = g_server_logic->GetHttpClientMgr()->Post(url, rsp_cb, err_cb);
@@ -123,6 +123,32 @@ void http_cancel(int64_t async_id)
 	if (nullptr != g_server_logic)
 	{
 		g_server_logic->GetHttpClientMgr()->Cancel(async_id);
+	}
+}
+
+void add_async_task(TaskBase * task)
+{
+	if (nullptr != g_server_logic)
+	{
+		g_server_logic->GetAsyncTaskMgr()->AddTask(task);
+	}
+}
+
+int dns_query(std::string host, std::vector<std::string>* out_ips)
+{
+	int ret = -1;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetDnsService()->QueryIp(host, out_ips);
+	}
+	return ret;
+}
+
+void dns_query_async(std::string host, DnsQueryIpCallback cb)
+{
+	if (nullptr != g_server_logic)
+	{
+		g_server_logic->GetDnsService()->QueryIpAsync(host, cb);
 	}
 }
 

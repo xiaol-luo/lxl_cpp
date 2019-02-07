@@ -128,19 +128,19 @@ bool HttpReqCnn::SetReqData(bool is_get, std::string url, std::unordered_map<std
 			return false;
 		}
 	}
-	m_host = match_ret[1].str();
-	if (m_host.size() <= 0)
+	std::string full_host = match_ret[1].str();
+	m_host = match_ret[3].str();
+	if (full_host.size() <= 0 || m_host.size() <= 0)
 	{
 		return false;
 	}
-	m_ip = match_ret[3].str();; // TODO: just for test 
 	m_method = match_ret[6].str();
 
 	std::string req_line = fmt::format("{} {} HTTP/1.1\r\n", is_get ? "GET" : "POST", m_method);
 	m_req_data_buff->Append(req_line);
 	heads.insert_or_assign("User-Agent", "utopia-http-client");
 	heads.insert_or_assign("Accept", "*/*");
-	heads.insert_or_assign("Host", m_host);
+	heads.insert_or_assign("Host", full_host);
 	heads.insert_or_assign("Content-Length", fmt::format("{}", content.size()));
 	{
 		char time_str[256];

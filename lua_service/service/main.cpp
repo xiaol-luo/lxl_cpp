@@ -8,38 +8,18 @@ extern "C"
 #include "sol/sol.hpp"
 #include <signal.h>
 #include <memory>
+#include "iengine.h"
+#include "lua_reg/lua_reg.h"
 
 #if WIN32
 #include <WinSock2.h>
 #include <direct.h>
+#define chdir _chdir
 #else
 #include <arpa/inet.h>
 #include <unistd.h>
 #endif
 
-#include "lua_reg/lua_reg.h"
-
-
-static int lua_status_report(lua_State *L, int status) 
-{
-	if (status != LUA_OK) 
-	{
-		const char *msg = lua_tostring(L, -1);
-		printf(msg);
-		lua_pop(L, 1);
-	}
-	return status;
-}
-
-
-#ifdef WIN32
-#include <direct.h>
-#define chdir _chdir
-#else
-#include <unistd.h>
-#endif
-
-#include "iengine.h"
 class PureLuaService : public IService
 {
 
@@ -106,6 +86,17 @@ static int lua_pcall_error(lua_State* L) {
 //	return 1;  /* return the traceback */
 //}
 
+static int lua_status_report(lua_State *L, int status)
+{
+	if (status != LUA_OK)
+	{
+		const char *msg = lua_tostring(L, -1);
+		printf(msg);
+		lua_pop(L, 1);
+	}
+	return status;
+}
+
 #define LUA_SCRIPT_IDX 2
 
 void StartLuaScript(lua_State *L, int argc, char **argv)
@@ -153,21 +144,18 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 	}
 }
 
-void TickTestSend(lua_State *L)
-{
-	sol::state_view lsv(L);
-	lsv["test_send"](1);
-}
-
-#include "net_handler/http_rsp_cnn.h"
-#include "net_handler/common_listener.h"
-#include "net_handler/http_req_cnn.h"
-
-
-#include <regex>
-
 int main (int argc, char **argv) 
 {
+#ifdef WIN32
+	WSADATA wsa_data;
+	WSAStartup(0x0201, &wsa_data);
+	signal(SIGINT, QuitGame);
+	signal(SIGBREAK, QuitGame);
+#else
+	signal(SIGINT, QuitGame);
+	signal(SIGPIPE, SIG_IGN);
+#endif
+
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc < 3)
 	{
@@ -185,20 +173,11 @@ int main (int argc, char **argv)
 	lua_State *L = ls.lua_state();
 	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 
-#ifdef WIN32
-	WSADATA wsa_data;
-	WSAStartup(0x0201, &wsa_data);
-	signal(SIGINT, QuitGame);
-	signal(SIGBREAK, QuitGame);
-#else
-	signal(SIGINT, QuitGame);
-	signal(SIGPIPE, SIG_IGN);
-#endif
 	engine_init();
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
-	PureLuaService xxx;
-	setup_service(&xxx);
+	PureLuaService lua_service;
+	setup_service(&lua_service);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
 	engine_loop();
 	engine_destroy();
