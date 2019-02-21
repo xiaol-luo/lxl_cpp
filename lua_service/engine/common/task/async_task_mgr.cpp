@@ -68,7 +68,6 @@ void AsyncTaskMgr::Stop()
 		}
 	}
 	m_global_mtx.unlock();
-
 }
 
 bool AsyncTaskMgr::AddTask(TaskBase * task)
@@ -96,8 +95,6 @@ void AsyncTaskMgr::OnFrame()
 		task->HandleResult();
 		delete task; task = nullptr;
 	}
-	m_done_tasks_mtx.lock();
-	m_done_tasks_mtx.unlock();
 }
 
 void AsyncTaskMgr::ThreadLoop(ThreadEnv *env)
@@ -109,6 +106,7 @@ void AsyncTaskMgr::ThreadLoop(ThreadEnv *env)
 		{
 			if (!self->m_tasks_mtx.try_lock())
 			{
+				std::this_thread::yield();
 				continue;
 			}
 

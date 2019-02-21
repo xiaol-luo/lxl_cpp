@@ -31,12 +31,15 @@ enum eMongoTask
 class MongoTask
 {
 public:
-	using ResultCbFn = std::function<void(MongoTask *, void *)>;
+	using ResultCbFn = std::function<void(MongoTask *)>;
 public:
-	MongoTask(eMongoTask task_type, bsoncxx::document::view_or_value filter, bsoncxx::document::view_or_value content, bsoncxx::document::view_or_value opt, ResultCbFn cb_fn);
+	MongoTask(eMongoTask task_type, const std::string &db_name, const std::string &coll_name, const bsoncxx::document::view_or_value &filter, const bsoncxx::document::view_or_value &content,
+		const bsoncxx::document::view_or_value &opt, ResultCbFn cb_fn);
+	MongoTask(eMongoTask task_type, const std::string &db_name, const std::string &coll_name, const bsoncxx::document::view_or_value &filter,
+		const std::vector<bsoncxx::document::view_or_value> &contents, const bsoncxx::document::view_or_value &opt, ResultCbFn cb_fn);
 	~MongoTask();
 
-	void Process();
+	void Process( );
 	void HandleResult();
 
 	eMongoTaskState GetState() { return m_state; }
@@ -50,9 +53,12 @@ protected:
 	int m_err_num = 0;
 	std::string m_err_msg;
 	eMongoTask m_task_type = eMongoTask_Count;
+	std::string m_db_name;
+	std::string m_coll_name;
 	bsoncxx::document::value *m_filter = nullptr;
 	bsoncxx::document::value *m_content = nullptr;
 	bsoncxx::document::value *m_opt = nullptr;
+	std::vector<bsoncxx::document::value> m_content_vec;
 	ResultCbFn m_cb_fn = nullptr;
 	void *m_cb_fn_param = nullptr;
 	MongoReuslt m_result;
