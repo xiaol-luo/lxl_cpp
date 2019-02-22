@@ -150,9 +150,13 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 #include <mongocxx/instance.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 
+#include "mongo/mongo_def.h"
+
+MongoTaskMgr *mongo_task_mgr = nullptr;
+
 void try_mongodb_api()
 {
-	mongocxx::instance ins{};
+	/*
 	{
 		mongocxx::uri mg_uri("mongodb://192.168.56.101:27017");
 		mongocxx::client mg_client(mg_uri);
@@ -176,7 +180,13 @@ void try_mongodb_api()
 		bsoncxx::stdx::optional<mongocxx::result::insert_one> result = test_coll.insert_one(doc_value.view());
 
 	}
+	*/
+	bsoncxx::builder::basic::document empty_doc;
+	mongo_task_mgr->FindOne(1, "", "", empty_doc.view(), empty_doc.view(), [](MongoTask *task) {
+	
+	});
 }
+
 
 
 int main (int argc, char **argv) 
@@ -191,7 +201,9 @@ int main (int argc, char **argv)
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
-	// try_mongodb_api();
+	mongocxx::instance ins{};
+	mongo_task_mgr = new MongoTaskMgr();
+	mongo_task_mgr->Start(3, "192.168.56.101:27017", "test", "", "");
 
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc < 3)
@@ -216,6 +228,7 @@ int main (int argc, char **argv)
 	PureLuaService lua_service;
 	setup_service(&lua_service);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
+	timer_firm(try_mongodb_api, 1000, -1);
 	engine_loop();
 	engine_destroy();
 	return 0;

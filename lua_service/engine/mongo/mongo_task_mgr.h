@@ -4,6 +4,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include <mongocxx/pool.hpp>
 
 class MongoTaskMgr
 {
@@ -14,15 +15,16 @@ public:
 	MongoTaskMgr();
 	~MongoTaskMgr();
 
-	bool Start(int thread_num);
+	bool Start(int thread_num, const std::string &hosts, const std::string &db_name, const std::string usr, const std::string &pwd);
 	void Stop();
 	void OnFrame();
 
 	bool FindOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 
 private:
-	std::mutex m_global_mtx;
 	bool m_is_running = false;
+	std::string m_mongo_uri;
+	mongocxx::pool *m_client_pool = nullptr;
 
 	std::mutex m_done_tasks_mtx;
 	std::queue<MongoTask *> m_done_tasks;
@@ -43,6 +45,5 @@ private:
 	ThreadEnv *m_thread_envs = nullptr;
 	static void ThreadLoop(ThreadEnv *data);
 	bool AddTaskToThread(uint32_t hash_code, MongoTask *task);
-
-	static bsoncxx::builder::basic::document BSONCXX_EMPTY_DOC;
+	bsoncxx::builder::basic::document BSONCXX_EMPTY_DOC;
 };

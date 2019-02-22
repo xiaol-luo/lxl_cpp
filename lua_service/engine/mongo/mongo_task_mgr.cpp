@@ -1,6 +1,10 @@
 #include "mongo_task_mgr.h"
 #include <thread>
 #include <bsoncxx/builder/basic/document.hpp>
+#include <mongocxx/instance.hpp>
+#include <spdlog/fmt/fmt.h>
+#include <mongocxx/exception/exception.hpp>
+#include "iengine.h"
 
 MongoTaskMgr::MongoTaskMgr()
 {
@@ -10,13 +14,32 @@ MongoTaskMgr::~MongoTaskMgr()
 {
 }
 
-bool MongoTaskMgr::Start(int thread_num)
+bool MongoTaskMgr::Start(int thread_num, const std::string &hosts, const std::string &db_name, const std::string usr, const std::string &pwd)
 {
-	m_global_mtx.lock();
-
 	bool ret = false;
 	if (!m_is_running && thread_num > 0)
 	{
+		assert(nullptr == m_client_pool);
+
+		try
+		{
+			std::string usr_pwd_str;
+			if (usr.size() > 0 || pwd.size() > 0)
+			{
+				usr_pwd_str = fmt::format("{}:{}@", usr, pwd);
+			}
+			std::string poll_size_str = fmt::format("minPoolSize={}&maxPoolSize={}", thread_num, thread_num);
+			m_mongo_uri = fmt::format("mongodb://{}{}/{}?{}", usr_pwd_str, hosts, db_name, poll_size_str);
+			mongocxx::options::pool opt;
+			m_client_pool = new mongocxx::pool(mongocxx::uri(m_mongo_uri), opt);
+			auto xxx = m_client_pool->acquire();
+		}
+		catch (const mongocxx::exception& ex)
+		{
+			log_error("create mongo pool fail {} {}", ex.code().value(), ex.what());
+			return false;
+		}
+
 		m_is_running = true;
 		m_thread_num = thread_num;
 		m_thread_envs = new ThreadEnv[thread_num];
@@ -29,13 +52,11 @@ bool MongoTaskMgr::Start(int thread_num)
 		}
 		ret = true;
 	}
-	m_global_mtx.unlock();
 	return ret;
 }
 
 void MongoTaskMgr::Stop()
 {
-	m_global_mtx.lock();
 	if (m_is_running)
 	{
 		m_is_running = false;
@@ -58,8 +79,8 @@ void MongoTaskMgr::Stop()
 			delete m_done_tasks.front();
 			m_done_tasks.pop();
 		}
+		delete m_client_pool; m_client_pool = nullptr;
 	}
-	m_global_mtx.unlock();
 }
 
 void MongoTaskMgr::OnFrame()
@@ -109,6 +130,11 @@ void MongoTaskMgr::ThreadLoop(ThreadEnv * env)
 	{
 		while (!env->is_exit)
 		{
+			boost::optional<mongocxx::pool::entry> opt_client = env->owner->m_client_pool->try_acquire();
+			if (!opt_client)
+			{
+				continue;
+			}
 			if (!env->mtx.try_lock())
 			{
 				std::this_thread::yield();
@@ -124,13 +150,11 @@ void MongoTaskMgr::ThreadLoop(ThreadEnv * env)
 			env->mtx.unlock();
 			if (nullptr == task)
 				break;
-
-			task->Process();
+			task->Process(**opt_client);
 			self->m_done_tasks_mtx.lock();
 			self->m_done_tasks.push(task);
 			self->m_done_tasks_mtx.unlock();
 		}
-
 		if (!env->is_exit)
 		{
 			std::unique_lock<std::mutex> cv_lock(env->mtx);

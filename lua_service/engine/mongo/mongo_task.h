@@ -4,6 +4,7 @@
 #include <functional>
 #include <bsoncxx/document/value.hpp>
 #include <bsoncxx/document/view_or_value.hpp>
+#include <mongocxx/client.hpp>
 #include "mongo_result.h"
 
 enum eMongoTaskState
@@ -39,7 +40,7 @@ public:
 		const std::vector<bsoncxx::document::view_or_value> &contents, const bsoncxx::document::view_or_value &opt, ResultCbFn cb_fn);
 	~MongoTask();
 
-	void Process( );
+	void Process(mongocxx::client &client);
 	void HandleResult();
 
 	eMongoTaskState GetState() { return m_state; }
