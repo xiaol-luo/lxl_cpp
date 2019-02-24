@@ -56,7 +56,6 @@ function util.parse_main_args(input_args, out_ret)
         return fn_fill_one_args(args, arg_idx, ret, MAIN_ARGS_DATA_DIR)
     end
 
-
     out_ret = out_ret or {}
     local argc = #input_args
     local all_ok = true

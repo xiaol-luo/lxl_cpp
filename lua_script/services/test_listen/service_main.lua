@@ -4,8 +4,6 @@ ServiceMain = ServiceMain or {}
 g_http_service = nil
 g_mongo_task_mgr = nil
 
-local rapidjson = require('rapidjson')
-
 function mongo_task_cb(result_json_str)
     local ret_tb = rapidjson.decode(result_json_str)
     if ret_tb["val"] then

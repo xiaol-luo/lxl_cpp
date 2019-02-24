@@ -20,5 +20,6 @@ local files = {
     "common.net.tcp_connect",
     "common.net.tcp_listen",
     "common.http.http_service",
+    "common.init_global_vars",
 }
 return files
