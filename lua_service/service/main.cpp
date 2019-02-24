@@ -10,6 +10,7 @@ extern "C"
 #include <memory>
 #include "iengine.h"
 #include "lua_reg/lua_reg.h"
+#include <mongocxx/instance.hpp>
 
 #if WIN32
 #include <WinSock2.h>
@@ -30,11 +31,6 @@ void QuitGame(int signal)
 	log_debug("QuitGame");
 	engine_stop();
 }
-
-
-#include "net_handler/lua_tcp_connect.h"
-#include "net_handler/lua_tcp_listen.h"
-
 
 static int lua_panic_error(lua_State* L) {
 	size_t messagesize;
@@ -144,51 +140,6 @@ void StartLuaScript(lua_State *L, int argc, char **argv)
 	}
 }
 
-#include <mongocxx/client.hpp>
-#include <mongocxx/database.hpp>
-#include <mongocxx/uri.hpp>
-#include <mongocxx/instance.hpp>
-#include <bsoncxx/builder/stream/document.hpp>
-
-#include "mongo/mongo_def.h"
-
-MongoTaskMgr *mongo_task_mgr = nullptr;
-
-void try_mongodb_api()
-{
-	/*
-	{
-		mongocxx::uri mg_uri("mongodb://192.168.56.101:27017");
-		mongocxx::client mg_client(mg_uri);
-		mongocxx::database test_db = mg_client["test"];
-		auto builder = bsoncxx::builder::stream::document();
-		bsoncxx::document::value doc_value = builder
-			<< "name" << "MongoDB"
-			<< "type" << "database"
-			<< "count" << 1
-			<< "versions" << bsoncxx::builder::stream::open_array
-			<< "v3.2" << "v3.0" << "v2.6"
-			<< bsoncxx::builder::stream::close_array
-			<< "info" << bsoncxx::builder::stream::open_document
-			<< "x" << 203
-			<< "y" << 102
-			<< bsoncxx::builder::stream::close_document
-			<< bsoncxx::builder::stream::finalize;
-
-
-		mongocxx::collection test_coll = test_db["test_coll"];
-		bsoncxx::stdx::optional<mongocxx::result::insert_one> result = test_coll.insert_one(doc_value.view());
-
-	}
-	*/
-	bsoncxx::builder::basic::document empty_doc;
-	mongo_task_mgr->FindOne(1, "", "", empty_doc.view(), empty_doc.view(), [](MongoTask *task) {
-	
-	});
-}
-
-
-
 int main (int argc, char **argv) 
 {
 #ifdef WIN32
@@ -202,8 +153,6 @@ int main (int argc, char **argv)
 #endif
 
 	mongocxx::instance ins{};
-	mongo_task_mgr = new MongoTaskMgr();
-	mongo_task_mgr->Start(3, "192.168.56.101:27017", "test", "", "");
 
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc < 3)
@@ -228,7 +177,6 @@ int main (int argc, char **argv)
 	PureLuaService lua_service;
 	setup_service(&lua_service);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
-	timer_firm(try_mongodb_api, 1000, -1);
 	engine_loop();
 	engine_destroy();
 	return 0;

@@ -18,13 +18,16 @@ enum eMongoTaskState
 enum eMongoTask
 {
 	eMongoTask_FindOne,
-	eMongoTask_FindMany,
 	eMongoTask_InsertOne,
-	eMongoTask_InsertMany,
 	eMongoTask_UpdateOne,
-	eMongoTask_UpdateMany,
 	eMongoTask_DeleteOne,
+	eMongoTask_ReplaceOne,
+
+	eMongoTask_FindMany,
+	eMongoTask_InsertMany,
+	eMongoTask_UpdateMany,
 	eMongoTask_DeleteMany,
+	eMongoTask_ReplaceMany,
 
 	eMongoTask_Count,
 };
@@ -61,6 +64,18 @@ protected:
 	bsoncxx::document::value *m_opt = nullptr;
 	std::vector<bsoncxx::document::value> m_content_vec;
 	ResultCbFn m_cb_fn = nullptr;
-	void *m_cb_fn_param = nullptr;
 	MongoReuslt m_result;
+
+protected:
+	mongocxx::collection GetColl(mongocxx::client & client);
+	static mongocxx::options::find GenFindOpt(bsoncxx::document::view &view);
+	static mongocxx::options::insert GenInsertOpt(bsoncxx::document::view &view);
+	static mongocxx::options::delete_options GenDeleteOpt(bsoncxx::document::view &view);
+	static mongocxx::options::update GenUpdateOpt(bsoncxx::document::view &view);
+	void DoTask_FindOne(mongocxx::client &client);
+	void DoTask_FindMany(mongocxx::client &client);
+	void DoTask_InsertOne(mongocxx::client &client);
+	void DoTask_DeleteOne(mongocxx::client &client);
+	void DoTask_UpdateOne(mongocxx::client &client);
+	void DoTask_ReplaceOne(mongocxx::client &client);
 };

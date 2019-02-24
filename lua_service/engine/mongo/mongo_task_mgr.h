@@ -20,6 +20,10 @@ public:
 	void OnFrame();
 
 	bool FindOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	bool InsertOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	bool DeleteOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	bool UpdateOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	bool ReplaceOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 
 private:
 	bool m_is_running = false;
@@ -45,5 +49,5 @@ private:
 	ThreadEnv *m_thread_envs = nullptr;
 	static void ThreadLoop(ThreadEnv *data);
 	bool AddTaskToThread(uint32_t hash_code, MongoTask *task);
-	bsoncxx::builder::basic::document BSONCXX_EMPTY_DOC;
+	bsoncxx::document::value *empty_doc = nullptr;
 };
