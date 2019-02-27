@@ -12,12 +12,12 @@ struct MongoReuslt
 		delete val; val = nullptr;
 	}
 
-	int32_t inserted_count = 0;
+	uint64_t inserted_count = 0;
 	std::vector<bsoncxx::oid> inserted_ids;
-	int32_t matched_count = 0;
-	int32_t modified_count = 0;
-	int32_t deleted_count = 0;
-	int32_t upserted_count = 0;
+	uint64_t matched_count = 0;
+	uint64_t modified_count = 0;
+	uint64_t deleted_count = 0;
+	uint64_t upserted_count = 0;
 	std::vector<bsoncxx::oid> upserted_ids;
 	bsoncxx::document::value *val = nullptr;
 };

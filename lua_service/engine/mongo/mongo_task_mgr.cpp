@@ -43,6 +43,7 @@ bool MongoTaskMgr::Start(int thread_num, const std::string &hosts, const std::st
 		}
 
 		m_is_running = true;
+		m_last_id = 0;
 		m_thread_num = thread_num;
 		m_thread_envs = new ThreadEnv[thread_num];
 		for (int i = 0; i < m_thread_num; ++i)
@@ -100,15 +101,16 @@ void MongoTaskMgr::OnFrame()
 	}
 }
 
-bool MongoTaskMgr::FindOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+uint64_t MongoTaskMgr::FindOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	bool ret = false;
+	uint64_t ret = 0;
 	if (m_is_running && m_thread_num > 0)
 	{
 		MongoTask *task = new MongoTask(eMongoTask_FindOne, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
 		if (this->AddTaskToThread(hash_code, task))
 		{
-			ret = true;
+			ret = NextId();
+			task->SetId(ret);
 		}
 		else
 		{
@@ -118,15 +120,16 @@ bool MongoTaskMgr::FindOne(uint32_t hash_code, const_str & db_name, const_str & 
 	return ret;
 }
 
-bool MongoTaskMgr::InsertOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+uint64_t MongoTaskMgr::InsertOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	bool ret = false;
+	uint64_t ret = false;
 	if (m_is_running && m_thread_num > 0)
 	{
 		MongoTask *task = new MongoTask(eMongoTask_InsertOne, db_name, coll_name, empty_doc->view(), content, opt, cb_fn);
 		if (this->AddTaskToThread(hash_code, task))
 		{
-			ret = true;
+			ret = NextId();
+			task->SetId(ret);
 		}
 		else
 		{
@@ -136,15 +139,16 @@ bool MongoTaskMgr::InsertOne(uint32_t hash_code, const_str & db_name, const_str 
 	return ret;
 }
 
-bool MongoTaskMgr::DeleteOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+uint64_t MongoTaskMgr::DeleteOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	bool ret = false;
+	 uint64_t ret = 0;
 	if (m_is_running && m_thread_num > 0)
 	{
 		MongoTask *task = new MongoTask(eMongoTask_DeleteOne, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
 		if (this->AddTaskToThread(hash_code, task))
 		{
-			ret = true;
+			ret = NextId();
+			task->SetId(ret);
 		}
 		else
 		{
@@ -154,15 +158,16 @@ bool MongoTaskMgr::DeleteOne(uint32_t hash_code, const_str & db_name, const_str 
 	return ret;
 }
 
-bool MongoTaskMgr::UpdateOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+uint64_t MongoTaskMgr::UpdateOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	bool ret = false;
+	uint64_t ret = 0;
 	if (m_is_running && m_thread_num > 0)
 	{
 		MongoTask *task = new MongoTask(eMongoTask_UpdateOne, db_name, coll_name, filter, content, opt, cb_fn);
 		if (this->AddTaskToThread(hash_code, task))
 		{
-			ret = true;
+			ret = NextId();
+			task->SetId(ret);
 		}
 		else
 		{
@@ -172,15 +177,16 @@ bool MongoTaskMgr::UpdateOne(uint32_t hash_code, const_str & db_name, const_str 
 	return ret;
 }
 
-bool MongoTaskMgr::ReplaceOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+uint64_t MongoTaskMgr::ReplaceOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	bool ret = false;
+	uint64_t ret = 0;
 	if (m_is_running && m_thread_num > 0)
 	{
 		MongoTask *task = new MongoTask(eMongoTask_ReplaceOne, db_name, coll_name, filter, content, opt, cb_fn);
 		if (this->AddTaskToThread(hash_code, task))
 		{
-			ret = true;
+			ret = NextId();
+			task->SetId(ret);
 		}
 		else
 		{
@@ -242,6 +248,11 @@ bool MongoTaskMgr::AddTaskToThread(uint32_t hash_code, MongoTask * task)
 	worker.mtx.unlock();
 	worker.cv.notify_one();
 	return true;
+}
+
+uint64_t MongoTaskMgr::NextId()
+{
+	return ++m_last_id;
 }
 
 MongoTaskMgr::ThreadEnv::~ThreadEnv()

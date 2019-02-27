@@ -19,14 +19,15 @@ public:
 	void Stop();
 	void OnFrame();
 
-	bool FindOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
-	bool InsertOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
-	bool DeleteOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
-	bool UpdateOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
-	bool ReplaceOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t FindOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t InsertOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t DeleteOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t UpdateOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t ReplaceOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 
 private:
 	bool m_is_running = false;
+	uint64_t m_last_id = 0;
 	std::string m_mongo_uri;
 	mongocxx::pool *m_client_pool = nullptr;
 
@@ -50,4 +51,5 @@ private:
 	static void ThreadLoop(ThreadEnv *data);
 	bool AddTaskToThread(uint32_t hash_code, MongoTask *task);
 	bsoncxx::document::value *empty_doc = nullptr;
+	uint64_t NextId();
 };

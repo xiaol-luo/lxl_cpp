@@ -49,23 +49,34 @@ void MongoTask::Process(mongocxx::client & client)
 			DoTask_InsertOne(client);
 			break;
 		case eMongoTask_InsertMany:
+			DoTask_InsertMany(client);
 			break;
 		case eMongoTask_UpdateOne:
 			DoTask_UpdateOne(client);
 			break;
 		case eMongoTask_UpdateMany:
+			DoTask_UpdateMany(client);
 			break;
 		case eMongoTask_DeleteOne:
 			DoTask_DeleteOne(client);
 			break;
 		case eMongoTask_DeleteMany:
-			break;
-		case eMongoTask_Count:
+			DoTask_DeleteMany(client);
 			break;
 		case eMongoTask_ReplaceOne:
 			DoTask_ReplaceOne(client);
 			break;
-		case eMongoTask_ReplaceMany:
+		case eMongoTask_FindOneAndDelete:
+			DoTask_FindOneAndDelete(client);
+			break;
+		case eMongoTask_FindOneAndReplace:
+			DoTask_FindOneAndReplace(client);
+			break;
+		case eMongoTask_FindOneAndUpdate:
+			DoTask_FindOneAndUpdate(client);
+			break;
+		case eMongoTask_CountDocuments:
+			DoTask_CountDocuments(client);
 			break;
 		default:
 			break;
@@ -115,6 +126,11 @@ mongocxx::options::update MongoTask::GenUpdateOpt(bsoncxx::document::view & view
 	return mongocxx::options::update();
 }
 
+mongocxx::options::count MongoTask::GenCountOpt(bsoncxx::document::view & view)
+{
+	return mongocxx::options::count();
+}
+
 void MongoTask::DoTask_FindOne(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
@@ -129,20 +145,6 @@ void MongoTask::DoTask_FindOne(mongocxx::client & client)
 	m_result.val = new bsoncxx::document::value(builder.view());
 }
 
-void MongoTask::DoTask_FindMany(mongocxx::client & client)
-{
-	mongocxx::collection coll = this->GetColl(client);
-	mongocxx::options::find opt = GenFindOpt(m_opt->view());
-	mongocxx::cursor ret = coll.find(m_filter->view(), opt);
-	bsoncxx::builder::basic::array builder;
-	for (mongocxx::cursor::iterator it = ret.begin(); it != ret.end(); ++it)
-	{
-		++m_result.matched_count;
-		builder.append(bsoncxx::document::value(*it));
-	}
-	m_result.val = new bsoncxx::document::value(builder.view());
-}
-
 void MongoTask::DoTask_InsertOne(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
@@ -150,6 +152,7 @@ void MongoTask::DoTask_InsertOne(mongocxx::client & client)
 	auto ret = coll.insert_one(m_content->view(), opt);
 	if (ret)
 	{
+		m_result.inserted_count = 1;
 		m_result.inserted_ids.push_back(ret->inserted_id().get_oid().value);
 	}
 }
@@ -198,3 +201,84 @@ void MongoTask::DoTask_ReplaceOne(mongocxx::client & client)
 		}
 	}
 }
+
+void MongoTask::DoTask_FindMany(mongocxx::client & client)
+{
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::find opt = GenFindOpt(m_opt->view());
+	mongocxx::cursor ret = coll.find(m_filter->view(), opt);
+	bsoncxx::builder::basic::array builder;
+	for (mongocxx::cursor::iterator it = ret.begin(); it != ret.end(); ++it)
+	{
+		++m_result.matched_count;
+		builder.append(bsoncxx::document::value(*it));
+	}
+	m_result.val = new bsoncxx::document::value(builder.view());
+}
+
+void MongoTask::DoTask_UpdateMany(mongocxx::client & client)
+{
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::update opt = GenUpdateOpt(m_opt->view());
+	boost::optional<mongocxx::result::update> ret = coll.update_many(m_filter->view(), m_content->view(), opt);
+	if (ret)
+	{
+		m_result.matched_count = ret->matched_count();
+		m_result.modified_count = ret->modified_count();
+		boost::optional<bsoncxx::document::element> upserted_ids = ret->upserted_id();
+		if (upserted_ids)
+		{
+			m_result.upserted_ids.push_back(upserted_ids->get_oid().value);
+		}
+	}
+}
+
+void MongoTask::DoTask_InsertMany(mongocxx::client & client)
+{
+	/*
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::insert opt = GenInsertOpt(m_opt->view());
+
+	boost::optional<mongocxx::result::insert_many> ret = coll.insert_many(m_content->view(), opt);
+	if (ret)
+	{
+		m_result.inserted_count = ret->inserted_ids().size();
+		for (auto &&item : ret->inserted_ids())
+		{
+			m_result.inserted_ids.push_back(item.second.get_oid().value);
+		}
+	}
+	*/
+}
+
+void MongoTask::DoTask_DeleteMany(mongocxx::client & client)
+{
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::delete_options opt = GenDeleteOpt(m_opt->view());
+	boost::optional<mongocxx::result::delete_result> ret = coll.delete_many(m_filter->view(), opt);
+	if (ret)
+	{
+		m_result.deleted_count = ret->deleted_count();
+	}
+}
+
+void MongoTask::DoTask_FindOneAndDelete(mongocxx::client & client)
+{
+}
+
+void MongoTask::DoTask_FindOneAndReplace(mongocxx::client & client)
+{
+}
+
+void MongoTask::DoTask_FindOneAndUpdate(mongocxx::client & client)
+{
+}
+
+void MongoTask::DoTask_CountDocuments(mongocxx::client & client)
+{
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::count opt = GenCountOpt(m_opt->view());
+	bsoncxx::builder::basic::array builder;
+	m_result.matched_count = coll.count(m_filter->view(), opt);
+}
+

@@ -27,7 +27,11 @@ enum eMongoTask
 	eMongoTask_InsertMany,
 	eMongoTask_UpdateMany,
 	eMongoTask_DeleteMany,
-	eMongoTask_ReplaceMany,
+
+	eMongoTask_FindOneAndDelete,
+	eMongoTask_FindOneAndReplace,
+	eMongoTask_FindOneAndUpdate,
+	eMongoTask_CountDocuments,
 
 	eMongoTask_Count,
 };
@@ -46,6 +50,8 @@ public:
 	void Process(mongocxx::client &client);
 	void HandleResult();
 
+	void SetId(uint64_t id) { m_id = id; }
+	uint64_t GetId() { return m_id; }
 	eMongoTaskState GetState() { return m_state; }
 	int GetErrNum() { return m_err_num; }
 	const std::string & GetErrMsg() { return m_err_msg; }
@@ -54,6 +60,7 @@ public:
 
 protected:
 	eMongoTaskState m_state = eMongoTaskState_Count;
+	uint64_t m_id = 0;
 	int m_err_num = 0;
 	std::string m_err_msg;
 	eMongoTask m_task_type = eMongoTask_Count;
@@ -72,10 +79,21 @@ protected:
 	static mongocxx::options::insert GenInsertOpt(bsoncxx::document::view &view);
 	static mongocxx::options::delete_options GenDeleteOpt(bsoncxx::document::view &view);
 	static mongocxx::options::update GenUpdateOpt(bsoncxx::document::view &view);
+	static mongocxx::options::count GenCountOpt(bsoncxx::document::view &view);
+
 	void DoTask_FindOne(mongocxx::client &client);
-	void DoTask_FindMany(mongocxx::client &client);
 	void DoTask_InsertOne(mongocxx::client &client);
 	void DoTask_DeleteOne(mongocxx::client &client);
 	void DoTask_UpdateOne(mongocxx::client &client);
 	void DoTask_ReplaceOne(mongocxx::client &client);
+
+	void DoTask_FindMany(mongocxx::client &client);
+	void DoTask_UpdateMany(mongocxx::client &client);
+	void DoTask_InsertMany(mongocxx::client &client);
+	void DoTask_DeleteMany(mongocxx::client &client);
+
+	void DoTask_FindOneAndDelete(mongocxx::client &client);
+	void DoTask_FindOneAndReplace(mongocxx::client &client);
+	void DoTask_FindOneAndUpdate(mongocxx::client &client);
+	void DoTask_CountDocuments(mongocxx::client &client);
 };
