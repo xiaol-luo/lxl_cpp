@@ -101,99 +101,89 @@ void MongoTaskMgr::OnFrame()
 	}
 }
 
+#define TaskActionBody(task_type, db_name, coll_name, filter, content, opt, cb_fn) \
+	uint64_t ret = 0; \
+	if (m_is_running && m_thread_num > 0) \
+	{ \
+		MongoTask *task = new MongoTask(task_type, db_name, coll_name, filter, content, opt, cb_fn); \
+		if (this->AddTaskToThread(hash_code, task)) \
+		{ \
+			ret = NextId(); \
+			task->SetId(ret); \
+		} \
+		else \
+		{ \
+			delete task; task = nullptr; \
+		} \
+	} \
+	return ret;
+
+
 uint64_t MongoTaskMgr::FindOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	uint64_t ret = 0;
-	if (m_is_running && m_thread_num > 0)
-	{
-		MongoTask *task = new MongoTask(eMongoTask_FindOne, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
-		if (this->AddTaskToThread(hash_code, task))
-		{
-			ret = NextId();
-			task->SetId(ret);
-		}
-		else
-		{
-			delete task; task = nullptr;
-		}
-	}
-	return ret;
+	TaskActionBody(eMongoTask_FindOne, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
 }
 
 uint64_t MongoTaskMgr::InsertOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	uint64_t ret = false;
-	if (m_is_running && m_thread_num > 0)
-	{
-		MongoTask *task = new MongoTask(eMongoTask_InsertOne, db_name, coll_name, empty_doc->view(), content, opt, cb_fn);
-		if (this->AddTaskToThread(hash_code, task))
-		{
-			ret = NextId();
-			task->SetId(ret);
-		}
-		else
-		{
-			delete task; task = nullptr;
-		}
-	}
-	return ret;
+	TaskActionBody(eMongoTask_InsertOne, db_name, coll_name, empty_doc->view(), content, opt, cb_fn);
 }
 
 uint64_t MongoTaskMgr::DeleteOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	 uint64_t ret = 0;
-	if (m_is_running && m_thread_num > 0)
-	{
-		MongoTask *task = new MongoTask(eMongoTask_DeleteOne, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
-		if (this->AddTaskToThread(hash_code, task))
-		{
-			ret = NextId();
-			task->SetId(ret);
-		}
-		else
-		{
-			delete task; task = nullptr;
-		}
-	}
-	return ret;
+	TaskActionBody(eMongoTask_DeleteOne, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
 }
 
 uint64_t MongoTaskMgr::UpdateOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	uint64_t ret = 0;
-	if (m_is_running && m_thread_num > 0)
-	{
-		MongoTask *task = new MongoTask(eMongoTask_UpdateOne, db_name, coll_name, filter, content, opt, cb_fn);
-		if (this->AddTaskToThread(hash_code, task))
-		{
-			ret = NextId();
-			task->SetId(ret);
-		}
-		else
-		{
-			delete task; task = nullptr;
-		}
-	}
-	return ret;
+	TaskActionBody(eMongoTask_UpdateOne, db_name, coll_name, filter, content, opt, cb_fn);
 }
 
 uint64_t MongoTaskMgr::ReplaceOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	uint64_t ret = 0;
-	if (m_is_running && m_thread_num > 0)
-	{
-		MongoTask *task = new MongoTask(eMongoTask_ReplaceOne, db_name, coll_name, filter, content, opt, cb_fn);
-		if (this->AddTaskToThread(hash_code, task))
-		{
-			ret = NextId();
-			task->SetId(ret);
-		}
-		else
-		{
-			delete task; task = nullptr;
-		}
-	}
-	return ret;
+	TaskActionBody(eMongoTask_ReplaceOne, db_name, coll_name, filter, content, opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::FindMany(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	TaskActionBody(eMongoTask_FindMany, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::DeleteMany(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	TaskActionBody(eMongoTask_DeleteMany, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::InsertMany(uint32_t hash_code, const_str & db_name, const_str & coll_name, std::vector<bsoncxx::document::view_or_value>& content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	if (content.empty())
+		return 0;
+	TaskActionBody(eMongoTask_InsertMany, db_name, coll_name, empty_doc->view(), content, opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::UpdateMany(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	TaskActionBody(eMongoTask_UpdateMany, db_name, coll_name, filter, content, opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::FindOneAndDelete(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	TaskActionBody(eMongoTask_FindOneAndDelete, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::FindOneAndReplace(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	TaskActionBody(eMongoTask_FindOneAndReplace, db_name, coll_name, filter, content, opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::FindOneAndUpdate(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	TaskActionBody(eMongoTask_FindOneAndUpdate, db_name, coll_name, filter, content, opt, cb_fn);
+}
+
+uint64_t MongoTaskMgr::CountDocument(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
+{
+	TaskActionBody(eMongoTask_Count, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
 }
 
 void MongoTaskMgr::ThreadLoop(ThreadEnv * env)

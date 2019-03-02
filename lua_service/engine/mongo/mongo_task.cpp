@@ -16,6 +16,18 @@ MongoTask::MongoTask(eMongoTask task_type, const std::string & db_name, const st
 
 MongoTask::MongoTask(eMongoTask task_type, const std::string & db_name, const std::string & coll_name, const bsoncxx::document::view_or_value & filter, const std::vector<bsoncxx::document::view_or_value>& contents, const bsoncxx::document::view_or_value & opt, ResultCbFn cb_fn)
 {
+	m_task_type = task_type;
+	m_db_name = db_name;
+	m_coll_name = coll_name;
+	m_filter = new bsoncxx::document::value(filter);
+	m_opt = new bsoncxx::document::value(opt);
+	for (auto &&item : contents)
+	{
+		bsoncxx::document::value val(item);
+		m_content_vec.push_back(std::move(val));
+	}
+	m_cb_fn = cb_fn;
+	m_state = eMongoTaskState_Ready;
 }
 
 MongoTask::~MongoTask()
@@ -86,7 +98,7 @@ void MongoTask::Process(mongocxx::client & client)
 	{
 		m_err_num = ex.code().value();
 		m_err_msg = ex.what();
-		log_error("MongoTask::Process fail {} {}", m_err_num, m_err_msg);
+		log_error("MongoTask::Process fail task_type:{}, task_id:{}, db:{}, coll:{} err_num:{}, err_msg:{}", m_task_type, m_id, m_db_name, m_coll_name, m_err_num, m_err_msg);
 	}	
 	m_state = eMongoTaskState_Done;
 }
@@ -129,6 +141,21 @@ mongocxx::options::update MongoTask::GenUpdateOpt(bsoncxx::document::view & view
 mongocxx::options::count MongoTask::GenCountOpt(bsoncxx::document::view & view)
 {
 	return mongocxx::options::count();
+}
+
+mongocxx::options::find_one_and_delete MongoTask::GenFindOneAndDeleteOpt(bsoncxx::document::view & view)
+{
+	return mongocxx::options::find_one_and_delete();
+}
+
+mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(bsoncxx::document::view & view)
+{
+	return mongocxx::options::find_one_and_update();
+}
+
+mongocxx::options::find_one_and_replace MongoTask::GenFindOneAndReplaceOpt(bsoncxx::document::view & view)
+{
+	return mongocxx::options::find_one_and_replace();
 }
 
 void MongoTask::DoTask_FindOne(mongocxx::client & client)
@@ -235,11 +262,10 @@ void MongoTask::DoTask_UpdateMany(mongocxx::client & client)
 
 void MongoTask::DoTask_InsertMany(mongocxx::client & client)
 {
-	/*
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::insert opt = GenInsertOpt(m_opt->view());
 
-	boost::optional<mongocxx::result::insert_many> ret = coll.insert_many(m_content->view(), opt);
+	boost::optional<mongocxx::result::insert_many> ret = coll.insert_many(m_content_vec, opt);
 	if (ret)
 	{
 		m_result.inserted_count = ret->inserted_ids().size();
@@ -248,7 +274,6 @@ void MongoTask::DoTask_InsertMany(mongocxx::client & client)
 			m_result.inserted_ids.push_back(item.second.get_oid().value);
 		}
 	}
-	*/
 }
 
 void MongoTask::DoTask_DeleteMany(mongocxx::client & client)
@@ -264,14 +289,41 @@ void MongoTask::DoTask_DeleteMany(mongocxx::client & client)
 
 void MongoTask::DoTask_FindOneAndDelete(mongocxx::client & client)
 {
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::find_one_and_delete opt = GenFindOneAndDeleteOpt(m_opt->view());
+	boost::optional<bsoncxx::document::value> ret = coll.find_one_and_delete(m_filter->view(), opt);
+	if (ret)
+	{
+		m_result.matched_count = 1;
+		m_result.deleted_count = 1;
+		m_result.val = new bsoncxx::document::value(ret->view());
+	}
 }
 
 void MongoTask::DoTask_FindOneAndReplace(mongocxx::client & client)
 {
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::find_one_and_replace opt = GenFindOneAndReplaceOpt(m_opt->view());
+	boost::optional<bsoncxx::document::value> ret = coll.find_one_and_replace(m_filter->view(), m_content->view(), opt);
+	if (ret)
+	{
+		m_result.matched_count = 1;
+		m_result.modified_count = 1;
+		m_result.val = new bsoncxx::document::value(ret->view());
+	}
 }
 
 void MongoTask::DoTask_FindOneAndUpdate(mongocxx::client & client)
 {
+	mongocxx::collection coll = this->GetColl(client);
+	mongocxx::options::find_one_and_update opt = GenFindOneAndUpdateOpt(m_opt->view());
+	boost::optional<bsoncxx::document::value> ret = coll.find_one_and_update(m_filter->view(), m_content->view(), opt);
+	if (ret)
+	{
+		m_result.matched_count = 1;
+		m_result.modified_count = 1;
+		m_result.val = new bsoncxx::document::value(ret->view());
+	}
 }
 
 void MongoTask::DoTask_CountDocuments(mongocxx::client & client)

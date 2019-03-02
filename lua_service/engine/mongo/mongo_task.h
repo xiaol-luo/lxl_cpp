@@ -80,6 +80,9 @@ protected:
 	static mongocxx::options::delete_options GenDeleteOpt(bsoncxx::document::view &view);
 	static mongocxx::options::update GenUpdateOpt(bsoncxx::document::view &view);
 	static mongocxx::options::count GenCountOpt(bsoncxx::document::view &view);
+	static mongocxx::options::find_one_and_delete GenFindOneAndDeleteOpt(bsoncxx::document::view &view);
+	static mongocxx::options::find_one_and_update GenFindOneAndUpdateOpt(bsoncxx::document::view &view);
+	static mongocxx::options::find_one_and_replace GenFindOneAndReplaceOpt(bsoncxx::document::view &view);
 
 	void DoTask_FindOne(mongocxx::client &client);
 	void DoTask_InsertOne(mongocxx::client &client);

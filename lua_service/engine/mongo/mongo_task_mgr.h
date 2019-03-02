@@ -25,6 +25,16 @@ public:
 	uint64_t UpdateOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 	uint64_t ReplaceOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 
+	uint64_t FindMany(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t DeleteMany(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t InsertMany(uint32_t hash_code, const_str &db_name, const_str &coll_name, std::vector<bsoncxx::document::view_or_value> &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t UpdateMany(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+
+	uint64_t FindOneAndDelete(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t FindOneAndReplace(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t FindOneAndUpdate(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+	uint64_t CountDocument(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
+
 private:
 	bool m_is_running = false;
 	uint64_t m_last_id = 0;
