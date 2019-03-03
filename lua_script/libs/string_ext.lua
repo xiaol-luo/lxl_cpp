@@ -273,6 +273,10 @@ end
 	maxlevel number 可选参数 hash表展开的层数 默认全部展开
 ]]
 function string.toprint(t, maxlevel)
+	if not IsTable(t) then
+		return tostring(t)
+	end
+
 	maxlevel = maxlevel or 0
 	local names = {}
 

@@ -98,6 +98,7 @@ void register_native_libs(lua_State *L)
 	t.set_function("timer_add", lua_timer_add);
 	t.set_function("timer_firm", lua_timer_firm);
 	t.set_function("timer_next", lua_timer_next);
+	t.set_function("timer_remove", timer_remove);
 
 	t.set_function("http_get", sol::overload(lua_http_get_1, lua_http_get_2));
 	t.set_function("http_post", sol::overload(lua_http_post_1, lua_http_post_2));

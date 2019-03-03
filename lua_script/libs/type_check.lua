@@ -32,12 +32,27 @@ function IsUserData(v)
 	return type(v) == "userdata"
 end 
 
-function IsClass(Cls)
+function IsClass(Cls, cmp_class)
 	if not IsTable(Cls) then return false end
-
     local __index = rawget(Cls, "__index")
     local __cname = rawget(Cls, "__cname")
-    return __index ~= nil and __index == Cls and __cname ~= nil
+	if __index ~= nil and __index == Cls and __cname ~= nil then
+		if nil == cmp_class then
+			return true
+		end
+		if IsTable(cmp_class) then
+			local cmp_class_name = rawget(cmp_class, "__cname")
+			if nil == cmp_class then
+				return false
+			else
+				return __cname == cmp_class_name
+			end
+		else
+			return cname == __cname
+		end
+	end
+	return false
+    -- return __index ~= nil and __index == Cls and __cname ~= nil
 end
 
 function AssertNotNil(v, ...)

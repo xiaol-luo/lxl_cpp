@@ -3,6 +3,7 @@ ServiceMain = ServiceMain or {}
 
 g_http_service = nil
 g_mongo_task_mgr = nil
+g_mongo_client = nil
 
 function mongo_task_cb(result_json_str)
     local ret_tb = rapidjson.decode(result_json_str)
@@ -32,6 +33,19 @@ function xxx()
     return 0
 end
 
+function yyy()
+    local tb_filter = {}
+    local tb_ctx = { a=100 }
+    local tb_opt = {}
+    for i=1, 1 do
+        g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
+        g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
+        g_mongo_client:find_one(i, "test_2", "test_coll2", tb_filter, mongo_task_cb, nil)
+        g_mongo_client:find_many(i, "test_2", "test_coll2", tb_filter, mongo_task_cb, nil)
+        g_mongo_client:delete_many(i, "test_2", "test_coll2", tb_filter, mongo_task_cb)
+    end
+end
+
 function ServiceMain.start()
     local require_files = require("services.test_listen.service_files")
     for _, v in ipairs(require_files) do
@@ -42,7 +56,10 @@ function ServiceMain.start()
     g_http_service = HttpService:new()
     g_http_service:start(20481)
     g_mongo_task_mgr = native.MongoTaskMgr:new()
-    g_mongo_task_mgr:start(3, "124.156.106.95:27017", "admin", "lxl", "xiaolzz")
+    -- g_mongo_task_mgr:start(3, "124.156.106.95:27017", "admin", "lxl", "xiaolzz")
     -- RoleRobot.start(3234)
-    native.timer_firm(xxx, 1000, 10000)
+    -- native.timer_firm(xxx, 1000, 10000)
+    g_mongo_client = MongoClient:new(3, "124.156.106.95:27017", "admin", "lxl", "xiaolzz")
+    g_mongo_client:start()
+    native.timer_firm(yyy, 1000, 10000)
 end

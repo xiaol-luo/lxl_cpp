@@ -1,6 +1,7 @@
 local files = {
     "common.log",
     "common.error_handler",
+    "libs.functional",
     "libs.serpent",
     "libs.print_ext",
     "libs.class",
@@ -21,5 +22,7 @@ local files = {
     "common.net.tcp_listen",
     "common.http.http_service",
     "common.init_global_vars",
+    "libs.mongo.mongo_client",
+    "libs.mongo.mongo_opt_find",
 }
 return files
