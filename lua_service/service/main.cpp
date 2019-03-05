@@ -11,6 +11,8 @@ extern "C"
 #include "iengine.h"
 #include "lua_reg/lua_reg.h"
 #include <mongocxx/instance.hpp>
+#include "service_imp/pure_lua_service/pure_lua_service.h"
+#include "service_imp/service_base.h"
 
 #if WIN32
 #include <WinSock2.h>
@@ -21,15 +23,20 @@ extern "C"
 #include <unistd.h>
 #endif
 
-class PureLuaService : public IService
-{
-
-};
+ServiceBase *g_service = nullptr;
 
 void QuitGame(int signal)
 {
-	log_debug("QuitGame");
-	engine_stop();
+	if (nullptr == g_service)
+	{
+		printf("QuitGame");
+		exit(0);
+	}
+	else
+	{
+		g_service->TryQuitGame();
+		log_debug("TryQuitGame");
+	}
 }
 
 static int lua_panic_error(lua_State* L) {
@@ -174,10 +181,12 @@ int main (int argc, char **argv)
 	engine_init();
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
-	PureLuaService lua_service;
-	setup_service(&lua_service);
+	
+	g_service = new PureLuaService();
+	setup_service(g_service);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
 	engine_loop();
+	g_service = nullptr;
 	engine_destroy();
 	return 0;
 }

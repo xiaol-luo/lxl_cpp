@@ -4,6 +4,7 @@
 #include "i_module.h"
 
 class ServerLogic;
+class IService;
 
 class ModuleMgr
 {
@@ -25,6 +26,9 @@ public:
 	}
 	IModule *GetModule(EMoudleName module_name);
 	ServerLogic * GetServerLogic() { return m_server_logic; }
+
+public:
+	void SetServiceLogic(IService *service_logic);
 
 private:
 	bool m_is_free = true;

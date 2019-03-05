@@ -8,6 +8,7 @@ enum EMoudleName
 {
 	EMoudleName_Invalid,
 	EMoudleName_Network,
+	EModuleName_ServiceLogic,
 	EMoudleName_Max,
 };
 

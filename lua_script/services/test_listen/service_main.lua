@@ -41,11 +41,17 @@ function yyy()
     local find_opt = MongoOptFind:new()
     find_opt:set_max_time(10 * 1000)
     find_opt:set_projection({a=true, c=true})
+    find_opt:set_limit(2)
+    find_opt:set_skip(1)
 
     -- log_debug("find_opt %s",string.toprint(find_opt))
     -- log_debug("MongoOptFind %s",string.toprint(MongoOptFind))
 
     for i=1, 1 do
+        g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
+        g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
+        g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
+        g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
         g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
         g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
         g_mongo_client:find_one(i, "test_2", "test_coll2", tb_filter, mongo_task_cb, find_opt)

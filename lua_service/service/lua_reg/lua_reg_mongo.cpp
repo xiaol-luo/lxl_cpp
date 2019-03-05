@@ -57,8 +57,6 @@ static void Wrap_MongoTask_Handle_Result(MongoTask *task, sol::protected_functio
 	rapidjson::Writer<rapidjson::StringBuffer> sb_writer(sb);
 	doc.Accept(sb_writer);
 	std::string ret_str(sb.GetString(), sb.GetSize());
-	
-	log_debug("Wrap_MongoTask_Handle_Result {}", ret_str);
 	lua_fn(ret_str);
 }
 
@@ -226,7 +224,12 @@ void lua_reg_mongo(lua_State *L)
 			sol::table meta_table = lsv.create_table_with(
 				"max_time", MOFN_MAX_TIME,
 				"projection", MOFN_PROJECTION,
-				"upsert", MOFN_UPSERT
+				"upsert", MOFN_UPSERT,
+				"sort", MOFN_SORT,
+				"limit", MOFN_LIMIT,
+				"min", MOFN_MIN,
+				"max", MOFN_MAX,
+				"skip", MOFN_SKIP
 			);
 			native_tb.set(class_name, meta_table);
 		}

@@ -28,7 +28,7 @@ public:
 	virtual ~ServerLogic();
 	bool StartLog(ELogLevel log_lvl);
 	void SetLoopSpan(int ms) { m_loop_span_ms = ms > 0 ? ms : m_loop_span_ms; }
-	void SetService(IService *service) { m_service = service; }
+	void SetService(IService *service);
 	IService * GetService() { return m_service; }
 	void SetParams() {}
 	void Loop();
@@ -47,8 +47,8 @@ protected:
 	ModuleMgr *m_module_mgr = nullptr;
 	int m_loop_span_ms = 100;
 	void **m_module_params[EMoudleName_Max];
-	std::function<void(void ***)> m_module_params_clear_fn;
-	IService *m_service;
+	std::function<void(void ***)> m_module_params_clear_fn = nullptr;
+	IService *m_service = nullptr;
 
 public:
 	double LogicSec() { return m_logic_sec; }

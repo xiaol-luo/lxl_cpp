@@ -3,27 +3,34 @@
 #include <iengine.h>
 #include "mongo_def.h"
 
+#define SetOptHelp(field_name, filed_type, field_type_fn, set_field_fn) \
+{\
+	auto bson_elem = view[field_name];\
+	if (bson_elem && bsoncxx::type::filed_type == bson_elem.type())\
+	{\
+		auto elem_val = bson_elem.field_type_fn().value;\
+		ret.set_field_fn(elem_val);\
+	}\
+}
+
 mongocxx::options::find MongoTask::GenFindOpt(bsoncxx::document::view & view)
 {
 	mongocxx::options::find ret;
 	{
-		auto bson_elem = view[MOFN_MAX_TIME];
 		ret.max_time(std::chrono::milliseconds(10 * 1000));
+		auto bson_elem = view[MOFN_MAX_TIME];
 		if (bson_elem && bsoncxx::type::k_int32 == bson_elem.type())
 		{
 			int elem_val = bson_elem.get_int32().value;
 			ret.max_time(std::chrono::milliseconds(elem_val));
 		}
 	}
-	{
-		auto bson_elem = view[MOFN_PROJECTION];
-		ret.max_time(std::chrono::milliseconds(10 * 1000));
-		if (bson_elem && bsoncxx::type::k_document == bson_elem.type())
-		{
-			auto elem_val = bson_elem.get_document().value;
-			ret.projection(elem_val);
-		}
-	}
+	SetOptHelp(MOFN_PROJECTION, k_document, get_document, projection);
+	SetOptHelp(MOFN_SORT, k_document, get_document, sort);
+	SetOptHelp(MOFN_LIMIT, k_int32, get_int32, limit);
+	SetOptHelp(MOFN_SKIP, k_int32, get_int32, skip);
+	SetOptHelp(MOFN_MIN, k_document, get_document, min);
+	SetOptHelp(MOFN_MAX, k_document, get_document, max);
 	return ret;
 }
 
@@ -40,14 +47,7 @@ mongocxx::options::delete_options MongoTask::GenDeleteOpt(bsoncxx::document::vie
 mongocxx::options::update MongoTask::GenUpdateOpt(bsoncxx::document::view & view)
 {
 	mongocxx::options::update ret;
-	{
-		auto bson_elem = view[MOFN_UPSERT];
-		if (bson_elem && bsoncxx::type::k_bool == bson_elem.type())
-		{
-			auto elem_val = bson_elem.get_bool().value;
-			ret.upsert(elem_val);
-		}
-	}
+	SetOptHelp(MOFN_UPSERT, k_bool, get_bool, upsert);
 	return ret;
 }
 
@@ -65,14 +65,6 @@ mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(bsoncxx
 {
 	mongocxx::options::find_one_and_update ret;
 	{
-		auto bson_elem = view[MOFN_UPSERT];
-		if (bson_elem && bsoncxx::type::k_bool == bson_elem.type())
-		{
-			auto elem_val = bson_elem.get_bool().value;
-			ret.upsert(elem_val);
-		}
-	}
-	{
 		auto bson_elem = view[MOFN_PROJECTION];
 		ret.max_time(std::chrono::milliseconds(10 * 1000));
 		if (bson_elem && bsoncxx::type::k_document == bson_elem.type())
@@ -81,6 +73,7 @@ mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(bsoncxx
 			ret.projection(elem_val);
 		}
 	}
+	SetOptHelp(MOFN_UPSERT, k_bool, get_bool, upsert);
 	return ret;
 }
 

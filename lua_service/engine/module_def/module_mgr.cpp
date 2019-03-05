@@ -152,6 +152,16 @@ IModule *ModuleMgr::GetModule(EMoudleName module_name)
 	return nullptr;
 }
 
+void ModuleMgr::SetServiceLogic(IService * service_logic)
+{
+	assert(service_logic);
+	assert(nullptr == service_logic->m_module_mgr);
+	assert(nullptr == m_modules[EModuleName_ServiceLogic]);
+	m_modules[EModuleName_ServiceLogic] = service_logic;
+	service_logic->m_module_mgr = this;
+}
+
+
 void ModuleMgr::Quit()
 { 
 	// m_server_logic->Quit();

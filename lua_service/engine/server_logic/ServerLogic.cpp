@@ -48,6 +48,15 @@ bool ServerLogic::StartLog(ELogLevel log_lvl)
 	return m_log_mgr->Start(log_lvl);
 }
 
+void ServerLogic::SetService(IService * service)
+{
+	assert(EServerLogicState_Free == m_state);
+	assert(service);
+	assert(nullptr == m_service);
+	m_module_mgr->SetServiceLogic(service);
+	m_service = service;
+}
+
 bool ServerLogic::Init()
 {
 	if (EServerLogicState_Free != m_state)
@@ -125,6 +134,8 @@ void ServerLogic::Update()
 
 void ServerLogic::Realse()
 {
+	m_service = nullptr;
+
 	m_state = EServerLogicState_Release;
 	int loop_times = 0;
 	EModuleRetCode retCode = EModuleRetCode_Succ;
