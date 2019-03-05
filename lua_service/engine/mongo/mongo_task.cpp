@@ -1,6 +1,7 @@
 #include "mongo_task.h"
 #include <mongocxx/exception/exception.hpp>
 #include <iengine.h>
+#include "mongo_def.h"
 
 MongoTask::MongoTask(eMongoTask task_type, const std::string & db_name, const std::string & coll_name, const bsoncxx::document::view_or_value & filter, const bsoncxx::document::view_or_value & content, const bsoncxx::document::view_or_value & opt, ResultCbFn cb_fn)
 {
@@ -116,46 +117,6 @@ mongocxx::collection MongoTask::GetColl(mongocxx::client & client)
 	mongocxx::database db = client.database(m_db_name);
 	mongocxx::collection coll = db.collection(m_coll_name);
 	return coll;
-}
-
-mongocxx::options::find MongoTask::GenFindOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::find();
-}
-
-mongocxx::options::insert MongoTask::GenInsertOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::insert();
-}
-
-mongocxx::options::delete_options MongoTask::GenDeleteOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::delete_options();
-}
-
-mongocxx::options::update MongoTask::GenUpdateOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::update();
-}
-
-mongocxx::options::count MongoTask::GenCountOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::count();
-}
-
-mongocxx::options::find_one_and_delete MongoTask::GenFindOneAndDeleteOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::find_one_and_delete();
-}
-
-mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::find_one_and_update();
-}
-
-mongocxx::options::find_one_and_replace MongoTask::GenFindOneAndReplaceOpt(bsoncxx::document::view & view)
-{
-	return mongocxx::options::find_one_and_replace();
 }
 
 void MongoTask::DoTask_FindOne(mongocxx::client & client)

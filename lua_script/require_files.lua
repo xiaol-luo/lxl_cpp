@@ -23,6 +23,6 @@ local files = {
     "common.http.http_service",
     "common.init_global_vars",
     "libs.mongo.mongo_client",
-    "libs.mongo.mongo_opt_find",
+    "libs.mongo.mongo_options",
 }
 return files

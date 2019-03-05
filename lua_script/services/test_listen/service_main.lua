@@ -35,13 +35,21 @@ end
 
 function yyy()
     local tb_filter = {}
-    local tb_ctx = { a=100 }
+    local tb_ctx = { a=100, b=101, c=122 }
     local tb_opt = {}
+
+    local find_opt = MongoOptFind:new()
+    find_opt:set_max_time(10 * 1000)
+    find_opt:set_projection({a=true, c=true})
+
+    -- log_debug("find_opt %s",string.toprint(find_opt))
+    -- log_debug("MongoOptFind %s",string.toprint(MongoOptFind))
+
     for i=1, 1 do
         g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
         g_mongo_client:insert_one(i, "test_2", "test_coll2", tb_ctx, mongo_task_cb)
-        g_mongo_client:find_one(i, "test_2", "test_coll2", tb_filter, mongo_task_cb, nil)
-        g_mongo_client:find_many(i, "test_2", "test_coll2", tb_filter, mongo_task_cb, nil)
+        g_mongo_client:find_one(i, "test_2", "test_coll2", tb_filter, mongo_task_cb, find_opt)
+        g_mongo_client:find_many(i, "test_2", "test_coll2", tb_filter, mongo_task_cb, find_opt)
         g_mongo_client:delete_many(i, "test_2", "test_coll2", tb_filter, mongo_task_cb)
     end
 end
@@ -51,6 +59,8 @@ function ServiceMain.start()
     for _, v in ipairs(require_files) do
         require(v)
     end
+
+    log_debug("xxxxxxxxxxxxxxxxx %s %s %s", native.mongo_opt_field_name.max_time, native.mongo_opt_field_name.projection, native.mongo_opt_field_name.upsert)
 
     RoleManager.start(3234)
     g_http_service = HttpService:new()

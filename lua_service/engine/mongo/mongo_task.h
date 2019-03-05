@@ -73,8 +73,7 @@ protected:
 	ResultCbFn m_cb_fn = nullptr;
 	MongoReuslt m_result;
 
-protected:
-	mongocxx::collection GetColl(mongocxx::client & client);
+public:
 	static mongocxx::options::find GenFindOpt(bsoncxx::document::view &view);
 	static mongocxx::options::insert GenInsertOpt(bsoncxx::document::view &view);
 	static mongocxx::options::delete_options GenDeleteOpt(bsoncxx::document::view &view);
@@ -84,6 +83,8 @@ protected:
 	static mongocxx::options::find_one_and_update GenFindOneAndUpdateOpt(bsoncxx::document::view &view);
 	static mongocxx::options::find_one_and_replace GenFindOneAndReplaceOpt(bsoncxx::document::view &view);
 
+protected:
+	mongocxx::collection GetColl(mongocxx::client & client);
 	void DoTask_FindOne(mongocxx::client &client);
 	void DoTask_InsertOne(mongocxx::client &client);
 	void DoTask_DeleteOne(mongocxx::client &client);

@@ -216,5 +216,19 @@ void lua_reg_mongo(lua_State *L)
 			);
 			native_tb.set_usertype(class_name, meta_table);
 		}
+
+		{
+			sol::state_view lsv(L);
+			// mongo_def
+			std::string class_name = "mongo_opt_field_name";
+			sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
+			assert(!v.valid());
+			sol::table meta_table = lsv.create_table_with(
+				"max_time", MOFN_MAX_TIME,
+				"projection", MOFN_PROJECTION,
+				"upsert", MOFN_UPSERT
+			);
+			native_tb.set(class_name, meta_table);
+		}
 	}
 }

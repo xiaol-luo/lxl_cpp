@@ -36,17 +36,18 @@ end
 function MongoClient:find_one(hash_code, db, coll, filter, cb_fn, opt)
     assert(IsTable(filter))
     assert(nil == cb_fn or IsFunction(cb_fn))
-    assert(nil == opt or IsClass(opt, MongoOptFind))
+    assert(nil == opt or IsClassInstance(opt, MongoOptFind))
     local filter_str = rapidjson.encode(filter)
-    local opt_str = nil == opt and "{}" or opt.to_json()
+    local opt_str = nil == opt and "{}" or opt:to_json()
     return self.mongo_task_mgr_:find_one(hash_code, db, coll, filter_str, opt_str, cb_fn)
 end
 
 function MongoClient:find_many(hash_code, db, coll, filter, cb_fn, opt)
     assert(IsTable(filter))
     assert(nil == cb_fn or IsFunction(cb_fn))
+    assert(nil == opt or IsClassInstance(opt, MongoOptFind))
     local filter_str = rapidjson.encode(filter)
-    local opt_str = nil == opt and "{}" or opt.to_json()
+    local opt_str = nil == opt and "{}" or opt:to_json()
     return self.mongo_task_mgr_:find_many(hash_code, db, coll, filter_str, opt_str, cb_fn)
 end
 
@@ -61,7 +62,7 @@ end
 function MongoClient:insert_many(hash_code, db, coll, doc_array, cb_fn)
     assert(IsTable(doc_array))
     assert(nil == cb_fn or IsFunction(cb_fn))
-    assert(nil == opt or IsClass(opt, MongoOptFind))
+    assert(nil == opt or IsClassInstance(opt, MongoOptFind))
     local docs_str = rapidjson.encode(doc_array)
     local opt_str = "{}"
     self.mongo_task_mgr_:insert_many(hash_code, db, coll, docs_str, opt_str, cb_fn)
@@ -83,23 +84,25 @@ function MongoClient:delete_many(hash_code, db, coll, filter, cb_fn)
     return self.mongo_task_mgr_:delete_many(hash_code, db, coll, filter_str, opt_str, cb_fn)
 end
 
-function MongoClient:update_one(hash_code, db, coll, filter, doc, cb_fn)
+function MongoClient:update_one(hash_code, db, coll, filter, doc, cb_fn, opt)
     assert(IsTable(filter))
     assert(IsTable(doc))
     assert(nil == cb_fn or IsFunction(cb_fn))
+    assert(nil == opt or IsClassInstance(opt, MongoOptUpdate))
     local filter_str = rapidjson.encode(filter)
     local doc_str = rapidjson.encode(doc)
-    local opt_str = "{}"
+    local opt_str = nil == opt and "{}" or opt:to_json()
     return self.mongo_task_mgr_:update_one(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
 end
 
-function MongoClient:update_many(hash_code, db, coll, filter, doc, cb_fn)
+function MongoClient:update_many(hash_code, db, coll, filter, doc, cb_fn, opt)
     assert(IsTable(filter))
     assert(IsTable(doc))
     assert(nil == cb_fn or IsFunction(cb_fn))
+    assert(nil == opt or IsClassInstance(opt, MongoOptUpdate))
     local filter_str = rapidjson.encode(filter)
     local doc_str = rapidjson.encode(doc)
-    local opt_str = "{}"
+    local opt_str = nil == opt and "{}" or opt:to_json()
     return self.mongo_task_mgr_:update_many(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
 end
 
@@ -113,7 +116,7 @@ function MongoClient:replace_one(hash_code, db, coll, filter, doc, cb_fn)
     return self.mongo_task_mgr_:replace_one(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
 end
 
-function MongoClient:find_one_and_delete(hash_code, db, coll, filter, cb_fn, opt)
+function MongoClient:find_one_and_delete(hash_code, db, coll, filter, cb_fn)
     assert(IsTable(filter))
     assert(nil == cb_fn or IsFunction(cb_fn))
     local filter_str = rapidjson.encode(filter)
@@ -125,13 +128,14 @@ function MongoClient:find_one_and_update(hash_code, db, coll, filter, doc, cb_fn
     assert(IsTable(filter))
     assert(IsTable(doc))
     assert(nil == cb_fn or IsFunction(cb_fn))
+    assert(nil == opt or IsClassInstance(opt, MongoOptFindOneAndUpdate))
     local filter_str = rapidjson.encode(filter)
     local doc_str = rapidjson.encode(doc)
-    local opt_str = "{}"
+    local opt_str = nil == opt and "{}" or opt:to_json()
     return self.mongo_task_mgr_:find_one_and_update(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
 end
 
-function MongoClient:find_one_and_replace(hash_code, db, coll, filter, doc, cb_fn, opt)
+function MongoClient:find_one_and_replace(hash_code, db, coll, filter, doc, cb_fn)
     assert(IsTable(filter))
     assert(IsTable(doc))
     assert(nil == cb_fn or IsFunction(cb_fn))
@@ -141,7 +145,7 @@ function MongoClient:find_one_and_replace(hash_code, db, coll, filter, doc, cb_f
     return self.mongo_task_mgr_:find_one_and_replace(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
 end
 
-function MongoClient:count_document(hash_code, db, coll, filter, cb_fn, opt)
+function MongoClient:count_document(hash_code, db, coll, filter, cb_fn)
     assert(IsTable(filter))
     assert(nil == cb_fn or IsFunction(cb_fn))
     local filter_str = rapidjson.encode(filter)

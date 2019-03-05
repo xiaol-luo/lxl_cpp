@@ -4,3 +4,8 @@
 #include "mongo_task.h"
 #include "mongo_task_mgr.h"
 #include "mongo_result.h"
+
+// MOFN --> mongo optional field name
+const static char * MOFN_MAX_TIME = "max_time";
+const static char * MOFN_PROJECTION = "projection";
+const static char * MOFN_UPSERT = "upsert";
