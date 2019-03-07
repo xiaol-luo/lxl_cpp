@@ -21,7 +21,6 @@ enum eMongoTask
 	eMongoTask_InsertOne,
 	eMongoTask_UpdateOne,
 	eMongoTask_DeleteOne,
-	eMongoTask_ReplaceOne,
 
 	eMongoTask_FindMany,
 	eMongoTask_InsertMany,
@@ -74,14 +73,14 @@ protected:
 	MongoReuslt m_result;
 
 public:
-	static mongocxx::options::find GenFindOpt(bsoncxx::document::view &view);
-	static mongocxx::options::insert GenInsertOpt(bsoncxx::document::view &view);
-	static mongocxx::options::delete_options GenDeleteOpt(bsoncxx::document::view &view);
-	static mongocxx::options::update GenUpdateOpt(bsoncxx::document::view &view);
-	static mongocxx::options::count GenCountOpt(bsoncxx::document::view &view);
-	static mongocxx::options::find_one_and_delete GenFindOneAndDeleteOpt(bsoncxx::document::view &view);
-	static mongocxx::options::find_one_and_update GenFindOneAndUpdateOpt(bsoncxx::document::view &view);
-	static mongocxx::options::find_one_and_replace GenFindOneAndReplaceOpt(bsoncxx::document::view &view);
+	static mongocxx::options::find GenFindOpt(const bsoncxx::document::view &view);
+	static mongocxx::options::insert GenInsertOpt(const bsoncxx::document::view &view);
+	static mongocxx::options::delete_options GenDeleteOpt(const bsoncxx::document::view &view);
+	static mongocxx::options::update GenUpdateOpt(const bsoncxx::document::view &view);
+	static mongocxx::options::count GenCountOpt(const bsoncxx::document::view &view);
+	static mongocxx::options::find_one_and_delete GenFindOneAndDeleteOpt(const bsoncxx::document::view &view);
+	static mongocxx::options::find_one_and_update GenFindOneAndUpdateOpt(const bsoncxx::document::view &view);
+	static mongocxx::options::find_one_and_replace GenFindOneAndReplaceOpt(const bsoncxx::document::view &view);
 
 protected:
 	mongocxx::collection GetColl(mongocxx::client & client);
@@ -89,7 +88,6 @@ protected:
 	void DoTask_InsertOne(mongocxx::client &client);
 	void DoTask_DeleteOne(mongocxx::client &client);
 	void DoTask_UpdateOne(mongocxx::client &client);
-	void DoTask_ReplaceOne(mongocxx::client &client);
 
 	void DoTask_FindMany(mongocxx::client &client);
 	void DoTask_UpdateMany(mongocxx::client &client);

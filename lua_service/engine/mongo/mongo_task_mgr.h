@@ -5,6 +5,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <mongocxx/pool.hpp>
+#include <thread>
 
 class MongoTaskMgr
 {
@@ -23,7 +24,6 @@ public:
 	uint64_t InsertOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 	uint64_t DeleteOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 	uint64_t UpdateOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
-	uint64_t ReplaceOne(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &content, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 
 	uint64_t FindMany(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);
 	uint64_t DeleteMany(uint32_t hash_code, const_str &db_name, const_str &coll_name, const_bson_doc &filter, const_bson_doc &opt, MongoTask::ResultCbFn cb_fn);

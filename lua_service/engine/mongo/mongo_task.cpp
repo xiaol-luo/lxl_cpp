@@ -76,9 +76,6 @@ void MongoTask::Process(mongocxx::client & client)
 		case eMongoTask_DeleteMany:
 			DoTask_DeleteMany(client);
 			break;
-		case eMongoTask_ReplaceOne:
-			DoTask_ReplaceOne(client);
-			break;
 		case eMongoTask_FindOneAndDelete:
 			DoTask_FindOneAndDelete(client);
 			break;
@@ -124,7 +121,7 @@ void MongoTask::DoTask_FindOne(mongocxx::client & client)
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::find opt = GenFindOpt(m_opt->view());
 	bsoncxx::builder::basic::array builder;
-	boost::optional<bsoncxx::document::value> ret = coll.find_one(m_filter->view(), opt);
+	mongocxx::stdx::optional<bsoncxx::document::value> ret = coll.find_one(m_filter->view(), opt);
 	if (ret)
 	{
 		m_result.matched_count = 1;
@@ -149,7 +146,7 @@ void MongoTask::DoTask_DeleteOne(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::delete_options opt = GenDeleteOpt(m_opt->view());
-	boost::optional<mongocxx::result::delete_result> ret = coll.delete_one(m_filter->view(), opt);
+	mongocxx::stdx::optional<mongocxx::result::delete_result> ret = coll.delete_one(m_filter->view(), opt);
 	if (ret)
 	{
 		m_result.deleted_count = ret->deleted_count();
@@ -160,29 +157,12 @@ void MongoTask::DoTask_UpdateOne(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::update opt = GenUpdateOpt(m_opt->view());
-	boost::optional<mongocxx::result::update> ret = coll.update_one(m_filter->view(), m_content->view(), opt);
+	mongocxx::stdx::optional<mongocxx::result::update> ret = coll.update_one(m_filter->view(), m_content->view(), opt);
 	if (ret)
 	{
 		m_result.matched_count = ret->matched_count();
 		m_result.modified_count = ret->modified_count();
-		boost::optional<bsoncxx::document::element> upserted_ids = ret->upserted_id();
-		if (upserted_ids)
-		{
-			m_result.upserted_ids.push_back(upserted_ids->get_oid().value);
-		}
-	}
-}
-
-void MongoTask::DoTask_ReplaceOne(mongocxx::client & client)
-{
-	mongocxx::collection coll = this->GetColl(client);
-	mongocxx::options::update opt = GenUpdateOpt(m_opt->view());
-	boost::optional<mongocxx::result::replace_one> ret = coll.replace_one(m_filter->view(), m_content->view(), opt);
-	if (ret)
-	{
-		m_result.matched_count = ret->matched_count();
-		m_result.modified_count = ret->modified_count();
-		boost::optional<bsoncxx::document::element> upserted_ids = ret->upserted_id();
+		mongocxx::stdx::optional<bsoncxx::document::element> upserted_ids = ret->upserted_id();
 		if (upserted_ids)
 		{
 			m_result.upserted_ids.push_back(upserted_ids->get_oid().value);
@@ -208,12 +188,12 @@ void MongoTask::DoTask_UpdateMany(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::update opt = GenUpdateOpt(m_opt->view());
-	boost::optional<mongocxx::result::update> ret = coll.update_many(m_filter->view(), m_content->view(), opt);
+	mongocxx::stdx::optional<mongocxx::result::update> ret = coll.update_many(m_filter->view(), m_content->view(), opt);
 	if (ret)
 	{
 		m_result.matched_count = ret->matched_count();
 		m_result.modified_count = ret->modified_count();
-		boost::optional<bsoncxx::document::element> upserted_ids = ret->upserted_id();
+		mongocxx::stdx::optional<bsoncxx::document::element> upserted_ids = ret->upserted_id();
 		if (upserted_ids)
 		{
 			m_result.upserted_ids.push_back(upserted_ids->get_oid().value);
@@ -226,7 +206,7 @@ void MongoTask::DoTask_InsertMany(mongocxx::client & client)
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::insert opt = GenInsertOpt(m_opt->view());
 
-	boost::optional<mongocxx::result::insert_many> ret = coll.insert_many(m_content_vec, opt);
+	mongocxx::stdx::optional<mongocxx::result::insert_many> ret = coll.insert_many(m_content_vec, opt);
 	if (ret)
 	{
 		m_result.inserted_count = ret->inserted_ids().size();
@@ -241,7 +221,7 @@ void MongoTask::DoTask_DeleteMany(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::delete_options opt = GenDeleteOpt(m_opt->view());
-	boost::optional<mongocxx::result::delete_result> ret = coll.delete_many(m_filter->view(), opt);
+	mongocxx::stdx::optional<mongocxx::result::delete_result> ret = coll.delete_many(m_filter->view(), opt);
 	if (ret)
 	{
 		m_result.deleted_count = ret->deleted_count();
@@ -252,7 +232,7 @@ void MongoTask::DoTask_FindOneAndDelete(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::find_one_and_delete opt = GenFindOneAndDeleteOpt(m_opt->view());
-	boost::optional<bsoncxx::document::value> ret = coll.find_one_and_delete(m_filter->view(), opt);
+	mongocxx::stdx::optional<bsoncxx::document::value> ret = coll.find_one_and_delete(m_filter->view(), opt);
 	if (ret)
 	{
 		m_result.matched_count = 1;
@@ -265,7 +245,7 @@ void MongoTask::DoTask_FindOneAndReplace(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::find_one_and_replace opt = GenFindOneAndReplaceOpt(m_opt->view());
-	boost::optional<bsoncxx::document::value> ret = coll.find_one_and_replace(m_filter->view(), m_content->view(), opt);
+	mongocxx::stdx::optional<bsoncxx::document::value> ret = coll.find_one_and_replace(m_filter->view(), m_content->view(), opt);
 	if (ret)
 	{
 		m_result.matched_count = 1;
@@ -278,7 +258,7 @@ void MongoTask::DoTask_FindOneAndUpdate(mongocxx::client & client)
 {
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::find_one_and_update opt = GenFindOneAndUpdateOpt(m_opt->view());
-	boost::optional<bsoncxx::document::value> ret = coll.find_one_and_update(m_filter->view(), m_content->view(), opt);
+	mongocxx::stdx::optional<bsoncxx::document::value> ret = coll.find_one_and_update(m_filter->view(), m_content->view(), opt);
 	if (ret)
 	{
 		m_result.matched_count = 1;
@@ -292,6 +272,10 @@ void MongoTask::DoTask_CountDocuments(mongocxx::client & client)
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::count opt = GenCountOpt(m_opt->view());
 	bsoncxx::builder::basic::array builder;
+#ifdef Win32
 	m_result.matched_count = coll.count(m_filter->view(), opt);
+#else
+	m_result.matched_count = coll.count_documents(m_filter->view(), opt);
+#endif
 }
 

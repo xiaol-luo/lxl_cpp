@@ -190,12 +190,12 @@ EServerLogicState engine_state()
 	return ret;
 }
 
-void * mempool_malloc(uint32_t malloc_size)
+void * mempool_malloc(size_t malloc_size)
 {
 	return g_server_logic->GetMemPool()->Malloc(malloc_size);
 }
 
-void * mempool_realloc(void *ptr, uint32_t new_malloc_size)
+void * mempool_realloc(void *ptr, size_t new_malloc_size)
 {
 	return g_server_logic->GetMemPool()->Realloc(ptr, new_malloc_size);
 }

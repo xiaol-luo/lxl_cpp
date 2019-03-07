@@ -20,7 +20,7 @@ public:
 
 	bool Init(sol::table lua_logic);
 	bool Send(uint32_t pid);
-	bool Send(uint32_t pid, std::string &data);
+	bool Send(uint32_t pid, const std::string &data);
 
 protected:
 	sol::table m_lua_logic;

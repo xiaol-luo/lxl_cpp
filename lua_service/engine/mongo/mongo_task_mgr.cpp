@@ -139,11 +139,6 @@ uint64_t MongoTaskMgr::UpdateOne(uint32_t hash_code, const_str & db_name, const_
 	TaskActionBody(eMongoTask_UpdateOne, db_name, coll_name, filter, content, opt, cb_fn);
 }
 
-uint64_t MongoTaskMgr::ReplaceOne(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & content, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
-{
-	TaskActionBody(eMongoTask_ReplaceOne, db_name, coll_name, filter, content, opt, cb_fn);
-}
-
 uint64_t MongoTaskMgr::FindMany(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
 	TaskActionBody(eMongoTask_FindMany, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
@@ -193,7 +188,7 @@ void MongoTaskMgr::ThreadLoop(ThreadEnv * env)
 	{
 		while (!env->is_exit)
 		{
-			boost::optional<mongocxx::pool::entry> opt_client = env->owner->m_client_pool->try_acquire();
+			mongocxx::stdx::optional<mongocxx::pool::entry> opt_client = env->owner->m_client_pool->try_acquire();
 			if (!opt_client)
 			{
 				continue;

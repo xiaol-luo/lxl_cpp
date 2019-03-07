@@ -148,7 +148,7 @@ bool HttpReqCnn::SetReqData(bool is_get, std::string url, std::unordered_map<std
 		std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
 		heads.insert_or_assign("Date", time_str);
 	}
-	char *head_line_format = "{}:{}\r\n";
+	const std::string head_line_format = "{}:{}\r\n";
 	for (auto kv : heads)
 	{
 		std::string head_str = fmt::format(head_line_format, kv.first, kv.second);

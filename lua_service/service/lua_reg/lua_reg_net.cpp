@@ -115,7 +115,7 @@ void lua_reg_net(lua_State *L)
 			"init", &LuaTcpConnect::Init,
 			"send", sol::overload(
 				[](LuaTcpConnect *self, uint32_t pid) { return self->Send(pid); },
-				[](LuaTcpConnect *self, uint32_t pid, std::string &bin) { return self->Send(pid, bin); }
+				[](LuaTcpConnect *self, uint32_t pid, const std::string &bin) { return self->Send(pid, bin); }
 			)
 		);
 		native_tb.set_usertype(class_name, meta_table);

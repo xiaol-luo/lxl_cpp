@@ -113,7 +113,7 @@ void HttpRspCnn::ProcessReq()
 		NetBuffer *send_buff = new NetBuffer(128, 64, mempool_malloc, mempool_free, mempool_realloc);
 		std::string state_line = fmt::format("HTTP/1.1 {} {}\r\n", 404, "NotProcessLogic");
 		send_buff->Append(state_line);
-		char *head_line_format = "{}:{}\r\n";
+		const std::string head_line_format = "{}:{}\r\n";
 
 		char time_str[256];
 		{

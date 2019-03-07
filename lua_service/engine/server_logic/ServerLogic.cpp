@@ -19,7 +19,7 @@ const int TRY_MAX_TIMES = 100000;
 
 ServerLogic::ServerLogic()
 {
-	std::vector<uint32_t> bolck_sizes = { 8, 16, 32, 64, 96, 128, 256, 384, 512, 1024, 2048, 5120 };
+	std::vector<size_t> bolck_sizes = { 8, 16, 32, 64, 96, 128, 256, 384, 512, 1024, 2048, 5120 };
 	m_memory_pool_mgr = new MemoryPoolMgr(bolck_sizes, getpagesize(), 8, 32);
 
 	m_module_mgr = new ModuleMgr(this);

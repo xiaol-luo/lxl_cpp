@@ -94,7 +94,7 @@ bool LuaTcpConnect::Send(uint32_t pid)
 	return true;
 }
 
-bool LuaTcpConnect::Send(uint32_t pid, std::string & data)
+bool LuaTcpConnect::Send(uint32_t pid, const std::string & data)
 {
 	if (m_netid <= 0)
 		return false;

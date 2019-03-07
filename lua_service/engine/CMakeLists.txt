@@ -29,6 +29,8 @@ IF (WIN32)
 ELSE()
 	LINK_LIBRARIES(m)
 	LINK_LIBRARIES(pthread)
+	LINK_LIBRARIES(mongocxx)
+	LINK_LIBRARIES(bsoncxx)
 ENDIF (WIN32)
 
 MakeLib(${project_name} "${all_files}" false)

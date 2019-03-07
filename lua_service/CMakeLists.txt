@@ -10,6 +10,8 @@ IF (WIN32)
 ELSE()
 	LINK_LIBRARIES(m)
 	LINK_LIBRARIES(pthread)
+	INCLUDE_DIRECTORIES("/usr/local/include/bsoncxx/v_noabi")
+	INCLUDE_DIRECTORIES("/usr/local/include/mongocxx/v_noabi")
 ENDIF (WIN32)
 
 ADD_SUBDIRECTORY(service)

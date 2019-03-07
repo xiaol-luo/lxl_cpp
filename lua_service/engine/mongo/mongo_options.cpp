@@ -13,7 +13,7 @@
 	}\
 }
 
-mongocxx::options::find MongoTask::GenFindOpt(bsoncxx::document::view & view)
+mongocxx::options::find MongoTask::GenFindOpt(const bsoncxx::document::view & view)
 {
 	mongocxx::options::find ret;
 	{
@@ -34,34 +34,34 @@ mongocxx::options::find MongoTask::GenFindOpt(bsoncxx::document::view & view)
 	return ret;
 }
 
-mongocxx::options::insert MongoTask::GenInsertOpt(bsoncxx::document::view & view)
+mongocxx::options::insert MongoTask::GenInsertOpt(const bsoncxx::document::view & view)
 {
 	return mongocxx::options::insert();
 }
 
-mongocxx::options::delete_options MongoTask::GenDeleteOpt(bsoncxx::document::view & view)
+mongocxx::options::delete_options MongoTask::GenDeleteOpt(const bsoncxx::document::view & view)
 {
 	return mongocxx::options::delete_options();
 }
 
-mongocxx::options::update MongoTask::GenUpdateOpt(bsoncxx::document::view & view)
+mongocxx::options::update MongoTask::GenUpdateOpt(const bsoncxx::document::view & view)
 {
 	mongocxx::options::update ret;
 	SetOptHelp(MOFN_UPSERT, k_bool, get_bool, upsert);
 	return ret;
 }
 
-mongocxx::options::count MongoTask::GenCountOpt(bsoncxx::document::view & view)
+mongocxx::options::count MongoTask::GenCountOpt(const bsoncxx::document::view & view)
 {
 	return mongocxx::options::count();
 }
 
-mongocxx::options::find_one_and_delete MongoTask::GenFindOneAndDeleteOpt(bsoncxx::document::view & view)
+mongocxx::options::find_one_and_delete MongoTask::GenFindOneAndDeleteOpt(const bsoncxx::document::view & view)
 {
 	return mongocxx::options::find_one_and_delete();
 }
 
-mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(bsoncxx::document::view & view)
+mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(const bsoncxx::document::view & view)
 {
 	mongocxx::options::find_one_and_update ret;
 	{
@@ -77,7 +77,7 @@ mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(bsoncxx
 	return ret;
 }
 
-mongocxx::options::find_one_and_replace MongoTask::GenFindOneAndReplaceOpt(bsoncxx::document::view & view)
+mongocxx::options::find_one_and_replace MongoTask::GenFindOneAndReplaceOpt(const bsoncxx::document::view & view)
 {
 	return mongocxx::options::find_one_and_replace();
 }

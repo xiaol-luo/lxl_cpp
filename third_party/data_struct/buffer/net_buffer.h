@@ -35,11 +35,6 @@ public:
 		uint32_t len = sizeof(T);
 		return AppendBuff(p, len);
 	}
-	template<>
-	bool Append<std::string>(std::string data)
-	{
-		return AppendBuff((char *)data.data(), data.size());
-	}
 	uint32_t PopBuff(uint32_t pop_len, char **pop_head);
 	bool ResetHead(char *help_buff, uint32_t help_buff_len); // buff和buff+head之间的内容丢弃，buff+head和buff+pos之间的内容移动到buff和buff+pos-head
 	bool ResetHead();
@@ -55,3 +50,9 @@ private:
 	FreeFn m_free_fn = nullptr;
 	ReallocFn m_realloc_fn = nullptr;
 };
+
+template<> 
+inline bool NetBuffer::Append<std::string>(std::string data)
+{
+	return AppendBuff((char *)data.data(), data.size());
+}
