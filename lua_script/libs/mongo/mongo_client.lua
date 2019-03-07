@@ -106,16 +106,6 @@ function MongoClient:update_many(hash_code, db, coll, filter, doc, cb_fn, opt)
     return self.mongo_task_mgr_:update_many(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
 end
 
-function MongoClient:replace_one(hash_code, db, coll, filter, doc, cb_fn)
-    assert(IsTable(filter))
-    assert(IsTable(doc))
-    assert(nil == cb_fn or IsFunction(cb_fn))
-    local filter_str = rapidjson.encode(filter)
-    local doc_str = rapidjson.encode(doc)
-    local opt_str = "{}"
-    return self.mongo_task_mgr_:replace_one(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
-end
-
 function MongoClient:find_one_and_delete(hash_code, db, coll, filter, cb_fn)
     assert(IsTable(filter))
     assert(nil == cb_fn or IsFunction(cb_fn))

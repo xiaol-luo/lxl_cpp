@@ -272,7 +272,7 @@ void MongoTask::DoTask_CountDocuments(mongocxx::client & client)
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::count opt = GenCountOpt(m_opt->view());
 	bsoncxx::builder::basic::array builder;
-#ifdef Win32
+#ifdef WIN32
 	m_result.matched_count = coll.count(m_filter->view(), opt);
 #else
 	m_result.matched_count = coll.count_documents(m_filter->view(), opt);
