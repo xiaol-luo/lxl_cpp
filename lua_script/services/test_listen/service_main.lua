@@ -79,3 +79,19 @@ function ServiceMain.start()
     g_mongo_client:start()
     native.timer_firm(yyy, 1000, 10000)
 end
+
+-- for test quit game
+g_test_can_quit_game = false
+
+function ServiceMain.OnNotifyQuitGame()
+    log_debug("ServiceMain.OnNotifyQuitGame")
+    native.timer_next(function()
+        log_debug("ServiceMain.OnNotifyQuitGame timer")
+        g_test_can_quit_game = true
+    end, native.logic_ms() + 3 * 1000)
+end
+
+function ServiceMain.CheckCanQuitGame()
+    log_debug("ServiceMain.CheckCanQuitGame")
+    return g_test_can_quit_game
+end

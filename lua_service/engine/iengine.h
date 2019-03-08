@@ -17,9 +17,14 @@ void engine_stop();
 void engine_destroy();
 void engine_loop_span(int ms);
 EServerLogicState engine_state();
+IService * engine_service();
 
-void * mempool_malloc(size_t malloc_size);
-void * mempool_realloc(void *ptr, size_t new_malloc_size);
+double logic_sec();
+int64_t logic_ms();
+int64_t delta_ms();
+
+void * mempool_malloc(uint32_t malloc_size);
+void * mempool_realloc(void *ptr, uint32_t new_malloc_size);
 void mempool_free(void *ptr);
 
 bool start_log(ELogLevel log_lvl);

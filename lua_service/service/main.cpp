@@ -23,19 +23,19 @@ extern "C"
 #include <unistd.h>
 #endif
 
-ServiceBase *g_service = nullptr;
-
 void QuitGame(int signal)
 {
-	if (nullptr == g_service)
+	IService *service = engine_service();
+	ServiceBase *service_base = dynamic_cast<ServiceBase *>(service);
+	if (nullptr != service_base)
 	{
-		printf("QuitGame");
-		exit(0);
+		service_base->TryQuitGame();
+		log_debug("TryQuitGame");
 	}
 	else
 	{
-		g_service->TryQuitGame();
-		log_debug("TryQuitGame");
+		printf("QuitGame");
+		exit(0);
 	}
 }
 
@@ -177,16 +177,21 @@ int main (int argc, char **argv)
 	sol::state ls(lua_panic_error);
 	lua_State *L = ls.lua_state();
 	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
+	ServiceBase *service = nullptr;
+	if (true) // todo:
+	{
+		PureLuaService *pure_service = new PureLuaService();
+		pure_service->SetFuns(L, "OnNotifyQuitGame", "CheckCanQuitGame");
+		service = pure_service;
+	}
 
 	engine_init();
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
-	
-	g_service = new PureLuaService();
-	setup_service(g_service);
+	setup_service(service);
 	timer_next(std::bind(StartLuaScript, L, argc, argv), 0);
 	engine_loop();
-	g_service = nullptr;
+	service = nullptr;
 	engine_destroy();
 	return 0;
 }

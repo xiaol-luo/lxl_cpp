@@ -100,6 +100,10 @@ void register_native_libs(lua_State *L)
 	t.set_function("timer_next", lua_timer_next);
 	t.set_function("timer_remove", timer_remove);
 
+	t.set_function("logic_sec", logic_sec);
+	t.set_function("logic_ms", logic_ms);
+	t.set_function("delta_ms", delta_ms);
+
 	t.set_function("http_get", sol::overload(lua_http_get_1, lua_http_get_2));
 	t.set_function("http_post", sol::overload(lua_http_post_1, lua_http_post_2));
 	t.set_function("http_cancel", http_cancel);

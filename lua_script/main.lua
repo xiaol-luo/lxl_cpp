@@ -112,6 +112,22 @@ local add_search_paths = function()
     end
 end
 
+
+function OnNotifyQuitGame()
+    log_debug("lua OnNotifyQuitGame")
+    if ServiceMain and ServiceMain.OnNotifyQuitGame then
+        ServiceMain.OnNotifyQuitGame()
+    end
+end
+
+function CheckCanQuitGame()
+    log_debug("lua CheckCanQuitGame")
+    if ServiceMain and ServiceMain.CheckCanQuitGame then
+        return ServiceMain.CheckCanQuitGame()
+    end
+    return true
+end
+
 MAIN_ARGS = nil
 LOGIC_SETTING = nil
 

@@ -190,6 +190,31 @@ EServerLogicState engine_state()
 	return ret;
 }
 
+IService * engine_service()
+{
+	IService *service = nullptr;
+	if (nullptr != g_server_logic)
+	{
+		service = g_server_logic->GetService();
+
+	}
+	return service;
+}
+
+double logic_sec()
+{
+	return g_server_logic->LogicSec();
+}
+
+int64_t logic_ms()
+{
+	return g_server_logic->LogicMs();
+}
+
+int64_t delta_ms()
+{
+	return g_server_logic->DeltaMs();
+}
 void * mempool_malloc(size_t malloc_size)
 {
 	return g_server_logic->GetMemPool()->Malloc(malloc_size);
