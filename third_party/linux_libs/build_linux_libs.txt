@@ -1,0 +1,25 @@
+#mongo c drive
+yum install cmake openssl-devel cyrus-sasl-devel
+tar xzf mongo-c-driver-x.y.z.tar.gz
+cd mongo-c-driver-x.y.z
+mkdir cmake-build
+cd cmake-build
+cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF ..
+make -j4
+
+#mongo cxx drive
+tar -xzf r3.3.1.tar.gz
+cd mongo-cxx-driver-r3.3.1/build
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..
+make EP_mnmlstc_core
+make -j4
+make install
+
+#protobuf
+tar -xzf protobuf.3.7.0.tar.gz
+cd protobuf.3.7.0
+mkdir build
+cd build
+cmake ../cmake
+make 
+make install
