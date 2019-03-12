@@ -40,9 +40,9 @@ TimerID lua_timer_firm(sol::protected_function cb_fn, int64_t execute_span_ms, i
 
 HttpReqCnn::FnProcessRsp safe_http_req_process_rsp_cb(sol::protected_function lua_fn)
 {
-	HttpReqCnn::FnProcessRsp ret = [lua_fn](HttpReqCnn * self, std::string url,
+	HttpReqCnn::FnProcessRsp ret = [lua_fn](HttpReqCnn * self, std::string rsp_state,
 		const std::unordered_map<std::string, std::string> &heads, const std::string &body, uint64_t body_len) {
-lua_fn((int64_t)self->GetPtr(), url, sol::as_table(heads), body, body_len);
+lua_fn((int64_t)self->GetPtr(), rsp_state, sol::as_table(heads), body, body_len);
 	};
 	return ret;
 }

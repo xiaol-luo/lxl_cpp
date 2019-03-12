@@ -68,7 +68,8 @@ function ServiceMain.start()
 
     local heads = {}
     heads["Content-Type"] = "application/x-www-form-urlencoded"
-    HttpClient.put("http://127.0.0.1:2379/v2/keys/aa/bb", "value=1234", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  heads)
+    content_str = string.format("value=%s", math.random(1, 10000))
+    HttpClient.put("http://127.0.0.1:2379/v2/keys/aa/bb", content_str, HttpClient.example_rsp_fn, HttpClient.example_event_fn,  heads)
     HttpClient.get("http://127.0.0.1:2379/v2/keys/aa/bb", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  {a=1, b="sss", c={}, d=1.24})
     log_debug("xxxxxxxxxxxxxxxxx %s %s %s", native.mongo_opt_field_name.max_time, native.mongo_opt_field_name.projection, native.mongo_opt_field_name.upsert)
 

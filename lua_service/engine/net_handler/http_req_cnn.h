@@ -27,7 +27,7 @@ public:
 	};		
 	using FnProcessRsp = std::function<void(
 		HttpReqCnn * /*self*/,
-		std::string /*url*/,
+		std::string /*rsp_state*/,
 		const std::unordered_map<std::string, std::string> &/*heads*/,
 		const std::string &/*body*/,
 		uint64_t /*body_len*/

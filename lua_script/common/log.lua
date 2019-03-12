@@ -4,7 +4,6 @@ function string_format(fmt_str, ...)
     for _, arg in pairs({...}) do
         if "table" ~= type(arg) then
             table.insert(str_list, tostring(arg))
-
         else
             table.insert(str_list, string.toprint(arg))
         end

@@ -173,7 +173,7 @@ bool HttpReqCnn::SetReqData(Method method, const std::string &url, const std::un
 	{
 		m_req_data_buff->Append(*content);
 	}
-	log_debug("req strs {}", std::string(m_req_data_buff->HeadPtr(), m_req_data_buff->Size()));
+	log_debug("req strs \n{}\n\n", std::string(m_req_data_buff->HeadPtr(), m_req_data_buff->Size()));
 	return true;
 }
 

@@ -40,7 +40,7 @@ protected:
 	std::unordered_map<uint64_t, CnnData> m_cnn_datas;
 
 	void HandleHttpRsp(HttpReqCnn *cnn,
-		const std::string &url, const std::unordered_map<std::string, std::string> &heads,
+		const std::string &rsp_state, const std::unordered_map<std::string, std::string> &heads,
 		std::string body, uint64_t body_len);
 
 	enum eHttpAction 
