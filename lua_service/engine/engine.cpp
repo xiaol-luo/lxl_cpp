@@ -78,17 +78,8 @@ ServerLogic * GServerLogic()
 	return g_server_logic;
 }
 
-uint64_t http_get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
-{
-	uint64_t ret = 0;
-	if (nullptr != g_server_logic)
-	{
-		ret = g_server_logic->GetHttpClientMgr()->Get(url, rsp_cb, err_cb);
-	}
-	return ret;
-}
-
-uint64_t http_get(std::string url, std::unordered_map<std::string, std::string> heads, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t http_get(const std::string &url, const std::unordered_map<std::string, std::string> *heads,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
 {
 	uint64_t ret = 0;
 	if (nullptr != g_server_logic)
@@ -98,7 +89,18 @@ uint64_t http_get(std::string url, std::unordered_map<std::string, std::string> 
 	return ret;
 }
 
-uint64_t http_post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t http_delete(const std::string & url, const std::unordered_map<std::string, std::string>* heads, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+{
+	uint64_t ret = 0;
+	if (nullptr != g_server_logic)
+	{
+		ret = g_server_logic->GetHttpClientMgr()->Delete(url, heads, rsp_cb, err_cb);
+	}
+	return ret;
+}
+
+uint64_t http_post(const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
 {
 	uint64_t ret = 0;
 	if (nullptr != g_server_logic)
@@ -108,12 +110,12 @@ uint64_t http_post(std::string url, std::unordered_map<std::string, std::string>
 	return ret;
 }
 
-uint64_t http_post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t http_put(const std::string & url, const std::unordered_map<std::string, std::string>* heads, const std::string * content, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
 {
 	uint64_t ret = 0;
 	if (nullptr != g_server_logic)
 	{
-		ret = g_server_logic->GetHttpClientMgr()->Post(url, rsp_cb, err_cb);
+		ret = g_server_logic->GetHttpClientMgr()->Put(url, heads, content, rsp_cb, err_cb);
 	}
 	return ret;
 }

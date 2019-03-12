@@ -17,11 +17,19 @@ class HttpReqCnn;
 class HttpReqCnn : public INetConnectHandler
 {
 public:
+	enum Method
+	{
+		Get,
+		Post,
+		Put,
+		Delete,
+		Method_Count,
+	};		
 	using FnProcessRsp = std::function<void(
 		HttpReqCnn * /*self*/,
 		std::string /*url*/,
-		std::unordered_map<std::string, std::string> /*heads*/,
-		std::string /*body*/,
+		const std::unordered_map<std::string, std::string> &/*heads*/,
+		const std::string &/*body*/,
 		uint64_t /*body_len*/
 		)>;
 	enum eEventType
@@ -42,7 +50,7 @@ public:
 	virtual void OnClose(int err_num) override;
 	virtual void OnOpen(int err_num) override;
 	virtual void OnRecvData(char *data, uint32_t len) override;
-	bool SetReqData(bool is_get, std::string url, std::unordered_map<std::string, std::string> heads, std::string content);
+	bool SetReqData(Method method, const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content);
 	void SetRspCbFn(FnProcessRsp fn) { m_process_rsp_fn = fn; }
 	void SetEventCbFn(FnProcessEvent fn) { m_process_event_fn = fn; }
 

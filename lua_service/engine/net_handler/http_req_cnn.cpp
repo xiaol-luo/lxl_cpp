@@ -8,6 +8,13 @@
 static const int PARSE_HTTP_FAIL = -100;
 static const int PARSE_HTTP_SUCC = 0;
 
+static const std::string Method_Name_Map[HttpReqCnn::Method_Count] = {
+	"GET",
+	"POST",
+	"PUT",
+	"DELETE"
+};
+
 HttpReqCnn::HttpReqCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>>  cnn_map)
 {
 	m_cnn_map = cnn_map;
@@ -101,8 +108,11 @@ void HttpReqCnn::OnRecvData(char * data, uint32_t len)
 	log_debug("HttpReqCnn::OnRecvData {} {} \n{}", m_netid, len, recv_str);
 }
 
-bool HttpReqCnn::SetReqData(bool is_get, std::string url, std::unordered_map<std::string, std::string> heads, std::string content)
+bool HttpReqCnn::SetReqData(Method method, const std::string &url, const std::unordered_map<std::string, std::string> *heads_input, const std::string *content)
 {
+	if (method < 0 || method >= Method_Count)
+		return false;
+
 	std::string match_pattern_str = R"raw(((http[s]?://)?([\S]+?))(:([1-9][0-9]*))?(/[\S]+)?)raw";
 	log_debug("HttpReqCnn::SetReqData match_pattern {}", match_pattern_str);
 	std::regex match_pattern(match_pattern_str, std::regex::icase);
@@ -128,34 +138,41 @@ bool HttpReqCnn::SetReqData(bool is_get, std::string url, std::unordered_map<std
 			return false;
 		}
 	}
-	std::string full_host = match_ret[1].str();
 	m_host = match_ret[3].str();
-	if (full_host.size() <= 0 || m_host.size() <= 0)
+	if (m_host.size() <= 0)
 	{
 		return false;
 	}
 	m_method = match_ret[6].str();
-
-	std::string req_line = fmt::format("{} {} HTTP/1.1\r\n", is_get ? "GET" : "POST", m_method);
+	std::string full_host = fmt::format("{}:{}", m_host, m_port);
+	std::unordered_map<std::string, std::string> heads;
+	if (nullptr != heads_input)
+	{
+		heads.insert(heads_input->begin(), heads_input->end());
+	}
+	std::string req_line = fmt::format("{} {} HTTP/1.1\r\n", Method_Name_Map[method], m_method);
 	m_req_data_buff->Append(req_line);
 	heads.insert_or_assign("User-Agent", "utopia-http-client");
 	heads.insert_or_assign("Accept", "*/*");
 	heads.insert_or_assign("Host", full_host);
-	heads.insert_or_assign("Content-Length", fmt::format("{}", content.size()));
+	heads.insert_or_assign("Content-Length", fmt::format("{}", nullptr != content ? content->size() : 0));
 	{
 		char time_str[256];
 		std::time_t t = std::time(nullptr);
 		std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
 		heads.insert_or_assign("Date", time_str);
 	}
-	const std::string head_line_format = "{}:{}\r\n";
+	const std::string head_line_format = "{}: {}\r\n";
 	for (auto kv : heads)
 	{
 		std::string head_str = fmt::format(head_line_format, kv.first, kv.second);
 		m_req_data_buff->Append(head_str);
 	}
 	m_req_data_buff->Append(std::string("\r\n"));
-	m_req_data_buff->Append(content);
+	if (nullptr != content)
+	{
+		m_req_data_buff->Append(*content);
+	}
 	log_debug("req strs {}", std::string(m_req_data_buff->HeadPtr(), m_req_data_buff->Size()));
 	return true;
 }

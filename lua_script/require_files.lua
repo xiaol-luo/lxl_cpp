@@ -17,12 +17,13 @@ local files = {
     "lpeg",
     "tryuselualib",
     "lfs",
-    "common.net.net_handler",
-    "common.net.tcp_connect",
-    "common.net.tcp_listen",
-    "common.http.http_service",
-    "common.init_global_vars",
+    "libs.net.net_handler",
+    "libs.net.tcp_connect",
+    "libs.net.tcp_listen",
+    "libs.http.http_service",
+    "libs.http.http_client",
     "libs.mongo.mongo_client",
     "libs.mongo.mongo_options",
+    "common.init_global_vars",
 }
 return files

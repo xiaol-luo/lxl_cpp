@@ -78,6 +78,7 @@ void HttpRspCnn::OnOpen(int err_num)
 void HttpRspCnn::OnRecvData(char * data, uint32_t len)
 {
 	m_recv_buff->AppendBuff(data, len);
+	log_debug("HttpRspCnn::OnRecvData \n{}", std::string(m_recv_buff->HeadPtr(), m_recv_buff->Size()));
 	int parsed = http_parser_execute(m_parser, m_parser_setting, m_recv_buff->HeadPtr(), m_recv_buff->Size());
 	if (parsed > 0)
 	{

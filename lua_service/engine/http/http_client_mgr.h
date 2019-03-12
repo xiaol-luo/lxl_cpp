@@ -12,15 +12,21 @@ public:
 	HttpClientMgr(ServerLogic *server_logic);
 	~HttpClientMgr();
 
-	uint64_t Get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
-	uint64_t Get(std::string url, std::unordered_map<std::string, std::string> heads,
+	uint64_t Get(const std::string &url, const std::unordered_map<std::string, std::string> *heads,
 		HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb);
-	uint64_t Post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content,
+	uint64_t Delete(const std::string &url, const std::unordered_map<std::string, std::string> *heads,
 		HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb);
-	uint64_t Post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
+	uint64_t Post(const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+		HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb);
+	uint64_t Put(const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+		HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb);
+
 	void Cancel(uint64_t async_id);
 
 protected:
+	uint64_t MethodHelp(HttpReqCnn::Method method, const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+		HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb);
+
 	ServerLogic * m_server_logic = nullptr;
 	std::shared_ptr<NetHandlerMap<INetConnectHandler>> m_cnn_map = nullptr;
 
@@ -34,12 +40,12 @@ protected:
 	std::unordered_map<uint64_t, CnnData> m_cnn_datas;
 
 	void HandleHttpRsp(HttpReqCnn *cnn,
-		std::string url, std::unordered_map<std::string, std::string> heads,
+		const std::string &url, const std::unordered_map<std::string, std::string> &heads,
 		std::string body, uint64_t body_len);
 
 	enum eHttpAction 
 	{
-		eHttpAction_DnsQuery = HttpReqCnn::eActionType_Count + 1
+		eHttpAction_DnsQuery = HttpReqCnn::eActionType_Count + 100
 	};
 	void HandleHttpAction(HttpReqCnn *cnn, int action_type, int err_num);
 

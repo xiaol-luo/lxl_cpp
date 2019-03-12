@@ -12,58 +12,26 @@ HttpClientMgr::~HttpClientMgr()
 	m_cnn_map = nullptr;
 }
 
-uint64_t HttpClientMgr::Get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t HttpClientMgr::Get(const std::string &url, const std::unordered_map<std::string, std::string> *heads,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb)
 {
-	return this->Get(url, std::unordered_map<std::string, std::string>(), rsp_cb, err_cb);
+	return MethodHelp(HttpReqCnn::Get, url, heads, nullptr, rsp_cb, event_cb);
 }
 
-uint64_t HttpClientMgr::Get(std::string url, std::unordered_map<std::string, std::string> heads, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb)
+uint64_t HttpClientMgr::Delete(const std::string & url, const std::unordered_map<std::string, std::string>* heads, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb)
 {
-	if (url.size() <= 0 || nullptr == rsp_cb)
-		return 0;
-
-	std::shared_ptr<HttpReqCnn> cnn = std::make_shared<HttpReqCnn>(m_cnn_map);
-	CnnData cnn_data;
-	cnn_data.cnn = cnn;
-	cnn_data.rsp_cb = rsp_cb;
-	cnn_data.event_cb = event_cb;
-	m_cnn_datas.insert(std::make_pair((uint64_t)cnn->GetPtr(), cnn_data));
-	cnn->SetReqData(true, url, heads, "");
-	cnn->SetRspCbFn(std::bind(&HttpClientMgr::HandleHttpRsp, this, std::placeholders::_1,
-		std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
-	cnn->SetEventCbFn(std::bind(&HttpClientMgr::HandleHttpAction, this, std::placeholders::_1,
-		std::placeholders::_2, std::placeholders::_3));
-	m_server_logic->GetDnsService()->QueryIpAsync(cnn->GetHost(),
-		std::bind(&HttpClientMgr::DoDnsQuery, this, cnn,
-			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	return (int64_t)cnn->GetPtr();
+	return MethodHelp(HttpReqCnn::Delete, url, heads, nullptr, rsp_cb, event_cb);
 }
 
-uint64_t HttpClientMgr::Post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb)
+uint64_t HttpClientMgr::Post(const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb)
 {
-	if (url.size() <= 0 || nullptr == rsp_cb)
-		return 0;
-
-	std::shared_ptr<HttpReqCnn> cnn = std::make_shared<HttpReqCnn>(m_cnn_map);
-	CnnData cnn_data;
-	cnn_data.cnn = cnn;
-	cnn_data.rsp_cb = rsp_cb;
-	cnn_data.event_cb = event_cb;
-	m_cnn_datas.insert(std::make_pair((uint64_t)cnn->GetPtr(), cnn_data));
-	cnn->SetReqData(true, url, heads, content);
-	cnn->SetRspCbFn(std::bind(&HttpClientMgr::HandleHttpRsp, this, std::placeholders::_1, 
-		std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
-	cnn->SetEventCbFn(std::bind(&HttpClientMgr::HandleHttpAction, this, std::placeholders::_1, 
-		std::placeholders::_2, std::placeholders::_3));
-	m_server_logic->GetDnsService()->QueryIpAsync(cnn->GetHost(), 
-		std::bind(&HttpClientMgr::DoDnsQuery, this, cnn, 
-		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	return (int64_t)cnn->GetPtr();
+	return MethodHelp(HttpReqCnn::Post, url, heads, content, rsp_cb, event_cb);
 }
 
-uint64_t HttpClientMgr::Post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb)
+uint64_t HttpClientMgr::Put(const std::string & url, const std::unordered_map<std::string, std::string>* heads, const std::string * content, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb)
 {
-	return this->Post(url, std::unordered_map<std::string, std::string>(), "", rsp_cb, err_cb);
+	return MethodHelp(HttpReqCnn::Put, url, heads, content, rsp_cb, event_cb);
 }
 
 void HttpClientMgr::Cancel(uint64_t async_id)
@@ -80,7 +48,30 @@ void HttpClientMgr::Cancel(uint64_t async_id)
 	}
 }
 
-void HttpClientMgr::HandleHttpRsp(HttpReqCnn * cnn, std::string url, std::unordered_map<std::string, std::string> heads, std::string body, uint64_t body_len)
+uint64_t HttpClientMgr::MethodHelp(HttpReqCnn::Method method, const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent event_cb)
+{
+	if (url.size() <= 0 || nullptr == rsp_cb || method < 0 || method >= HttpReqCnn::Method_Count)
+		return 0;
+
+	std::shared_ptr<HttpReqCnn> cnn = std::make_shared<HttpReqCnn>(m_cnn_map);
+	CnnData cnn_data;
+	cnn_data.cnn = cnn;
+	cnn_data.rsp_cb = rsp_cb;
+	cnn_data.event_cb = event_cb;
+	m_cnn_datas.insert(std::make_pair((uint64_t)cnn->GetPtr(), cnn_data));
+	cnn->SetReqData(method, url, heads, content);
+	cnn->SetRspCbFn(std::bind(&HttpClientMgr::HandleHttpRsp, this, std::placeholders::_1,
+		std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+	cnn->SetEventCbFn(std::bind(&HttpClientMgr::HandleHttpAction, this, std::placeholders::_1,
+		std::placeholders::_2, std::placeholders::_3));
+	m_server_logic->GetDnsService()->QueryIpAsync(cnn->GetHost(),
+		std::bind(&HttpClientMgr::DoDnsQuery, this, cnn,
+			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	return (int64_t)cnn->GetPtr();
+}
+
+void HttpClientMgr::HandleHttpRsp(HttpReqCnn * cnn, const std::string &url, const std::unordered_map<std::string, std::string> &heads, std::string body, uint64_t body_len)
 {
 	uint64_t key = (uint64_t)cnn->GetPtr();
 	auto it = m_cnn_datas.find(key);

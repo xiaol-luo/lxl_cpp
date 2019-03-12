@@ -44,12 +44,14 @@ bool net_send(NetId netId, char *buffer, uint32_t len);
 ServerLogic * GServerLogic();
 
 // http
-uint64_t http_get(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
-uint64_t http_get(std::string url, std::unordered_map<std::string, std::string> heads,
+uint64_t http_get(const std::string &url, const std::unordered_map<std::string, std::string> *heads,
 	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
-uint64_t http_post(std::string url, std::unordered_map<std::string, std::string> heads, std::string content,
+uint64_t http_delete(const std::string &url, const std::unordered_map<std::string, std::string> *heads,
 	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
-uint64_t http_post(std::string url, HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
+uint64_t http_post(const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
+uint64_t http_put(const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content,
+	HttpReqCnn::FnProcessRsp rsp_cb, HttpReqCnn::FnProcessEvent err_cb);
 void http_cancel(int64_t async_id);
 
 void add_async_task(TaskBase *task);

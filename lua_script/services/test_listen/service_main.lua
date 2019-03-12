@@ -66,6 +66,10 @@ function ServiceMain.start()
         require(v)
     end
 
+    local heads = {}
+    heads["Content-Type"] = "application/x-www-form-urlencoded"
+    HttpClient.put("http://127.0.0.1:2379/v2/keys/aa/bb", "value=1234", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  heads)
+    HttpClient.get("http://127.0.0.1:2379/v2/keys/aa/bb", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  {a=1, b="sss", c={}, d=1.24})
     log_debug("xxxxxxxxxxxxxxxxx %s %s %s", native.mongo_opt_field_name.max_time, native.mongo_opt_field_name.projection, native.mongo_opt_field_name.upsert)
 
     RoleManager.start(3234)
@@ -77,7 +81,7 @@ function ServiceMain.start()
     -- native.timer_firm(xxx, 1000, 10000)
     g_mongo_client = MongoClient:new(3, "124.156.106.95:27017", "admin", "lxl", "xiaolzz")
     g_mongo_client:start()
-    native.timer_firm(yyy, 1000, 10000)
+    -- native.timer_firm(yyy, 1000, 10000)
 end
 
 -- for test quit game

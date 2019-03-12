@@ -224,3 +224,4 @@ void lua_reg_mongo(lua_State *L)
 		}
 	}
 }
+
