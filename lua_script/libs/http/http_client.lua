@@ -16,7 +16,7 @@ function HttpClient.get(url, rsp_fn, event_fn, heads_tb)
     rsp_fn = rsp_fn or HttpClient.example_rsp_fn
     event_fn = event_fn or HttpClient.example_event_fn
     heads_tb = heads_tb or {}
-    native.http_get(url, heads_tb, rsp_fn, event_fn)
+    return native.http_get(url, heads_tb, rsp_fn, event_fn)
 end
 
 function HttpClient.delete(url, rsp_fn, event_fn, heads_tb)
@@ -26,7 +26,7 @@ function HttpClient.delete(url, rsp_fn, event_fn, heads_tb)
     rsp_fn = rsp_fn or HttpClient.example_rsp_fn
     event_fn = event_fn or HttpClient.example_event_fn
     heads_tb = heads_tb or {}
-    native.http_delete(url, heads_tb, rsp_fn, event_fn)
+    return native.http_delete(url, heads_tb, rsp_fn, event_fn)
 end
 
 function HttpClient.put(url, content_str, rsp_fn, event_fn, heads_tb)
@@ -37,7 +37,7 @@ function HttpClient.put(url, content_str, rsp_fn, event_fn, heads_tb)
     rsp_fn = rsp_fn or HttpClient.example_rsp_fn
     event_fn = event_fn or HttpClient.example_event_fn
     heads_tb = heads_tb or {}
-    native.http_put(url, heads_tb, tostring(content_str), rsp_fn, event_fn)
+    return native.http_put(url, heads_tb, tostring(content_str), rsp_fn, event_fn)
 end
 
 function HttpClient.post(url, content_str, rsp_fn, event_fn, heads_tb)
@@ -48,7 +48,7 @@ function HttpClient.post(url, content_str, rsp_fn, event_fn, heads_tb)
     rsp_fn = rsp_fn or HttpClient.example_rsp_fn
     event_fn = event_fn or HttpClient.example_event_fn
     heads_tb = heads_tb or {}
-    native.http_post(url, heads_tb, tostring(content_str), rsp_fn, event_fn)
+    return native.http_post(url, heads_tb, tostring(content_str), rsp_fn, event_fn)
 end
 
 

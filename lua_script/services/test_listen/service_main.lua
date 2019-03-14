@@ -66,12 +66,32 @@ function ServiceMain.start()
         require(v)
     end
 
-    local heads = {}
-    heads["Content-Type"] = "application/x-www-form-urlencoded"
-    content_str = string.format("value=%s", math.random(1, 10000))
-    HttpClient.put("http://127.0.0.1:2379/v2/keys/aa/bb", content_str, HttpClient.example_rsp_fn, HttpClient.example_event_fn,  heads)
-    HttpClient.get("http://127.0.0.1:2379/v2/keys/aa/bb", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  {a=1, b="sss", c={}, d=1.24})
-    log_debug("xxxxxxxxxxxxxxxxx %s %s %s", native.mongo_opt_field_name.max_time, native.mongo_opt_field_name.projection, native.mongo_opt_field_name.upsert)
+    -- local heads = {}
+    -- heads["Content-Type"] = "application/x-www-form-urlencoded"
+    -- content_str = string.format("value=%s", math.random(1, 10000))
+    -- HttpClient.put("http://127.0.0.1:2379/v2/keys/aa/bb", content_str, HttpClient.example_rsp_fn, HttpClient.example_event_fn,  heads)
+    --HttpClient.get("http://127.0.0.1:2379/v2/keys/aa/bb", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  {a=1, b="sss", c={}, d=1.24})
+    -- log_debug("xxxxxxxxxxxxxxxxx %s %s %s", native.mongo_opt_field_name.max_time, native.mongo_opt_field_name.projection, native.mongo_opt_field_name.upsert)
+
+    local etcd_client = EtcdClient:new("http://127.0.0.1:2379")
+    local set_op = EtcdClientOpSet:new()
+    set_op[EtcdConst.Key] = "/test/ab"
+    set_op[EtcdConst.Ttl] = 100
+    set_op[EtcdConst.Value] = "hello test"
+    etcd_client:execute(set_op, nil)
+    local get_op = EtcdClientOpGet:new()
+    get_op[EtcdConst.Key] = "/test/ab"
+    etcd_client:execute(get_op, nil)
+    local delete_op = EtcdClientOpDelete:new()
+    delete_op[EtcdConst.Key] = "/test/ab"
+    etcd_client:execute(delete_op, nil)
+    -- HttpClient.get("http://127.0.0.1:2379/v2/keys/test/ab", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  {a=1, b="sss", c={}, d=1.24})
+    etcd_client:execute(get_op, nil)
+
+    etcd_client:set("/test/ab", "1234", 200, nil)
+    etcd_client:get("/test/ab", nil)
+    etcd_client:delete("/test/ab", nil)
+    etcd_client:watch("/test/ab", true, nil)
 
     RoleManager.start(3234)
     g_http_service = HttpService:new()

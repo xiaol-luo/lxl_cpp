@@ -24,6 +24,16 @@ local files = {
     "libs.http.http_client",
     "libs.mongo.mongo_client",
     "libs.mongo.mongo_options",
+    "libs.etcd.etcd_client_def",
+    "libs.etcd.etcd_client",
+    "libs.etcd.etcd_client_op_base",
+    "libs.etcd.etcd_client_op_delete",
+    "libs.etcd.etcd_client_op_get",
+    "libs.etcd.etcd_client_op_set",
+    "libs.etcd.etcd_client_result_base",
+    "libs.etcd.etcd_client_result_delete",
+    "libs.etcd.etcd_client_result_get",
+    "libs.etcd.etcd_client_result_set",
     "common.init_global_vars",
 }
 return files
