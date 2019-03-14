@@ -26,7 +26,7 @@ function EtcdClientOpGet:get_http_url()
     local query_str = self:concat_values(keys, "%s=%s", "&")
     local ret_str = ""
     if #query_str > 0 then
-        string.format("%s?%s", self[EtcdConst.Key], query_str)
+        ret_str = string.format("%s?%s", self[EtcdConst.Key], query_str)
     else
         ret_str = self[EtcdConst.Key]
     end

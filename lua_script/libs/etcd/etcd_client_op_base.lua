@@ -31,6 +31,7 @@ function EtcdClientOpBase:concat_values(keys_tb, kv_format, sep)
         end
     end
     local ret_str = table.concat(ret_strs, sep)
+    log_debug("EtcdClientOpBase:concat_values %s", ret_str)
     return ret_str
 end
 

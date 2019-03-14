@@ -60,6 +60,8 @@ function yyy()
     end
 end
 
+etcd_client = nil
+
 function ServiceMain.start()
     local require_files = require("services.test_listen.service_files")
     for _, v in ipairs(require_files) do
@@ -73,7 +75,7 @@ function ServiceMain.start()
     --HttpClient.get("http://127.0.0.1:2379/v2/keys/aa/bb", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  {a=1, b="sss", c={}, d=1.24})
     -- log_debug("xxxxxxxxxxxxxxxxx %s %s %s", native.mongo_opt_field_name.max_time, native.mongo_opt_field_name.projection, native.mongo_opt_field_name.upsert)
 
-    local etcd_client = EtcdClient:new("http://127.0.0.1:2379")
+    etcd_client = EtcdClient:new("http://127.0.0.1:2379")
     local set_op = EtcdClientOpSet:new()
     set_op[EtcdConst.Key] = "/test/ab"
     set_op[EtcdConst.Ttl] = 100
@@ -81,17 +83,21 @@ function ServiceMain.start()
     etcd_client:execute(set_op, nil)
     local get_op = EtcdClientOpGet:new()
     get_op[EtcdConst.Key] = "/test/ab"
-    etcd_client:execute(get_op, nil)
+    -- etcd_client:execute(get_op, nil)
     local delete_op = EtcdClientOpDelete:new()
     delete_op[EtcdConst.Key] = "/test/ab"
-    etcd_client:execute(delete_op, nil)
+    -- etcd_client:execute(delete_op, nil)
     -- HttpClient.get("http://127.0.0.1:2379/v2/keys/test/ab", HttpClient.example_rsp_fn, HttpClient.example_event_fn,  {a=1, b="sss", c={}, d=1.24})
-    etcd_client:execute(get_op, nil)
+    -- etcd_client:execute(get_op, nil)
 
-    etcd_client:set("/test/ab", "1234", 200, nil)
-    etcd_client:get("/test/ab", nil)
-    etcd_client:delete("/test/ab", nil)
-    etcd_client:watch("/test/ab", true, nil)
+    etcd_client:watch("/test/ab", false, nil, nil)
+    -- etcd_client:set("/test/ab", "1234", 200, false, nil)
+    -- etcd_client:get("/test/ab", true, nil)
+    -- etcd_client:delete("/test/ab", false, nil)
+    -- etcd_client:watch("/test/ab", true, nil, nil)
+    -- etcd_client:cmp_swap("/test/ab", nil, nil, "hello swap test", nil)
+    -- etcd_client:cmp_delete("/test/ab", nil, nil, false, nil)
+    -- etcd_client:watch("/test/ab", true, nil, nil)
 
     RoleManager.start(3234)
     g_http_service = HttpService:new()
