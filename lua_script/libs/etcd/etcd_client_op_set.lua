@@ -6,6 +6,11 @@ function EtcdClientOpSet:ctor()
     self[EtcdConst.Key] = nil
     self[EtcdConst.Value] = nil
     self[EtcdConst.Ttl] = nil
+    self[EtcdConst.Refresh] = nil
+    self[EtcdConst.Dir] = nil
+    self[EtcdConst.PrevExist] = nil
+    self[EtcdConst.PrevIndex] = nil
+    self[EtcdConst.PrevValue] = nil
 end
 
 function EtcdClientOpSet:get_http_url()
@@ -20,6 +25,11 @@ function EtcdClientOpSet:get_http_content()
     local keys = {
         EtcdConst.Value,
         EtcdConst.Ttl,
+        EtcdConst.Refresh,
+        EtcdConst.Dir,
+        EtcdConst.PrevExist,
+        EtcdConst.PrevIndex,
+        EtcdConst.PrevValue,
     }
     local kv_foramt = "%s=%s"
     local sep = "&"

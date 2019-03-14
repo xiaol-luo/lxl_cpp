@@ -6,6 +6,9 @@ function EtcdClientOpGet:ctor()
     self[EtcdConst.Wait] = nil
     self[EtcdConst.Recursive] = nil
     self[EtcdConst.WaitIndex] = nil
+    self[EtcdConst.PrevExist] = nil
+    self[EtcdConst.PrevIndex] = nil
+    self[EtcdConst.PrevValue] = nil
 end
 
 function EtcdClientOpGet:get_http_url()
@@ -16,6 +19,9 @@ function EtcdClientOpGet:get_http_url()
         EtcdConst.Wait,
         EtcdConst.Recursive,
         EtcdConst.WaitIndex,
+        EtcdConst.PrevExist,
+        EtcdConst.PrevIndex,
+        EtcdConst.PrevValue,
     }
     local query_str = self:concat_values(keys, "%s=%s", "&")
     local ret_str = ""

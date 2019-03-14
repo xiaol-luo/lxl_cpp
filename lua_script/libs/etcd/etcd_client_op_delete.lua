@@ -3,6 +3,12 @@ EtcdClientOpDelete = EtcdClientOpDelete or class("EtcdClientOpDelete", EtcdClien
 function EtcdClientOpDelete:ctor()
     EtcdClientOpSet.super.ctor(self)
     self[EtcdConst.Key] = nil
+    self[EtcdConst.Wait] = nil
+    self[EtcdConst.Recursive] = nil
+    self[EtcdConst.WaitIndex] = nil
+    self[EtcdConst.PrevExist] = nil
+    self[EtcdConst.PrevIndex] = nil
+    self[EtcdConst.PrevValue] = nil
 end
 
 function EtcdClientOpDelete:get_http_url()
@@ -10,6 +16,11 @@ function EtcdClientOpDelete:get_http_url()
         return false, ""
     end
     local keys = {
+        EtcdConst.Recursive,
+        EtcdConst.WaitIndex,
+        EtcdConst.PrevExist,
+        EtcdConst.PrevIndex,
+        EtcdConst.PrevValue,
     }
     local query_str = self:concat_values(keys, "%s=%s", "&")
     local ret_str = ""
