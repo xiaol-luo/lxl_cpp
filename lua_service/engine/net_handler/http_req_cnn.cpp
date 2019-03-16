@@ -51,7 +51,7 @@ void HttpReqCnn::OnClose(int err_num)
 
 void HttpReqCnn::OnOpen(int err_num)
 {
-	log_debug("HttpReqCnn::OnOpen {} {}", m_netid, err_num);
+	// log_debug("HttpReqCnn::OnOpen {} {}", m_netid, err_num);
 
 	if (nullptr != m_process_event_fn)
 	{
@@ -105,7 +105,7 @@ void HttpReqCnn::OnRecvData(char * data, uint32_t len)
 		}
 		net_close(m_netid);
 	}
-	log_debug("HttpReqCnn::OnRecvData {} {} \n{}", m_netid, len, recv_str);
+	// log_debug("HttpReqCnn::OnRecvData {} {} \n{}", m_netid, len, recv_str);
 }
 
 bool HttpReqCnn::SetReqData(Method method, const std::string &url, const std::unordered_map<std::string, std::string> *heads_input, const std::string *content)
@@ -114,7 +114,7 @@ bool HttpReqCnn::SetReqData(Method method, const std::string &url, const std::un
 		return false;
 
 	std::string match_pattern_str = R"raw(((http[s]?://)?([\S]+?))(:([1-9][0-9]*))?(/[\S]+)?)raw";
-	log_debug("HttpReqCnn::SetReqData match_pattern {}", match_pattern_str);
+	// log_debug("HttpReqCnn::SetReqData match_pattern {}", match_pattern_str);
 	std::regex match_pattern(match_pattern_str, std::regex::icase);
 	std::smatch match_ret;
 	bool is_match = regex_match(url, match_ret, match_pattern);
@@ -125,7 +125,7 @@ bool HttpReqCnn::SetReqData(Method method, const std::string &url, const std::un
 	for (int i = 0; i < match_ret.size(); ++i)
 	{
 		std::ssub_match sub_match = match_ret[i];
-		log_debug(" sub_match {} {}", i, sub_match.str());
+		// log_debug(" sub_match {} {}", i, sub_match.str());
 	}
 	*/
 	m_port = 80;
@@ -173,7 +173,7 @@ bool HttpReqCnn::SetReqData(Method method, const std::string &url, const std::un
 	{
 		m_req_data_buff->Append(*content);
 	}
-	log_debug("req strs \n{}\n\n", std::string(m_req_data_buff->HeadPtr(), m_req_data_buff->Size()));
+	// log_debug("req strs \n{}\n\n", std::string(m_req_data_buff->HeadPtr(), m_req_data_buff->Size()));
 	return true;
 }
 
@@ -200,7 +200,7 @@ int HttpReqCnn::on_message_begin(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	log_debug("HttpReqCnn::on_message_begin {} ", self->m_netid);
+	// log_debug("HttpReqCnn::on_message_begin {} ", self->m_netid);
 	self->m_recv_buff->ResetHead();
 	self->m_handling_head = EHandlingHead_None;
 	self->m_req_head_kv.Reset();
@@ -218,7 +218,7 @@ int HttpReqCnn::on_status(http_parser * parser, const char * at, size_t length)
 		return PARSE_HTTP_FAIL;
 
 	self->m_rsp_state.append(at, length);
-	log_debug("HttpReqCnn::on_status {} {} ", self->m_netid, self->m_rsp_state);
+	// log_debug("HttpReqCnn::on_status {} {} ", self->m_netid, self->m_rsp_state);
 	return 0;
 }
 
@@ -235,7 +235,7 @@ int HttpReqCnn::on_header_field(http_parser * parser, const char * at, size_t le
 
 	self->m_handling_head = EHandlingHead_Key;
 	self->m_req_head_kv.key.append(at, length);
-	log_debug("HttpReqCnn::on_header_field {} {} {}", self->m_netid, self->m_req_head_kv.key, length);
+	// log_debug("HttpReqCnn::on_header_field {} {} {}", self->m_netid, self->m_req_head_kv.key, length);
 
 	return 0;
 }
@@ -251,7 +251,7 @@ int HttpReqCnn::on_header_value(http_parser * parser, const char * at, size_t le
 	self->m_handling_head = EHandlingHead_Val;
 	self->m_req_head_kv.val.append(at, length);
 
-	log_debug("HttpReqCnn::on_header_value {} {}", self->m_netid, self->m_req_head_kv.val);
+	// log_debug("HttpReqCnn::on_header_value {} {}", self->m_netid, self->m_req_head_kv.val);
 	return 0;
 }
 
@@ -261,7 +261,7 @@ int HttpReqCnn::on_headers_complete(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	log_debug("HttpReqCnn::on_headers_complete {}, content_length {}", self->m_netid, self->m_parser->content_length);
+	// log_debug("HttpReqCnn::on_headers_complete {}, content_length {}", self->m_netid, self->m_parser->content_length);
 	self->CollectHead();
 	return 0;
 }
@@ -273,7 +273,7 @@ int HttpReqCnn::on_body(http_parser * parser, const char * at, size_t length)
 		return PARSE_HTTP_FAIL;
 
 	self->m_rsp_body->AppendBuff(at, length);
-	log_debug("HttpReqCnn::on_body {} {} ", self->m_netid, std::string(self->m_rsp_body->HeadPtr(), self->m_rsp_body->Size()));
+	// log_debug("HttpReqCnn::on_body {} {} ", self->m_netid, std::string(self->m_rsp_body->HeadPtr(), self->m_rsp_body->Size()));
 	return 0;
 }
 
@@ -284,7 +284,7 @@ int HttpReqCnn::on_message_complete(http_parser * parser)
 		return PARSE_HTTP_FAIL;
 
 	self->m_rsp_body->AppendBuff("\0", 1);
-	log_debug("HttpReqCnn::on_message_complete {} body:\n{}", self->m_netid, self->m_rsp_body->HeadPtr());
+	// log_debug("HttpReqCnn::on_message_complete {} body:\n{}", self->m_netid, self->m_rsp_body->HeadPtr());
 	self->ProcessRsp();
 	return 0;
 }
@@ -295,7 +295,7 @@ int HttpReqCnn::on_chunk_header(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	log_debug("HttpReqCnn::on_chunk_header {}", self->m_netid);
+	// log_debug("HttpReqCnn::on_chunk_header {}", self->m_netid);
 	return 0;
 }
 
@@ -305,7 +305,7 @@ int HttpReqCnn::on_chunk_complete(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	log_debug("HttpReqCnn::on_chunk_complete {}", self->m_netid);
+	// log_debug("HttpReqCnn::on_chunk_complete {}", self->m_netid);
 	return 0;
 }
 

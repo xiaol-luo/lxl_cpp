@@ -8,7 +8,10 @@ function string_format(fmt_str, ...)
             table.insert(str_list, string.toprint(arg))
         end
     end
-    local ret = string.format(fmt_str, table.unpack(str_list))
+    local ret = fmt_str
+    if #str_list > 0 then
+        ret = string.format(fmt_str, table.unpack(str_list))
+    end
     return ret
 end
 

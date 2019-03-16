@@ -48,12 +48,14 @@ function EtcdClientOpDelete:execute(etcd_client)
     end
     local url = string.format(self.host_format, etcd_client:get_host(), sub_url)
     local op_id = HttpClient.delete(url,
-            Functional.make_closure(self._handle_result_cb, op),
-            Functional.make_closure(self._Handle_event_cb, op),
+            Functional.make_closure(self._handle_result_cb, self),
+            Functional.make_closure(self._handle_event_cb, self),
             self.http_heads)
     return op_id;
 end
 
+--[[
 function EtcdClientOpDelete._handle_result_cb(op, op_id, url_str, heads_map, body_str, body_len)
-    log_debug("EtcdClientOpDelete._handle_result_cb %s", op_id)
+    log_debug("EtcdClientOpDelete._handle_result_cb %s %s %s %s %s", op_id or "null", url_str or "null", heads_map or "null", body_str or "", body_len or "null")
 end
+]]
