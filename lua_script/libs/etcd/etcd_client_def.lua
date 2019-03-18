@@ -16,3 +16,24 @@ EtcdConst.Refresh = "refresh"
 EtcdConst.PrevExist = "prevExist"
 EtcdConst.PrevValue = "prevValue"
 EtcdConst.PrevIndex = "prevIndex"
+EtcdConst.ErrorCode = "errorCode"
+EtcdConst.Message = "message"
+EtcdConst.Cause = "cause"
+EtcdConst.Index = "index"
+EtcdConst.Head_Cluster_Id = "X-Etcd-Cluster-Id"
+EtcdConst.Head_Cluster_Index = "X-Etcd-Index"
+EtcdConst.Head_Raft_Index = "X-Raft-Index"
+EtcdConst.Head_Raft_Term = "X-Raft-Term"
+EtcdConst.Expiration = "expiration"
+
+EtcdEvent = EtcdEvent or {}
+EtcdEvent.HttpConnect = 0
+EtcdEvent.HttpClose = 1
+EtcdEvent.HttpParse = 2
+EtcdEvent.DnsQuery = 103
+
+EtcdEventName = EtcdEvent or {}
+EtcdEventName[EtcdEvent.HttpConnect] = "EtcdEvent.HttpConnect"
+EtcdEventName[EtcdEvent.HttpClose] = "HttpConnect.HttpClose"
+EtcdEventName[EtcdEvent.HttpParse] = "EtcdEvent.HttpParse"
+EtcdEventName[EtcdEvent.DnsQuery] = "EtcdEvent.DnsQuery"

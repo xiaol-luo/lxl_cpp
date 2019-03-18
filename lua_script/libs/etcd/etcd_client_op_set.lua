@@ -45,13 +45,14 @@ function EtcdClientOpSet:execute(etcd_client)
     local url = string.format(self.host_format, etcd_client:get_host(), sub_url)
     local content = self:get_http_content()
     local op_id = HttpClient.put(url, content,
-            Functional.make_closure(self._handle_result_cb, op),
-            Functional.make_closure(self._Handle_event_cb, op),
+            Functional.make_closure(self._handle_result_cb, self),
+            Functional.make_closure(self._handle_event_cb, self),
             self.http_heads)
     return op_id;
 end
 
-
+--[[
 function EtcdClientOpSet._handle_result_cb(op, op_id, url_str, heads_map, body_str, body_len)
-    log_debug("EtcdClientOpSet._handle_result_cb %s", op_id)
+    log_debug("EtcdClientOpSet._handle_result_cb %s %s %s %s %s", op_id or "null", url_str or "null", heads_map or "null", body_str or "", body_len or "null")
 end
+--]]
