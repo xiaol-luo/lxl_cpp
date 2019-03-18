@@ -45,14 +45,7 @@ int main (int argc, char **argv)
 #ifdef WIN32
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
-	signal(SIGINT, QuitGame);
-	signal(SIGBREAK, QuitGame);
-#else
-	signal(SIGINT, QuitGame);
-	signal(SIGPIPE, SIG_IGN);
 #endif
-
-	mongocxx::instance ins{};
 
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc < 3)
@@ -83,11 +76,20 @@ int main (int argc, char **argv)
 	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 	service->SetLuaState(L);
 
+#ifdef WIN32
+	signal(SIGINT, QuitGame);
+	signal(SIGBREAK, QuitGame);
+#else
+	signal(SIGINT, QuitGame);
+	signal(SIGPIPE, SIG_IGN);
+#endif
+
+	mongocxx::instance ins{};
+
 	engine_init();
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
 	setup_service(service);  
-	// timer_next(std::bind(StartLuaScript, L, lua_begin_use_idx, argc, argv), 0);
 	timer_next(std::bind(&ServiceBase::RunService, service, argc, argv), 0);
 	service = nullptr; //  engine own the service
 	engine_loop();
