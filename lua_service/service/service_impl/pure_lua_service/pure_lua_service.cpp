@@ -1,12 +1,17 @@
 #include "pure_lua_service.h"
 #include <sol/sol.hpp>
 #include "iengine.h"
+#include "main_impl/main_impl.h"
 
-void PureLuaService::SetFuns(lua_State * L, std::string notify_quit_game_fn_name, std::string can_quit_game_fn_name)
+void PureLuaService::SetFuns(std::string notify_quit_game_fn_name, std::string can_quit_game_fn_name)
 {
-	m_lua_state = L;
 	m_notify_quit_game_fn_name = notify_quit_game_fn_name;
 	m_can_quit_game_fn_name = can_quit_game_fn_name;
+}
+
+void PureLuaService::RunService(int argc, char ** argv)
+{
+	StartLuaScript(m_lua_state, 2, argc, argv);
 }
 
 bool PureLuaService::CanQuitGame()
