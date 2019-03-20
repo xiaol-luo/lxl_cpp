@@ -9,6 +9,7 @@ void PureLuaService::SetFuns(std::string notify_quit_game_fn_name, std::string c
 	m_can_quit_game_fn_name = can_quit_game_fn_name;
 }
 
+#include "etcd_client/etcd_client.h"
 void PureLuaService::RunService(int argc, char ** argv)
 {
 	std::vector<std::string> extra_args;
@@ -37,6 +38,7 @@ void PureLuaService::RunService(int argc, char ** argv)
 	{
 		engine_stop();
 	}
+	EtcdClient xxx(m_lua_state, "", "", "");
 }
 
 bool PureLuaService::CanQuitGame()

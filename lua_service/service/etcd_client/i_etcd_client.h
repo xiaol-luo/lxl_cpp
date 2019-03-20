@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <functional>
 #include <stdint.h>
@@ -6,6 +8,7 @@
 class IEtcdClient
 {
 public:
+	virtual ~IEtcdClient() {}
 	using CallbackFn = std::function<void(uint64_t/*id*/, const std::string &/*json_ret*/)>;
 	virtual uint64_t Set(const std::string &key, const std::string &val, uint32_t ttl, bool is_dir, CallbackFn cb_fn) = 0;
 	virtual uint64_t RefreshTtl(const std::string &key, uint32_t ttl, bool is_dir, CallbackFn cb_fn) = 0;
