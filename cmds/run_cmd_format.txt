@@ -1,0 +1,6 @@
+# new format
+bin.exe service_name work_dir data_dir lua_dir (-native_logic_param)other_params \
+--lua_args_begin-- -lua_path lua_search_path -c_path lua_c_search_path -data_dir data_dir_detail -logic_param logic_param_detail
+
+#example
+bin.exe test_listen ../test_listen E:/git/ws/lxl_cpp/Debug/root/datas ../Debug/root/lua_script  --lua_args_begin-- -lua_path E:/git/ws/lxl_cpp/Debug/root/lua_script -c_path E:/git/ws/lxl_cpp/Debug   -logic_param 1  -require_files services.main  -execute_fns start_script

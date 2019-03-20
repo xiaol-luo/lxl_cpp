@@ -8,39 +8,6 @@ extern "C"
 #include "sol/sol.hpp"
 #include <chrono>
 
-#define LUA_EXIT_FAILURE -1
-#define lUA_EXIT_SUCCESS 0
-#define LUA_SCRIPT_IDX 1
-
-static int lua_status_report(lua_State *L, int status) 
-{
-	if (status != LUA_OK) 
-	{
-		const char *msg = lua_tostring(L, -1);
-		printf(msg);
-		lua_pop(L, 1);
-	}
-	return status;
-}
-
-static int lua_error_handler(lua_State *L) 
-{
-	const char *msg = lua_tostring(L, 1);
-	if (msg == NULL) 
-	{
-		if (luaL_callmeta(L, 1, "__tostring") && lua_type(L, -1) == LUA_TSTRING)
-		{
-			return 1;
-		}
-		else
-		{
-			msg = lua_pushfstring(L, "(error object is a %s value)",luaL_typename(L, 1));
-		}
-	}
-	luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
-	return 1;  /* return the traceback */
-}
-
 #ifdef WIN32
 #include <direct.h>
 #define chdir _chdir
