@@ -48,14 +48,14 @@ int main (int argc, char **argv)
 #endif
 
 	// argv: exe_name work_dir lua_file lua_file_params...
-	if (argc < 3)
+	if (argc <= Args_Index_Min_Value)
 	{
-		printf("exe_name work_dir lua_file ...\n");
+		printf("exe_name service_name work_dir data_dir lua_scrip_dir other_params... --lua_args_begin-- lua_params...\n");
 		return -10;
 	}
 
 	// change work dir
-	char *work_dir = argv[1];
+	char *work_dir = argv[Args_Index_WorkDir];
 	printf("work dir is %s\n", work_dir);
 	if (0 != chdir(work_dir))
 	{

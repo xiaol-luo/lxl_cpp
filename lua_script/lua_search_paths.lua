@@ -1,5 +1,0 @@
-
-local paths = {
-}
-
-return paths

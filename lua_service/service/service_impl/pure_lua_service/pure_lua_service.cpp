@@ -11,7 +11,32 @@ void PureLuaService::SetFuns(std::string notify_quit_game_fn_name, std::string c
 
 void PureLuaService::RunService(int argc, char ** argv)
 {
-	StartLuaScript(m_lua_state, 2, argc, argv);
+	std::vector<std::string> extra_args;
+	extra_args.push_back(Const_Opt_Service_Name);
+	extra_args.push_back(argv[Args_Index_Service_Name]);
+	extra_args.push_back(Const_Opt_Lua_Path);
+	extra_args.push_back(argv[Args_Index_WorkDir]);
+	extra_args.push_back(Const_Opt_C_Path);
+	extra_args.push_back(argv[Args_Index_WorkDir]);
+	extra_args.push_back(Const_Opt_Data_Dir);
+	extra_args.push_back(argv[Args_Index_Data_Dir]);
+	extra_args.push_back(Const_Opt_Native_Other_Params);
+	int curr_idx = Args_Index_Lua_Dir + 1;
+	while (curr_idx < argc)
+	{
+		char *arg = argv[curr_idx];
+		if (0 == std::strcmp(arg, Const_Lua_Args_Begin))
+		{
+			break;
+		}
+		extra_args.push_back(arg);
+	}
+	std::string script_root_dir = argv[Args_Index_Lua_Dir];
+	bool ret = StartLuaScript(m_lua_state, script_root_dir, argc, argv, extra_args);
+	if (!ret)
+	{
+		engine_stop();
+	}
 }
 
 bool PureLuaService::CanQuitGame()

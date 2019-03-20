@@ -30,7 +30,7 @@ local files = {
     "libs.etcd.etcd_client_op_delete",
     "libs.etcd.etcd_client_op_get",
     "libs.etcd.etcd_client_op_set",
-    "libs.etcd.etcd_client_result",
+    -- "libs.etcd.etcd_client_result",
     "common.init_global_vars",
 }
 return files

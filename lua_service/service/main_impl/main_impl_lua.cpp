@@ -35,23 +35,59 @@ int lua_pcall_error (lua_State* L)
 	return sol::stack::push(L, msg);
 }
 
-void StartLuaScript(lua_State *L, int begin_idx, int argc, char **argv)
+bool StartLuaScript(lua_State *L, std::string script_root_dir, int argc, char **argv, const std::vector<std::string> &extra_args)
 {
+	int begin_idx = argc;
+	for (int i = 0; i < argc; ++i)
+	{
+		if (0 == std::strcmp(argv[i], Const_Lua_Args_Begin))
+		{
+			begin_idx = i + 1;
+			break;
+		}
+	}
+	
 	int status = LUA_OK;
 	// open libs
 	luaL_openlibs(L);
 	register_native_libs(L);
-	lua_newtable(L);
 	int top = lua_gettop(L);
 	do
 	{
-		for (int i = begin_idx + 1; i < argc; i++)
+		lua_newtable(L);
+		int tb_empty_slot = 1;
+		{
+			// 把script_root_dir加入lua的搜索路径
+			lua_pushstring(L, Const_Opt_Lua_Path);
+			lua_rawseti(L, -2, tb_empty_slot);
+			++tb_empty_slot;
+			lua_pushstring(L, script_root_dir.c_str());
+			lua_rawseti(L, -2, tb_empty_slot);
+			++tb_empty_slot;
+
+			lua_pushstring(L, Const_Opt_C_Path);
+			lua_rawseti(L, -2, tb_empty_slot);
+			++tb_empty_slot;
+			lua_pushstring(L, script_root_dir.c_str());
+			lua_rawseti(L, -2, tb_empty_slot);
+			++tb_empty_slot;
+		}
+		for (int i = begin_idx; i < argc; i++)
 		{
 			lua_pushstring(L, argv[i]);
-			lua_rawseti(L, -2, i - begin_idx);
+			lua_rawseti(L, -2, tb_empty_slot);
+			++tb_empty_slot;
+		}
+		for (const std::string &val : extra_args)
+		{
+			lua_pushstring(L, val.c_str());
+			lua_rawseti(L, -2, tb_empty_slot);
+			++tb_empty_slot;
 		}
 		lua_setglobal(L, "arg");
-		char *lua_file = argv[begin_idx];
+
+		std::string lua_file_path = fmt::format("{}/{}", script_root_dir, Lua_File_Prepare_Env);
+		const char *lua_file = lua_file_path.c_str();
 		status = luaL_loadfile(L, lua_file);
 		if (LUA_OK != status)
 		{
@@ -71,9 +107,11 @@ void StartLuaScript(lua_State *L, int begin_idx, int argc, char **argv)
 	} while (false);
 	lua_settop(L, top);
 
-	if (LUA_OK != status)
+	bool ret = LUA_OK == status;
+	if (!ret)
 	{
-		log_error("StartLuaScript fail engine_stop, status: {}", status);
-		engine_stop();
+		log_error("StartLuaScript fail, status: {}", status);
+		// engine_stop();
 	}
+	return ret;
 }
