@@ -91,7 +91,7 @@ int main (int argc, char **argv)
 	start_log(ELogLevel_Debug);
 	setup_service(service);  
 	timer_next(std::bind(&ServiceBase::RunService, service, argc, argv), 0);
-	service = nullptr; //  engine own the service
+	service = nullptr; // engine own the service
 	engine_loop();
 	engine_destroy();
 	return 0;

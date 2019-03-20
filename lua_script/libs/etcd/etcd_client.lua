@@ -20,11 +20,11 @@ function EtcdClient:set(key, value, ttl, is_dir, cb_fn)
     op[EtcdConst.Ttl] = ttl
     op[EtcdConst.Dir] = is_dir and "true" or nil
     op.cb_fn = cb_fn
-    self:execute(op)
+    return self:execute(op)
 end
 
 function EtcdClient:refresh_ttl(key, ttl, is_dir, cb_fn)
-    self:set(key, nil, ttl, is_dir, cb_fn)
+    return self:set(key, nil, ttl, is_dir, cb_fn)
 end
 
 function EtcdClient:get(key, recursive, cb_fn)
@@ -32,7 +32,7 @@ function EtcdClient:get(key, recursive, cb_fn)
     op[EtcdConst.Key] = key
     op[EtcdConst.Recursive] = recursive and "true" or nil
     op.cb_fn = cb_fn
-    self:execute(op)
+    return self:execute(op)
 end
 
 function EtcdClient:delete(key, recursive, cb_fn)
@@ -40,7 +40,7 @@ function EtcdClient:delete(key, recursive, cb_fn)
     op[EtcdConst.Key] = key
     op[EtcdConst.Recursive] = recursive and "true" or nil
     op.cb_fn = cb_fn
-    self:execute(op)
+    return self:execute(op)
 end
 
 function EtcdClient:watch(key, recursive, waitIndex, cb_fn)
@@ -50,7 +50,7 @@ function EtcdClient:watch(key, recursive, waitIndex, cb_fn)
     op[EtcdConst.WaitIndex] = waitIndex
     op[EtcdConst.Recursive] = recursive and "true" or nil
     op.cb_fn = cb_fn
-    self:execute(op)
+    return self:execute(op)
 end
 
 function EtcdClient:cmp_swap(key, prev_index, prev_value, value, cb_fn)
@@ -60,7 +60,7 @@ function EtcdClient:cmp_swap(key, prev_index, prev_value, value, cb_fn)
     op[EtcdConst.PrevIndex] = prev_index
     op[EtcdConst.PrevValue] = prev_value
     op.cb_fn = cb_fn
-    self:execute(op)
+    return self:execute(op)
 end
 
 function EtcdClient:cmp_delete(key, prev_index, prev_value, recursive, cb_fn)
@@ -70,7 +70,7 @@ function EtcdClient:cmp_delete(key, prev_index, prev_value, recursive, cb_fn)
     op[EtcdConst.PrevValue] = prev_value
     op[EtcdConst.Recursive] = recursive and "true" or nil
     op.cb_fn = cb_fn
-    self:execute(op)
+    return self:execute(op)
 end
 
 function EtcdClient:execute(op)
