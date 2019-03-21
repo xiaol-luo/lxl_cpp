@@ -20,9 +20,10 @@ extern "C"
 #include "iengine.h"
 #include "lua_reg/lua_reg.h"
 #include <mongocxx/instance.hpp>
-#include "service_impl/pure_lua_service/pure_lua_service.h"
-#include "service_impl/service_base.h"
 #include "main_impl/main_impl.h"
+#include "service_impl/service_base.h"
+#include "service_impl/pure_lua_service/pure_lua_service.h"
+#include "service_impl/sidecar_service/sidecar_service.h"
 
 void QuitGame(int signal)
 {
@@ -64,7 +65,13 @@ int main (int argc, char **argv)
 	}
 
 	ServiceBase *service = nullptr;
-	if (true) // todo:
+	const char *service_name = argv[Args_Index_Service_Name];
+	if (nullptr == service && 0 == std::strcmp(service_name, "sidecar"))
+	{
+		SidecarService *sidecar_service = new SidecarService();
+		service = sidecar_service;
+	}
+	if (nullptr == service)
 	{
 		PureLuaService *pure_service = new PureLuaService();
 		pure_service->SetFuns("OnNotifyQuitGame", "CheckCanQuitGame");

@@ -115,3 +115,30 @@ bool StartLuaScript(lua_State *L, std::string script_root_dir, int argc, char **
 	}
 	return ret;
 }
+
+std::vector<std::string> ServiceMakeLuaExtraArgs(int argc, char ** argv)
+{
+	assert(argc > Args_Index_Min_Value);
+
+	std::vector<std::string> extra_args;
+	extra_args.push_back(Const_Opt_Service_Name);
+	extra_args.push_back(argv[Args_Index_Service_Name]);
+	extra_args.push_back(Const_Opt_Lua_Path);
+	extra_args.push_back(argv[Args_Index_WorkDir]);
+	extra_args.push_back(Const_Opt_C_Path);
+	extra_args.push_back(argv[Args_Index_WorkDir]);
+	extra_args.push_back(Const_Opt_Data_Dir);
+	extra_args.push_back(argv[Args_Index_Data_Dir]);
+	extra_args.push_back(Const_Opt_Native_Other_Params);
+	int curr_idx = Args_Index_Lua_Dir + 1;
+	while (curr_idx < argc)
+	{
+		char *arg = argv[curr_idx];
+		if (0 == std::strcmp(arg, Const_Lua_Args_Begin))
+		{
+			break;
+		}
+		extra_args.push_back(arg);
+	}
+	return extra_args;
+}

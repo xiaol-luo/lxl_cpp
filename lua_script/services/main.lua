@@ -33,7 +33,7 @@ function start_script(main_args)
     LOGIC_SETTING = xml.parse_file(setting_file)
     -- xml.print_table(LOGIC_SETTING)
     local logic_main_file = string.format("services.%s.service_main", MAIN_ARGS[MAIN_ARGS_SERVICE])
-    print(logic_main_file)
+    log_debug(logic_main_file)
     require(logic_main_file)
     ServiceMain.start()
 end

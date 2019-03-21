@@ -7,6 +7,7 @@ extern "C"
 #include "lauxlib.h"
 #include "lualib.h"
 }
+#include <vector>
 
 class ServiceBase : public IService
 {
@@ -30,3 +31,4 @@ protected:
 
 	lua_State *m_lua_state = nullptr;
 };
+

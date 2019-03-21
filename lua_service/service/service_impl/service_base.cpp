@@ -1,5 +1,6 @@
 #include "service_base.h"
 #include "iengine.h"
+#include "main_impl/main_impl.h"
 
 EModuleRetCode ServiceBase::Update()
 {
@@ -22,6 +23,7 @@ void ServiceBase::TryQuitGame()
 		this->NotifyQuitGame();
 	}
 }
+
 
 
 

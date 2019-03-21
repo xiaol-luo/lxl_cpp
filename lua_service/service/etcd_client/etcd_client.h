@@ -18,4 +18,6 @@ public:
 
 protected:
 	sol::table m_lua_etcd_client;
+	lua_State *m_lua_state = nullptr;
+	sol::optional<sol::protected_function> MakeOpCbFn(IEtcdClient::CallbackFn fn);
 };
