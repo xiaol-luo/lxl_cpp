@@ -32,6 +32,8 @@ local files = {
     "libs.etcd.etcd_client_op_set",
     "libs.etcd.etcd_client_result",
     "libs.etcd.etcd_client_cxx",
+    "common.zone_service_mgr.zone_service_mgr",
+    "services.service_def",
     "common.init_global_vars",
 }
 return files

@@ -1,5 +1,6 @@
 #include "lua_reg.h"
 #include "iengine.h"
+#include "main_impl/main_impl.h"
 
 sol::table get_or_create_table(lua_State *L, std::string tb_name)
 {
@@ -42,7 +43,7 @@ HttpReqCnn::FnProcessRsp safe_http_req_process_rsp_cb(sol::protected_function lu
 {
 	HttpReqCnn::FnProcessRsp ret = [lua_fn](HttpReqCnn * self, std::string rsp_state,
 		const std::unordered_map<std::string, std::string> &heads, const std::string &body, uint64_t body_len) {
-lua_fn((int64_t)self->GetPtr(), rsp_state, sol::as_table(heads), body, body_len);
+		lua_fn((int64_t)self->GetPtr(), rsp_state, sol::as_table(heads), body, body_len);
 	};
 	return ret;
 }
@@ -93,6 +94,15 @@ uint64_t lua_http_put(const std::string &url, sol::table heads_tb, std::string c
 	return http_put(url, &heads, &content, safe_rsp_fn, safe_event_fn);
 }
 
+std::string lua_extract_net_ip()
+{
+	std::string ret;
+	std::vector <std::string> ips = ExtractNetIps();
+	if (!ips.empty())
+		ret = ips[0];
+	return ret;
+}
+
 void register_native_libs(lua_State *L)
 {
 	sol::state_view sv(L);
@@ -126,6 +136,10 @@ void register_native_libs(lua_State *L)
 	t.set_function("log_info", [](std::string log_str) { log_info(log_str.c_str()); });
 	t.set_function("log_warn", [](std::string log_str) { log_warn(log_str.c_str()); });
 	t.set_function("log_error", [](std::string log_str) { log_error(log_str.c_str()); });
+	t.set_function("extract_service_name", ExtractServiceName);
+	t.set_function("extract_service_id", ExtractServiceId);
+	t.set_function("local_net_ip", lua_extract_net_ip);
+	
 }
 
 bool lua_object_to_string(sol::object lua_obj, std::string &out_str) 

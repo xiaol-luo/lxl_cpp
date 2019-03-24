@@ -63,7 +63,7 @@ function LogicMain.start()
     -- lfs.chdir(lfs.currentdir() .. "/..")
     -- print("work dir is ", lfs.currentdir())
 
-    xml.print_table(LOGIC_SETTING)
+    xml.print_table(SERVICE_SETTING)
 
     local cnn = native.LuaTcpConnect:new()
     local ret = cnn:init(tcp_cnn_logic)

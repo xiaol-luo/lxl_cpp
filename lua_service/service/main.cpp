@@ -48,6 +48,8 @@ int main (int argc, char **argv)
 	WSAStartup(0x0201, &wsa_data);
 #endif
 
+	ExtractNetIps();
+
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc <= Args_Index_Min_Value)
 	{
@@ -65,8 +67,9 @@ int main (int argc, char **argv)
 	}
 
 	ServiceBase *service = nullptr;
-	const char *service_name = argv[Args_Index_Service_Name];
-	if (nullptr == service && 0 == std::strcmp(service_name, "sidecar"))
+	std::string service_name = ExtractServiceName(argv[Args_Index_Service_Name]);
+	// const char *service_name = argv[Args_Index_Service_Name];
+	if (nullptr == service && "sidecar" == service_name)
 	{
 		SidecarService *sidecar_service = new SidecarService();
 		service = sidecar_service;
@@ -78,8 +81,8 @@ int main (int argc, char **argv)
 		service = pure_service;
 	}
 
-	sol::state ls(lua_panic_error);
-	lua_State *L = ls.lua_state();
+	sol::state *ls = new sol::state(lua_panic_error);
+	lua_State *L = ls->lua_state();
 	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 	service->SetLuaState(L);
 
@@ -100,6 +103,7 @@ int main (int argc, char **argv)
 	timer_next(std::bind(&ServiceBase::RunService, service, argc, argv), 0);
 	service = nullptr; // engine own the service
 	engine_loop();
+	delete ls; ls = nullptr;
 	engine_destroy();
 	return 0;
 }

@@ -273,6 +273,9 @@ end
 	maxlevel number 可选参数 hash表展开的层数 默认全部展开
 ]]
 function string.toprint(t, maxlevel)
+	if nil == t then
+		return ""
+	end
 	if not IsTable(t) then
 		return tostring(t)
 	end

@@ -283,7 +283,7 @@ int HttpReqCnn::on_message_complete(http_parser * parser)
 	if (nullptr == self)
 		return PARSE_HTTP_FAIL;
 
-	self->m_rsp_body->AppendBuff("\0", 1);
+	// self->m_rsp_body->AppendBuff("\0", 1);
 	// log_debug("HttpReqCnn::on_message_complete {} body:\n{}", self->m_netid, self->m_rsp_body->HeadPtr());
 	self->ProcessRsp();
 	return 0;

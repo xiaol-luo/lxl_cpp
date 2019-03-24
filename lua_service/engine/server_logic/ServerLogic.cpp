@@ -154,6 +154,7 @@ void ServerLogic::Destroy()
 	{
 		m_async_task_mgr->Stop();
 		m_dns_service->Stop();
+		m_timer_mgr->ClearAll();
 	}
 	int loop_times = 0;
 	EModuleRetCode retCode = EModuleRetCode_Succ;

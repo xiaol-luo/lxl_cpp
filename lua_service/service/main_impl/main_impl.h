@@ -27,3 +27,6 @@ extern int lua_panic_error(lua_State* L);
 extern int lua_pcall_error(lua_State* L);
 extern bool StartLuaScript(lua_State *L, std::string script_root_dir, int argc, char **argv, const std::vector<std::string> &extra_args);
 extern std::vector<std::string> ServiceMakeLuaExtraArgs(int argc, char ** argv);
+
+extern std::string ExtractServiceName(std::string full_name);
+extern int ExtractServiceId(std::string full_name);

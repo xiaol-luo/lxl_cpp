@@ -47,8 +47,9 @@ function EtcdClientOpBase:_handle_event_cb(op_id, etcd_event, err_num)
     end
 end
 
-function EtcdClientOpBase:_handle_result_cb(op_id, url_str, heads_map, body_str, body_len)
-    -- log_debug("EtcdClientOpDelete._handle_result_cb %s %s %s %s %s", op_id or "null", url_str or "null", heads_map or "null", body_str or "", body_len or "null")
+function EtcdClientOpBase:_handle_result_cb(op_id, rsp_state, heads_map, body_str, body_len)
+    log_debug("EtcdClientOpBase._handle_result_cb._handle_result_cb op_id:%s rsp_state:%s head_map:%s body_len:%s bodoy_str:%s ",
+            op_id or "null", rsp_state or "null", heads_map or "null", body_len or "null", body_str or "null")
     if not self.cb_fn then
         return
     end
@@ -60,7 +61,9 @@ function EtcdClientOpBase:_handle_result_cb(op_id, url_str, heads_map, body_str,
     end
     local keys = { EtcdConst.Head_Cluster_Id, EtcdConst.Head_Cluster_Index, EtcdConst.Head_Raft_Index, EtcdConst.Head_Raft_Term }
     for _, key in pairs(keys) do
-        ret.op_result[key] = heads_map[key]
+        if heads_map[key] then
+            ret.op_result[key] = heads_map[key]
+        end
     end
     self.cb_fn(op_id, self, ret)
 end

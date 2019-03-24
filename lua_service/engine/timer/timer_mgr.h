@@ -17,6 +17,7 @@ public:
 	TimerID AddFirm(TimerCallback cb_fn, int64_t execute_span_ms, int64_t execute_times);
 	void Remove(TimerID timer_id);
 	void UpdateTime(int64_t now_ms);
+	void ClearAll();
 
 private:
 	struct TimerItem

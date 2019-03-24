@@ -35,7 +35,7 @@ static int other_do_openlib(lua_State *L)
 
 int luaopen_tryuselualib(lua_State *L)
 {
-	printf("luaopen_tryuselualib\n");
+	// printf("luaopen_tryuselualib\n");
 	luaL_requiref(L, "tryuselualib", do_openlib, 1);
 	luaL_requiref(L, "othertryuselualib", other_do_openlib, 1);
 	return 0;

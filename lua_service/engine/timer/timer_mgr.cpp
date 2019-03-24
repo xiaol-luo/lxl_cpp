@@ -15,21 +15,7 @@ TimerMgr::~TimerMgr()
 {
 	if (nullptr != m_rbtree_sentinel_node && nullptr != m_rbtree_timer_items)
 	{
-		std::queue<srv_rbtree_node_t *> node_queue;
-		if (m_rbtree_timer_items->root != m_rbtree_timer_items->sentinel)
-			node_queue.push(m_rbtree_timer_items->root);
-		while (!node_queue.empty())
-		{
-			srv_rbtree_node_t *node = node_queue.front();
-			node_queue.pop();
-			if (node->left != m_rbtree_timer_items->sentinel)
-				node_queue.push(node->left);
-			if (node->right != m_rbtree_timer_items->sentinel)
-				node_queue.push(node->right);
-			if (nullptr != node->data)
-				delete (TimerItem *)node->data;
-			delete node;
-		}
+		this->ClearAll();
 		delete m_rbtree_sentinel_node; m_rbtree_sentinel_node = nullptr;
 		delete m_rbtree_timer_items; m_rbtree_timer_items = nullptr;
 	}
@@ -105,6 +91,28 @@ void TimerMgr::UpdateTime(int64_t now_ms)
 	this->ChekRemoveNodes();
 }
 
+void TimerMgr::ClearAll()
+{
+	if (nullptr != m_rbtree_sentinel_node && nullptr != m_rbtree_timer_items)
+	{
+		std::queue<srv_rbtree_node_t *> node_queue;
+		if (m_rbtree_timer_items->root != m_rbtree_timer_items->sentinel)
+			node_queue.push(m_rbtree_timer_items->root);
+		while (!node_queue.empty())
+		{
+			srv_rbtree_node_t *node = node_queue.front();
+			node_queue.pop();
+			if (node->left != m_rbtree_timer_items->sentinel)
+				node_queue.push(node->left);
+			if (node->right != m_rbtree_timer_items->sentinel)
+				node_queue.push(node->right);
+			if (nullptr != node->data)
+				delete (TimerItem *)node->data;
+			delete node;
+		}
+	}
+}
+
 TimerID TimerMgr::GenTimerId()
 {
 	do
@@ -128,7 +136,7 @@ void TimerMgr::ChekRemoveNodes()
 		if (m_id_to_timer_node.end() == it)
 			continue;;
 		srv_rbtree_node_t *node = it->second;
-		if (node->parent)
+		if (node->parent || node == m_rbtree_timer_items->root)
 			srv_rbtree_delete(m_rbtree_timer_items, node);
 		delete (TimerItem *)node->data;
 		free(node);
