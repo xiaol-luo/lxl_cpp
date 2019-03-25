@@ -83,6 +83,7 @@ void * MemoryPoolMgr::Realloc(void * ptr, size_t new_malloc_size)
 			size_t new_pool_idx = CalPoolIndex(new_malloc_size);
 			if (m_memory_pool_fast_idx[pool_idx] == m_memory_pool_fast_idx[new_pool_idx])
 			{
+				*(size_t *)real_ptr = new_malloc_size;
 				return ptr;
 			}
 		}

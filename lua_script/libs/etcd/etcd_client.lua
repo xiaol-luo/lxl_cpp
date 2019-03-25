@@ -24,7 +24,14 @@ function EtcdClient:set(key, value, ttl, is_dir, cb_fn)
 end
 
 function EtcdClient:refresh_ttl(key, ttl, is_dir, cb_fn)
-    return self:set(key, nil, ttl, is_dir, cb_fn)
+    local op = EtcdClientOpSet:new()
+    op[EtcdConst.Key] = key
+    op[EtcdConst.Ttl] = ttl
+    op[EtcdConst.Dir] = is_dir and "true" or nil
+    op[EtcdConst.PrevExist] = "true"
+    op[EtcdConst.Refresh] = "true"
+    op.cb_fn = cb_fn
+    return self:execute(op)
 end
 
 function EtcdClient:get(key, recursive, cb_fn)
@@ -75,20 +82,4 @@ end
 
 function EtcdClient:execute(op)
     return op:execute(self)
-end
-
-function EtcdClient._Handle_event_cb(op, op_id, err_type_enum, err_num_int)
-    log_debug("EtcdClient._Handle_event_cb %s", op_id)
-end
-
-function EtcdClient._handle_set_result_cb(op, op_id, url_str, heads_map, body_str, body_len)
-    log_debug("EtcdClient._handle_set_result_cb %s", op_id)
-end
-
-function EtcdClient._handle_get_result_cb(op, op_id, url_str, heads_map, body_str, body_len)
-    log_debug("EtcdClient._handle_get_result_cb %s", op_id)
-end
-
-function EtcdClient._handle_delete_result_cb(op, op_id, url_str, heads_map, body_str, body_len)
-    log_debug("EtcdClient._handle_delete_result_cb %s", op_id)
 end

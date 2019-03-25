@@ -5,7 +5,7 @@
 		<user></user>
 		<pwd></pwd>
 		<root_dir>/zone_1024/</root_dir>
-		<ttl>10000</ttl>
+		<ttl>10</ttl>
 	</etcd>
 	<services>
 		<avatar>

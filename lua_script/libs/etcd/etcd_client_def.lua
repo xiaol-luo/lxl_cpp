@@ -25,6 +25,9 @@ EtcdConst.Head_Cluster_Index = "X-Etcd-Index"
 EtcdConst.Head_Raft_Index = "X-Raft-Index"
 EtcdConst.Head_Raft_Term = "X-Raft-Term"
 EtcdConst.Expiration = "expiration"
+EtcdConst.Rsp_State = "rsp_state"
+EtcdConst.Rsp_State_OK = "OK"
+EtcdConst.Rsp_State_Created = "Created"
 
 EtcdEvent = EtcdEvent or {}
 EtcdEvent.HttpConnect = 0
