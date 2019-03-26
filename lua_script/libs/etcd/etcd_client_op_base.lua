@@ -60,7 +60,7 @@ function EtcdClientOpBase:_handle_result_cb(op_id, rsp_state, heads_map, body_st
     else
         ret.op_result = {}
     end
-    local keys = { EtcdConst.Head_Cluster_Id, EtcdConst.Head_Cluster_Index, EtcdConst.Head_Raft_Index, EtcdConst.Head_Raft_Term }
+    local keys = { EtcdConst.Head_Cluster_Id, EtcdConst.Head_Index, EtcdConst.Head_Raft_Index, EtcdConst.Head_Raft_Term }
     for _, key in pairs(keys) do
         if heads_map[key] then
             ret.op_result[key] = heads_map[key]
