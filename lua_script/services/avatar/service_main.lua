@@ -15,6 +15,7 @@ function ServiceMain.start()
     local etcd_setting = ALL_SERVICE_SETTING[SCC.Root][SCC.Etcd]
     local instance_setting = ALL_SERVICE_SETTING[SCC.Root][SCC.Services][SCC.Avatar][SCC.Instance][service_id]
     zone_service_mgr = ZoneServiceMgr:new(etcd_setting,
+            tonumber(instance_setting[SCC.Id]),
             tonumber(instance_setting[SCC.Listen_Peer_Port]),
             MAIN_ARGS[MAIN_ARGS_SERVICE])
     zone_service_mgr:start()

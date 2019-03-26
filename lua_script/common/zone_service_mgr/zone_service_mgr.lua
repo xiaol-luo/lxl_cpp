@@ -1,7 +1,7 @@
 
 ZoneServiceMgr = ZoneServiceMgr or class("ZoneServiceMgr")
 
-function ZoneServiceMgr:ctor(etcd_setting, listen_port, service_name)
+function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.etcd_setting = etcd_setting
     self.listen_port = listen_port
     self.service_name = service_name
@@ -15,7 +15,7 @@ function ZoneServiceMgr:ctor(etcd_setting, listen_port, service_name)
     self.etcd_service_key = string.format("%s/%s", self.etcd_root_dir, string.ltrim(service_name, '/'))
     self.etcd_ttl = etcd_setting[Service_Cfg_Const.Etcd_Ttl]
     -- self.etcd_service_val = string.format("%s:%s", native.local_net_ip(), self.listen_port)
-    self.etcd_service_val = ZoneServiceState:new(self.service_name, native.local_net_ip(), self.listen_port)
+    self.etcd_service_val = ZoneServiceState:new(id, self.service_name, native.local_net_ip(), self.listen_port)
     self.etcd_last_refresh_ttl_ms = 0
     self.etcd_refresh_ttl_span_ms = self.etcd_ttl * 1000 / 4
     self.etcd_last_fetch_service_states_ms = 0

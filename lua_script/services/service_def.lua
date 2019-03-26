@@ -12,4 +12,5 @@ Service_Cfg_Const =
     Avatar = "avatar",
     Instance = "instance",
     Listen_Peer_Port = "listen_peer_port",
+    Id = "id",
 }

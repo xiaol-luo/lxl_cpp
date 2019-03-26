@@ -1,12 +1,14 @@
 
 ZoneServiceState = ZoneServiceState or class("ZoneServiceState")
 ZoneServiceState.Const = ZoneServiceState.Const or {}
+ZoneServiceState.Const.Id = "id"
 ZoneServiceState.Const.Ip = "ip"
 ZoneServiceState.Const.Service = "service"
 ZoneServiceState.Const.Port = "port"
 ZoneServiceState.Const.Online = "online"
 
-function ZoneServiceState:ctor(service, ip, port)
+function ZoneServiceState:ctor(id, service, ip, port)
+    self[ZoneServiceState.Const.Id] = id
     self[ZoneServiceState.Const.Service]= service
     self[ZoneServiceState.Const.Ip]= ip
     self[ZoneServiceState.Const.Port]= port

@@ -11,9 +11,11 @@
 		<avatar>
 			<instance>
 				<0>
+					<id>1001</id>
 					<listen_peer_port>51000</listen_peer_port>
 				</0>
 				<1>
+					<id>1002</id>
 					<listen_peer_port>51010</listen_peer_port>
 				</1>
 			</instance>
