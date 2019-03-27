@@ -116,6 +116,7 @@ void register_native_libs(lua_State *L)
 	t.set_function("net_connect_async", net_connect_async);
 	t.set_function("net_listen", net_listen);
 	t.set_function("net_listen_async", net_listen_async);
+	t.set_function("net_cancel_async", net_cancel_async);
 	t.set_function("net_send", net_send);
 	t.set_function("timer_add", lua_timer_add);
 	t.set_function("timer_firm", lua_timer_firm);

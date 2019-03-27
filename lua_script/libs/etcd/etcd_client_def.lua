@@ -8,6 +8,7 @@ EtcdConst.ModifiedIndex = "modifyIndex"
 EtcdConst.CreatedIndex = "createdIndex"
 EtcdConst.Action = "action"
 EtcdConst.Node = "node"
+EtcdConst.Nodes = "nodes"
 EtcdConst.PrevNode = "prevNode"
 EtcdConst.Wait = "wait"
 EtcdConst.Recursive = "recursive"
@@ -28,6 +29,7 @@ EtcdConst.Expiration = "expiration"
 EtcdConst.Rsp_State = "rsp_state"
 EtcdConst.Rsp_State_OK = "OK"
 EtcdConst.Rsp_State_Created = "Created"
+EtcdConst.Set = "set"
 
 EtcdEvent = EtcdEvent or {}
 EtcdEvent.HttpConnect = 0

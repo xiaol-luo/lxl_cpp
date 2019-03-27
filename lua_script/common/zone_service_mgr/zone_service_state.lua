@@ -44,8 +44,10 @@ function ZoneServiceState:to_json()
 end
 
 function ZoneServiceState.from_json(json_str)
+    local ret = ZoneServiceState:new(nil, nil, nil, nil)
     local tb = rapidjson.decode(json_str)
-    for k, v in pairs(ZoneServiceState.Const) do
-        self[v] = tb[v]
+    for _, v in pairs(ZoneServiceState.Const) do
+        ret[v] = tb[v]
     end
+    return ret
 end
