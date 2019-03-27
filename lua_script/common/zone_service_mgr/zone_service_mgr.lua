@@ -14,7 +14,6 @@ function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.etcd_root_dir = string.rtrim(etcd_setting[Service_Cfg_Const.Etcd_Root_Dir], '/')
     self.etcd_service_key = string.format("%s/%s", self.etcd_root_dir, string.ltrim(service_name, '/'))
     self.etcd_ttl = etcd_setting[Service_Cfg_Const.Etcd_Ttl]
-    -- self.etcd_service_val = string.format("%s:%s", native.local_net_ip(), self.listen_port)
     self.etcd_service_val = ZoneServiceState:new(id, self.service_name, native.local_net_ip(), self.listen_port)
     self.etcd_last_refresh_ttl_ms = 0
     self.etcd_refresh_ttl_span_ms = self.etcd_ttl * 1000 / 4
@@ -77,13 +76,13 @@ function ZoneServiceMgr:_etcd_pull_service_states()
 end
 
 function ZoneServiceMgr:_etcd_pull_service_status_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_pull_service_status_cb %s %s", op_id, string.toprint(ret))
+    log_debug("ZoneServiceMgr:_etcd_pull_service_status_cb %s %s", op_id, ret:is_ok())
     if not ret:is_ok() then
         native.timer_next(Functional.make_closure(ZoneServiceMgr._etcd_pull_service_status_cb, self), 0)
     else
-        -- todo
-        self.etcd_watch_wait_index = ret.op_result[EtcdConst.Head_Index]
+        self.etcd_watch_wait_index = tonumber(ret.op_result[EtcdConst.Head_Index])
         self:_etcd_watch_service_states()
+        self:_etcd_service_state_process_pull(ret)
     end
 end
 
@@ -93,7 +92,7 @@ function ZoneServiceMgr:_etcd_watch_service_states()
 end
 
 function ZoneServiceMgr:_etcd_watch_service_states_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_watch_service_states_cb %s %s", op_id, string.toprint(ret))
+    log_debug("ZoneServiceMgr:_etcd_watch_service_states_cb %s %s", op_id, ret:is_ok())
     if op_id ~= self.etcd_watch_op_id then
         return
     end
@@ -102,6 +101,7 @@ function ZoneServiceMgr:_etcd_watch_service_states_cb(op_id, op, ret)
     else
         self.etcd_watch_wait_index = ret.op_result[EtcdConst.Head_Index]
         native.timer_next(Functional.make_closure(ZoneServiceMgr._etcd_watch_service_states, self), 0)
+        self:_etcd_service_state_process_watch(ret)
     end
 end
 
@@ -111,7 +111,7 @@ function ZoneServiceMgr:etcd_service_val_refresh_ttl()
 end
 
 function ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb %s %s", op_id, string.toprint(ret))
+    log_debug("ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb %s %s", op_id, ret:is_ok())
 end
 
 function ZoneServiceMgr:_listen_handler_gen_cnn(listen_handler)

@@ -34,6 +34,7 @@ local files = {
     "libs.etcd.etcd_client_cxx",
     "common.zone_service_mgr.zone_service_mgr",
     "common.zone_service_mgr.zone_service_state",
+    "common.zone_service_mgr.zone_service_mgr__connect",
     "services.service_def",
     "common.init_global_vars",
 }
