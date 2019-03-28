@@ -49,6 +49,9 @@ function ZoneServiceMgr:_etcd_service_state_process_watch(ret)
             self:_etcd_service_state_add(node)
         end
     end
+    if EtcdConst.Delete == action then
+        self:_etcd_service_state_delete(op_ret[EtcdConst.Node][EtcdConst.Key])
+    end
 end
 
 function ZoneServiceMgr:next_peer_cnn_seq()
@@ -90,9 +93,18 @@ function ZoneServiceMgr:_etcd_service_state_update(st)
 end
 
 function ZoneServiceMgr:_etcd_service_state_delete(service_name)
-
+    if not self.service_state_list[service_name] then
+        return
+    end
+    local st = self.service_state_list[service_name]
+    self.service_state_list[service_name] = nil
+    local net = st.net
+    net.peer_cnn_id = -1
+    native.net_cancel_async(net.cnn_async_id)
+    net.cnn_async_id = -1
+    native.net_close(net.cnn:netid())
+    net.cnn = nil
 end
-
 
 function ZoneServiceMgr:make_peer_cnn(peer_cnn_id)
     local cnn = TcpConnect:new()

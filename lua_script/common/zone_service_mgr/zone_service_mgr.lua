@@ -137,6 +137,9 @@ end
 
 function ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb(op_id, op, ret)
     log_debug("ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb %s %s", op_id, ret:is_ok())
+    if not ret:is_ok() and self.is_started then
+        self:etcd_service_val_update()
+    end
 end
 
 function ZoneServiceMgr:_listen_handler_gen_cnn(listen_handler)
