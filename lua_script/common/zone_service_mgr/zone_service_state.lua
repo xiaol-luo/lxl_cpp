@@ -18,6 +18,10 @@ function ZoneServiceState:set_online(val)
     self[ZoneServiceState.Const.Online] = val and true or nil
 end
 
+function ZoneServiceState:get_id()
+    return self[ZoneServiceState.Const.Id]
+end
+
 function ZoneServiceState:get_ip()
     return self[ZoneServiceState.Const.Ip]
 end

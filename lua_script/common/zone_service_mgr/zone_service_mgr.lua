@@ -1,5 +1,8 @@
 
 ZoneServiceMgr = ZoneServiceMgr or class("ZoneServiceMgr")
+ZoneServiceMgr.Pid_Ping = 1
+ZoneServiceMgr.Pid_Pong = 2
+ZoneServiceMgr.Introduce_Self = 3
 
 function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.etcd_setting = etcd_setting
@@ -24,17 +27,22 @@ function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.service_state_list = {}
     self.peer_cnn_last_seq = 0
     self.etcd_watch_timerid = nil
+    self.check_cnn_last_ms = 0
+    self.Check_Cnn_Ms_Span = 1000
+    self.accept_cnn_states = {} -- cnn, ping_ms, pong_ms
+    self.Cnn_Ping_Ms_Span = 2 * 1000
+    self.Cnn_Alive_Without_Pong = self.Cnn_Ping_Ms_Span * 2
 end
 
 function ZoneServiceMgr:start()
     if self.is_started then
         return
     end
-    self.listen_handler = TcpListen:new()
+    self.listen_handler = NetListen:new()
     self.listen_handler:set_gen_cnn_cb(Functional.make_closure(ZoneServiceMgr._listen_handler_gen_cnn, self))
     self.listen_handler:set_open_cb(Functional.make_closure(ZoneServiceMgr._listen_handler_on_open, self))
     self.listen_handler:set_close_cb(Functional.make_closure(ZoneServiceMgr._listen_handler_on_close, self))
-    native.net_listen("0.0.0.0", self.listen_port, self.listen_handler:get_native_listen_weak_ptr())
+    Net.listen("0.0.0.0", self.listen_port, self.listen_handler)
     self:_etcd_pull_service_states()
     self.is_started = true
 end
@@ -60,16 +68,19 @@ function ZoneServiceMgr:on_frame()
     if not self.is_started then
         return
     end
-    -- local cnn = self:make_cnn()
-    -- native.net_connect("127.0.0.1", self.listen_port, cnn:get_native_connect_weak_ptr())
-    -- cnn:send(1, "xxxx")
 
+    local now_ms = native.logic_ms()
     if self.etcd_service_val:get_online() then
-        local now_ms = native.logic_ms()
         if now_ms - self.etcd_last_refresh_ttl_ms >= self.etcd_refresh_ttl_span_ms then
             self.etcd_last_refresh_ttl_ms = now_ms
             self:etcd_service_val_refresh_ttl()
         end
+    end
+
+    if now_ms - self.check_cnn_last_ms >= self.Check_Cnn_Ms_Span then
+        self.check_cnn_last_ms = now_ms
+        self:_on_frame_process_accept_connect(now_ms)
+        self:_on_frame_process_peer_connect(now_ms)
     end
 end
 
@@ -90,6 +101,7 @@ function ZoneServiceMgr:_etcd_service_val_set_cb(op_id, op, ret)
 end
 
 function ZoneServiceMgr:_etcd_pull_service_states()
+    self.etcd_watch_op_id = nil
     self.etcd_client:get(self.etcd_root_dir, true, Functional.make_closure(ZoneServiceMgr._etcd_pull_service_status_cb, self))
 end
 
@@ -156,27 +168,6 @@ function ZoneServiceMgr:_listen_handler_on_close(listen_handler, err_num)
     log_debug("ZoneServiceMgr:_listen_handler_on_close %s", err_num)
     self.etcd_service_val:set_online(false)
     self.etcd_service_val_update()
-end
-
-function ZoneServiceMgr:_accept_cnn_handler_on_open(cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_accept_cnn_handler_on_open %s", err_num)
-end
-
-function ZoneServiceMgr:_accept_cnn_handler_on_close(cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_accept_cnn_handler_on_close %s", err_num)
-end
-
-function ZoneServiceMgr:_accept_cnn_handler_on_recv(cnn_handler, pid, bin)
-    log_debug("ZoneServiceMgr:_accept_cnn_handler_on_recv %s", pid)
-    native.net_close(cnn_handler:netid())
-end
-
-function ZoneServiceMgr:make_accept_cnn()
-    local cnn = TcpConnect:new()
-    cnn:set_open_cb(Functional.make_closure(ZoneServiceMgr._accept_cnn_handler_on_open, self))
-    cnn:set_close_cb(Functional.make_closure(ZoneServiceMgr._accept_cnn_handler_on_close, self))
-    cnn:set_recv_cb(Functional.make_closure(ZoneServiceMgr._accept_cnn_handler_on_recv, self))
-    return cnn
 end
 
 

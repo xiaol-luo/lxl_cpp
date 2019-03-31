@@ -17,7 +17,7 @@ function HttpService:start(port)
     listener_cbs.on_close = nil
     listener_cbs.do_gen_cnn_handler = make_cb(HttpService.do_gen_cnn_handler, self)
     self.listener:set_cb(listener_cbs)
-    local netid = native.net_listen("0.0.0.0", port, native.to_weak_ptr_net_listen(self.listener))
+    local netid = Net.listen("0.0.0.0", port, self.listener)
     return 0 ~= netid
 end
 
@@ -35,7 +35,7 @@ function HttpService:do_gen_cnn_handler(native_listener)
     local cnn = native.make_shared_http_rsp_cnn(native_listener:get_cnn_map())
     cnn:set_req_cb(make_cb(HttpService.handle_req, self))
     cnn:set_event_cb(make_cb(HttpService.handle_event, self))
-    return native.to_shared_ptr_net_connect(cnn)
+    return native.to_connect_handler_shared_ptr(cnn)
 end
 
 function HttpService:handle_req(native_cnn_ptr, enum_method, req_url, heads_map, body, body_size)

@@ -5,11 +5,11 @@ RoleManager.listen_handler = nil
 RoleManager.roles = {}
 
 function RoleManager.start(listen_port)
-    RoleManager.listen_handler = TcpListen:new()
+    RoleManager.listen_handler = NetListen:new()
     RoleManager.listen_handler:set_gen_cnn_cb(RoleManager.listen_gen_cnn)
     RoleManager.listen_handler:set_open_cb(RoleManager.on_listen_open)
     RoleManager.listen_handler:set_close_cb(RoleManager.on_listen_close)
-    local netid = native.net_listen("0.0.0.0", listen_port, RoleManager.listen_handler:get_native_listen_weak_ptr())
+    local netid = Net.listen("0.0.0.0", listen_port, RoleManager.listen_handler)
     print("RoleManager.start ", listen_port, netid)
     return netid > 0
 end
@@ -27,7 +27,7 @@ function RoleManager.on_listen_close(t, err_num)
 end
 
 function RoleManager.listen_gen_cnn(t)
-    local cnn = TcpConnect:new()
+    local cnn = PidBinCnn:new()
     cnn:set_open_cb(RoleManager.on_cnn_open)
     cnn:set_close_cb(RoleManager.on_cnn_close)
     cnn:set_recv_cb(RoleManager.on_cnn_recv)

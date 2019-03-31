@@ -1,32 +1,37 @@
 
-TcpConnect = TcpConnect or class("TcpConnect", net_handler)
+PidBinCnn = PidBinCnn or class("PidBinCnn", net_handler)
 
-function TcpConnect:ctor()
+function PidBinCnn:ctor()
     self.super:ctor()
     self.recv_cb = nil
     self.native_handler = native.make_shared_lua_tcp_connect()
     self.native_handler:init(self)
 end
 
-function TcpConnect:set_recv_cb(cb)
+function PidBinCnn:set_recv_cb(cb)
     self.recv_cb = cb
 end
 
-function TcpConnect:on_recv(pid, bin)
+function PidBinCnn:on_recv(pid, bin)
     return self.recv_cb (self, pid, bin)
 end
 
-function TcpConnect:Reset()
+function PidBinCnn:Reset()
     self.super:Reset()
     self.recv_cb = nil
     self.native_tcp_cnn = nil
 end
 
-function net_handler:get_native_connect_weak_ptr()
-    return native.to_weak_ptr_net_connect(self.native_handler)
+function PidBinCnn:cnn_handler_shared_ptr()
+    assert(self.native_handler)
+    return native.to_connect_handler_shared_ptr(self.native_handler)
 end
 
-function net_handler:send(pid, bin)
+function PidBinCnn:cnn_handler_weak_ptr()
+    return native.to_connect_handler_weak_ptr(self.native_handler)
+end
+
+function PidBinCnn:send(pid, bin)
     if not self.native_handler then
         return false
     end
@@ -38,3 +43,4 @@ function net_handler:send(pid, bin)
     end
     return ret
 end
+

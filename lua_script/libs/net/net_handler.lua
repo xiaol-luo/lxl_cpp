@@ -31,10 +31,29 @@ function net_handler:netid()
     return ret
 end
 
-function net_handler:get_native_handler()
-    return self.native_handler
+function net_handler:net_handler_shared_ptr()
+    assert(self.native_handler)
+    return native.to_net_handler_shared_ptr(self.native_handler)
 end
 
-function net_handler:get_native_handler_weak_ptr()
-    return native.to_weak_ptr_net_connect(self.native_handler)
+function net_handler:net_handler_weak_ptr()
+    assert(self.native_handler)
+    return native.to_net_handler_shared_ptr(self.to_net_handler_weak_ptr)
 end
+
+function net_handler:cnn_handler_shared_ptr()
+    assert(false, "should not reach here")
+end
+
+function net_handler:cnn_handler_weak_ptr()
+    assert(false, "should not reach here")
+end
+
+function net_handler:listen_handler_shared_ptr()
+    assert(false, "should not reach here")
+end
+
+function net_handler:listen_handler_weak_ptr()
+    assert(false, "should not reach here")
+end
+

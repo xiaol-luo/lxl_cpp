@@ -1,7 +1,7 @@
 
 function string_format(fmt_str, ...)
     local str_list = {}
-    for _, arg in pairs({...}) do
+    for _, arg in ipairs({...}) do
         if "table" ~= type(arg) then
             table.insert(str_list, tostring(arg))
         else

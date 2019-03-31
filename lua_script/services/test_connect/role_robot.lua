@@ -15,7 +15,7 @@ function RoleRobot.on_tick()
     print("RoleRobot.on_tick")
 
     local cnn_handler = RoleRobot.gen_cnn()
-    native.net_connect("127.0.0.1", 3234, cnn_handler:get_native_connect_weak_ptr())
+    Net.connect("127.0.0.1", 3234, cnn_handler)
 
     local roles_size = 0
     for k, v in pairs(roles) do
@@ -32,7 +32,7 @@ function RoleRobot.on_tick()
 end
 
 function RoleRobot.gen_cnn(t)
-    local cnn = TcpConnect:new()
+    local cnn = PidBinCnn:new()
     cnn:set_open_cb(RoleRobot.on_cnn_open)
     cnn:set_close_cb(RoleRobot.on_cnn_close)
     cnn:set_recv_cb(RoleRobot.on_cnn_recv)

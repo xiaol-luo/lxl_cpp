@@ -24,6 +24,47 @@ void lua_reg_make_shared_ptr(lua_State *L)
 			return std::make_shared<HttpRspCnn>(m);
 		});
 
+#define Net_Handler_Convert_Help(from, to) [](from p) { to ret = p; return ret; }
+#define Convert_To_Net_Handler_Shared_Ptr(from) Net_Handler_Convert_Help(std::shared_ptr<from>, std::shared_ptr<INetworkHandler>)
+#define Convert_To_Net_Handler_Weak_Ptr(from) Net_Handler_Convert_Help(std::shared_ptr<from>, std::weak_ptr<INetworkHandler>)
+#define Convert_To_Cnn_Handler_Shared_Ptr(from) Net_Handler_Convert_Help(std::shared_ptr<from>, std::shared_ptr<INetConnectHandler>)
+#define Convert_To_Cnn_Handler_Weak_Ptr(from) Net_Handler_Convert_Help(std::shared_ptr<from>, std::weak_ptr<INetConnectHandler>)
+#define Convert_To_Listen_Handler_Shared_Ptr(from) Net_Handler_Convert_Help(std::shared_ptr<from>, std::shared_ptr<INetListenHandler>)
+#define Convert_To_Listen_Handler_Weak_Ptr(from) Net_Handler_Convert_Help(std::shared_ptr<from>, std::weak_ptr<INetListenHandler>)
+
+		// convert to INetHandler
+		native_tb.set_function("to_net_handler_shared_ptr", sol::overload(
+			Convert_To_Net_Handler_Shared_Ptr(LuaTcpConnect),
+			Convert_To_Net_Handler_Shared_Ptr(HttpRspCnn),
+			Convert_To_Net_Handler_Shared_Ptr(LuaTcpListen)
+		));
+		native_tb.set_function("to_net_handler_weak_ptr", sol::overload(
+			Convert_To_Net_Handler_Weak_Ptr(LuaTcpConnect),
+			Convert_To_Net_Handler_Weak_Ptr(HttpRspCnn),
+			Convert_To_Net_Handler_Weak_Ptr(LuaTcpListen)
+		));
+
+		// convert to ICnnHandler
+		native_tb.set_function("to_connect_handler_shared_ptr", sol::overload(
+			Convert_To_Cnn_Handler_Shared_Ptr(LuaTcpConnect),
+			Convert_To_Cnn_Handler_Shared_Ptr(HttpRspCnn)
+		));
+		native_tb.set_function("to_connect_handler_weak_ptr", sol::overload(
+			Convert_To_Cnn_Handler_Weak_Ptr(LuaTcpConnect),
+			Convert_To_Cnn_Handler_Weak_Ptr(HttpRspCnn)
+		));
+
+		// convert to IListenHandler
+		native_tb.set_function("to_listen_handler_shared_ptr", sol::overload(
+			Convert_To_Listen_Handler_Shared_Ptr(LuaTcpListen)
+		));
+
+		native_tb.set_function("to_listen_handler_weak_ptr", sol::overload(
+			Convert_To_Listen_Handler_Weak_Ptr(LuaTcpListen)
+		));
+
+		/////
+
 		native_tb.set_function("to_shared_ptr_net_connect", sol::overload(
 			[](std::shared_ptr<HttpRspCnn> p) { std::shared_ptr<INetConnectHandler> ret = p; return ret; }
 		));

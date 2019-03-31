@@ -44,9 +44,9 @@ std::shared_ptr<INetConnectHandler> LuaTcpListen::GenConnectorHandler()
 {
 	std::shared_ptr<INetConnectHandler> ptr = nullptr;
 	sol::object ret = m_lua_logic[LUA_LISTEN_GEN_CNN](m_lua_logic);
-	if (ret.is<std::shared_ptr<LuaTcpConnect>>())
+	if (ret.is<std::shared_ptr<INetConnectHandler>>())
 	{
-		ptr = ret.as<std::shared_ptr<LuaTcpConnect>>();
+		ptr = ret.as<std::shared_ptr<INetConnectHandler>>();
 	}
 	return ptr;
 }
