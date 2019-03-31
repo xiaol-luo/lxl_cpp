@@ -27,7 +27,7 @@ function ZoneServiceMgr:_accept_cnn_handler_on_close(cnn_handler, err_num)
 end
 
 function ZoneServiceMgr:_accept_cnn_handler_on_recv(cnn_handler, pid, bin)
-    log_debug("ZoneServiceMgr:_accept_cnn_handler_on_recv pid:%s", pid)
+    log_debug("ZoneServiceMgr:_accept_cnn_handler_on_recv netid:%s, pid:%s", cnn_handler:netid(), pid)
     local st = self.accept_cnn_states[cnn_handler:netid()]
     if not st then
         Net.close(cnn_handler:netid())

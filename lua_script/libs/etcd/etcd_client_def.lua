@@ -31,6 +31,7 @@ EtcdConst.Rsp_State_OK = "OK"
 EtcdConst.Rsp_State_Created = "Created"
 EtcdConst.Set = "set"
 EtcdConst.Delete = "delete"
+EtcdConst.Expire = "expire"
 
 EtcdEvent = EtcdEvent or {}
 EtcdEvent.HttpConnect = 0

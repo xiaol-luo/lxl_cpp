@@ -49,7 +49,7 @@ function ZoneServiceMgr:_etcd_service_state_process_watch(ret)
             self:_etcd_service_state_add(node)
         end
     end
-    if EtcdConst.Delete == action then
+    if EtcdConst.Delete == action or EtcdConst.Expire == action then
         self:_etcd_service_state_delete(op_ret[EtcdConst.Node][EtcdConst.Key])
     end
 end
@@ -120,13 +120,17 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
         end
     end
     if 0 == err_num then
-        if not st then
+        if not st or not st.net then
             Net.close(cnn_handler:netid())
         else
             st.net.connected = true
             st.net.ping_ms = 0
             st.net.pong_ms = native.logic_ms()
             st.net.cnn:send(ZoneServiceMgr.Introduce_Self, self.service_name)
+        end
+    else
+        if st and st.net then
+            st.net = nil
         end
     end
 end
@@ -146,7 +150,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid, bin)
-    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_recv pid:%s", pid)
+    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_recv +++ netid:%s, pid:%s", cnn_handler:netid(), pid)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
