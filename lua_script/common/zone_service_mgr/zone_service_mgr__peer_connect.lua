@@ -126,7 +126,8 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
             st.net.connected = true
             st.net.ping_ms = 0
             st.net.pong_ms = native.logic_ms()
-            st.net.cnn:send(ZoneServiceMgr.Introduce_Self, self.service_name)
+            st.net.cnn:send(ZoneServiceMgr.Pid_Introduce_Self, self.etcd_service_key)
+            st.net.cnn:send(ZoneServiceMgr.Pid_For_Test, "for test")
         end
     else
         if st and st.net then
@@ -153,7 +154,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid
     log_debug("ZoneServiceMgr:_peer_cnn_handler_on_recv +++ netid:%s, pid:%s", cnn_handler:netid(), pid)
     local st = nil
     for k, v in pairs(self.service_state_list) do
-        if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
+        if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then --todo:优化效率
             st = v
             break
         end
@@ -166,10 +167,14 @@ function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid
         st.net.cnn:send(ZoneServiceMgr.Pid_Pong)
     elseif ZoneServiceMgr.Pid_Pong == pid then
         st.net.pong_ms = native.logic_ms()
-    elseif ZoneServiceMgr.Introduce_Self == pid then
-        assert(st.st:get_service() == bin)
+    elseif ZoneServiceMgr.Pid_Introduce_Self == pid then
+        -- assert(st.st:get_service() == bin)
+        if st.st:get_service() ~= bin then
+            st.net = nil
+            Net.close(cnn_handler:netid())
+        end
     else
-        log_debug("ZoneServiceMgr:_peer_cnn_handler_on_recv peer_cnn_id:%s, pid:%s", peer_cnn_seq, pid)
+        log_error("ZoneServiceMgr:_peer_cnn_handler_on_recv should not reach here! peer_cnn_id:%s, pid:%s", peer_cnn_seq, pid)
     end
 end
 
@@ -185,20 +190,21 @@ function ZoneServiceMgr:_on_frame_process_peer_connect(now_ms)
             net.pong_ms = nil
             net.connected = false
         end
-        if v.net.ping_ms and now_ms - v.net.ping_ms > self.Cnn_Ping_Ms_Span then
+        if v.net.connected and v.net.ping_ms and now_ms - v.net.ping_ms >= self.Cnn_Ping_Ms_Span then
             v.net.ping_ms = now_ms
             v.net.cnn:send(ZoneServiceMgr.Pid_Ping)
         end
-        if v.net.pong_ms and now_ms - v.net.pong_ms > self.Cnn_Alive_Without_Pong then
+        if v.net.connected and v.net.pong_ms and now_ms - v.net.pong_ms > self.Cnn_Alive_Without_Pong then
             Net.cancel_async(v.net.cnn_async_id)
             Net.close(v.net.cnn:netid())
+            v.net.connected = false
         end
     end
 end
 
-function ZoneServiceMgr:send_to_service_by_host_id(service_id, pid, bin)
+function ZoneServiceMgr:send_by_id(service_id, pid, bin)
     local found_key = nil
-    for k, v in pairs(self.service_state_list) do
+    for k, v in pairs(self.service_state_list) do --todo:优化效率
         if v.st and v.st:get_id() == service_id then
             found_key = k
             break
@@ -210,11 +216,13 @@ function ZoneServiceMgr:send_to_service_by_host_id(service_id, pid, bin)
     return self:send_to_service_by_name(found_key, pid, bin)
 end
 
-function ZoneServiceMgr:send_to_service_by_name(service_name, pid, bin)
+function ZoneServiceMgr:send(service_name, pid, bin)
     local st = self.service_state_list[service_name]
     if not st or not st.net or not st.net.cnn or not st.net.connected then
+        log_debug("ZoneServiceMgr:send not found service %s", service_name)
         return false
     end
+    log_debug("ZoneServiceMgr:send 2")
     return st.net.cnn:send(pid, bin)
 end
 

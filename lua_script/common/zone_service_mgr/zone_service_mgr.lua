@@ -2,12 +2,12 @@
 ZoneServiceMgr = ZoneServiceMgr or class("ZoneServiceMgr")
 ZoneServiceMgr.Pid_Ping = 1
 ZoneServiceMgr.Pid_Pong = 2
-ZoneServiceMgr.Introduce_Self = 3
+ZoneServiceMgr.Pid_Introduce_Self = 3
+ZoneServiceMgr.Pid_For_Test = 4
 
 function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.etcd_setting = etcd_setting
     self.listen_port = listen_port
-    self.service_name = service_name
     self.is_started = false
     self.listen_handler = nil
     self.etcd_client = EtcdClient:new(
@@ -17,7 +17,7 @@ function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.etcd_root_dir = string.rtrim(etcd_setting[Service_Cfg_Const.Etcd_Root_Dir], '/')
     self.etcd_service_key = string.format("%s/%s", self.etcd_root_dir, string.ltrim(service_name, '/'))
     self.etcd_ttl = etcd_setting[Service_Cfg_Const.Etcd_Ttl]
-    self.etcd_service_val = ZoneServiceState:new(id, self.service_name, native.local_net_ip(), self.listen_port)
+    self.etcd_service_val = ZoneServiceState:new(id, self.etcd_service_key, native.local_net_ip(), self.listen_port)
     self.etcd_last_refresh_ttl_ms = 0
     self.etcd_refresh_ttl_span_ms = self.etcd_ttl * 1000 / 4
     self.etcd_last_fetch_service_states_ms = 0
@@ -31,7 +31,7 @@ function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.Check_Cnn_Ms_Span = 1000
     self.accept_cnn_states = {} -- cnn, ping_ms, pong_ms
     self.Cnn_Ping_Ms_Span = 2 * 1000
-    self.Cnn_Alive_Without_Pong = self.Cnn_Ping_Ms_Span * 2
+    self.Cnn_Alive_Without_Pong = self.Cnn_Ping_Ms_Span * 3
 end
 
 function ZoneServiceMgr:start()

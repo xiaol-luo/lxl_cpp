@@ -17,7 +17,7 @@ function ZoneServiceMgr:_accept_cnn_handler_on_open(cnn_handler, err_num)
         st.pong_ms = native.logic_ms()
         st.peer_service_name = nil
         self.accept_cnn_states[cnn_handler:netid()] = st
-        st.cnn:send(ZoneServiceMgr.Introduce_Self, self.service_name)
+        st.cnn:send(ZoneServiceMgr.Pid_Introduce_Self, self.etcd_service_key)
     end
 end
 
@@ -34,15 +34,21 @@ function ZoneServiceMgr:_accept_cnn_handler_on_recv(cnn_handler, pid, bin)
         return
     end
 
+    if not st.peer_service_name and ZoneServiceMgr.Pid_Introduce_Self ~= pid then
+        log_error("ZoneServiceMgr:_accept_cnn_handler_on_recv not know msg from which service. netid:%s, pid:%s", cnn_handler:netid(), pid)
+        return
+    end
+
     if ZoneServiceMgr.Pid_Ping == pid then
         st.cnn:send(ZoneServiceMgr.Pid_Pong)
     elseif ZoneServiceMgr.Pid_Pong == pid then
         st.pong_ms = native.logic_ms()
-    elseif ZoneServiceMgr.Introduce_Self == pid then
+    elseif ZoneServiceMgr.Pid_Introduce_Self == pid then
         log_debug("ZoneServiceMgr:_accept_cnn_handler_on_recv netid:%s, pid:%s, peer_service_name:%s", st.cnn:netid(), pid, bin)
         st.peer_service_name = bin
     else
         log_debug("ZoneServiceMgr:_accept_cnn_handler_on_recv netid:%s, pid:%s", st.cnn:netid(), pid)
+        self:_handle_msg_from_service(st.peer_service_name, pid, bin)
     end
 end
 
@@ -67,10 +73,8 @@ function ZoneServiceMgr:_on_frame_process_accept_connect(now_ms)
     end
 end
 
-function ZoneServiceMgr:send(netid, pid, bin)
-    local st = self.accept_cnn_states[netid]
-    if not st or not st.cnn then
-        return false
-    end
-    return st.cnn:send(pid, bin)
+function ZoneServiceMgr:_handle_msg_from_service(service_name, pid, bin)
+    log_debug("ZoneServiceMgr:_handle_msg_from_service %s %s %s", service_name, pid, bin or "nil")
+    self:send(service_name, pid, bin)
 end
+
