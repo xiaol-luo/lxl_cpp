@@ -106,7 +106,7 @@ function ZoneServiceMgr:_etcd_pull_service_states()
 end
 
 function ZoneServiceMgr:_etcd_pull_service_status_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_pull_service_status_cb %s %s", op_id, ret:is_ok())
+    log_debug("ZoneServiceMgr:_etcd_pull_service_status_cb %s %s", op_id, ret)
     if not self.is_started then
         return
     end

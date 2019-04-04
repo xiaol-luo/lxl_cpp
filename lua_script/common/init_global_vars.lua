@@ -11,3 +11,6 @@ sproto_core = require "sproto.core"
 --lua下谷歌的pb
 pb = require("pb")
 pb_protoc = require "libs.lua_protobuf.protoc"
+
+-- base64
+Base64 = require("libs.base64")

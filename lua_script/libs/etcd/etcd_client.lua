@@ -1,12 +1,23 @@
 
 EtcdClient = EtcdClient or class("EtcdClient")
 
-function EtcdClient:ctor(host)
+function EtcdClient:ctor(host, user, pwd)
     self.host = string.rtrim(host, "/")
+    self.user = user
+    self.pwd = pwd
 end
 
 function EtcdClient:get_host()
     return self.host
+end
+
+function EtcdClient:get_heads(t)
+    local tb = t and table.clone(t) or {}
+    if self.user then
+        local user_pwd_str = Base64.encode(string.format("%s:%s", self.user, self.pwd or ""))
+        tb[EtcdConst.Authorization] = string.format("Basic %s", user_pwd_str)
+    end
+    return tb
 end
 
 function EtcdClient:example_cb(id, op, result)

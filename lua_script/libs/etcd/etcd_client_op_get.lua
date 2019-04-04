@@ -42,7 +42,7 @@ function EtcdClientOpGet:execute(etcd_client)
     local op_id = HttpClient.get(url,
             Functional.make_closure(self._handle_result_cb, self),
             Functional.make_closure(self._handle_event_cb, self),
-            self.http_heads)
+            etcd_client:get_heads(self.http_heads))
     return op_id;
 end
 

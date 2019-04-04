@@ -29,9 +29,11 @@ EtcdConst.Expiration = "expiration"
 EtcdConst.Rsp_State = "rsp_state"
 EtcdConst.Rsp_State_OK = "OK"
 EtcdConst.Rsp_State_Created = "Created"
+EtcdConst.Rsp_State_Unauthorized = "Unauthorized"
 EtcdConst.Set = "set"
 EtcdConst.Delete = "delete"
 EtcdConst.Expire = "expire"
+EtcdConst.Authorization = "Authorization"
 
 EtcdEvent = EtcdEvent or {}
 EtcdEvent.HttpConnect = 0
