@@ -7,6 +7,7 @@ serpent = require("libs.serpent")
 --云风的pb
 sproto = require "libs.sproto.sproto"
 sproto_core = require "sproto.core"
+sproto_parser = require("libs.sproto.sprotoparser")
 
 --lua下谷歌的pb
 pb = require("pb")

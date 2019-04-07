@@ -33,7 +33,7 @@ function sproto.sharenew(cobj)
 end
 
 function sproto.parse(ptext)
-	local parser = require "sprotoparser"
+	local parser = require "libs.sproto.sprotoparser"
 	local pbin = parser.parse(ptext)
 	return sproto.new(pbin)
 end

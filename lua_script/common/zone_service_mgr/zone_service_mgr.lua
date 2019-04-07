@@ -5,6 +5,9 @@ ZoneServiceMgr.Pid_Pong = 2
 ZoneServiceMgr.Pid_Introduce_Self = 3
 ZoneServiceMgr.Pid_For_Test = 4
 
+ZoneServiceMgr.Pid_For_Test_Sproto = 5
+ZoneServiceMgr.Pid_For_Test_Pb = 6
+
 function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.etcd_setting = etcd_setting
     self.listen_port = listen_port

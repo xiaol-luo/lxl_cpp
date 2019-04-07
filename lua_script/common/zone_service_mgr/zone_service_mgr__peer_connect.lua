@@ -127,7 +127,10 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
             st.net.ping_ms = 0
             st.net.pong_ms = native.logic_ms()
             st.net.cnn:send(ZoneServiceMgr.Pid_Introduce_Self, self.etcd_service_key)
-            st.net.cnn:send(ZoneServiceMgr.Pid_For_Test, "for test")
+            -- st.net.cnn:send(ZoneServiceMgr.Pid_For_Test, "for test")
+            -- local test_tb = { id=1235784, name="xxx", }
+            -- st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Sproto, PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Sproto, test_tb))
+            -- st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Pb, PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Pb, test_tb))
         end
     else
         if st and st.net then

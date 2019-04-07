@@ -1,0 +1,18 @@
+message Ping
+{
+      optional string name        = 1;
+      optional int64  id = 2;
+}
+
+message Pong
+{
+      optional string name        = 1;
+      optional int64  id = 2;
+}
+
+message TestPb
+{
+      optional string name        = 1;
+      optional int64  id = 2;
+}
+

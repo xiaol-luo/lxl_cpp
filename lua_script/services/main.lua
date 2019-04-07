@@ -29,6 +29,7 @@ local opt_op_fn_map = {
     [MAIN_ARGS_DATA_DIR] = ParseArgs.make_closure(ParseArgs.fill_one_arg, MAIN_ARGS_DATA_DIR),
     [MAIN_ARGS_LOGIC_PARAM] = ParseArgs.make_closure(ParseArgs.fill_args, MAIN_ARGS_LOGIC_PARAM),
 }
+PROTO_PARSER = nil
 
 function start_script(main_args)
     MAIN_ARGS = ParseArgs.parse_main_args(main_args, ParseArgs.setup_parse_fns(opt_op_fn_map))
@@ -44,6 +45,24 @@ function start_script(main_args)
     xml.print_table(ALL_SERVICE_SETTING )
     local logic_main_file = string.format("services.%s.service_main", service_name)
     -- log_debug(logic_main_file)
+
+    PROTO_PARSER = ProtoParser:new()
+    local proto_dir = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], "proto")
+    log_debug(proto_dir)
+    PROTO_PARSER:add_search_dirs({ proto_dir })
+    local test_files = {
+        [ProtoParser.Const.Pb]=
+        {
+            "test_pb.txt",
+        },
+        [ProtoParser.Const.Sproto]=
+        {
+            "test_sproto.txt",
+        },
+    }
+    local init_ret = PROTO_PARSER:init(test_files)
+    log_debug("PROTO_PARSER:init %s", init_ret)
+
     require(logic_main_file)
     ServiceMain.start()
 end

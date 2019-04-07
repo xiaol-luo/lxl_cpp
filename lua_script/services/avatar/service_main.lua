@@ -19,7 +19,7 @@ function ServiceMain.start()
             tonumber(instance_setting[SCC.Listen_Peer_Port]),
             MAIN_ARGS[MAIN_ARGS_SERVICE])
     zone_service_mgr:start()
-    on_frame_timeid = native.timer_firm(ServiceMain.on_frame, 1 * 1000, -1)
+    on_frame_timeid = native.timer_firm(ServiceMain.on_frame, 2 * 1000, -1)
 end
 
 function ServiceMain.OnNotifyQuitGame()
@@ -41,4 +41,11 @@ function ServiceMain.on_frame()
     if zone_service_mgr then
         zone_service_mgr:on_frame()
     end
+    local test_tb = {
+        id=1235784,
+        name="xxx",
+    }
+
+    -- log_debug("encode 1 xxxxxxxxxxx %s", PROTO_PARSER:encode(1, test_tb))
+    -- log_debug("decode 1 yyyyyyyyyyy %s", PROTO_PARSER:decode(1, PROTO_PARSER:encode(1, test_tb)))
 end

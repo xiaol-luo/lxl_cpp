@@ -74,7 +74,8 @@ function ZoneServiceMgr:_on_frame_process_accept_connect(now_ms)
 end
 
 function ZoneServiceMgr:_handle_msg_from_service(service_name, pid, bin)
-    log_debug("ZoneServiceMgr:_handle_msg_from_service %s %s %s", service_name, pid, bin or "nil")
-    self:send(service_name, pid, bin)
+    local tb = PROTO_PARSER:decode(pid, bin)
+    log_debug("ZoneServiceMgr:_handle_msg_from_service %s %s %s", service_name, pid, tb or "nil")
+    -- self:send(service_name, pid, bin)
 end
 
