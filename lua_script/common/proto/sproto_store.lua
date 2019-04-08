@@ -6,6 +6,7 @@ function SprotoStore:ctor()
     -- self.proto_name_sp_map = {} -- todo: 提高效率
     self.search_dirs = {}
     table.insert(self.search_dirs, "")
+    self.default_value_mts = {}
 end
 
 function SprotoStore:add_search_dirs(search_dirs)
@@ -24,13 +25,19 @@ function SprotoStore:load_files(files)
             local file_path = path.combine(dir, file)
             local file_attrs = lfs.attributes(file_path)
             if file_attrs then -- todo: 增加错误处理
-                local f = io.open(file_path)
-                local f_content = f:read("a")
-                io.close(f)
-                local pbin = sproto_parser.parse(f_content, file_path)
-                local sp = sproto.new(pbin)
-                table.insert(self.sps, sp)
-                parse_succ = nil ~= sp
+                local f = nil
+                local fn = function()
+                    f = io.open(file_path)
+                    local f_content = f:read("a")
+                    local pbin = sproto_parser.parse(f_content, file_path)
+                    local sp = sproto.new(pbin)
+                    table.insert(self.sps, sp)
+                    parse_succ = nil ~= sp
+                end
+                safe_call(fn)
+                if f then
+                    io.close(f)
+                end
                 break
             end
         end
@@ -44,7 +51,7 @@ end
 
 function SprotoStore:get_sp(proto_name)
     local sp = nil
-    for _, v in pairs(self.sps) do
+    for _, v in pairs(self.sps) do -- todo: 提高效率
         if v:exist_type(proto_name) then
             sp = v
             break
@@ -54,20 +61,31 @@ function SprotoStore:get_sp(proto_name)
 end
 
 function SprotoStore:encode(proto_name, param)
-    local ret = nil
+    local is_ok = false
+    local ret = "proto_type not found"
     local sp = self:get_sp(proto_name)
     if sp then
         param = param or {}
-        ret = sp:encode(proto_name, param)
+        is_ok, ret = safe_call(sp.encode, sp, proto_name, param)
     end
-    return ret
+    return is_ok, ret
 end
 
 function SprotoStore:decode(proto_name, blob)
-    local ret = nil
+    local is_ok = false
+    local ret = "proto_type not found"
     local sp = self:get_sp(proto_name)
     if sp then
-        ret = sp:decode(proto_name, blob)
+        local default_val_mt = self.default_value_mts[proto_name]
+        if not default_val_mt then
+            default_val_mt = {}
+            default_val_mt.__index = sp:default(proto_name)
+            self.default_value_mts[proto_name] = default_val_mt
+        end
+        is_ok, ret = safe_call(sp.decode, sp, proto_name, blob)
+        if is_ok then
+            setmetatable(ret, default_val_mt)
+        end
     end
-    return ret
+    return is_ok, ret
 end

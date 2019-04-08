@@ -1,18 +1,20 @@
+syntax="proto3"
+
 message Ping
 {
-      optional string name        = 1;
-      optional int64  id = 2;
+      string name = 1;
+      int64  id = 2;
 }
 
 message Pong
 {
-      optional string name        = 1;
-      optional int64  id = 2;
+      string name = 1;
+      int64  id = 2;
 }
 
 message TestPb
 {
-      optional string name        = 1;
-      optional int64  id = 2;
+      string name = 1;
+      int64  id = 2;
 }
 

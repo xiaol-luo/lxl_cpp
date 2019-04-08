@@ -128,9 +128,19 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
             st.net.pong_ms = native.logic_ms()
             st.net.cnn:send(ZoneServiceMgr.Pid_Introduce_Self, self.etcd_service_key)
             -- st.net.cnn:send(ZoneServiceMgr.Pid_For_Test, "for test")
-            -- local test_tb = { id=1235784, name="xxx", }
-            -- st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Sproto, PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Sproto, test_tb))
-            -- st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Pb, PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Pb, test_tb))
+--[[
+            local test_tb = { id=1235784, name="xxx", }
+            local is_ok, block = PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Sproto, test_tb)
+            log_debug("--------------------------- is %s 1 %s", is_ok, #block)
+            if is_ok then
+                st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Sproto, block)
+            end
+            is_ok, block = PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Pb, test_tb)
+            log_debug("--------------------------- is %s 2 %s", is_ok, #block)
+            if is_ok then
+                st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Pb, block)
+            end
+--]]
         end
     else
         if st and st.net then

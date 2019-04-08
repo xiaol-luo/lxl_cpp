@@ -59,16 +59,44 @@ function ProtoParser:encode(proto_id, param)
     return proto_detail[Const.Store]:encode(proto_detail[Const.Name], param)
 end
 
-function ProtoParser:decode(proto_id, param)
-    local ret = nil
+function ProtoParser:decode(proto_id, block)
+    local is_ok = true
+    local ret = {}
     local proto_detail = self.id2proto_detail[proto_id]
     if proto_detail then
-        ret = proto_detail[Const.Store]:decode(proto_detail[Const.Name], param)
-    else
-        log_warn("ProtoParser:decode find no proto_detail of proto id %s", proto_id)
+        is_ok, ret = proto_detail[Const.Store]:decode(proto_detail[Const.Name], block)
     end
-    return ret
+    return is_ok, ret
 end
+
+function ProtoParser:encode_by_name(proto_type, proto_name, tb)
+    local store = self.stores[proto_type]
+    assert(store)
+    return store:encode(proto_name, tb)
+end
+
+function ProtoParser:decode_by_name(proto_type, proto_name, block)
+    local store = self.stores[proto_type]
+    assert(store)
+    return store:decode(proto_name, block)
+end
+
+function ProtoParser:pb_encode(proto_name, tb)
+    return self:encode_by_name(Const.Pb, proto_name, tb)
+end
+
+function ProtoParser:pb_decode(proto_name, block)
+    return self:decode_by_name(Const.Pb, proto_name, block)
+end
+
+function ProtoParser:sproto_encode(proto_name, tb)
+    return self:encode_by_name(Const.Sproto, proto_name, tb)
+end
+
+function ProtoParser:sproto_decode(proto_name, block)
+    return self:decode_by_name(Const.Sproto, proto_name, block)
+end
+
 
 
 

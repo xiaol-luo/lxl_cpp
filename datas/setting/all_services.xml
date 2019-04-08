@@ -2,6 +2,7 @@
 <root>
 	<etcd>
 		<host>http://124.156.106.95:2379</host>
+		<!-- <host>http://127.0.0.1:2379</host> -->
 		<user>root</user>
 		<pwd>xiaolzz</pwd>
 		<root_dir>/zone_1024/</root_dir>
