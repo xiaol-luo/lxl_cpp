@@ -17,7 +17,7 @@ function ZoneServiceMgr:_etcd_service_state_process_pull(ret)
         local node = parse_node(v)
         assert(not st_nodes[v.key], string.format("dumplicate key %s", v.key))
         st_nodes[node.key] = node
-        log_debug("k, v %s",  key, string.toprint(node))
+        -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull k, v %s, %s",  node.key, string.toprint(node))
     end
     local exist_keys = table.keys(self.service_state_list)
     for _, exist_key in pairs(exist_keys) do
