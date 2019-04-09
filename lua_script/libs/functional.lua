@@ -4,9 +4,9 @@ local help_fns = {}
 
 function Functional.make_closure(fn, ...)
     local t = {...}
-    t.n = select('#', ...)
-    assert(#t < #help_fns, string.format("write more help fns #t=%d", #t))
-    local ret = help_fns[#t](fn, t, error_handler)
+    local t_len = select('#', ...)
+    assert(t_len < #help_fns, string.format("write more help fns #t=%d", t_len))
+    local ret = help_fns[t_len](fn, t, error_handler)
     return ret
 end
 

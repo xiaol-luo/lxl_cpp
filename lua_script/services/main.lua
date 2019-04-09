@@ -50,17 +50,9 @@ function start_script(main_args)
     local proto_dir = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], "proto")
     log_debug(proto_dir)
     PROTO_PARSER:add_search_dirs({ proto_dir })
-    local test_files = {
-        [ProtoParser.Const.Pb]=
-        {
-            "test_pb.txt",
-        },
-        [ProtoParser.Const.Sproto]=
-        {
-            "test_sproto.txt",
-        },
-    }
-    local init_ret = PROTO_PARSER:init(test_files)
+    local proto_files = {} -- Todo: set this table by config
+    local pid_proto_map = {} -- Todo: set this table by config
+    local init_ret = PROTO_PARSER:init(proto_files, pid_proto_map)
     log_debug("PROTO_PARSER:init %s", init_ret)
 
     require(logic_main_file)

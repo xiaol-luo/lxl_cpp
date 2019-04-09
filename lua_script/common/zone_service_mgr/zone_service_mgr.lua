@@ -35,6 +35,7 @@ function ZoneServiceMgr:ctor(etcd_setting, id, listen_port, service_name)
     self.accept_cnn_states = {} -- cnn, ping_ms, pong_ms
     self.Cnn_Ping_Ms_Span = 2 * 1000
     self.Cnn_Alive_Without_Pong = self.Cnn_Ping_Ms_Span * 3
+    self.msg_handlers = {}
 end
 
 function ZoneServiceMgr:start()
@@ -151,7 +152,7 @@ function ZoneServiceMgr:etcd_service_val_refresh_ttl()
 end
 
 function ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb %s %s", op_id, ret:is_ok())
+    -- log_debug("ZoneServiceMgr:_etcd_service_val_refresh_ttl_cb %s %s", op_id, ret:is_ok())
     if not ret:is_ok() and self.is_started then
         self:etcd_service_val_update()
     end
@@ -162,15 +163,16 @@ function ZoneServiceMgr:_listen_handler_gen_cnn(listen_handler)
 end
 
 function ZoneServiceMgr:_listen_handler_on_open(listen_handler, err_num)
-    log_debug("ZoneServiceMgr:_listen_handler_on_open %s", err_num)
+    log_debug("ZoneServiceMgr:_listen_handler_on_open netid:%s, err_num:%s", listen_handler:netid(), err_num)
     self.etcd_service_val:set_online(0 == err_num)
     self:etcd_service_val_update()
 end
 
 function ZoneServiceMgr:_listen_handler_on_close(listen_handler, err_num)
-    log_debug("ZoneServiceMgr:_listen_handler_on_close %s", err_num)
+    log_debug("ZoneServiceMgr:_listen_handler_on_close netid:%s, err_num:%s", listen_handler:netid(), err_num)
     self.etcd_service_val:set_online(false)
     self.etcd_service_val_update()
 end
+
 
 

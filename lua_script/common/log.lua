@@ -1,9 +1,10 @@
 
 function string_format(fmt_str, ...)
     local str_list = {}
-    for i=1, select('#', ...) do
-        local arg = select(i, ...)
-        arg = arg or "nil"
+    local tb = {...}
+    local tb_len = select('#', ...)
+    for i=1, tb_len do
+        local arg = tb[i]
         if "table" ~= type(arg) then
             table.insert(str_list, tostring(arg))
         else

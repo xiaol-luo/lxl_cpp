@@ -37,10 +37,13 @@ local files = {
     "common.zone_service_mgr.zone_service_state",
     "common.zone_service_mgr.zone_service_mgr__peer_connect",
     "common.zone_service_mgr.zone_service_mgr__accept_connect",
+    "common.proto.proto_def",
     "common.proto.proto_store_base",
     "common.proto.protobuf_store",
     "common.proto.sproto_store",
     "common.proto.proto_parser",
+    "common.msg_handler.msg_handler_base",
+    "common.msg_handler.zone_service_msg_handler_base",
     "services.service_def",
     "common.init_global_vars",
 }

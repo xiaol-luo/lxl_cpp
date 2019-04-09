@@ -111,7 +111,7 @@ function ZoneServiceMgr:make_peer_cnn(peer_cnn_seq)
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_open %s %s", peer_cnn_seq, err_num)
+    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_open peer_cnn_seq:%s, netid:%s err_num:%s", peer_cnn_seq, cnn_handler:netid(), err_num)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
@@ -127,20 +127,6 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
             st.net.ping_ms = 0
             st.net.pong_ms = native.logic_ms()
             st.net.cnn:send(ZoneServiceMgr.Pid_Introduce_Self, self.etcd_service_key)
-            -- st.net.cnn:send(ZoneServiceMgr.Pid_For_Test, "for test")
---[[
-            local test_tb = { id=1235784, name="xxx", }
-            local is_ok, block = PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Sproto, test_tb)
-            log_debug("--------------------------- is %s 1 %s", is_ok, #block)
-            if is_ok then
-                st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Sproto, block)
-            end
-            is_ok, block = PROTO_PARSER:encode(ZoneServiceMgr.Pid_For_Test_Pb, test_tb)
-            log_debug("--------------------------- is %s 2 %s", is_ok, #block)
-            if is_ok then
-                st.net.cnn:send(ZoneServiceMgr.Pid_For_Test_Pb, block)
-            end
---]]
         end
     else
         if st and st.net then
@@ -150,7 +136,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_close %s", err_num)
+    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_close peer_cnn_seq:%s, netid:%s err_num:%s", peer_cnn_seq, cnn_handler:netid(), err_num)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
@@ -164,7 +150,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid, bin)
-    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_recv +++ netid:%s, pid:%s", cnn_handler:netid(), pid)
+    -- log_debug("ZoneServiceMgr:_peer_cnn_handler_on_recv +++ netid:%s, pid:%s", cnn_handler:netid(), pid)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then --todo:优化效率
@@ -173,7 +159,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid
         end
     end
     if not st then
-        Net.close(peer_cnn_id)
+        Net.close(cnn_handler:netid())
         return
     end
     if ZoneServiceMgr.Pid_Ping == pid then
@@ -181,7 +167,6 @@ function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid
     elseif ZoneServiceMgr.Pid_Pong == pid then
         st.net.pong_ms = native.logic_ms()
     elseif ZoneServiceMgr.Pid_Introduce_Self == pid then
-        -- assert(st.st:get_service() == bin)
         if st.st:get_service() ~= bin then
             st.net = nil
             Net.close(cnn_handler:netid())
@@ -235,7 +220,6 @@ function ZoneServiceMgr:send(service_name, pid, bin)
         log_debug("ZoneServiceMgr:send not found service %s", service_name)
         return false
     end
-    log_debug("ZoneServiceMgr:send 2")
     return st.net.cnn:send(pid, bin)
 end
 

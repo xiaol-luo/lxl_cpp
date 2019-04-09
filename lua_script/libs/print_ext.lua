@@ -1,5 +1,5 @@
 
-local old_print = print
+old_print = print
 
 function print(...)
     local str_list = {}
