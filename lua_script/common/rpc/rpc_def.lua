@@ -18,6 +18,6 @@ Rpc_Error =
 {
     None = "None",
     Wait_Expired = "Wait_Expired",
+    Remote_Host_Error = "Remote_Host_Error",
     Unknown = "Unknown",
-
 }

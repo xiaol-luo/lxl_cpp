@@ -51,9 +51,15 @@ end
 function ServiceMain.on_frame()
     if ServiceMain.zs_mgr then
         ServiceMain.zs_msg_handler:send(ServiceMain.zs_mgr.etcd_service_key, 5, {})
+        -- ServiceMain.zs_msg_handler:send(ServiceMain.zs_mgr.etcd_service_key, System_Pid.Zone_Service_Rpc_Req, {})
         ServiceMain.zs_mgr:on_frame()
     end
     if ServiceMain.zs_rpc then
+        local fn = function(rpc_err, ...)
+            log_debug("ServiceMain.zs_rpc:call callback reach rpc_err:%s, params:%s", rpc_err, {...})
+        end
+        -- ServiceMain.zs_rpc:call(fn, ServiceMain.zs_mgr.etcd_service_key, "hello_world", 1, 2, "xxx")
+        ServiceMain.zs_rpc:call(fn, ServiceMain.zs_mgr.etcd_service_key, "hello_world", nil, nil, "xxx", nil, 1, nil)
         ServiceMain.zs_rpc:on_frame()
     end
 
