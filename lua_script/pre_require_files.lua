@@ -44,6 +44,11 @@ local files = {
     "common.proto.proto_parser",
     "common.msg_handler.msg_handler_base",
     "common.msg_handler.zone_service_msg_handler_base",
+    "common.rpc.rpc_def",
+    "common.rpc.rpc_mgr_base",
+    "common.rpc.rpc_req",
+    "common.rpc.rpc_rsp",
+    "common.rpc.zone_service.zone_service_rpc_mgr",
     "services.service_def",
     "common.init_global_vars",
 }

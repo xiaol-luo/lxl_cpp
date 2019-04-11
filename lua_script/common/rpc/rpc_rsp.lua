@@ -2,10 +2,9 @@
 
 RpcRsp = RpcRsp or class("RpcRsp")
 
-function RpcRsp:ctor()
-    self.from_host = nil
-    self.from_id = nil
-    self.call_fn = nil
+function RpcRsp:ctor(from_host, from_id)
+    self.from_host = from_host
+    self.from_id = from_id
     self.call_fn_params = nil
     self.call_fn_params_count = nil
     self.delay_execute_fns = {}

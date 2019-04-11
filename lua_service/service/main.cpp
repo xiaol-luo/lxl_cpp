@@ -48,8 +48,6 @@ int main (int argc, char **argv)
 	WSAStartup(0x0201, &wsa_data);
 #endif
 
-	ExtractNetIps();
-
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc <= Args_Index_Min_Value)
 	{

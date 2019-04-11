@@ -10,8 +10,10 @@ function MsgHandlerBase:init(...)
 end
 
 function MsgHandlerBase:set_handler_msg_fn(pid, fn)
-    assert(pid and fn)
-    assert(not self.handle_msg_fns[pid])
+    assert(pid)
+    if fn then
+        assert(not self.handle_msg_fns[pid])
+    end
     self.handle_msg_fns[pid] = fn
 end
 

@@ -2,6 +2,7 @@
 ServiceMain = ServiceMain or {}
 ServiceMain.zs_mgr = nil
 ServiceMain.zs_msg_handler = nil
+ServiceMain.zs_rpc = nil
 
 local on_frame_timeid = nil
 
@@ -23,6 +24,8 @@ function ServiceMain.start()
     ServiceMain.zs_msg_handler:init()
     ServiceMain.zs_mgr:add_msg_handler(ServiceMain.zs_msg_handler)
     ServiceMain.zs_mgr:start()
+    ServiceMain.zs_rpc = ZoneServiceRpcMgr:new()
+    ServiceMain.zs_rpc:init(ServiceMain.zs_msg_handler)
     on_frame_timeid = native.timer_firm(ServiceMain.on_frame, 1 * 1000, -1)
 end
 
@@ -30,6 +33,10 @@ function ServiceMain.OnNotifyQuitGame()
     if on_frame_timeid then
         native.timer_remove(on_frame_timeid)
         on_frame_timeid = nil
+    end
+    if ServiceMain.zs_rpc then
+        ServiceMain.zs_rpc:destroy()
+        ServiceMain.zs_rpc = nil
     end
     if ServiceMain.zs_mgr then
         ServiceMain.zs_mgr:stop()
@@ -45,6 +52,9 @@ function ServiceMain.on_frame()
     if ServiceMain.zs_mgr then
         ServiceMain.zs_msg_handler:send(ServiceMain.zs_mgr.etcd_service_key, 5, {})
         ServiceMain.zs_mgr:on_frame()
+    end
+    if ServiceMain.zs_rpc then
+        ServiceMain.zs_rpc:on_frame()
     end
 
     local test_tb = {
