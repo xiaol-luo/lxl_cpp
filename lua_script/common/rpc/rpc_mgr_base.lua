@@ -76,6 +76,11 @@ function RpcMgrBase:respone(rsp_id, remote_host, req_id, action, ...)
     end
     if remove_rsp then
         self.rsp_list[rsp_id] = nil
+        local delay_execute_fns = rpc_rsp.delay_execute_fns
+        self.delay_execute_fns = {}
+        for _, fn in ipairs(delay_execute_fns) do
+            safe_call(fn)
+        end
     end
 end
 
@@ -107,7 +112,7 @@ function RpcMgrBase:handle_req_msg(from_host, pid, msg)
     log_debug("RpcMgrBase:handle_req_msg %s %s %s", from_host, pid, msg)
     -- msg contains id, fn_name, fn_params
     local rsp_id = NextRpcUniqueId()
-    local rpc_rsp = RpcRsp:new(rsp_id, from_host, msg.id)
+    local rpc_rsp = RpcRsp:new(rsp_id, from_host, msg.id, self)
     self.rsp_list[rpc_rsp.id] = rpc_rsp
     if not msg.id or not msg.fn_name then
         self:respone(rsp_id, from_host, msg.id, Rpc_Const.Action_Report_Error, "request miss req_id or fn_name")

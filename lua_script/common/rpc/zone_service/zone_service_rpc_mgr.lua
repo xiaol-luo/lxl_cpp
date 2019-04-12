@@ -17,7 +17,8 @@ function ZoneServiceRpcMgr:init(zs_msg_handler)
 
     -- for test
     self.rsp_process_fn["hello_world"] = function(rsp, ...)
-        self:respone(rsp.id, rsp.from_host, rsp.from_id, Rpc_Const.Action_Return_Result, ...)
+        -- self:respone(rsp.id, rsp.from_host, rsp.from_id, Rpc_Const.Action_Return_Result, ...)
+        rsp:respone(...)
     end
 end
 
