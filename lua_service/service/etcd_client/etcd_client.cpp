@@ -151,7 +151,7 @@ uint64_t EtcdClient::CmpDelete(const std::string & key, uint64_t prev_index, con
 sol::optional<sol::protected_function> EtcdClient::MakeOpCbFn(IEtcdClient::CallbackFn fn)
 {
 	if (nullptr == fn)
-		return sol::nil;
+		return sol::optional<sol::protected_function>();
 
 	sol::state_view sv(m_lua_state);
 	sol::function help_fn = sv["EtcdClientCxx"]["make_op_cb_fn"];
