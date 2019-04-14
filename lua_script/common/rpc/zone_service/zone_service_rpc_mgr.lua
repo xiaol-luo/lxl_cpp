@@ -14,35 +14,6 @@ function ZoneServiceRpcMgr:init(zs_msg_handler)
     end
     self.msg_handler:set_handler_msg_fn(System_Pid.Zone_Service_Rpc_Rsp, handle_fn)
     self.msg_handler:set_handler_msg_fn(System_Pid.Zone_Service_Rpc_Req, handle_fn)
-
-    -- for test
-    self.rsp_process_fn["hello_world"] = function(rsp, ...)
-        local params = {...}
-        local param_size = select('#', ...)
-        -- self:respone(rsp.id, rsp.from_host, rsp.from_id, Rpc_Const.Action_Return_Result, ...)
-        local co = coroutine.create(function(rsp, ...)
-            log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 2")
-            local st, p1, p2 = ServiceMain.avatar_rpc_client:simple_rsp("p1", "p2")
-            log_debug("in process fn hello world 1 %s %s %s", st, p1, p2)
-            rsp:add_delay_execute(function ()
-                ServiceMain.avatar_rpc_client:call(nil, "simple_rsp", 1, 2, 3)
-            end)
-            st, p1, p2 = ServiceMain.avatar_rpc_client:simple_rsp("p3", "p4")
-            log_debug("in process fn hello world 2 %s %s %s", st, p1, p2)
-
-            st, p1, p2 = ServiceMain.avatar_rpc_client:xxxx()
-
-            rsp:respone(...)
-        end)
-        rsp.hold_co = co
-        log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 1")
-        coroutine_resume(co, rsp, ...)
-        log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 3")
-    end
-
-    self.rsp_process_fn["simple_rsp"] = function(rsp, ...)
-        self:respone(rsp.id, rsp.from_host, rsp.from_id, Rpc_Const.Action_Return_Result, ...)
-    end
 end
 
 function ZoneServiceRpcMgr:destory()

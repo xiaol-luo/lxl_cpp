@@ -6,7 +6,7 @@ function RpcMgrBase:ctor()
     self.last_check_expired_ms = 0
     self.Check_Expired_Span_ms = 1000
     self.rsp_list = {}
-    self.rsp_process_fn = {}
+    self.req_msg_process_fn = {}
     self.delay_execute_fns = {}
 end
 
@@ -40,6 +40,10 @@ end
 function RpcMgrBase:unpack_params(param_block)
     assert("should not reach here")
     -- return ...
+end
+
+function RpcMgrBase:set_req_msg_process_fn(fn_name, fn)
+    self.req_msg_process_fn[fn_name] = fn
 end
 
 function RpcMgrBase:call(cb_fn, remote_host, remote_fn, ...)
@@ -121,7 +125,7 @@ function RpcMgrBase:handle_req_msg(from_host, pid, msg)
         self:respone(rsp_id, from_host, msg.id, Rpc_Const.Action_Report_Error, "request miss req_id or fn_name")
         return
     end
-    local fn = self.rsp_process_fn[msg.fn_name]
+    local fn = self.req_msg_process_fn[msg.fn_name]
     if not fn then
         self:respone(rsp_id, from_host, msg.id, Rpc_Const.Action_Report_Error, string.format("not found process function %s", msg.fn_name))
         return
