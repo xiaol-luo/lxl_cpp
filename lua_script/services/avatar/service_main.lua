@@ -71,14 +71,14 @@ function ServiceMain.on_frame()
 end
 
 function for_test()
-    ServiceMain.avatar_rpc_client:setup_corotine_fns({"hello_world", "simple_rsp"})
+    ServiceMain.avatar_rpc_client:setup_coroutine_fns({"hello_world", "simple_rsp"})
     g_co = coroutine.create(function ()
         log_debug("reach here 1")
         local v1, v2, v3 = ServiceMain.avatar_rpc_client:hello_world(1, "aaa")
         log_debug("xxxxxxxxxxxx %s %s %s", v1, v2, v3)
 
         v1, v2, v3 = ServiceMain.avatar_rpc_client:hello_world(2, "bbb")
-        log_debug("xxxxxxxxxxxx2 %s %s %s", v1, v2, v3)
+        log_debug("xxxxxxxxxxxx 2 %s %s %s", v1, v2, v3)
     end)
 
     local hello_world_fn = function(rsp, ...)
