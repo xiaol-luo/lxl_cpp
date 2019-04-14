@@ -17,8 +17,29 @@ function ZoneServiceRpcMgr:init(zs_msg_handler)
 
     -- for test
     self.rsp_process_fn["hello_world"] = function(rsp, ...)
+        local params = {...}
+        local param_size = select('#', ...)
         -- self:respone(rsp.id, rsp.from_host, rsp.from_id, Rpc_Const.Action_Return_Result, ...)
-        rsp:respone(...)
+        local co = coroutine.create(function(rsp, ...)
+            log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 2")
+            local st, p1, p2 = ServiceMain.avatar_rpc_client:simple_rsp("p1", "p2")
+            log_debug("in process fn hello world 1 %s %s %s", st, p1, p2)
+            st, p1, p2 = ServiceMain.avatar_rpc_client:simple_rsp("p3", "p4")
+            log_debug("in process fn hello world 2 %s %s %s", st, p1, p2)
+
+            rsp:add_delay_execute(function ()
+                ServiceMain.avatar_rpc_client:call(nil, "simple_rsp", 1, 2, 3)
+            end)
+            rsp:respone(...)
+        end)
+        rsp.hold_co = co
+        log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 1")
+        coroutine.resume(co, rsp, ...)
+        log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 3")
+    end
+
+    self.rsp_process_fn["simple_rsp"] = function(rsp, ...)
+        self:respone(rsp.id, rsp.from_host, rsp.from_id, Rpc_Const.Action_Return_Result, ...)
     end
 end
 
@@ -43,7 +64,7 @@ function ZoneServiceRpcMgr:on_msg(from_host, pid, block, ...)
 end
 
 function ZoneServiceRpcMgr:net_call(req_id, remote_host, remote_fn, ...)
-    log_debug("ZoneServiceRpcMgr:net_call %s", {...})
+    -- log_debug("ZoneServiceRpcMgr:net_call %s", {...})
     local ret = Rpc_Error.Unknown
     if self.msg_handler then
         local msg = {}
@@ -58,7 +79,7 @@ function ZoneServiceRpcMgr:net_call(req_id, remote_host, remote_fn, ...)
 end
 
 function ZoneServiceRpcMgr:net_response(remote_host, req_id, action, ...)
-    log_debug("ZoneServiceRpcMgr:net_response %s", {...})
+    -- log_debug("ZoneServiceRpcMgr:net_response %s", {...})
     local ret = Rpc_Error.Unknown
     if self.msg_handler then
         local msg = {}
@@ -81,7 +102,7 @@ function ZoneServiceRpcMgr:pack_params(...)
         tb.params[tostring(i)] = params[i]
     end
     local ret = rapidjson.encode(tb)
-    log_debug("-- ZoneServiceRpcMgr:pack_params ret=%s, tb=%s", ret, tb)
+    -- log_debug("-- ZoneServiceRpcMgr:pack_params ret=%s, tb=%s", ret, tb)
     return ret
 end
 

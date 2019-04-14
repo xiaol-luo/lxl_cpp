@@ -48,6 +48,7 @@ local files = {
     "common.rpc.rpc_mgr_base",
     "common.rpc.rpc_req",
     "common.rpc.rpc_rsp",
+    "common.rpc.rpc_client",
     "common.rpc.zone_service.zone_service_rpc_mgr",
     "services.service_def",
     "common.init_global_vars",

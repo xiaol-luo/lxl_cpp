@@ -7,6 +7,7 @@ function RpcMgrBase:ctor()
     self.Check_Expired_Span_ms = 1000
     self.rsp_list = {}
     self.rsp_process_fn = {}
+    self.delay_execute_fns = {}
 end
 
 function RpcMgrBase:init()
@@ -47,8 +48,10 @@ function RpcMgrBase:call(cb_fn, remote_host, remote_fn, ...)
     local req_id = NextRpcUniqueId()
     local err = self:net_call(req_id, remote_host, remote_fn, ...)
     if Rpc_Error.None ~= err then
-        if cb_fn then
-            cb_fn(err)
+        if cb_fn then -- 模拟异步
+            table.insert(self.delay_execute_fns, function ()
+                cb_fn(err)
+            end)
         end
     else
         local req = RpcReq:new()
@@ -85,7 +88,7 @@ function RpcMgrBase:respone(rsp_id, remote_host, req_id, action, ...)
 end
 
 function RpcMgrBase:handle_rsp_msg(from_host, pid, msg)
-    log_debug("RpcMgrBase:handle_rsp_msg %s %s %s", from_host, pid, msg)
+    -- log_debug("RpcMgrBase:handle_rsp_msg %s %s %s", from_host, pid, msg)
     -- msg contains req_id, action, action_params
     local req = self.req_list[msg.req_id]
     if not req then
@@ -109,7 +112,7 @@ function RpcMgrBase:handle_rsp_msg(from_host, pid, msg)
 end
 
 function RpcMgrBase:handle_req_msg(from_host, pid, msg)
-    log_debug("RpcMgrBase:handle_req_msg %s %s %s", from_host, pid, msg)
+    -- log_debug("RpcMgrBase:handle_req_msg %s %s %s", from_host, pid, msg)
     -- msg contains id, fn_name, fn_params
     local rsp_id = NextRpcUniqueId()
     local rpc_rsp = RpcRsp:new(rsp_id, from_host, msg.id, self)
@@ -143,5 +146,11 @@ function RpcMgrBase:on_frame()
                 req.cb_fn(Rpc_Error.Wait_Expired)
             end
         end
+    end
+
+    local delay_execute_fns = self.delay_execute_fns
+    self.delay_execute_fns = {}
+    for _, fn in ipairs(delay_execute_fns) do
+        safe_call(fn)
     end
 end
