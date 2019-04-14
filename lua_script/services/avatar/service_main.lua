@@ -39,9 +39,9 @@ function ServiceMain.start()
     on_frame_timeid = native.timer_firm(ServiceMain.on_frame, 1 * 1000, -1)
 
     native.timer_firm(function()
-        local st, msg = coroutine.resume(g_co)
+        local st, msg = coroutine_resume(g_co)
         if not st then
-            log_debug("coroutine.resume(g_co) error:%s", msg)
+            log_debug("coroutine_resume(g_co) error:%s", msg)
         end
     end, 2000, 1)
 end

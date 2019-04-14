@@ -24,17 +24,19 @@ function ZoneServiceRpcMgr:init(zs_msg_handler)
             log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 2")
             local st, p1, p2 = ServiceMain.avatar_rpc_client:simple_rsp("p1", "p2")
             log_debug("in process fn hello world 1 %s %s %s", st, p1, p2)
-            st, p1, p2 = ServiceMain.avatar_rpc_client:simple_rsp("p3", "p4")
-            log_debug("in process fn hello world 2 %s %s %s", st, p1, p2)
-
             rsp:add_delay_execute(function ()
                 ServiceMain.avatar_rpc_client:call(nil, "simple_rsp", 1, 2, 3)
             end)
+            st, p1, p2 = ServiceMain.avatar_rpc_client:simple_rsp("p3", "p4")
+            log_debug("in process fn hello world 2 %s %s %s", st, p1, p2)
+
+            st, p1, p2 = ServiceMain.avatar_rpc_client:xxxx()
+
             rsp:respone(...)
         end)
         rsp.hold_co = co
         log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 1")
-        coroutine.resume(co, rsp, ...)
+        coroutine_resume(co, rsp, ...)
         log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 3")
     end
 

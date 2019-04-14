@@ -23,7 +23,7 @@ end
 
 function RpcClient:_co_call_cb(co, rpc_err, ...)
     log_debug("RpcClient:_co_call _co_call_cb %s %s", co, rpc_err)
-    coroutine.resume(co, rpc_err, ...)
+    coroutine_resume(co, rpc_err, ...)
 end
 
 function RpcClient:_co_call(remote_fn, ...)
@@ -32,5 +32,5 @@ function RpcClient:_co_call(remote_fn, ...)
     log_debug("RpcClient:_co_call fn_name:%s", remote_fn)
     local cb_fn = Functional.make_closure(self._co_call_cb, self, co)
     self:call(cb_fn, remote_fn, ...)
-    return coroutine.yield()
+    return coroutine_yield()
 end
