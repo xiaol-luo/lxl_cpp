@@ -46,6 +46,26 @@ function RpcMgrBase:set_req_msg_process_fn(fn_name, fn)
     self.req_msg_process_fn[fn_name] = fn
 end
 
+function RpcMgrBase:set_req_msg_coroutine_process_fn(fn_name, fn)
+    if not fn then
+        self.req_msg_process_fn[fn_name] = nil
+        return
+    end
+
+    local real_fn = function(rsp, ...)
+        local co = coroutine.create(function (rsp, ...)
+            local co_fn = fn
+            local n, rets = varlen_param_info(co_fn(rsp, ...))
+            if n > 0 then
+                rsp:send_back(table.unpack(rets, 1, n))
+            end
+        end)
+        rsp.co = co
+        coroutine_resume(co, rsp, ...)
+    end
+    self.req_msg_process_fn[fn_name] = real_fn
+end
+
 function RpcMgrBase:call(cb_fn, remote_host, remote_fn, ...)
     assert(remote_host)
     assert(remote_fn)
