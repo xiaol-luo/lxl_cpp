@@ -15,6 +15,9 @@ IF (WIN32)
 
 ELSE()
 	LINK_LIBRARIES(m)
+	add_compile_options(-DLUA_USE_DLOPEN)
+	#add_compile_options(-DLUA_ANSI)
+	LINK_LIBRARIES(dl)
 ENDIF (WIN32)
 
 ADD_EXECUTABLE(${project_name} ${all_files})

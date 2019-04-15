@@ -142,3 +142,16 @@ std::vector<std::string> ServiceMakeLuaExtraArgs(int argc, char ** argv)
 	}
 	return extra_args;
 }
+
+void * LuaAlloc(void *ud, void *ptr, size_t osize, size_t nsize) 
+{
+	if (nsize == 0) 
+	{
+		mempool_free(ptr);
+		return NULL;
+	}
+	else
+	{
+		return mempool_realloc(ptr, nsize);
+	}
+}

@@ -11,7 +11,7 @@ function ParseArgs.append_lua_search_path(v)
 end
 
 function ParseArgs.append_c_search_path(v)
-    package.cpath = string.format("%s;%s/?.dll;", package.cpath, v)
+    package.cpath = string.format("%s;%s/?.dll;%s/?.so;%s/lib?.so;", package.cpath, v, v, v, v)
 end
 
 function ParseArgs.make_cmd_prefix(opt_name)

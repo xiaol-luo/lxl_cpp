@@ -406,7 +406,7 @@ void NetworkModule::ProcessNetTaskResult()
 			handler->OnOpen(err_num);
 			if (0 != err_num)
 			{
-				MODULE_LOG_MGR->Error("NetworkModule::ProcessConnectResult errno {0}, error reason", err_num, err_msg);
+				MODULE_LOG_MGR->Error("NetworkModule::ProcessConnectResult errno {0}, error reason {1}", err_num, err_msg);
 			}
 		}
 		m_async_network_handlers.erase(ret.id);

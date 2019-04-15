@@ -23,6 +23,7 @@ extern const char *Const_Opt_Data_Dir;
 extern const char *Const_Opt_Service_Name;
 extern const char *Const_Opt_Native_Other_Params;
 
+extern void * LuaAlloc(void *ud, void *ptr, size_t osize, size_t nsize);
 extern int lua_panic_error(lua_State* L);
 extern int lua_pcall_error(lua_State* L);
 extern bool StartLuaScript(lua_State *L, std::string script_root_dir, int argc, char **argv, const std::vector<std::string> &extra_args);

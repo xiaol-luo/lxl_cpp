@@ -11,6 +11,15 @@ FileGroupByDir(${PROJECT_SOURCE_DIR} "${all_files}" "")
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 add_compile_options(-DLUA_BUILD_AS_DLL)
+
+IF (WIN32)
+
+ELSE()
+    add_compile_options(-DLUA_USE_DLOPEN)
+    #add_compile_options(-DLUA_ANSI)
+	LINK_LIBRARIES(dl)
+ENDIF (WIN32)
+
 MakeLib(${project_name} "${all_files}" true)
 
 

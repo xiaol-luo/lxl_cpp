@@ -26,7 +26,7 @@ static bool IsFdUnready(int err_num)
 {
 	bool ret = false;
 #ifndef WIN32
-	if (EWOULDBLOCK != err_num && EAGAIN != err_num)
+	if (EWOULDBLOCK == err_num || EAGAIN == err_num)
 	{
 		ret = true;
 	}

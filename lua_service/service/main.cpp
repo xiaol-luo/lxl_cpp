@@ -64,6 +64,8 @@ int main (int argc, char **argv)
 		return -20;
 	}
 
+	engine_init();
+
 	ServiceBase *service = nullptr;
 	std::string service_name = ExtractServiceName(argv[Args_Index_Service_Name]);
 	// const char *service_name = argv[Args_Index_Service_Name];
@@ -79,7 +81,8 @@ int main (int argc, char **argv)
 		service = pure_service;
 	}
 
-	sol::state *ls = new sol::state(lua_panic_error);
+	void *ls_mem = mempool_malloc(sizeof(sol::state));
+	sol::state *ls = new(ls_mem)sol::state(lua_panic_error, LuaAlloc);
 	lua_State *L = ls->lua_state();
 	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 	service->SetLuaState(L);
@@ -94,14 +97,17 @@ int main (int argc, char **argv)
 
 	mongocxx::instance ins{};
 
-	engine_init();
 	engine_loop_span(100);
 	start_log(ELogLevel_Debug);
 	setup_service(service);  
 	timer_next(std::bind(&ServiceBase::RunService, service, argc, argv), 0);
 	service = nullptr; // engine own the service
 	engine_loop();
-	delete ls; ls = nullptr;
+	ls->collect_garbage();
+	ls->collect_garbage();
+	ls->collect_garbage();
+	ls->~state(); ls = nullptr;
+	mempool_free(ls_mem); ls_mem = nullptr;
 	engine_destroy();
 	return 0;
 }
