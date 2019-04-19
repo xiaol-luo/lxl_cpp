@@ -25,7 +25,6 @@ function AvatarService:create_zone_service_msg_handler()
 end
 
 function AvatarService:create_zone_service_rpc_mgr()
-    log_debug("AvatarService:create_zone_service_rpc_mgr")
     local rpc_mgr = ZoneServiceRpcMgr:new()
 
     local co_fn = function(rsp, ...)

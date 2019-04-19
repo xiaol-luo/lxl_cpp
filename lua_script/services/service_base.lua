@@ -18,7 +18,6 @@ function ServiceBase:init()
     local instance_setting = ZONE_SETTING[SCC.Root][SCC.Services][self.service_name][SCC.Instance]
     local listen_peer_port = instance_setting[tostring(self.service_idx)][SCC.Listen_Peer_Port]
     local etcd_setting = ZONE_SETTING[SCC.Root][SCC.Etcd]
-    log_debug("xxxxxxxxxxxxxxxxxx %s", string.toprint(ZONE_SETTING[SCC.Root][SCC.Etcd]))
     self.zone_service_mgr = ZoneServiceMgr:new(etcd_setting, self.service_name, self.service_idx, tonumber(listen_peer_port))
 
     self.zone_service_msg_handler = self:create_zone_service_msg_handler()
@@ -33,8 +32,7 @@ function ServiceBase:create_zone_service_msg_handler()
 end
 
 function ServiceBase:create_zone_service_rpc_mgr()
-    log_debug("ServiceBase:create_zone_service_rpc_mgr")
-    return ZoneServiceRpcMgr:new()
+    assert(false, "should not reach here")
 end
 
 function ServiceBase:start()
