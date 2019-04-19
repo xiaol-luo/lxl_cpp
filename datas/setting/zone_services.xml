@@ -5,7 +5,7 @@
 		<host>http://127.0.0.1:2379</host>
 		<user>root</user>
 		<pwd>xiaolzz</pwd>
-		<root_dir>/zone_1024/</root_dir>
+		<root_dir>/zone_1024</root_dir>
 		<ttl>10</ttl>
 	</etcd>
 	<services>

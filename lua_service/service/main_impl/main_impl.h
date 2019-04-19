@@ -29,4 +29,4 @@ extern bool StartLuaScript(lua_State *L, std::string script_root_dir, int argc, 
 extern std::vector<std::string> ServiceMakeLuaExtraArgs(int argc, char ** argv);
 
 extern std::string ExtractServiceName(std::string full_name);
-extern int ExtractServiceId(std::string full_name);
+extern int ExtractServiceIdx(std::string full_name);

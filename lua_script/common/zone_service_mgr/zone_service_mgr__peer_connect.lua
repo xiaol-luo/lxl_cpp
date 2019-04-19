@@ -6,18 +6,27 @@ local parse_node = function(node)
 end
 
 function ZoneServiceMgr:_etcd_service_state_process_pull(ret)
-    log_debug("ZoneServiceMgr:_etcd_service_state_process_pull %s", string.toprint(ret))
+    -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull %s", string.toprint(ret))
     if not ret:is_ok() then
         return
     end
     local st_nodes = {}
     local op_ret = ret.op_result
-    local nodes = op_ret[EtcdConst.Node][EtcdConst.Nodes]
-    for _, v in pairs(nodes or {}) do
-        local node = parse_node(v)
-        assert(not st_nodes[v.key], string.format("dumplicate key %s", v.key))
-        st_nodes[node.key] = node
-        -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull k, v %s, %s",  node.key, string.toprint(node))
+    local dirs = op_ret[EtcdConst.Node][EtcdConst.Nodes]
+    for _, dir in pairs(dirs) do
+        if dir[EtcdConst.Dir] then
+            local nodes = dir[EtcdConst.Nodes] or {}
+            for _, v in pairs(nodes) do
+                if not v[EtcdConst.Dir] then
+                    if not is_dir then
+                        local node = parse_node(v)
+                        assert(not st_nodes[v.key], string.format("dumplicate key %s", v.key))
+                        st_nodes[node.key] = node
+                        -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull k, v %s, %s",  node.key, string.toprint(node))
+                    end
+                end
+            end
+        end
     end
     local exist_keys = table.keys(self.service_state_list)
     for _, exist_key in pairs(exist_keys) do
@@ -35,7 +44,7 @@ function ZoneServiceMgr:_etcd_service_state_process_pull(ret)
 end
 
 function ZoneServiceMgr:_etcd_service_state_process_watch(ret)
-    log_debug("ZoneServiceMgr:_etcd_service_state_process_watch %s", string.toprint(ret))
+    -- log_debug("ZoneServiceMgr:_etcd_service_state_process_watch %s", string.toprint(ret))
     if not ret:is_ok() then
         return
     end

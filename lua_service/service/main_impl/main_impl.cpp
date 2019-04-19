@@ -26,7 +26,7 @@ std::string ExtractServiceName(std::string full_name)
 	return full_name.substr(0, pos);
 }
 
-int ExtractServiceId(std::string full_name)
+int ExtractServiceIdx(std::string full_name)
 {
 	size_t pos = full_name.find_first_of(dot);
 	if (std::string::npos == pos || pos >= full_name.size())

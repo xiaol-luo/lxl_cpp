@@ -42,6 +42,8 @@ local files = {
     "common.proto.protobuf_store",
     "common.proto.sproto_store",
     "common.proto.proto_parser",
+    "common.timer.timer",
+    "common.timer.timer_proxy",
     "common.msg_handler.msg_handler_base",
     "common.msg_handler.zone_service_msg_handler_base",
     "common.rpc.rpc_def",
@@ -51,6 +53,7 @@ local files = {
     "common.rpc.rpc_client",
     "common.rpc.zone_service.zone_service_rpc_mgr",
     "services.service_def",
+    "services.service_base",
     "common.init_global_vars",
 }
 return files
