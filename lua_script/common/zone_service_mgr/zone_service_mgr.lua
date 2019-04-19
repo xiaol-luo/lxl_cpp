@@ -8,20 +8,15 @@ ZoneServiceMgr.Pid_For_Test = 4
 ZoneServiceMgr.Pid_For_Test_Sproto = 5
 ZoneServiceMgr.Pid_For_Test_Pb = 6
 
-function ZoneServiceMgr:ctor(etcd_setting, service_name, service_idx, listen_port)
-    self.etcd_setting = etcd_setting
+function ZoneServiceMgr:ctor(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name, service_name, service_idx, service_id, listen_port)
     self.listen_port = listen_port
     self.is_started = false
     self.listen_handler = nil
-    self.etcd_client = EtcdClient:new(
-            self.etcd_setting[Service_Cfg_Const.Etcd_Host],
-            self.etcd_setting[Service_Cfg_Const.Etcd_User],
-            self.etcd_setting[Service_Cfg_Const.Etcd_Pwd])
-    self.etcd_root_dir = string.rtrim(self.etcd_setting[Service_Cfg_Const.Etcd_Root_Dir], '/')
+    self.etcd_client = EtcdClient:new(etcd_host, etcd_usr, etcd_pwd)
+    self.etcd_root_dir = string.rtrim(zone_name, '/')
     self.etcd_service_key = path.combine(self.etcd_root_dir, service_name, service_idx)
-    -- self.etcd_service_key = path.combine(self.etcd_root_dir, combine_service_full_name(service_name, service_idx))
-    self.etcd_ttl = self.etcd_setting[Service_Cfg_Const.Etcd_Ttl]
-    self.etcd_service_val = ZoneServiceState:new(service_idx, self.etcd_service_key, native.local_net_ip(), self.listen_port)
+    self.etcd_ttl = etcd_ttl
+    self.etcd_service_val = ZoneServiceState:new(service_id, self.etcd_service_key, native.local_net_ip(), self.listen_port)
     self.etcd_last_refresh_ttl_ms = 0
     self.etcd_refresh_ttl_span_ms = self.etcd_ttl * 1000 / 4
     self.etcd_last_fetch_service_states_ms = 0

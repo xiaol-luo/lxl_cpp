@@ -2,8 +2,10 @@ ServiceBase = ServiceBase or class("ServiceBase")
 
 function ServiceBase:ctor()
     self.timer_proxy = nil
-    self.service_idx = nil
+    self.zone_name = nil
+    self.service_id = nil
     self.service_name = nil
+    self.service_idx = nil
     self.zone_service_mgr = nil
     self.zone_service_msg_handler = nil
     self.zone_service_rpc_mgr = nil
@@ -15,10 +17,24 @@ function ServiceBase:init()
     self.service_name = MAIN_ARGS[MAIN_ARGS_SERVICE_NAME]
 
     local SCC = Service_Cfg_Const
-    local instance_setting = ZONE_SETTING[SCC.Root][SCC.Services][self.service_name][SCC.Instance]
-    local listen_peer_port = instance_setting[tostring(self.service_idx)][SCC.Listen_Peer_Port]
+    local instance_settings = ZONE_SETTING[SCC.Root][SCC.Services][self.service_name][SCC.Instance]
+    local instance_setting = nil
+    for _, v in pairs(instance_settings) do
+        if v[SCC.Idx] == tostring(self.service_idx) then
+            instance_setting = v
+        end
+    end
+    assert(instance_setting)
+    self.service_id = tonumber(instance_setting[SCC.Id])
+    local listen_peer_port = instance_setting[SCC.Listen_Peer_Port]
     local etcd_setting = ZONE_SETTING[SCC.Root][SCC.Etcd]
-    self.zone_service_mgr = ZoneServiceMgr:new(etcd_setting, self.service_name, self.service_idx, tonumber(listen_peer_port))
+    self.zone_name = etcd_setting[SCC.Etcd_Root_Dir]
+    local etcd_host = etcd_setting[SCC.Etcd_Host]
+    local etcd_usr = etcd_setting[SCC.Etcd_User]
+    local etcd_pwd = etcd_setting[SCC.Etcd_Pwd]
+    local etcd_ttl = etcd_setting[SCC.Etcd_Ttl]
+    self.zone_service_mgr = ZoneServiceMgr:new(etcd_host, etcd_usr, etcd_pwd, etcd_ttl,
+            self.zone_name, self.service_name, self.service_idx, self.service_id, tonumber(listen_peer_port))
 
     self.zone_service_msg_handler = self:create_zone_service_msg_handler()
     self.zone_service_mgr:add_msg_handler(self.zone_service_msg_handler)

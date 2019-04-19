@@ -13,6 +13,7 @@ Service_Cfg_Const =
     Instance = "instance",
     Listen_Peer_Port = "listen_peer_port",
     Id = "id",
+    Idx = "idx",
 }
 
 MAIN_ARGS_SERVICE_FULL_NAME = "service" -- MAIN_ARGS[MAIN_ARGS_SERVICE_NAME].MAIN_ARGS[MAIN_ARGS_SERVICE_IDX]
