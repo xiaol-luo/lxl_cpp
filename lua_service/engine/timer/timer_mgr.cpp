@@ -98,6 +98,7 @@ void TimerMgr::ClearAll()
 		std::queue<srv_rbtree_node_t *> node_queue;
 		if (m_rbtree_timer_items->root != m_rbtree_timer_items->sentinel)
 			node_queue.push(m_rbtree_timer_items->root);
+		m_rbtree_timer_items->root = m_rbtree_timer_items->sentinel;
 		while (!node_queue.empty())
 		{
 			srv_rbtree_node_t *node = node_queue.front();
