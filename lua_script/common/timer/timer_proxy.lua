@@ -23,6 +23,13 @@ function TimerProxy:firm(fn, execute_span_ms, execute_times)
     return timer_id
 end
 
+function TimerProxy:delay(fn, delay_ms)
+    local timer_id = timer_delay(fn, delay_ms)
+    self.timer_ids[timer_id] = true
+    return timer_id
+end
+
+
 function TimerProxy:remove(timer_id)
     if self.timer_ids[timer_id] then
         self.timer_ids[timer_id] = nil

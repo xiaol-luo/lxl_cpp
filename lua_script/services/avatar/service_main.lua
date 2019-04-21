@@ -79,7 +79,7 @@ end
 
 function AvatarService:for_test()
     self.avatar_rpc_client:setup_coroutine_fns({"hello_world", "simple_rsp"})
-    g_co = coroutine.create(function ()
+    g_co = coroutine.create(function ()               
         log_debug("reach here 1")
         local v1, v2, v3 = self.avatar_rpc_client:hello_world(1, "aaa")
         log_debug("xxxxxxxxxxxx %s %s %s", v1, v2, v3)
@@ -88,10 +88,10 @@ function AvatarService:for_test()
         log_debug("xxxxxxxxxxxx 2 %s %s %s", v1, v2, v3)
     end)
 
-    native.timer_firm(function()
+    timer_delay(function()
         local st, msg = coroutine_resume(g_co)
         if not st then
             log_debug("coroutine_resume(g_co) error:%s", msg)
         end
-    end, 2000, 1)
+    end, 2000)
 end

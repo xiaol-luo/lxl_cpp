@@ -9,9 +9,11 @@ function ServiceBase:ctor()
     self.zone_service_mgr = nil
     self.zone_service_msg_handler = nil
     self.zone_service_rpc_mgr = nil
+    self.event_mgr = nil
 end
 
 function ServiceBase:init()
+    self.event_mgr = EventMgr:new()
     self.timer_proxy = TimerProxy:new()
     self.service_idx = MAIN_ARGS[MAIN_ARGS_SERVICE_IDX]
     self.service_name = MAIN_ARGS[MAIN_ARGS_SERVICE_NAME]
@@ -34,8 +36,8 @@ function ServiceBase:init()
     local etcd_pwd = etcd_setting[SCC.Etcd_Pwd]
     local etcd_ttl = etcd_setting[SCC.Etcd_Ttl]
     self.zone_service_mgr = ZoneServiceMgr:new(etcd_host, etcd_usr, etcd_pwd, etcd_ttl,
-            self.zone_name, self.service_name, self.service_idx, self.service_id, tonumber(listen_peer_port))
-
+            self.zone_name, self.service_name, self.service_idx, self.service_id,
+            tonumber(listen_peer_port), native.local_net_ip(), self:create_event_proxy())
     self.zone_service_msg_handler = self:create_zone_service_msg_handler()
     self.zone_service_mgr:add_msg_handler(self.zone_service_msg_handler)
 
@@ -49,6 +51,11 @@ end
 
 function ServiceBase:create_zone_service_rpc_mgr()
     assert(false, "should not reach here")
+end
+
+function ServiceBase:create_event_proxy()
+    local ret = EventProxy:new(self.event_mgr)
+    return ret
 end
 
 function ServiceBase:start()

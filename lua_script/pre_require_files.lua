@@ -44,6 +44,8 @@ local files = {
     "common.proto.proto_parser",
     "common.timer.timer",
     "common.timer.timer_proxy",
+    "common.event.event_mgr",
+    "common.event.event_proxy",
     "common.msg_handler.msg_handler_base",
     "common.msg_handler.zone_service_msg_handler_base",
     "common.rpc.rpc_def",
