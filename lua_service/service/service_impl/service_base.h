@@ -22,6 +22,7 @@ protected:
 	enum State 
 	{
 		State_Runing,
+		State_NotifyQuit,
 		State_Quiting,
 		State_Quited,
 	};

@@ -4,6 +4,11 @@
 
 EModuleRetCode ServiceBase::Update()
 {
+	if (State_NotifyQuit == m_state)
+	{
+		m_state = State_Quiting;
+		this->NotifyQuitGame();
+	}
 	if (State_Quiting == m_state)
 	{
 		if (this->CanQuitGame())
@@ -19,8 +24,7 @@ void ServiceBase::TryQuitGame()
 {
 	if (State_Runing == m_state)
 	{
-		m_state = State_Quiting;
-		this->NotifyQuitGame();
+		m_state = State_NotifyQuit;
 	}
 }
 
