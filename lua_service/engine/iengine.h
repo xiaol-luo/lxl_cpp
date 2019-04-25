@@ -41,7 +41,7 @@ void net_close(NetId netid);
 int64_t net_listen_async(std::string ip, uint16_t port, std::weak_ptr<INetListenHandler> handler);
 int64_t net_connect_async(std::string ip, uint16_t port, std::weak_ptr<INetConnectHandler> handler);
 void net_cancel_async(uint64_t async_id);
-bool net_send(NetId netId, char *buffer, uint32_t len);
+bool net_send(NetId netId, const char *buffer, uint32_t len);
 ServerLogic * GServerLogic();
 
 // http

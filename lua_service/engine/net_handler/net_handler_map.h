@@ -42,3 +42,6 @@ public:
 protected:
 	std::unordered_map<NetId, std::shared_ptr<T> > m_handlers;
 };
+
+using INetworkHandlerMap = NetHandlerMap<INetworkHandler>;
+using INetCnnHandlerMap = NetHandlerMap<INetConnectHandler>;

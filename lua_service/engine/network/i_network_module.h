@@ -25,6 +25,6 @@ public:
 	virtual int64_t ListenAsync(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetListenHandler> handler) = 0;
 	virtual int64_t ConnectAsync(std::string ip, uint16_t port, void *opt, std::weak_ptr<INetConnectHandler> handler) = 0;
 	virtual void CancelAsync(uint64_t async_id) = 0;
-	virtual bool Send(NetId netId, char *buffer, uint32_t len) = 0;
+	virtual bool Send(NetId netId, const char *buffer, uint32_t len) = 0;
 };
 

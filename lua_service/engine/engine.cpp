@@ -302,7 +302,7 @@ void net_cancel_async(uint64_t async_id)
 	}
 }
 
-bool net_send(NetId netId, char *buffer, uint32_t len)
+bool net_send(NetId netId, const char *buffer, uint32_t len)
 {
 	bool ret = false;
 	if (nullptr != g_server_logic)

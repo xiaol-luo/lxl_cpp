@@ -344,7 +344,7 @@ void NetworkModule::CancelAsync(uint64_t async_id)
 	m_async_network_handlers.erase(async_id);
 }
 
-bool NetworkModule::Send(NetId netId, char *buffer, uint32_t len)
+bool NetworkModule::Send(NetId netId, const char *buffer, uint32_t len)
 {
 	if (netId <= 0 || nullptr == buffer || len <= 0)
 		return false;

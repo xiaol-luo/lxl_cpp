@@ -13,6 +13,14 @@ function Net.close(netid)
     native.net_close(netid)
 end
 
+function Net.send(netid, buffer)
+    native.net_send(netid, buffer)
+end
+
+function Net.send_userdata(netid, ptr, len)
+    native.net_send(netid, ptr, len)
+end
+
 function Net.connect_async(ip, port, cnn_handler)
     return native.net_connect_async(ip, port, cnn_handler:cnn_handler_weak_ptr())
 end

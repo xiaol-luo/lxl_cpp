@@ -54,6 +54,9 @@ function AvatarService:start()
     self.super.start(self)
 
     self.avatar_rpc_client = RpcClient:new(self.zone_service_rpc_mgr, self.zone_service_mgr.etcd_service_key)
+
+    g_http_service = HttpService:new()
+    g_http_service:start(20481)
     self:for_test()
 end
 

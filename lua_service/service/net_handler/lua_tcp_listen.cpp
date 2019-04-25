@@ -3,10 +3,13 @@
 
 LuaTcpListen::LuaTcpListen()
 {
+	m_cnn_map = std::make_shared<NetHandlerMap<INetConnectHandler>>();
 }
 
 LuaTcpListen::~LuaTcpListen()
 {
+	m_cnn_map->Clear();
+	m_cnn_map = nullptr;
 }
 
 bool LuaTcpListen::Init(sol::table lua_logic)
@@ -49,4 +52,14 @@ std::shared_ptr<INetConnectHandler> LuaTcpListen::GenConnectorHandler()
 		ptr = ret.as<std::shared_ptr<INetConnectHandler>>();
 	}
 	return ptr;
+}
+
+bool LuaTcpListen::AddCnn(std::shared_ptr<INetConnectHandler> cnn)
+{
+	return m_cnn_map->Add(cnn);
+}
+
+void LuaTcpListen::RemoveCnn(NetId netid)
+{
+	m_cnn_map->Remove(netid);
 }

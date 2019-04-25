@@ -102,7 +102,7 @@ namespace Net
 		m_to_remove_netids_mutex.unlock();
 	}
 
-	bool NetWorkerSelect::Send(NetId netId, char * buffer, uint32_t len)
+	bool NetWorkerSelect::Send(NetId netId, const char * buffer, uint32_t len)
 	{
 		if (m_is_exits)
 			return false;

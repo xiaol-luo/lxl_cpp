@@ -21,7 +21,7 @@ uint64_t EtcdClient::Set(const std::string & key, const std::string & val, uint3
 	sol::optional<sol::protected_function> lua_cb_fn = this->MakeOpCbFn(cb_fn);
 	sol::protected_function_result pfr = fn(m_lua_etcd_client, key, val, ttl, is_dir, lua_cb_fn.value());
 	uint64_t op_id = 0;
-	if (pfr.valid())
+	if (pfr.valid() && pfr.return_count() > 0)
 	{
 		op_id = pfr.get<uint64_t>(0);
 	}
@@ -40,7 +40,7 @@ uint64_t EtcdClient::RefreshTtl(const std::string & key, uint32_t ttl, bool is_d
 	sol::optional<sol::protected_function> lua_cb_fn = this->MakeOpCbFn(cb_fn);
 	sol::protected_function_result pfr = fn(key, ttl, is_dir, lua_cb_fn.value());
 	uint64_t op_id = 0;
-	if (pfr.valid())
+	if (pfr.valid() && pfr.return_count() > 0)
 	{
 		op_id = pfr.get<uint64_t>(0);
 	}
@@ -59,7 +59,7 @@ uint64_t EtcdClient::Get(const std::string & key, bool recursive, CallbackFn cb_
 	sol::optional<sol::protected_function> lua_cb_fn = this->MakeOpCbFn(cb_fn);
 	sol::protected_function_result pfr = fn(key, recursive, lua_cb_fn.value());
 	uint64_t op_id = 0;
-	if (pfr.valid())
+	if (pfr.valid() && pfr.return_count() > 0)
 	{
 		op_id = pfr.get<uint64_t>(0);
 	}
@@ -78,7 +78,7 @@ uint64_t EtcdClient::Delete(const std::string & key, bool recursive, CallbackFn 
 	sol::optional<sol::protected_function> lua_cb_fn = this->MakeOpCbFn(cb_fn);
 	sol::protected_function_result pfr = fn(key, recursive, lua_cb_fn.value());
 	uint64_t op_id = 0;
-	if (pfr.valid())
+	if (pfr.valid() && pfr.return_count() > 0)
 	{
 		op_id = pfr.get<uint64_t>(0);
 	}
@@ -97,7 +97,7 @@ uint64_t EtcdClient::Watch(const std::string & key, bool recursive, uint64_t wai
 	sol::optional<sol::protected_function> lua_cb_fn = this->MakeOpCbFn(cb_fn);
 	sol::protected_function_result pfr = fn(key, recursive, waitIndex, lua_cb_fn.value());
 	uint64_t op_id = 0;
-	if (pfr.valid())
+	if (pfr.valid() && pfr.return_count() > 0)
 	{
 		op_id = pfr.get<uint64_t>(0);
 	}
@@ -116,7 +116,7 @@ uint64_t EtcdClient::CmpSwap(const std::string & key, uint64_t prev_index, const
 	sol::optional<sol::protected_function> lua_cb_fn = this->MakeOpCbFn(cb_fn);
 	sol::protected_function_result pfr = fn(key, prev_index, prev_val, val, lua_cb_fn.value());
 	uint64_t op_id = 0;
-	if (pfr.valid())
+	if (pfr.valid() && pfr.return_count() > 0)
 	{
 		op_id = pfr.get<uint64_t>(0);
 	}
@@ -135,7 +135,7 @@ uint64_t EtcdClient::CmpDelete(const std::string & key, uint64_t prev_index, con
 	sol::optional<sol::protected_function> lua_cb_fn = this->MakeOpCbFn(cb_fn);
 	sol::protected_function_result pfr = fn(key, prev_index, prev_val, recursive, lua_cb_fn.value());
 	uint64_t op_id = 0;
-	if (pfr.valid())
+	if (pfr.valid() && pfr.return_count() > 0)
 	{
 		op_id = pfr.get<uint64_t>(0);
 	}

@@ -19,10 +19,25 @@ void lua_reg_make_shared_ptr(lua_State *L)
 		native_tb.set_function("make_shared_common_listener", []() {
 			return std::make_shared<CommonListener>();
 		});
-		native_tb.set_function("make_shared_http_rsp_cnn", 
-			[](std::weak_ptr<NetHandlerMap<INetConnectHandler>> m) {
+		native_tb.set_function("make_shared_http_rsp_cnn", [](std::weak_ptr<NetHandlerMap<INetConnectHandler>> m) {
 			return std::make_shared<HttpRspCnn>(m);
 		});
+		native_tb.set_function("make_shared_net_handler_map", []() {
+			return std::make_shared<INetworkHandlerMap>();
+		});
+		native_tb.set_function("to_net_handler_map_weak_ptr", [](std::shared_ptr<INetworkHandlerMap> from) {
+			std::weak_ptr<INetworkHandlerMap> to = from;
+			return to;
+		});
+
+		native_tb.set_function("make_shared_cnn_handler_map", []() {
+			return std::make_shared<INetCnnHandlerMap>();
+		});
+		native_tb.set_function("to_cnn_handler_map_weak_ptr", [](std::shared_ptr<INetCnnHandlerMap> from) {
+			std::weak_ptr<INetCnnHandlerMap> to = from;
+			return to;
+		});
+
 
 #define Net_Handler_Convert_Help(from, to) [](from p) { to ret = p; return ret; }
 #define Convert_To_Net_Handler_Shared_Ptr(from) Net_Handler_Convert_Help(std::shared_ptr<from>, std::shared_ptr<INetworkHandler>)

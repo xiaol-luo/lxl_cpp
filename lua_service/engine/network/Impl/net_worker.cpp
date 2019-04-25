@@ -19,7 +19,7 @@ namespace Net
 	void NetWorker::RemoveCnn(NetId id)
 	{
 	}
-	bool NetWorker::Send(NetId netId, char * buffer, uint32_t len)
+	bool NetWorker::Send(NetId netId, const char * buffer, uint32_t len)
 	{
 		return false;
 	}

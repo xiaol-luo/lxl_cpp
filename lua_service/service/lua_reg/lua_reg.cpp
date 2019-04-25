@@ -103,6 +103,11 @@ std::string lua_extract_net_ip()
 	return ret;
 }
 
+bool lua_net_send(NetId netid, const std::string &bin)
+{
+	return net_send(netid, bin.data(), bin.size());
+}
+
 void register_native_libs(lua_State *L)
 {
 	sol::state_view sv(L);
@@ -117,7 +122,10 @@ void register_native_libs(lua_State *L)
 	t.set_function("net_listen", net_listen);
 	t.set_function("net_listen_async", net_listen_async);
 	t.set_function("net_cancel_async", net_cancel_async);
-	t.set_function("net_send", net_send);
+	t.set_function("net_send", sol::overload(
+		[](NetId netid, const std::string &bin) { return net_send(netid, bin.data(), bin.size()); },
+		net_send
+	));
 	t.set_function("timer_add", lua_timer_add);
 	t.set_function("timer_firm", lua_timer_firm);
 	t.set_function("timer_next", lua_timer_next);

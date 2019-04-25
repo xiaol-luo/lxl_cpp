@@ -14,16 +14,17 @@ extern "C"
 
 class HttpRspCnn;
 
+using HttpRspCnn_FnProcessReq = std::function<bool(HttpRspCnn * /*self*/,
+	uint32_t /*get/post*/,
+	std::string /*url*/,
+	std::unordered_map<std::string, std::string> /*heads*/,
+	std::string /*body*/,
+	uint64_t /*body_len*/
+	)>;
+
 class HttpRspCnn : public INetConnectHandler
 {
 public:
-	using FnProcessReq = std::function<bool(HttpRspCnn * /*self*/,
-		uint32_t /*get/post*/,
-		std::string /*url*/,
-		std::unordered_map<std::string, std::string> /*heads*/,
-		std::string /*body*/,
-		uint64_t /*body_len*/
-		)>;
 	enum eEventType
 	{
 		eActionType_Open,
@@ -43,7 +44,7 @@ public:
 	virtual void OnOpen(int err_num) override;
 	virtual void OnRecvData(char *data, uint32_t len) override;
 
-	void SetReqCbFn(FnProcessReq fn) { m_process_req_fn = fn; }
+	void SetReqCbFn(HttpRspCnn_FnProcessReq fn) { m_process_req_fn = fn; }
 	void SetEventCbFn(FnProcessEvent fn) { m_process_event_fn = fn; }
 
 protected:
@@ -62,7 +63,7 @@ protected:
 	static int on_chunk_complete(http_parser *parser);
 
 protected:
-	FnProcessReq m_process_req_fn = nullptr;
+	HttpRspCnn_FnProcessReq m_process_req_fn = nullptr;
 	FnProcessEvent m_process_event_fn = nullptr;
 	std::weak_ptr<NetHandlerMap<INetConnectHandler>> m_cnn_map;
 	http_parser * m_parser = nullptr;
