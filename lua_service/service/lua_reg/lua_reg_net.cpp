@@ -12,7 +12,7 @@ static bool http_rsp_cnn__req_cb_fn(sol::protected_function lua_fn, HttpRspCnn *
 	bool ret = false;
 	if (lua_fn.valid())
 	{
-		sol::protected_function_result pfr = lua_fn(self, method, url, heads, body, body_len);
+		sol::protected_function_result pfr = lua_fn(self, method, url, sol::as_table(heads), body, body_len);
 		if (pfr.valid() && pfr.return_count() > 0)
 		{
 			sol::type ret_type = pfr.get_type(0);

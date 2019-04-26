@@ -2,6 +2,11 @@
 Functional = Functional or {}
 local help_fns = {}
 
+local return_vals_info = function (...)
+    local n = select('#', ...)
+    return n, {...}
+end
+
 function Functional.make_closure(fn, ...)
     local t = {...}
     local t_len = select('#', ...)
@@ -12,8 +17,12 @@ end
 
 help_fns[0] = function(fn, t, error_fn)
     return function(...)
-        local is_ok, fn_ret = xpcall(fn, error_fn, ...)
-        return is_ok and fn_ret or nil
+        local n, tb = return_vals_info(xpcall(f, error_fn, ...))
+        local is_ok = tb[1]
+        if is_ok and #tb > 1 then
+            return table.unpack(tb, 2, n-1)
+        end
+        return nil
     end
 end
 help_fns[1] = function(fn, t, error_fn)

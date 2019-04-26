@@ -16,6 +16,11 @@ function HttpService:start(port)
     self.listener:set_open_cb(Functional.make_closure(HttpService.on_listener_open, self))
     self.listener:set_open_cb(Functional.make_closure(HttpService.on_listener_close, self))
     self.listener_netid = Net.listen("0.0.0.0", port, self.listener)
+    --[[
+    self:set_handle_fn("/index", function (...)
+        return gen_http_rsp_content(200, "OK", nil, "hello world")
+    end)
+    ]]
     return 0 ~= self.listener_netid
 end
 
@@ -26,6 +31,7 @@ end
 
 function HttpService:set_handle_fn(method_name, handle_fn)
     if nil ~= method_name then
+        -- heandle_fn = function(enum_method, req_url, heads_map, body, body_len)
         self.fn_map[method_name] = handle_fn
     end
 end
@@ -45,33 +51,42 @@ function HttpService:do_gen_cnn_handler(native_listener)
     return cnn
 end
 
-function HttpService:handle_req(cnn, enum_method, req_url, heads_map, body, body_size)
-    print("-------------------------- HttpService:handle_req", enum_method, req_url, body, body_size)
-
-    for k, v in pairs(heads_map) do
-        print("++++++++++++++++", k, "=", v)
+function HttpService:handle_req(cnn, enum_method, req_url, heads_map, body, body_len)
+    if not req_url or #req_url <= 0 or req_url == "/" then
+        req_url = "/index"
     end
-
-    local ret = gen_http_rsp_content(200, "OK", heads_map, body)
-    -- Net.send(native_cnn_ptr:netid(), ret)
-    -- return true
-    return false
+    local rsp_content = ""
+    local process_fn = self.fn_map[req_url]
+    if process_fn then
+        local is_ok = false
+        is_ok, rsp_content = safe_call(process_fn, enum_method, req_url, heads_map, body, body_len)
+        if not is_ok then
+            rsp_content = gen_http_rsp_content(500, "ServerInternalEorror", nil, nil)
+            -- 500
+        end
+    else
+        rsp_content = gen_http_rsp_content(404, "NoMethod", nil, nil)
+    end
+    Net.send(cnn:netid(), rsp_content)
+    Net.close(cnn:netid())
+    return true
 end
 
 function HttpService:handle_event(cnn, act, err_num)
 
 end
 
-function gen_http_rsp_content(state_code, state_msg, heads_map, body_str)
+function gen_http_rsp_content(state_code, state_str, heads_map, body_str)
+    -- log_debug("gen_http_rsp_content %s %s %s %s", state_code, state_msg, heads_map, body_str)
     local State_Line_Format = "HTTP/1.1 %s %s\r\n"
     local Head_Line_Format = "%s:%s\r\n"
     local Const_Content_Length = string.lower("Content-Length")
 
-    local state_line = string.format(State_Line_Format, state_code, state_msg)
+    local state_line = string.format(State_Line_Format, state_code, state_str)
     local head_list = {}
     if heads_map then
         for k, v in pairs(heads_map) do
-            if not string.lower(k) == Const_Content_Length then
+            if string.lower(k) ~= Const_Content_Length then
                 table.insert(head_list, string.format(Head_Line_Format, k, v))
             end
         end
@@ -79,7 +94,8 @@ function gen_http_rsp_content(state_code, state_msg, heads_map, body_str)
     if body_str then
         table.insert(head_list, string.format(Head_Line_Format, Const_Content_Length, #body_str))
     end
-    local ret = string.format("%s%s\r\n%s", state_line, table.concat(head_list, "\r\n"), body_str or "")
+    local heads_content = table.concat(head_list, "")
+    local ret = string.format("%s%s\r\n%s", state_line, heads_content, body_str or "")
     log_debug("gen_http_rsp_content %s", ret)
     return ret
 end
