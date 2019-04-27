@@ -7,7 +7,7 @@ function Functional.safe_call(fn, ...)
 end
 
 function Functional.call(fn, ...)
-    return pcall(fn, ...)
+    return fn(...)
 end
 
 function  Functional.varlen_param_info(...)

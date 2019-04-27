@@ -1,11 +1,16 @@
 
-NetListen = NetListen or class("NetListen", net_handler)
+NetListen = NetListen or class("NetListen", NetHandler)
 
 function NetListen:ctor()
-    self.super:ctor()
+    NetListen.super.ctor(self)
     self.gen_cnn_cb = nil
     self.native_handler = native.make_shared_lua_tcp_listen()
     self.native_handler:init(self)
+end
+
+function NetListen:reset()
+    NetListen.super.reset(self)
+    self.gen_cnn_cb = nil
 end
 
 function NetListen:set_gen_cnn_cb(cb)
@@ -18,12 +23,6 @@ function NetListen:gen_cnn()
         return cnn:cnn_handler_shared_ptr()
     end
     return nil
-end
-
-function NetListen:Reset()
-    self.super:Reset()
-    self.gen_cnn_cb = nil
-    self.native_tcp_listen = nil
 end
 
 function NetListen:listen_handler_shared_ptr()

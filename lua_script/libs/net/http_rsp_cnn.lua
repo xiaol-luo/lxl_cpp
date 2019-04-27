@@ -1,8 +1,8 @@
 
-HttpRspCnn = HttpRspCnn or class("HttpRspCnn", net_handler)
+HttpRspCnn = HttpRspCnn or class("HttpRspCnn", NetCnn)
 
 function HttpRspCnn:ctor(net_handler_map)
-    self.super:ctor()
+    HttpRspCnn.super.ctor(self)
     self.native_handler = native.make_shared_http_rsp_cnn(net_handler_map:get_native_weak_ptr())
     self.native_handler:set_req_cb(Functional.make_closure(HttpRspCnn._on_req_cb, self))
     self.native_handler:set_event_cb(Functional.make_closure(HttpRspCnn._on_event_cb, self))
@@ -10,27 +10,10 @@ function HttpRspCnn:ctor(net_handler_map)
     self.req_cb = nil
 end
 
-function HttpRspCnn:Reset()
-    if self.native_handler then
-        Net.close(self.native_handler:netid())
-        self.native_handler = nil
-    end
-end
-
-function HttpRspCnn:cnn_handler_shared_ptr()
-    return native.to_connect_handler_shared_ptr(self.native_handler)
-end
-
-function HttpRspCnn:cnn_handler_weak_ptr()
-    return native.to_connect_handler_weak_ptr(self.native_handler)
-end
-
-function HttpRspCnn:send(bin)
-    if not self.native_handler then
-        return false
-    end
-    local ret = self.native_handler:send(bin)
-    return ret
+function HttpRspCnn:reset()
+    HttpRspCnn.super.reset(self)
+    self.event_cb = nil
+    self.req_cb = nil
 end
 
 function HttpRspCnn:set_event_cb(fn)

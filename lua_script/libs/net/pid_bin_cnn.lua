@@ -1,11 +1,16 @@
 
-PidBinCnn = PidBinCnn or class("PidBinCnn", net_handler)
+PidBinCnn = PidBinCnn or class("PidBinCnn", NetCnn)
 
 function PidBinCnn:ctor()
-    self.super:ctor()
-    self.recv_cb = nil
+    PidBinCnn.super.ctor(self)
     self.native_handler = native.make_shared_lua_tcp_connect()
     self.native_handler:init(self)
+    self.recv_cb = nil
+end
+
+function PidBinCnn:reset()
+    PidBinCnn.super.reset(self)
+    self.recv_cb = nil
 end
 
 function PidBinCnn:set_recv_cb(cb)
@@ -14,21 +19,6 @@ end
 
 function PidBinCnn:on_recv(pid, bin)
     Functional.safe_call(self.recv_cb, self, pid, bin)
-end
-
-function PidBinCnn:Reset()
-    self.super:Reset()
-    self.recv_cb = nil
-    self.native_tcp_cnn = nil
-end
-
-function PidBinCnn:cnn_handler_shared_ptr()
-    assert(self.native_handler)
-    return native.to_connect_handler_shared_ptr(self.native_handler)
-end
-
-function PidBinCnn:cnn_handler_weak_ptr()
-    return native.to_connect_handler_weak_ptr(self.native_handler)
 end
 
 function PidBinCnn:send(pid, bin)
