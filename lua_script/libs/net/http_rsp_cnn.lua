@@ -24,7 +24,7 @@ function HttpRspCnn:set_req_cb(fn)
     self.req_cb = fn
 end
 
-function HttpRspCnn:_on_req_cb(native_cnn, method, url, heads, body, body_len)
+function HttpRspCnn:_on_req_cb(native_cnn , method, url, heads, body, body_len)
     if self.req_cb then
         local is_ok, ret = Functional.safe_call(self.req_cb, self, method, url, heads, body, body_len)
         return is_ok and ret or false
@@ -34,7 +34,7 @@ end
 
 function HttpRspCnn:_on_event_cb(native_cnn, event_type, err_num)
     if self.event_cb then
-        Functional.safe_call(self.event_cb, event_type, err_num)
+        Functional.safe_call(self.event_cb, self, event_type, err_num)
     end
 end
 

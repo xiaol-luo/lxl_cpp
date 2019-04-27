@@ -34,15 +34,15 @@ function HttpService:set_handle_fn(method_name, handle_fn)
     end
 end
 
-function HttpService:on_listener_open(native_listener_ptr, err_num)
+function HttpService:on_listener_open(net_listen, err_num)
     log_debug("HttpService:on_listener_open err_num:%s", err_num)
 end
 
-function HttpService:on_listener_close(native_listener_ptr, err_num)
+function HttpService:on_listener_close(net_listen, err_num)
     log_debug("HttpService:on_listener_close err_num:%s", err_num)
 end
 
-function HttpService:do_gen_cnn_handler(native_listener)
+function HttpService:do_gen_cnn_handler(net_listen)
     local cnn = HttpRspCnn:new(self.net_handler_map)
     cnn:set_req_cb(Functional.make_closure(HttpService.handle_req, self))
     cnn:set_event_cb(Functional.make_closure(HttpService.handle_event, self))
