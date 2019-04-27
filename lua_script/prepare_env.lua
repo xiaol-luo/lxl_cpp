@@ -64,10 +64,9 @@ function ParseArgs.error_handler(err_msg)
     log_error(err_msg)
 end
 
-function ParseArgs.make_closure(fn, ...)
-    local t = {...}
+function ParseArgs.make_closure(fn, opt)
     local ret = function(...)
-        local is_ok, fn_ret = xpcall(fn, ParseArgs.error_handler, table.unpack(t), ...)
+        local is_ok, fn_ret = xpcall(fn, ParseArgs.error_handler, opt, ...)
         if is_ok then
             return fn_ret
         end

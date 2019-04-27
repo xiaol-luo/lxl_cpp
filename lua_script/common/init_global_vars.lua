@@ -1,4 +1,6 @@
 
+Functional.error_handler = error_handler
+
 rapidjson = require('rapidjson')
 
 -- lua下序列化反序列化工具

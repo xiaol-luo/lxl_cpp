@@ -16,11 +16,11 @@ function net_handler:set_close_cb(cb)
 end
 
 function net_handler:on_open(err_num)
-    self.open_cb(self, err_num)
+    Functional.safe_call(self.open_cb, err_num)
 end
 
 function net_handler:on_close(err_num)
-    self.close_cb(self, err_num)
+    Functional.safe_call(self.close_cb, err_num)
 end
 
 function net_handler:netid()

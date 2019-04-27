@@ -13,7 +13,7 @@ function PidBinCnn:set_recv_cb(cb)
 end
 
 function PidBinCnn:on_recv(pid, bin)
-    return self.recv_cb (self, pid, bin)
+    Functional.safe_call(self.recv_cb, self, pid, bin)
 end
 
 function PidBinCnn:Reset()

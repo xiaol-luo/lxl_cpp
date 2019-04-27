@@ -6,8 +6,6 @@ function HttpService:ctor()
     self.fn_map = {}
 end
 
-local make_cb = Functional.make_closure
-
 function HttpService:start(port)
     -- self.listener = native.make_shared_common_listener()
     self.listener = NetListen:new()
@@ -46,8 +44,8 @@ end
 
 function HttpService:do_gen_cnn_handler(native_listener)
     local cnn = HttpRspCnn:new(self.net_handler_map)
-    cnn:set_req_cb(make_cb(HttpService.handle_req, self))
-    cnn:set_event_cb(make_cb(HttpService.handle_event, self))
+    cnn:set_req_cb(Functional.make_closure(HttpService.handle_req, self))
+    cnn:set_event_cb(Functional.make_closure(HttpService.handle_event, self))
     return cnn
 end
 
@@ -62,7 +60,6 @@ function HttpService:handle_req(cnn, enum_method, req_url, heads_map, body, body
         is_ok, rsp_content = safe_call(process_fn, enum_method, req_url, heads_map, body, body_len)
         if not is_ok then
             rsp_content = gen_http_rsp_content(500, "ServerInternalEorror", nil, nil)
-            -- 500
         end
     else
         rsp_content = gen_http_rsp_content(404, "NoMethod", nil, nil)

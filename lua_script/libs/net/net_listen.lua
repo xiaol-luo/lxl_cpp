@@ -13,8 +13,11 @@ function NetListen:set_gen_cnn_cb(cb)
 end
 
 function NetListen:gen_cnn()
-    local cnn = self.gen_cnn_cb(self)
-    return cnn:cnn_handler_shared_ptr()
+    local is_ok, cnn = Functional.safe_call(self.gen_cnn_cb, self)
+    if is_ok then
+        return cnn:cnn_handler_shared_ptr()
+    end
+    return nil
 end
 
 function NetListen:Reset()

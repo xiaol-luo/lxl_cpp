@@ -29,7 +29,7 @@ function HttpRspCnn:send(bin)
     if not self.native_handler then
         return false
     end
-    local ret = self.native_handler:send(pid)
+    local ret = self.native_handler:send(bin)
     return ret
 end
 
@@ -42,17 +42,16 @@ function HttpRspCnn:set_req_cb(fn)
 end
 
 function HttpRspCnn:_on_req_cb(native_cnn, method, url, heads, body, body_len)
-    log_debug("HttpRspCnn:_on_req_cb xxxxxx")
     if self.req_cb then
-        return self.req_cb(self, method, url, heads, body, body_len)
-    else
-        return false
+        local is_ok, ret = Functional.safe_call(self.req_cb, self, method, url, heads, body, body_len)
+        return is_ok and ret or false
     end
+    return false
 end
 
 function HttpRspCnn:_on_event_cb(native_cnn, event_type, err_num)
     if self.event_cb then
-        self.event_cb(self, event_type, err_num)
+        Functional.safe_call(self.event_cb, event_type, err_num)
     end
 end
 
