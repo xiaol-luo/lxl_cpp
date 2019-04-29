@@ -10,12 +10,12 @@ end
 AvatarService = AvatarService or class("AvatarService", ServiceBase)
 
 function AvatarService:ctor()
-    self.super.ctor(self)
+    AvatarService.super.ctor(self)
     self.avatar_rpc_client = nil
 end
 
 function AvatarService:init()
-    self.super.init(self)
+    AvatarService.super.init(self)
 end
 
 function AvatarService:create_zone_service_msg_handler()
@@ -51,7 +51,7 @@ function AvatarService:create_zone_service_rpc_mgr()
 end
 
 function AvatarService:start()
-    self.super.start(self)
+    AvatarService.super.start(self)
 
     self.avatar_rpc_client = RpcClient:new(self.zone_service_rpc_mgr, self.zone_service_mgr.etcd_service_key)
 
@@ -61,15 +61,15 @@ function AvatarService:start()
 end
 
 function AvatarService:stop()
-    self.super.stop(self)
+    AvatarService.super.stop(self)
 end
 
 function AvatarService:OnNotifyQuitGame()
-    self.super.OnNotifyQuitGame(self)
+    AvatarService.super.OnNotifyQuitGame(self)
 end
 
 function AvatarService:CheckCanQuitGame()
-    local can_quit = self.super.CheckCanQuitGame(self)
+    local can_quit = AvatarService.super.CheckCanQuitGame(self)
     if not can_quit then
         return false
     end
@@ -77,7 +77,7 @@ function AvatarService:CheckCanQuitGame()
 end
 
 function AvatarService:on_frame()
-    self.super.on_frame(self)
+    AvatarService.super.on_frame(self)
 end
 
 function AvatarService:for_test()

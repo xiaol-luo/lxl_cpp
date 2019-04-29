@@ -2,12 +2,12 @@
 ZoneServiceMsgHandlerbase = ZoneServiceMsgHandlerbase or class("ZoneServiceMsgHandlerbase", MsgHandlerBase)
 
 function ZoneServiceMsgHandlerbase:ctor()
-    self.super:ctor()
+    ZoneServiceMsgHandlerbase.super.ctor(self)
     self.zs_mgr = nil
 end
 
 function ZoneServiceMsgHandlerbase:init(...)
-    self.super:init(...)
+    ZoneServiceMsgHandlerbase.super.init(self, ...)
 end
 
 function ZoneServiceMsgHandlerbase:set_zone_service_mgr(zs_mgr)

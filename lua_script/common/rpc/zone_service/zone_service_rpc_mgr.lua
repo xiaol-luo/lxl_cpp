@@ -2,12 +2,12 @@
 ZoneServiceRpcMgr = ZoneServiceRpcMgr or class("ZoneServiceRpcMgr", RpcMgrBase)
 
 function ZoneServiceRpcMgr:ctor()
-    self.super:ctor()
+    ZoneServiceRpcMgr.super.ctor(self)
     self.msg_handler = nil
 end
 
 function ZoneServiceRpcMgr:init(zs_msg_handler)
-    self.super:init()
+    ZoneServiceRpcMgr.super.init(self)
     self.msg_handler = zs_msg_handler
     local handle_fn =  function(from_service, pid, msg)
         self:on_msg(from_service, pid, msg)
@@ -17,7 +17,7 @@ function ZoneServiceRpcMgr:init(zs_msg_handler)
 end
 
 function ZoneServiceRpcMgr:destory()
-    self.super:destory()
+    ZoneServiceRpcMgr.super.destory(self)
     if self.msg_handler then
         self.msg_handler:set_handler_msg_fn(System_Pid.Zone_Service_Rpc_Rsp, nil)
     end

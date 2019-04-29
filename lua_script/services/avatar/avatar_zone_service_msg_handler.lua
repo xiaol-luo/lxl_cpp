@@ -2,11 +2,11 @@
 AvatarZoneServiceMsgHandler = AvatarZoneServiceMsgHandler or class("AvatarZoneServiceMsgHandler", ZoneServiceMsgHandlerbase)
 
 function AvatarZoneServiceMsgHandler:ctor()
-    self.super:ctor()
+    AvatarZoneServiceMsgHandler.super.ctor(self)
 end
 
 function AvatarZoneServiceMsgHandler:init(...)
-    self.super:init(...)
+    AvatarZoneServiceMsgHandler.super.init(self, ...)
     self:set_handler_msg_fn(System_Pid.Test_5, Functional.make_closure(self.handle_Test_5, self))
     self:set_handler_msg_fn(System_Pid.Test_6, Functional.make_closure(self.handle_Test_6, self))
 end
