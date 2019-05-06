@@ -18,6 +18,10 @@ function AvatarService:init()
     AvatarService.super.init(self)
 end
 
+function ServiceBase:setup_modules()
+    log_debug("ServiceBase:setup_modules")
+end
+
 function AvatarService:create_zone_service_msg_handler()
     local msg_handler = AvatarZoneServiceMsgHandler:new()
     msg_handler:init()

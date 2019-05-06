@@ -10,6 +10,7 @@ function ServiceBase:ctor()
     self.zone_service_msg_handler = nil
     self.zone_service_rpc_mgr = nil
     self.event_mgr = nil
+    self.module_mgr = nil
 end
 
 function ServiceBase:init()
@@ -43,6 +44,13 @@ function ServiceBase:init()
 
     self.zone_service_rpc_mgr = self:create_zone_service_rpc_mgr()
     self.zone_service_rpc_mgr:init(self.zone_service_msg_handler)
+
+    self.module_mgr = ServiceModuleMgr:new(self)
+    self:setup_modules()
+end
+
+function ServiceBase:setup_modules()
+    assert(false, "should not reach here")
 end
 
 function ServiceBase:create_zone_service_msg_handler()
@@ -60,10 +68,12 @@ end
 
 function ServiceBase:start()
     self:start_zone_service()
+    self.module_mgr:start()
     self.timer_proxy:firm(Functional.make_closure(self.on_frame, self), SERVICE_MICRO_SEC_PER_FRAME, -1)
 end
 
 function ServiceBase:stop()
+    self.module_mgr:stop()
     self.timer_proxy:release_all()
     self:stop_zone_service()
 end
@@ -77,6 +87,8 @@ function ServiceBase:stop_zone_service()
 end
 
 function ServiceBase:on_frame()
+    self.module_mgr:on_frame()
+
     self.zone_service_mgr:on_frame()
     self.zone_service_rpc_mgr:on_frame()
 end

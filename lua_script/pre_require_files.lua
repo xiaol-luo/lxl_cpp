@@ -60,6 +60,9 @@ local files = {
     "common.rpc.zone_service.zone_service_rpc_mgr",
     "services.service_def",
     "services.service_base",
+    "services.service_module.service_module_def",
+    "services.service_module.service_module",
+    "services.service_module.service_module_mgr",
     "common.init_global_vars",
 }
 return files
