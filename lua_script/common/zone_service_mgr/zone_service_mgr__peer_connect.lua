@@ -220,7 +220,7 @@ function ZoneServiceMgr:send_by_id(service_id, pid, bin)
     if not found_key then
         return false
     end
-    return self:send_to_service_by_name(found_key, pid, bin)
+    return self:send(found_key, pid, bin)
 end
 
 function ZoneServiceMgr:send(service_name, pid, bin)

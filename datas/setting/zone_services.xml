@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
-	<etcd>
-		<!-- <host>http://124.156.106.95:2379</host> -->
-		<host>http://127.0.0.1:2379</host>
-		<user>root</user>
-		<pwd>xiaolzz</pwd>
-		<root_dir>/zone_1024</root_dir>
-		<ttl>10</ttl>
-	</etcd>
-	<services>
+	<zone0>
+		<etcd>
+			<!-- <host>http://124.156.106.95:2379</host> -->
+			<host>http://127.0.0.1:2379</host>
+			<user>root</user>
+			<pwd>xiaolzz</pwd>
+			<ttl>10</ttl>
+		</etcd>
 		<avatar>
-			<instance>			
-				<idx>0</idx>
+			<0>			
 				<id>1001</id>
-				<listen_peer_port>51000</listen_peer_port>
-			</instance>
-			<instance>			
-				<idx>1</idx>
+				<listen_ip>127.0.0.1</listen_ip>
+				<listen_port>51001</listen_port>
+			</0>
+			<1>			
 				<id>1002</id>
-				<listen_peer_port>52000</listen_peer_port>
-			</instance>
+				<listen_ip>127.0.0.1</listen_ip>
+				<listen_port>51002</listen_port>
+			</1>
 		</avatar>
-	</services>
+	</zone0>
 </root>

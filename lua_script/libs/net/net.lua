@@ -2,11 +2,11 @@
 Net = Net or {}
 
 function Net.connect(ip, port, cnn_handler)
-    return native.net_connect(ip, port, cnn_handler:cnn_handler_weak_ptr())
+    return native.net_connect(ip, tonumber(port), cnn_handler:cnn_handler_weak_ptr())
 end
 
 function Net.listen(ip, port, listen_handler)
-    return native.net_listen(ip, port, listen_handler:listen_handler_weak_ptr())
+    return native.net_listen(ip, tonumber(port), listen_handler:listen_handler_weak_ptr())
 end
 
 function Net.close(netid)

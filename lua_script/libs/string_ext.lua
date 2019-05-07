@@ -586,8 +586,8 @@ function string.ltrim(str, chs)
 end
 
 --去除前后的空格和换行
-function string.lrtrim( str )
-	return string.rtrim(string.ltrim(str))
+function string.lrtrim(str, chs)
+	return string.rtrim(string.ltrim(str, chs), chs)
 end
 
 function string.contains(str, pattern, plain)

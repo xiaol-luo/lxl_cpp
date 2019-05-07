@@ -1,5 +1,5 @@
 
-Service_Cfg_Const =
+Service_Const =
 {
     Root = "root",
     Etcd = "etcd",
@@ -11,16 +11,18 @@ Service_Cfg_Const =
     Services = "services",
     Avatar = "avatar",
     Instance = "instance",
-    Listen_Peer_Port = "listen_peer_port",
+    Listen_Port = "listen_port",
+    Listen_Ip = "listen_ip",
     Id = "id",
     Idx = "idx",
+    Etcd_Cfg_File = "etcd_cfg_file",
+    Zone = "zone",
+    Service = "service",
 }
 
-MAIN_ARGS_SERVICE_FULL_NAME = "service" -- MAIN_ARGS[MAIN_ARGS_SERVICE_NAME].MAIN_ARGS[MAIN_ARGS_SERVICE_IDX]
-MAIN_ARGS_SERVICE_NAME = "service_name"
-MAIN_ARGS_SERVICE_IDX = "service_idx"
-MAIN_ARGS_ZONE_NAME = "zone_name"
+MAIN_ARGS_SERVICE = "service"
 MAIN_ARGS_DATA_DIR = "data_dir"
+MAIN_ARGS_CONFIG_FILE = "config_file"
 MAIN_ARGS_LOGIC_PARAM = "logic_param"
 
 MICRO_SEC_PER_SEC = 1000

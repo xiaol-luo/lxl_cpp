@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<zone>zone0</zone>
+	<service>avatar</service>
+	<idx>0</idx>
+	<etcd_cfg_file>setting/zone_services.xml</etcd_cfg_file>
+</root>

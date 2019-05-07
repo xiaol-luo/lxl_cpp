@@ -12,6 +12,7 @@ extern "C"
 extern const int Args_Index_Service_Name;
 extern const int Args_Index_WorkDir;
 extern const int Args_Index_Data_Dir;
+extern const int Args_Index_Config_File;
 extern const int Args_Index_Lua_Dir;
 extern const int Args_Index_Min_Value;
 
@@ -20,6 +21,7 @@ extern const char *Const_Lua_Args_Begin;
 extern const char *Const_Opt_Lua_Path;
 extern const char *Const_Opt_C_Path;
 extern const char *Const_Opt_Data_Dir;
+extern const char *Const_Opt_Config_File;
 extern const char *Const_Opt_Service_Name;
 extern const char *Const_Opt_Native_Other_Params;
 

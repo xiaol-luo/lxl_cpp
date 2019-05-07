@@ -10,7 +10,11 @@ function ServiceModule:ctor(module_mgr, module_name)
     self.error_msg = ""
 end
 
-function ServiceModule:curr_state()
+function ServiceModule:get_module_name()
+    return self.module_name
+end
+
+function ServiceModule:get_curr_state()
     return self.curr_state
 end
 
@@ -20,7 +24,7 @@ function ServiceModule:to_update_state()
     end
 end
 
-function ServiceModule:error()
+function ServiceModule:get_error()
     return self.error_num, self.error_msg
 end
 

@@ -103,6 +103,16 @@ function ProtoParser:sproto_decode(proto_name, block)
     return self:decode_by_name(Proto_Const.Sproto, proto_name, block)
 end
 
+ function parse_proto(search_dirs, proto_files, pid_proto_map)
+     local ret = ProtoParser:new()
+     -- log_debug(proto_dir)
+     ret:add_search_dirs(search_dirs)
+     proto_files = proto_files or {}
+     pid_proto_map = pid_proto_map or {}
+     local is_ok = ret:init(proto_files, pid_proto_map)
+     return is_ok and ret or nil
+ end
+
 
 
 

@@ -129,6 +129,8 @@ std::vector<std::string> ServiceMakeLuaExtraArgs(int argc, char ** argv)
 	extra_args.push_back(argv[Args_Index_WorkDir]);
 	extra_args.push_back(Const_Opt_Data_Dir);
 	extra_args.push_back(argv[Args_Index_Data_Dir]);
+	extra_args.push_back(Const_Opt_Config_File);
+	extra_args.push_back(argv[Args_Index_Config_File]);
 	extra_args.push_back(Const_Opt_Native_Other_Params);
 	int curr_idx = Args_Index_Lua_Dir + 1;
 	while (curr_idx < argc)

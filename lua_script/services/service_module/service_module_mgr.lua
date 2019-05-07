@@ -13,7 +13,8 @@ function ServiceModuleMgr:create_event_proxy()
     return self.service:create_event_proxy()
 end
 
-function ServiceModuleMgr:add_module(name, module)
+function ServiceModuleMgr:add_module(module)
+    local name = module:get_module_name()
     assert(self.curr_state < ServiceModuleState.Starting)
     assert(not self.modules[name])
     self.modules[name] = module
@@ -60,8 +61,8 @@ function ServiceModuleMgr:on_frame()
         if ServiceModuleState.Starting == self.curr_state then
             local all_started = true
             for _, m in pairs(self.modules) do
-                local e_num, e_msg = m:error()
-                local m_curr_state = m:curr_state()
+                local e_num, e_msg = m:get_error()
+                local m_curr_state = m:get_curr_state()
                 if e_num then
                     all_started = false
                     self.error_num = e_num
@@ -81,8 +82,8 @@ function ServiceModuleMgr:on_frame()
     if ServiceModuleState.Stopping == self.curr_state then
         local all_stoped = true
         for _, m in pairs(self.modules) do
-            local e_num, e_msg = m:error()
-            local m_curr_state = m:curr_state()
+            local e_num, e_msg = m:get_error()
+            local m_curr_state = m:get_curr_state()
             if ServiceModuleState.Stopped ~= m_curr_state and not e_num then
                 all_stoped = false
                 break
