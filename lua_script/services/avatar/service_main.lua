@@ -31,16 +31,9 @@ function AvatarService:new_zone_net_rpc_mgr()
     local rpc_mgr = ZoneServiceRpcMgr:new()
 
     local co_fn = function(rsp, ...)
-        log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 2")
-        local st, p1, p2 = self.avatar_rpc_client:simple_rsp("p1", "p2")
-        log_debug("in process fn hello world 1 %s %s %s", st, p1, p2)
         rsp:add_delay_execute(function ()
-            self.avatar_rpc_client:call(nil, "simple_rsp", 1, 2, 3)
             log_debug("reach delay execute fn")
         end)
-        st, p1, p2 = self.avatar_rpc_client:simple_rsp("p3", "p4")
-        log_debug("in process fn hello world 2 %s %s %s", st, p1, p2)
-        -- rsp:respone(...)
         return Rpc_Const.Action_Return_Result, ...
     end
     rpc_mgr:set_req_msg_coroutine_process_fn("hello_world", co_fn)
