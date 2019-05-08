@@ -4,14 +4,20 @@ ZoneNetModule = ZoneNetModule or class("ZoneNetModule", ServiceModule)
 function ZoneNetModule:ctor(module_mgr, module_name)
     ZoneNetModule.super.ctor(self, module_mgr, module_name)
     self.zone_net = nil
+    self.zone_name = nil
 end
 
 function ZoneNetModule:init(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name, service_name, service_idx, service_id, listen_port, listen_ip)
     ZoneNetModule.super.init(self)
+    self.zone_name = string.lrtrim(zone_name, "/")
     self.zone_net = ZoneServiceMgr:new(
             etcd_host, etcd_usr, etcd_pwd, etcd_ttl,
             zone_name, service_name, service_idx, service_id,
             listen_port, listen_ip, self.event_proxy)
+end
+
+function ZoneNetModule:get_zone_name()
+    return self.zone_name
 end
 
 function ZoneNetModule:add_msg_handler(msg_handler)

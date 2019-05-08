@@ -14,12 +14,10 @@ function AvatarService:ctor()
     self.zone_name = nil
     self.service_name = nil
     self.service_idx = nil
-    -- self.service_id = nil
-
-    self.avatar_rpc_client = nil
+    self.zone_net = nil
+    self.msg_handler = nil
+    self.rpc_mgr = nil
 end
-
-function AvatarService.fill_service_infos() end
 
 function AvatarService:init()
     -- init global PROTO_PARSER
@@ -48,26 +46,54 @@ function ServiceBase:setup_modules()
     local etcd_service_cfg = etcd_cfg[self.zone_name][self.service_name][tostring(self.service_idx)]
     self.service_id = etcd_service_cfg[SC.Id]
 
-    log_debug("1 %s", etcd_svr_cfg)
-    log_debug("2 %s", etcd_service_cfg)
-    log_debug("3 %s %s %s",  self.zone_name, self.service_name, self.service_idx)
-
-    local zone_net_module = ZoneNetModule:new(self.module_mgr, "zone_net")
-    self.module_mgr:add_module(zone_net_module)
-    zone_net_module:init(
+    self.zone_net = ZoneNetModule:new(self.module_mgr, "zone_net")
+    self.module_mgr:add_module(self.zone_net)
+    self.zone_net:init(
             etcd_svr_cfg[SC.Etcd_Host], etcd_svr_cfg[SC.Etcd_User], etcd_svr_cfg[SC.Etcd_Pwd], etcd_svr_cfg[SC.Etcd_Ttl],
             self.zone_name, self.service_name, self.service_idx,
             etcd_service_cfg[SC.Id], etcd_service_cfg[SC.Listen_Port], etcd_service_cfg[SC.Listen_Ip])
+    self.msg_handler = self:new_zone_net_msg_handler()
+    self.rpc_mgr = self:new_zone_net_rpc_mgr()
+    self.rpc_mgr:init(self.msg_handler)
+    self.zone_net:add_msg_handler(self.msg_handler)
 end
 
-function AvatarService:create_zone_service_msg_handler()
+function AvatarService:new_zone_net_msg_handler()
     local msg_handler = AvatarZoneServiceMsgHandler:new()
     msg_handler:init()
     return msg_handler
 end
 
+function AvatarService:new_zone_net_rpc_mgr()
+    local rpc_mgr = ZoneServiceRpcMgr:new()
+
+    local co_fn = function(rsp, ...)
+        log_debug("aaaaaaaaaaaaaaaaaaaaaaaaaaa 2")
+        local st, p1, p2 = self.avatar_rpc_client:simple_rsp("p1", "p2")
+        log_debug("in process fn hello world 1 %s %s %s", st, p1, p2)
+        rsp:add_delay_execute(function ()
+            self.avatar_rpc_client:call(nil, "simple_rsp", 1, 2, 3)
+            log_debug("reach delay execute fn")
+        end)
+        st, p1, p2 = self.avatar_rpc_client:simple_rsp("p3", "p4")
+        log_debug("in process fn hello world 2 %s %s %s", st, p1, p2)
+        -- rsp:respone(...)
+        return Rpc_Const.Action_Return_Result, ...
+    end
+    rpc_mgr:set_req_msg_coroutine_process_fn("hello_world", co_fn)
+
+    local simple_rsp_fn = function(rsp, ...)
+        rsp:respone(...)
+    end
+    rpc_mgr:set_req_msg_process_fn("simple_rsp", simple_rsp_fn)
+
+    return rpc_mgr
+end
+
 function AvatarService:start()
     AvatarService.super.start(self)
+    self.avatar_rpc_client = create_rpc_client(self.rpc_mgr, self.zone_name, self.service_name, self.service_idx)
+    self:for_test()
 end
 
 function AvatarService:stop()
@@ -88,5 +114,27 @@ end
 
 function AvatarService:on_frame()
     AvatarService.super.on_frame(self)
+    self.rpc_mgr:on_frame()
 end
 
+function AvatarService:for_test()
+    g_co = coroutine.create(function ()
+        log_debug("reach here 1")
+        local v1, v2, v3 = self.avatar_rpc_client:hello_world(1, "aaa")
+        log_debug("xxxxxxxxxxxx %s %s %s", v1, v2, v3)
+
+        v1, v2, v3 = self.avatar_rpc_client:hello_world(2, "bbb")
+        log_debug("xxxxxxxxxxxx 2 %s %s %s", v1, v2, v3)
+
+        v1, v2, v3 = self.avatar_rpc_client:simple_rsp(2, "bbb")
+        log_debug("xxxxxxxxxxxx 3 %s %s %s", v1, v2, v3)
+
+    end)
+
+    timer_delay(function()
+        local st, msg = coroutine_resume(g_co)
+        if not st then
+            log_debug("coroutine_resume(g_co) error:%s", msg)
+        end
+    end, 2000)
+end
