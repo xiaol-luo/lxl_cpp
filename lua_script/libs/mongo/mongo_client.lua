@@ -8,12 +8,10 @@ function MongoClient:ctor(thread_num, hosts, auth_db, user_name, pwd)
     self.user_name_ = user_name
     self.pwd_ = pwd
     self.mongo_task_mgr_ = native.MongoTaskMgr:new()
-    self.timer_proxy = TimerProxy:new()
 end
 
 function MongoClient:start()
     self:stop()
-    self.timer_proxy:firm(Functional.make_safe_closure(MongoClient.on_tick, self), 100, -1)
     return self.mongo_task_mgr_:start(self.thread_num_, self.hosts_, self.auth_db_,
             self.user_name_, self.pwd_)
 end
@@ -24,9 +22,7 @@ end
 
 function MongoClient:stop()
     self.mongo_task_mgr_:stop()
-    self.timer_proxy:release_all()
 end
-
 
 -- cb_fn = function(result_tb) end
 -- opt = MongoOptFind
