@@ -64,6 +64,7 @@ local files = {
     "services.service_module.service_module",
     "services.service_module.service_module_mgr",
     "services.service_module.zone_net_module",
+    "services.service_module.http_net_module",
     "common.init_global_vars",
 }
 return files

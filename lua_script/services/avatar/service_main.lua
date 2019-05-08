@@ -17,6 +17,7 @@ function AvatarService:ctor()
     self.zone_net = nil
     self.msg_handler = nil
     self.rpc_mgr = nil
+    self.http_net = nil
 end
 
 function AvatarService:init()
@@ -37,6 +38,7 @@ end
 function ServiceBase:setup_modules()
     log_debug("ServiceBase:setup_modules")
 
+    -- zone net module
     local SC = Service_Const
     local etcd_cfg_file = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], SERVICE_SETTING[SC.Etcd_Cfg_File])
     local etcd_cfg = xml.parse_file(etcd_cfg_file)
@@ -45,7 +47,6 @@ function ServiceBase:setup_modules()
     local etcd_svr_cfg = etcd_cfg[self.zone_name][SC.Etcd]
     local etcd_service_cfg = etcd_cfg[self.zone_name][self.service_name][tostring(self.service_idx)]
     self.service_id = etcd_service_cfg[SC.Id]
-
     self.zone_net = ZoneNetModule:new(self.module_mgr, "zone_net")
     self.module_mgr:add_module(self.zone_net)
     self.zone_net:init(
@@ -56,6 +57,12 @@ function ServiceBase:setup_modules()
     self.rpc_mgr = self:new_zone_net_rpc_mgr()
     self.rpc_mgr:init(self.msg_handler)
     self.zone_net:add_msg_handler(self.msg_handler)
+
+    -- http net module
+    local http_handle_fns = {}
+    self.http_net = HttpNetModule:new(self.module_mgr, "http_net")
+    self.http_net:init(1080, http_handle_fns)
+    self.module_mgr:add_module(self.http_net)
 end
 
 function AvatarService:new_zone_net_msg_handler()
