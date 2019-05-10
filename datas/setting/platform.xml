@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<http>
+		<listen_port>10801</listen_port>
+	</http>
+	<mongo>
+		<host>124.156.106.95:27017</host>
+		<auth_db>admin</auth_db>
+		<user>lxl</user>
+		<pwd>xiaolzz</pwd>
+		<db>platform_account</db>
+	</mongo>
+</root>
