@@ -28,7 +28,7 @@ void HttpRspCnn::OnClose(int err_num)
 	}
 	if (0 != err_num)
 	{
-		log_error("HttpRspCnn::OnClose {}", err_num);
+		log_error("HttpRspCnn::OnClose {} {}", m_netid, err_num);
 	}
 	auto ap_cnn_map = m_cnn_map.lock();
 	if (ap_cnn_map)
@@ -43,9 +43,9 @@ void HttpRspCnn::OnOpen(int err_num)
 	{
 		m_process_event_fn(this, eActionType_Open, err_num);
 	}
-	// log_debug("HttpRspCnn::OnOpen {} {}", m_netid, err_num);
 	if (0 != err_num)
 	{
+		log_error("HttpRspCnn::OnClose {} {}", m_netid, err_num);
 	}
 	else
 	{

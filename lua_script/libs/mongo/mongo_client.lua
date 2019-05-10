@@ -24,6 +24,24 @@ function MongoClient:stop()
     self.mongo_task_mgr_:stop()
 end
 
+local process_mongo_cb = function(cb_fn, ret_json_str)
+    if cb_fn then
+        local ret = rapidjson.decode(ret_json_str)
+        local val_str = ret["val"]
+        if val_str then
+            ret["val"] = rapidjson.decode(val_str)
+        end
+        safe_call(cb_fn, ret)
+    end
+end
+local wrap_mongo_cb = function(cb_fn)
+    local ret = nil
+    if cb_fn then
+        ret = Functional.make_closure(process_mongo_cb, cb_fn)
+    end
+    return ret
+end
+
 -- cb_fn = function(result_tb) end
 -- opt = MongoOptFind
 function MongoClient:find_one(hash_code, db, coll, filter, cb_fn, opt)
@@ -32,7 +50,7 @@ function MongoClient:find_one(hash_code, db, coll, filter, cb_fn, opt)
     assert(nil == opt or IsClassInstance(opt, MongoOptFind))
     local filter_str = rapidjson.encode(filter)
     local opt_str = nil == opt and "{}" or opt:to_json()
-    return self.mongo_task_mgr_:find_one(hash_code, db, coll, filter_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:find_one(hash_code, db, coll, filter_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:find_many(hash_code, db, coll, filter, cb_fn, opt)
@@ -41,7 +59,7 @@ function MongoClient:find_many(hash_code, db, coll, filter, cb_fn, opt)
     assert(nil == opt or IsClassInstance(opt, MongoOptFind))
     local filter_str = rapidjson.encode(filter)
     local opt_str = nil == opt and "{}" or opt:to_json()
-    return self.mongo_task_mgr_:find_many(hash_code, db, coll, filter_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:find_many(hash_code, db, coll, filter_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:insert_one(hash_code, db, coll, doc, cb_fn)
@@ -49,7 +67,7 @@ function MongoClient:insert_one(hash_code, db, coll, doc, cb_fn)
     assert(nil == cb_fn or IsFunction(cb_fn))
     local doc_str = rapidjson.encode(doc)
     local opt_str = "{}"
-    return self.mongo_task_mgr_:insert_one(hash_code, db, coll, doc_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:insert_one(hash_code, db, coll, doc_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:insert_many(hash_code, db, coll, doc_array, cb_fn)
@@ -58,7 +76,7 @@ function MongoClient:insert_many(hash_code, db, coll, doc_array, cb_fn)
     assert(nil == opt or IsClassInstance(opt, MongoOptFind))
     local docs_str = rapidjson.encode(doc_array)
     local opt_str = "{}"
-    self.mongo_task_mgr_:insert_many(hash_code, db, coll, docs_str, opt_str, cb_fn)
+    self.mongo_task_mgr_:insert_many(hash_code, db, coll, docs_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:delete_one(hash_code, db, coll, filter, cb_fn)
@@ -66,7 +84,7 @@ function MongoClient:delete_one(hash_code, db, coll, filter, cb_fn)
     assert(nil == cb_fn or IsFunction(cb_fn))
     local filter_str = rapidjson.encode(filter)
     local opt_str = "{}"
-    return self.mongo_task_mgr_:delete_one(hash_code, db, coll, filter_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:delete_one(hash_code, db, coll, filter_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:delete_many(hash_code, db, coll, filter, cb_fn)
@@ -74,7 +92,7 @@ function MongoClient:delete_many(hash_code, db, coll, filter, cb_fn)
     assert(nil == cb_fn or IsFunction(cb_fn))
     local filter_str = rapidjson.encode(filter)
     local opt_str = "{}"
-    return self.mongo_task_mgr_:delete_many(hash_code, db, coll, filter_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:delete_many(hash_code, db, coll, filter_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:update_one(hash_code, db, coll, filter, doc, cb_fn, opt)
@@ -85,7 +103,7 @@ function MongoClient:update_one(hash_code, db, coll, filter, doc, cb_fn, opt)
     local filter_str = rapidjson.encode(filter)
     local doc_str = rapidjson.encode(doc)
     local opt_str = nil == opt and "{}" or opt:to_json()
-    return self.mongo_task_mgr_:update_one(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:update_one(hash_code, db, coll, filter_str, doc_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:update_many(hash_code, db, coll, filter, doc, cb_fn, opt)
@@ -96,7 +114,7 @@ function MongoClient:update_many(hash_code, db, coll, filter, doc, cb_fn, opt)
     local filter_str = rapidjson.encode(filter)
     local doc_str = rapidjson.encode(doc)
     local opt_str = nil == opt and "{}" or opt:to_json()
-    return self.mongo_task_mgr_:update_many(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:update_many(hash_code, db, coll, filter_str, doc_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:find_one_and_delete(hash_code, db, coll, filter, cb_fn)
@@ -104,7 +122,7 @@ function MongoClient:find_one_and_delete(hash_code, db, coll, filter, cb_fn)
     assert(nil == cb_fn or IsFunction(cb_fn))
     local filter_str = rapidjson.encode(filter)
     local opt_str = "{}"
-    return self.mongo_task_mgr_:replace_one(hash_code, db, coll, filter_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:replace_one(hash_code, db, coll, filter_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:find_one_and_update(hash_code, db, coll, filter, doc, cb_fn, opt)
@@ -115,7 +133,7 @@ function MongoClient:find_one_and_update(hash_code, db, coll, filter, doc, cb_fn
     local filter_str = rapidjson.encode(filter)
     local doc_str = rapidjson.encode(doc)
     local opt_str = nil == opt and "{}" or opt:to_json()
-    return self.mongo_task_mgr_:find_one_and_update(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:find_one_and_update(hash_code, db, coll, filter_str, doc_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:find_one_and_replace(hash_code, db, coll, filter, doc, cb_fn)
@@ -125,7 +143,7 @@ function MongoClient:find_one_and_replace(hash_code, db, coll, filter, doc, cb_f
     local filter_str = rapidjson.encode(filter)
     local doc_str = rapidjson.encode(doc)
     local opt_str = "{}"
-    return self.mongo_task_mgr_:find_one_and_replace(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:find_one_and_replace(hash_code, db, coll, filter_str, doc_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 function MongoClient:count_document(hash_code, db, coll, filter, cb_fn)
@@ -133,7 +151,7 @@ function MongoClient:count_document(hash_code, db, coll, filter, cb_fn)
     assert(nil == cb_fn or IsFunction(cb_fn))
     local filter_str = rapidjson.encode(filter)
     local opt_str = "{}"
-    return self.mongo_task_mgr_:count_document(hash_code, db, coll, filter_str, opt_str, cb_fn)
+    return self.mongo_task_mgr_:count_document(hash_code, db, coll, filter_str, opt_str, wrap_mongo_cb(cb_fn))
 end
 
 

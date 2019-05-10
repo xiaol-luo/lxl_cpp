@@ -16,7 +16,7 @@ function HttpService:start(port)
     self.listener_netid = Net.listen("0.0.0.0", port, self.listener)
     --[[
     self:set_handle_fn("/index", function (...)
-        return gen_http_rsp_content(200, "OK", nil, "hello world")
+        return gen_http_rsp_content(200, "OK", "hello world", nil)
     end)
     ]]
     return 0 ~= self.listener_netid
@@ -55,7 +55,6 @@ function HttpService:handle_req(cnn, method, req_url, kv_params, body)
         local param_str = string.sub(req_url, beg_pos + 1)
         req_url = string.lrtrim(string.sub(req_url, 1, beg_pos - 1), " ")
         for _, kv_str in pairs(string.split(param_str, '&')) do
-            log_debug("yyyyy = %s", kv_str)
             local kv_array = string.split(kv_str, "=")
             if #kv_array >= 2 then
                 local key = string.lrtrim(kv_array[1], " ")
@@ -93,7 +92,7 @@ function HttpService:handle_event(cnn, act, err_num)
 
 end
 
-function gen_http_rsp_content(state_code, state_str, heads_map, body_str)
+function gen_http_rsp_content(state_code, state_str, body_str, heads_map)
     -- log_debug("gen_http_rsp_content %s %s %s %s", state_code, state_msg, heads_map, body_str)
     local State_Line_Format = "HTTP/1.1 %s %s\r\n"
     local Head_Line_Format = "%s:%s\r\n"

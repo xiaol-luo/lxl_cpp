@@ -466,7 +466,7 @@ void NetworkModule::ProcessNetDatas()
 							int err_num = 0;
 							if (nullptr == new_handler || !ChoseWorker(netid)->AddCnn(netid, data->new_fd, new_handler))
 							{
-								err_num = 1;
+								err_num = Net::ERROR_NET_HANDLER_EXPIRED;
 							}
 							if (nullptr != new_handler)
 							{

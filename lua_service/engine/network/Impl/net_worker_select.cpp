@@ -400,8 +400,8 @@ namespace Net
 				}
 				if (0 == read_len)
 				{
-					err_num = 1;
 					close_fd = true;
+					err_num = Net::ERROR_PEER_CLOSED;
 					break;
 				}
 				if (read_len < 0)
@@ -477,7 +477,7 @@ namespace Net
 					if (0 == write_len)
 					{
 						close_fd = true;
-						err_num = 1;
+						err_num = Net::ERROR_WRITE_CLOSED_SOCKET;
 						break;
 					}
 					if (write_len < 0)

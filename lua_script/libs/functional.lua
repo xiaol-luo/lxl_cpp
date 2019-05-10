@@ -19,7 +19,7 @@ local help_fns = {}
 
 function Functional.make_closure(fn, ...)
     local t_len, t = Functional.varlen_param_info(...)
-    assert(t_len < #help_fns, string.format("write more help fns #t=%d", t_len))
+    assert(t_len <= #help_fns, string.format("write more help fns #t=%d", t_len))
     local ret = help_fns[t_len](Functional.call, fn, t)
     return ret
 end
@@ -62,5 +62,18 @@ help_fns[4] = function(call_fn, fn, t)
         return call_fn(fn, t[1], t[2], t[3], t[4], ...)
     end
 end
+
+help_fns[5] = function(call_fn, fn, t)
+    return function(...)
+        return call_fn(fn, t[1], t[2], t[3], t[4], t[5], ...)
+    end
+end
+
+help_fns[6] = function(call_fn, fn, t)
+    return function(...)
+        return call_fn(fn, t[1], t[2], t[3], t[4], t[5], t[6], ...)
+    end
+end
+
 
 
