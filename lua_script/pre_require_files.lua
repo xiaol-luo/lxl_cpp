@@ -25,6 +25,7 @@ local files = {
     "libs.net.net",
     "libs.net.net_handler_map",
     "libs.net.cnn_handler_map",
+    "libs.http.http_def",
     "libs.http.http_service",
     "libs.http.http_client",
     "libs.mongo.mongo_client",

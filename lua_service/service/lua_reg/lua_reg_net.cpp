@@ -6,13 +6,13 @@
 #include "net_handler/http_rsp_cnn.h"
 #include "net_handler/http_req_cnn.h"
 
-static bool http_rsp_cnn__req_cb_fn(sol::protected_function lua_fn, HttpRspCnn * self, uint32_t method, std::string url, std::unordered_map<std::string, std::string> heads,
-	std::string body, uint64_t body_len)
+static bool http_rsp_cnn__req_cb_fn(sol::protected_function lua_fn, HttpRspCnn * self, std::string method, std::string url, std::unordered_map<std::string, std::string> heads,
+	std::string body)
 {
 	bool ret = false;
 	if (lua_fn.valid())
 	{
-		sol::protected_function_result pfr = lua_fn(self, method, url, sol::as_table(heads), body, body_len);
+		sol::protected_function_result pfr = lua_fn(self, method, url, sol::as_table(heads), body);
 		if (pfr.valid() && pfr.return_count() > 0)
 		{
 			sol::type ret_type = pfr.get_type(0);
@@ -30,7 +30,7 @@ static void wrap_http_rsp_cnn__set_req_cb_fn(HttpRspCnn &cnn, sol::protected_fun
 	cnn.SetReqCbFn(std::bind(http_rsp_cnn__req_cb_fn, lua_fn,
 		std::placeholders::_1, std::placeholders::_2,
 		std::placeholders::_3, std::placeholders::_4, 
-		std::placeholders::_5, std::placeholders::_6));
+		std::placeholders::_5));
 }
 
 void lua_reg_net(lua_State *L)

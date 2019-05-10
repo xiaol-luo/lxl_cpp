@@ -106,8 +106,9 @@ void HttpRspCnn::ProcessReq()
 
 	if (nullptr != m_process_req_fn)
 	{
-		is_processed = m_process_req_fn(this, m_parser->method, m_req_url, m_req_heads,
-			std::string(m_req_body->HeadPtr(), m_req_body->Size()), m_req_body->Size());
+		std::string method_str = http_method_str((http_method)m_parser->method);
+		is_processed = m_process_req_fn(this, method_str, m_req_url, m_req_heads,
+			std::string(m_req_body->HeadPtr(), m_req_body->Size()));
 	}
 	if (!is_processed)
 	{

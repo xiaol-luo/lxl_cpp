@@ -2,8 +2,8 @@
 <root>
 	<zone0>
 		<etcd>
-			<!-- <host>http://124.156.106.95:2379</host> -->
-			<host>http://127.0.0.1:2379</host>
+			<host>http://124.156.106.95:2379</host> 
+			<!-- <host>http://127.0.0.1:2379</host> -->
 			<user>root</user>
 			<pwd>xiaolzz</pwd>
 			<ttl>10</ttl>

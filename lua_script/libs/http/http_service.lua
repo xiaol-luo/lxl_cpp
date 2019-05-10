@@ -49,23 +49,43 @@ function HttpService:do_gen_cnn_handler(net_listen)
     return cnn
 end
 
-function HttpService:handle_req(cnn, enum_method, req_url, heads_map, body, body_len)
+function HttpService:handle_req(cnn, method, req_url, kv_params, body)
+    local beg_pos= string.find(req_url, "?", 1, true)
+    if beg_pos then
+        local param_str = string.sub(req_url, beg_pos + 1)
+        req_url = string.lrtrim(string.sub(req_url, 1, beg_pos - 1), " ")
+        for _, kv_str in pairs(string.split(param_str, '&')) do
+            log_debug("yyyyy = %s", kv_str)
+            local kv_array = string.split(kv_str, "=")
+            if #kv_array >= 2 then
+                local key = string.lrtrim(kv_array[1], " ")
+                local val = string.lrtrim(kv_array[2], " ")
+                if key and #key > 0 then
+                    kv_params[key] = val
+                end
+            end
+        end
+    end
     if not req_url or #req_url <= 0 or req_url == "/" then
         req_url = "/index"
     end
+
+    local cnn_id = cnn:netid()
+    local is_processed = false
     local rsp_content = ""
     local process_fn = self.fn_map[req_url]
     if process_fn then
-        local is_ok = false
-        is_ok, rsp_content = safe_call(process_fn, enum_method, req_url, heads_map, body, body_len)
-        if not is_ok then
+        is_processed = safe_call(process_fn, cnn_id, method, req_url, kv_params, body)
+        if not is_processed then
             rsp_content = gen_http_rsp_content(500, "ServerInternalEorror", nil, nil)
         end
     else
         rsp_content = gen_http_rsp_content(404, "NoMethod", nil, nil)
     end
-    Net.send(cnn:netid(), rsp_content)
-    Net.close(cnn:netid())
+    if not is_processed then
+        Net.send(cnn_id, rsp_content)
+        Net.close(cnn_id)
+    end
     return true
 end
 
@@ -93,7 +113,7 @@ function gen_http_rsp_content(state_code, state_str, heads_map, body_str)
     end
     local heads_content = table.concat(head_list, "")
     local ret = string.format("%s%s\r\n%s", state_line, heads_content, body_str or "")
-    log_debug("gen_http_rsp_content %s", ret)
+    log_debug("gen_http_rsp_content:\n%s", ret)
     return ret
 end
 

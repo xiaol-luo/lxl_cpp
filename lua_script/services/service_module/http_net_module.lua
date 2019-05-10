@@ -22,6 +22,7 @@ function HttpNetModule:start()
     if not ret then
         self.error_num = 1
         self.error_msg = "start fail"
+        assert(false, string.format("HttpNetModule listen port %s fail", self.listen_port))
     else
         self.curr_state = ServiceModuleState.Started
     end

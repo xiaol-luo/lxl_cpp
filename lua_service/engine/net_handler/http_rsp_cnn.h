@@ -15,11 +15,10 @@ extern "C"
 class HttpRspCnn;
 
 using HttpRspCnn_FnProcessReq = std::function<bool(HttpRspCnn * /*self*/,
-	uint32_t /*get/post*/,
+	std::string /*get/post*/,
 	std::string /*url*/,
 	std::unordered_map<std::string, std::string> /*heads*/,
-	std::string /*body*/,
-	uint64_t /*body_len*/
+	std::string /*body*/
 	)>;
 
 class HttpRspCnn : public INetConnectHandler
