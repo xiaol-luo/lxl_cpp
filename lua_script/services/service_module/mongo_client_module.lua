@@ -34,6 +34,7 @@ end
 
 -- cb_fn = function(result_tb) end
 -- opt = MongoOptFind
+
 function MongoClientModule:find_one(hash_code, db, coll, filter, cb_fn, opt)
     return self.mongo_client:find_one(hash_code, db, coll, filter, cb_fn, opt)
 end
@@ -59,14 +60,7 @@ function MongoClientModule:delete_many(hash_code, db, coll, filter, cb_fn)
 end
 
 function MongoClientModule:update_one(hash_code, db, coll, filter, doc, cb_fn, opt)
-    assert(IsTable(filter))
-    assert(IsTable(doc))
-    assert(nil == cb_fn or IsFunction(cb_fn))
-    assert(nil == opt or IsClassInstance(opt, MongoOptUpdate))
-    local filter_str = rapidjson.encode(filter)
-    local doc_str = rapidjson.encode(doc)
-    local opt_str = nil == opt and "{}" or opt:to_json()
-    return self.mongo_task_mgr_:update_one(hash_code, db, coll, filter_str, doc_str, opt_str, cb_fn)
+    return self.mongo_client:update_one(hash_code, db, coll, filter, doc, cb_fn, opt)
 end
 
 function MongoClientModule:update_many(hash_code, db, coll, filter, doc, cb_fn, opt)
@@ -78,16 +72,65 @@ function MongoClientModule:find_one_and_delete(hash_code, db, coll, filter, cb_f
 end
 
 function MongoClientModule:find_one_and_update(hash_code, db, coll, filter, doc, cb_fn, opt)
-    return self.find_one_and_update(hash_code, db, coll, filter, doc, cb_fn, opt)
+    return self.mongo_client:find_one_and_update(hash_code, db, coll, filter, doc, cb_fn, opt)
 end
 
 function MongoClientModule:find_one_and_replace(hash_code, db, coll, filter, doc, cb_fn)
-    return self.find_one_and_replace(hash_code, db, coll, filter, doc, cb_fn)
+    return self.mongo_client:find_one_and_replace(hash_code, db, coll, filter, doc, cb_fn)
 end
 
 function MongoClientModule:count_document(hash_code, db, coll, filter, cb_fn)
     return self.mongo_client:count_document(hash_code, db, coll, filter, cb_fn)
 end
+
+function MongoClientModule:co_find_one(hash_code, db, coll, filter, opt)
+    return self.mongo_client:co_find_one(hash_code, db, coll, filter, opt)
+end
+
+function MongoClientModule:co_insert_one(hash_code, db, coll, doc)
+    return self.mongo_client:co_insert_one(hash_code, db, coll, doc)
+end
+
+function MongoClientModule:co_find_many(hash_code, db, coll, filter, opt)
+    return self.mongo_client:co_find_many(hash_code, db, coll, filter, opt)
+end
+
+function MongoClientModule:co_insert_many(hash_code, db, coll, doc_array)
+    return self.mongo_client:co_insert_many(hash_code, db, coll, doc_array)
+end
+
+function MongoClientModule:co_delete_one(hash_code, db, coll, filter)
+    return self.mongo_client:co_delete_one(hash_code, db, coll, filter)
+end
+
+function MongoClientModule:co_delete_many(hash_code, db, coll, filter)
+    return self.mongo_client:co_delete_many(hash_code, db, coll, filter)
+end
+
+function MongoClientModule:co_update_one(hash_code, db, coll, filter, doc, opt)
+    return self.mongo_client:co_update_one(hash_code, db, coll, filter, doc, opt)
+end
+
+function MongoClientModule:co_update_many(hash_code, db, coll, filter, doc, opt)
+    return self.mongo_client:co_update_many(hash_code, db, coll, filter, doc, opt)
+end
+
+function MongoClientModule:co_find_one_and_delete(hash_code, db, coll, filter)
+    return self.mongo_client:co_find_one_and_delete(hash_code, db, coll, filter)
+end
+
+function MongoClientModule:co_find_one_and_update(hash_code, db, coll, filter, doc, opt)
+    return self.mongo_client:co_find_one_and_update(hash_code, db, coll, filter, doc, opt)
+end
+
+function MongoClientModule:co_find_one_and_replace(hash_code, db, coll, filter, doc)
+    return self.mongo_client:co_find_one_and_replace(hash_code, db, coll, filter, doc)
+end
+
+function MongoClientModule:co_count_document(hash_code, db, coll, filter)
+    return self.mongo_client:co_count_document(hash_code, db, coll, filter)
+end
+
 
 
 

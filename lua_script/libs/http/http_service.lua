@@ -112,7 +112,7 @@ function gen_http_rsp_content(state_code, state_str, body_str, heads_map)
     end
     local heads_content = table.concat(head_list, "")
     local ret = string.format("%s%s\r\n%s", state_line, heads_content, body_str or "")
-    log_debug("gen_http_rsp_content:\n%s", ret)
+    -- log_debug("gen_http_rsp_content:\n%s", ret)
     return ret
 end
 

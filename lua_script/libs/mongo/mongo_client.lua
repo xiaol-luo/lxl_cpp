@@ -8,6 +8,7 @@ function MongoClient:ctor(thread_num, hosts, auth_db, user_name, pwd)
     self.user_name_ = user_name
     self.pwd_ = pwd
     self.mongo_task_mgr_ = native.MongoTaskMgr:new()
+    self.delay_execute_fns = {}
 end
 
 function MongoClient:start()
@@ -18,6 +19,11 @@ end
 
 function MongoClient:on_tick()
     self.mongo_task_mgr_:on_frame()
+    local delay_execute_fns = self.delay_execute_fns
+    self.delay_execute_fns = {}
+    for _, fn in ipairs(delay_execute_fns) do
+        fn()
+    end
 end
 
 function MongoClient:stop()
@@ -153,5 +159,80 @@ function MongoClient:count_document(hash_code, db, coll, filter, cb_fn)
     local opt_str = "{}"
     return self.mongo_task_mgr_:count_document(hash_code, db, coll, filter_str, opt_str, wrap_mongo_cb(cb_fn))
 end
+
+function MongoClient:_co_cb(co, ...)
+    local n, params = Functional.varlen_param_info(...)
+    -- Todo: 我不明白为什么这里不能直接 coroutine_resume(co, table.unpack(params, 1, n))
+    table.insert(self.delay_execute_fns, function () coroutine_resume(co, table.unpack(params, 1, n)) end)
+end
+
+function MongoClient:_new_co_cb()
+    local co = coroutine.running()
+    assert(co, "should be called in a running coroutine")
+    local cb_fn = Functional.make_closure(self._co_cb, self, co)
+    return cb_fn
+end
+
+function MongoClient:co_find_one(hash_code, db, coll, filter, opt)
+    self:find_one(hash_code, db, coll, filter, self:_new_co_cb(), opt)
+    return coroutine_yield()
+end
+
+function MongoClient:co_insert_one(hash_code, db, coll, doc)
+    self:insert_one(hash_code, db, coll, doc, self:_new_co_cb())
+    return coroutine_yield()
+end
+
+function MongoClient:co_find_many(hash_code, db, coll, filter, opt)
+    self:find_many(hash_code, db, coll, filter, self:_new_co_cb(), opt)
+    return coroutine_yield()
+end
+
+function MongoClient:co_insert_many(hash_code, db, coll, doc_array)
+    self:insert_many(hash_code, db, coll, doc_array, self:_new_co_cb())
+    return coroutine_yield()
+end
+
+function MongoClient:co_delete_one(hash_code, db, coll, filter)
+    self:delete_one(hash_code, db, coll, filter, self:_new_co_cb())
+    return coroutine_yield()
+end
+
+function MongoClient:co_delete_many(hash_code, db, coll, filter)
+    self:delete_many(hash_code, db, coll, filter, self:_new_co_cb())
+    return coroutine_yield()
+end
+
+function MongoClient:co_update_one(hash_code, db, coll, filter, doc, opt)
+    self:update_one(hash_code, db, coll, filter, doc, self:_new_co_cb(), opt)
+    return coroutine_yield()
+end
+
+function MongoClient:co_update_many(hash_code, db, coll, filter, doc, opt)
+    self:update_many(hash_code, db, coll, filter, doc, self:_new_co_cb(), opt)
+    return coroutine_yield()
+end
+
+function MongoClient:co_find_one_and_delete(hash_code, db, coll, filter)
+    self:find_one_and_delete(hash_code, db, coll, filter, self:_new_co_cb())
+    return coroutine_yield()
+end
+
+function MongoClient:co_find_one_and_update(hash_code, db, coll, filter, doc, opt)
+    self:find_one_and_update(hash_code, db, coll, filter, doc, self:_new_co_cb(), opt)
+    return coroutine_yield()
+end
+
+function MongoClient:co_find_one_and_replace(hash_code, db, coll, filter, doc)
+    self:find_one_and_replace(hash_code, db, coll, filter, doc, self:_new_co_cb())
+    return coroutine_yield()
+end
+
+function MongoClient:co_count_document(hash_code, db, coll, filter)
+    self:count_document(hash_code, db, coll, filter, self:_new_co_cb())
+    return coroutine_yield()
+end
+
+
 
 
