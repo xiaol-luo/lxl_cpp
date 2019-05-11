@@ -66,6 +66,7 @@ end
 
 function AccountLogic:_save_token(from_cnn_id, token, appid, user_name, timestamp)
     local doc = {
+        [Alc.Token] = token,
         [Alc.Appid] = appid,
         [Alc.UserName] = user_name,
         [Alc.Timestamp] = timestamp,
@@ -91,7 +92,7 @@ function AccountLogic:_login_query_cb(from_cnn_id, appid, user_name, pwd, result
         body_tb[Alc.Token] = native.gen_uuid()
         body_tb[Alc.Timestamp] = os.time()
         rsp_client(from_cnn_id, body_tb)
-        self:_save_token(from_cnn_id, appid, user_name, body_tb[Alc.Timestamp])
+        self:_save_token(from_cnn_id, body_tb[Alc.Token], appid, user_name, body_tb[Alc.Timestamp])
         return
     end
 
@@ -103,7 +104,7 @@ function AccountLogic:_login_query_cb(from_cnn_id, appid, user_name, pwd, result
             Functional.make_closure(AccountLogic._login_insert_cb, self, from_cnn_id, appid, user_name, pwd))
 end
 
-function AccountLogic:_login_insert_cb(from_cnn_id,appid, user_name, pwd, result)
+function AccountLogic:_login_insert_cb(from_cnn_id, appid, user_name, pwd, result)
     -- log_debug("AccountLogic:_login_insert_cb %s", result)
     local body_tb = {}
     body_tb.error = ""
@@ -120,5 +121,5 @@ function AccountLogic:_login_insert_cb(from_cnn_id,appid, user_name, pwd, result
         body_tb[Alc.Timestamp] = os.time()
     end
     rsp_client(from_cnn_id, body_tb)
-    self:_save_token(from_cnn_id, appid, user_name, body_tb[Alc.Timestamp])
+    self:_save_token(from_cnn_id, body_tb[Alc.Token], appid, user_name, body_tb[Alc.Timestamp])
 end
