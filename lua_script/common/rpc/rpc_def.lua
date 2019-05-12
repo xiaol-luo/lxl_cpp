@@ -22,13 +22,8 @@ Rpc_Error =
     Unknown = "Unknown",
 }
 
-function varlen_param_info(...)
-    local n = select('#', ...)
-    return n, {...}
-end
-
 function coroutine_resume(co, ...)
-    local n, results = varlen_param_info(coroutine.resume(co, ...))
+    local n, results = Functional.varlen_param_info(coroutine.resume(co, ...))
     local is_ok = results[1]
     if not is_ok then
         log_error("coroutine_resume fail reason:%s", results[2] or "unknown")

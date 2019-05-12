@@ -26,18 +26,21 @@ end
 
 function ServiceBase:start()
     self.module_mgr:start()
+    CoroutineExMgr.start()
     self.timer_proxy:firm(Functional.make_closure(self.on_frame, self),
             SERVICE_MICRO_SEC_PER_FRAME, -1)
 end
 
 function ServiceBase:stop()
     self.module_mgr:stop()
+    CoroutineExMgr.stop()
     self.timer_proxy:release_all()
 end
 
 
 function ServiceBase:on_frame()
     self.module_mgr:on_frame()
+    CoroutineExMgr.on_frame()
 end
 
 function ServiceBase:OnNotifyQuitGame()

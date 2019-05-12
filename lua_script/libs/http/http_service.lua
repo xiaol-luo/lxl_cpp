@@ -12,7 +12,7 @@ function HttpService:start(port)
     self.net_handler_map = CnnHandlerMap:new()
     self.listener:set_gen_cnn_cb(Functional.make_closure(HttpService.do_gen_cnn_handler, self))
     self.listener:set_open_cb(Functional.make_closure(HttpService.on_listener_open, self))
-    self.listener:set_open_cb(Functional.make_closure(HttpService.on_listener_close, self))
+    self.listener:set_close_cb(Functional.make_closure(HttpService.on_listener_close, self))
     self.listener_netid = Net.listen("0.0.0.0", port, self.listener)
     --[[
     self:set_handle_fn("/index", function (...)
