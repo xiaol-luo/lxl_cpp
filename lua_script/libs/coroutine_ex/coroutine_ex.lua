@@ -7,7 +7,7 @@
     3.start函数只能调用一次，且并不会阻塞，马上返回start结果给调用函数。（wrap_main_logic配合做了处理）
     4.resume函数只能对处理 started && can_resume后的线程（do_start 做了处理）
     5.这个线程销毁的时候，会执行over_cb回调函数。
-    6.建议在main_logic的末尾设置custom_data，当作是函数的返回值，然后在over_cb使用custom_data
+    6.main_logic能返回多个值，以这种格式{ n=num, vals=[]}，存储在return_val中。
     7.不建议使用yield返回值给resume，因为很多时候都不知道上一次resume的位置在哪（你搞得清楚其实也能用）。、
         建议yield函数永远不传参数（coroutine.resume 返回值永远忽略，因为很多时候并不特别能定位这次的yield在哪里发生）
         也就是说建议这样用
@@ -22,7 +22,10 @@ CoroutineEx = CoroutineEx or class("CoroutineEx")
 function wrap_main_logic(main_logic)
     return function(...)
         coroutine.yield()
-        main_logic(...)
+        local n, vals = Functional.varlen_param_info(main_logic(...))
+        local co = CoroutineExMgr.get_running()
+        co.return_vals = { n=n, vals=vals }
+        return table.unpack(vals, 1, n)
     end
 end
 
@@ -36,7 +39,8 @@ function CoroutineEx:ctor(main_logic, over_cb)
     self.is_started = false
     self.can_resume = false
     self.timer_proxy = TimerProxy:new()
-    self.custom_data = nil -- 用户自定义数据，可以在协程的最后设置，当作是给over_cb的返回值
+    self.custom_data = nil -- 用户自定义数据
+    self.return_val = nil -- main_logic函数返回值 { n=num, vals=[]}
 end
 
 function CoroutineEx:get_key()
@@ -158,4 +162,8 @@ end
 
 function CoroutineEx:get_custom_data()
     return self.custom_data
+end
+
+function CoroutineEx:get_return_vals()
+    return self.return_vals
 end

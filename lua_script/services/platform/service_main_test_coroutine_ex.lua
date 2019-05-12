@@ -40,8 +40,7 @@ local for_test_main_logic = function()
 
     table.insert(SERVICE_MAIN.delay_execute_fns,function ()
         print("xxxxxxxxxxxxxxxx 1111", co:status(), params)
-        local n, params = ex_coroutine_resume(co, "hello", 123)
-        print("xxxxxxxxxxxxxxxx", n, params)
+        print("xxxxxxxxxxxxxxxx", ex_coroutine_resume(co, "hello", 123))
     end)
     local co_ok, hello, num = nil, nil, nil
     co_ok, hello, num = ex_coroutine_yield(co)
@@ -49,8 +48,7 @@ local for_test_main_logic = function()
 
     table.insert(SERVICE_MAIN.delay_execute_fns,function ()
         print("yyyyyyyyyyyyy 1", co:status())
-        local n, params = ex_coroutine_resume(co, "world", 456)
-        print("yyyyyyyyyyy", n, params)
+        print("yyyyyyyyyyy", ex_coroutine_resume(co, "world", 456))
     end)
     co_ok, hello, num = ex_coroutine_yield(co, "rsp xxxx1")
     log_debug("params 3 %s %s %s", co_ok, hello, num)
@@ -60,10 +58,11 @@ local for_test_main_logic = function()
         return_str = "ssfsdf"
     })
     log_debug("for_test_main_logic 4")
+    return 1, 2, 3, 4
 end
 
 local for_test_over_cb = function(co)
-    log_debug("for_test_over_cb %s", co:get_custom_data())
+    log_debug("for_test_over_cb %s\n %s", co:get_custom_data(), co:get_return_vals())
 end
 
 local for_test = function()
