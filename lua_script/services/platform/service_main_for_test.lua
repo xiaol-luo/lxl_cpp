@@ -1,27 +1,4 @@
 
-PlatformService = PlatformService or class("PlatformService", ServiceBase)
-
-for _, v in ipairs(require("services.platform.service_require_files")) do
-    require(v)
-end
-
-function create_service_main()
-    return PlatformService:new()
-end
-
-function PlatformService:ctor()
-    PlatformService.super.ctor(self)
-    self.db_client = nil
-    self.query_db = nil
-    self.http_svr = nil
-    self.delay_execute_fns = {}
-end
-
-function PlatformService:setup_modules()
-    self:_init_db_client()
-    self:_init_http_net()
-end
-
 local test_query = function()
     local co = CoroutineExMgr.get_running()
 
@@ -65,27 +42,10 @@ local for_test_over_cb = function(co)
     log_debug("for_test_over_cb %s\n %s", co:get_custom_data(), co:get_return_vals())
 end
 
-local for_test = function()
+function PlatformService:for_test()
     CoroutineExMgr.start()
     log_debug("for_test 1")
     local co = CoroutineExMgr.create_co(for_test_main_logic, for_test_over_cb)
     local is_ok, msg = ex_coroutine_start(co, co)
     log_debug("for_test 2 %s %s", is_ok, msg)
 end
-
-function PlatformService:start()
-    PlatformService.super.start(self)
-    for_test()
-end
-
-function PlatformService:on_frame()
-    PlatformService.super.on_frame(self)
-    CoroutineExMgr.on_frame()
-
-    local delay_execute_fns = self.delay_execute_fns
-    self.delay_execute_fns = {}
-    for _, fn in pairs(delay_execute_fns) do
-        fn()
-    end
-end
-

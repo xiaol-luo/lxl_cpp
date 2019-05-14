@@ -75,16 +75,23 @@ function CoroutineEx:start(...)
 end
 
 function CoroutineEx:resume(...)
-    print("CoroutineEx:resume status", self:status(), ...)
     if not self.is_started or not self.can_resume then
         local msg = "can not resume an not started coroutine"
         self:report_error(msg)
-        assert(false, msg)
+        assert(false)
     end
-    if CoroutineState.Suspended ~= self:status() then
-        local msg = "can not resume and non-suppended coroutine"
-        self:report_error(msg)
-        assert(false, msg)
+    local co_status = self:status()
+    if CoroutineState.Suspended ~= co_status then
+        if CoroutineState.Running == co_status or CoroutineState.Normal == co_status then
+            local msg = "can not resume a non-suppended coroutine"
+            self:report_error(msg)
+            assert(false)
+        end
+        if CoroutineState.Dead == co_status then
+            local msg = "can not resume a dead coroutine"
+            log_error(msg)
+            return false, msg
+        end
     end
     local n, results = Functional.varlen_param_info(coroutine.resume(self.co, true, ...))
     local is_ok = results[1]
@@ -110,7 +117,7 @@ function CoroutineEx:yield(...)
     end
     if not is_ok then
         self:report_error(error_msg)
-        assert(false, error_msg)
+        return false, error_msg
     else
         return coroutine.yield(...)
     end

@@ -37,3 +37,10 @@ function log_error(fmt_str, ...)
     local log_str = string_format(fmt_str, ...)
     native.log_error(log_str)
 end
+
+function log_assert(is_ok, fmt_str, ...)
+    if not is_ok then
+        log_error(fmt_str, ...)
+        assert(false)
+    end
+end
