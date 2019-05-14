@@ -6,7 +6,7 @@ local self = CoroutineExMgr
 function CoroutineExMgr.start()
     CoroutineExMgr.stop()
     self.cos = {}
-    self.delay_execute_co_actions = {}
+    self.delay_execute_fns = {}
 end
 
 function CoroutineExMgr.stop()
@@ -37,17 +37,6 @@ end
 
 
 function CoroutineExMgr.on_frame()
-    local delay_execute_co_actions = self.delay_execute_co_actions
-    self.delay_execute_co_actions = {}
-    for _, action in ipairs(delay_execute_co_actions) do
-        log_debug("CoroutineExMgr.on_frame 1")
-        local co = self.get_co(action.key)
-        if co then
-            log_debug("CoroutineExMgr.on_frame 2")
-            action.fn(co)
-        end
-    end
-
     local dead_keys = {}
     for k, v in pairs(self.cos) do
         if CoroutineState.Dead == v:status() then
@@ -58,15 +47,17 @@ function CoroutineExMgr.on_frame()
         self.cos[k] = nil
         v:trigger_over_cb()
     end
+
+    local delay_execute_fns = self.delay_execute_fns
+    self.delay_execute_fns = {}
+    for _, fn in ipairs(delay_execute_fns) do
+        Functional.safe_call(fn)
+    end
 end
 
-function CoroutineExMgr.add_delay_execute_co_action(key, fn)
-    local tb = {
-        key = key,
-        fn = fn
-    }
-    table.insert(self.delay_execute_co_actions, tb)
-    log_debug("CoroutineExMgr.add_delay_execute_co_action")
+
+function CoroutineExMgr.add_delay_execute_fn(fn)
+    table.insert(self.delay_execute_fns, fn)
 end
 
 

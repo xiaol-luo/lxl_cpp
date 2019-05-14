@@ -39,8 +39,25 @@ function CoroutineEx:ctor(main_logic, over_cb)
     self.is_started = false
     self.can_resume = false
     self.timer_proxy = TimerProxy:new()
+    self.expired_tid = nil
     self.custom_data = nil -- 用户自定义数据
     self.return_val = nil -- main_logic函数返回值 { n=num, vals=[]}
+end
+
+function CoroutineEx:expired_after_ms(ms)
+    if CoroutineState.Dead == self:status() then
+        return
+    end
+    self:cancel_expired()
+    self.expired_tid = self.timer_proxy:delay(Functional.make_closure(
+            CoroutineEx.kill, self, CoroutineKillReason.Expired, CoroutineKillReason.Expired) ,ms)
+end
+
+function CoroutineEx:cancel_expired()
+    if self.expired_tid then
+        self.timer_proxy:remove(self.expired_tid)
+        self.expired_tid = nil
+    end
 end
 
 function CoroutineEx:get_key()
@@ -48,10 +65,12 @@ function CoroutineEx:get_key()
 end
 
 local do_start = function(co)
-    log_debug("do_start")
-    if CoroutineState.Dead ~= co:status() then
-        co.can_resume = true
-        coroutine.resume(co:get_key())
+    local co_ex = CoroutineExMgr.get_co(co)
+    if co_ex then
+        if CoroutineState.Dead ~= co_ex:status() then
+            co_ex.can_resume = true
+            coroutine.resume(co_ex:get_key())
+        end
     end
 end
 
@@ -69,7 +88,7 @@ function CoroutineEx:start(...)
         error_msg = "start self.co fail"
         self:report_error(error_msg)
     else
-        CoroutineExMgr.add_delay_execute_co_action(self:get_key(), do_start)
+        CoroutineExMgr.add_delay_execute_fn(Functional.make_closure(do_start, self:get_key()))
     end
     return is_ok, error_msg
 end
@@ -103,7 +122,6 @@ function CoroutineEx:resume(...)
 end
 
 function CoroutineEx:yield(...)
-    print("CoroutineEx:yield status", self:status(), ...)
     local is_ok = true
     local error_msg = nil
     local running_co = coroutine.running()
@@ -138,17 +156,18 @@ function CoroutineEx:get_kill_reason()
     return self.kill_reason
 end
 
-function CoroutineEx:kill(kill_reason)
+function CoroutineEx:kill(kill_reason, error_msg)
     if not self.is_killed then
         self.kill_reason = kill_reason
         self.is_killed = true
+        self.error_msg = error_msg
+        log_error("coroutine_ex report_error : %s", self.error_msg or "unknown")
     end
+    self:cancel_expired()
 end
 
 function CoroutineEx:report_error(error_msg)
-    self.error_msg = error_msg
-    log_error("coroutine_ex resume fail reason: %s", self.error_msg or "unknown")
-    self:kill(CoroutineKillReason.ReportError)
+    self:kill(CoroutineKillReason.ReportError, error_msg)
 end
 
 function CoroutineEx:trigger_over_cb()

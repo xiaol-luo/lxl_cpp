@@ -23,8 +23,7 @@ static spdlog::level::level_enum S_LOGLEVEL_2_SPD_LOGLEVEL[ELogLevel_Max] = {
 enum ELoggerType
 {
 	ELoggerType_Invalid = 0,
-	ELoggerType_Stdout,
-	ELoggerType_Stderr,
+	ELoggerType_Console,
 	ELoggerType_Common,
 	ELoggerType_Rotating,
 	ELoggerType_Daily,
@@ -37,8 +36,7 @@ enum ELoggerName
 	ELogger_Info,
 	ELogger_Warn,
 	ELogger_Error,
-	ELogger_Stdout,
-	ELogger_StdError,
+	ELogger_Console,
 	ELogger_All,
 	ELogger_Max,
 };
@@ -84,15 +82,8 @@ public:
 		{
 			spdlog::level::level_enum spd_log_lvl = S_LOGLEVEL_2_SPD_LOGLEVEL[log_level];
 			m_loggers[log_level]->log(spd_log_lvl, fmt, args...);
-			if (log_level >= ELogLevel_Error)
-			{
-				m_loggers[ELogger_StdError]->log(spd_log_lvl, fmt, args...);
-			}
-			else
-			{
-				m_loggers[ELogger_Stdout]->log(spd_log_lvl, fmt, args...);
-			}
 			m_loggers[ELogger_All]->log(spd_log_lvl, fmt, args...);
+			m_loggers[ELogger_Console]->log(spd_log_lvl, fmt, args...);
 		}
 	}
 

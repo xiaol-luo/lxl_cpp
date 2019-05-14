@@ -28,11 +28,10 @@ static LoggerConfig S_LOG_CONFIGS[/*ELogger_Max*/] = {
 	LoggerConfig(ELoggerType_Common, "info", "info.log", DEFAULT_RORATING_MAX_SIZE, DEFAULT_RORATING_MAX_FILE, DEFAULT_DAILY_HOUR, DEFAULT_DAILY_MIN),
 	LoggerConfig(ELoggerType_Common, "warn", "warn.log", DEFAULT_RORATING_MAX_SIZE, DEFAULT_RORATING_MAX_FILE, DEFAULT_DAILY_HOUR, DEFAULT_DAILY_MIN),
 	LoggerConfig(ELoggerType_Common, "error", "error.log", DEFAULT_RORATING_MAX_SIZE, DEFAULT_RORATING_MAX_FILE, DEFAULT_DAILY_HOUR, DEFAULT_DAILY_MIN),
-	LoggerConfig(ELoggerType_Stdout, "stdout", "stdout.log", DEFAULT_RORATING_MAX_SIZE, DEFAULT_RORATING_MAX_FILE, DEFAULT_DAILY_HOUR, DEFAULT_DAILY_MIN),
-	LoggerConfig(ELoggerType_Stderr, "stderr", "stderr.log", DEFAULT_RORATING_MAX_SIZE, DEFAULT_RORATING_MAX_FILE, DEFAULT_DAILY_HOUR, DEFAULT_DAILY_MIN),
+	LoggerConfig(ELoggerType_Console, "console", "console.log", DEFAULT_RORATING_MAX_SIZE, DEFAULT_RORATING_MAX_FILE, DEFAULT_DAILY_HOUR, DEFAULT_DAILY_MIN),
 	LoggerConfig(ELoggerType_Common, "all", "all.log", DEFAULT_RORATING_MAX_SIZE, DEFAULT_RORATING_MAX_FILE, DEFAULT_DAILY_HOUR, DEFAULT_DAILY_MIN),
 };
-static_assert(7 == ELogger_Max, "ELogger_Max is change, please check S_LOG_CONFIGS[]");
+static_assert(6 == ELogger_Max, "ELogger_Max is change, please check S_LOG_CONFIGS[]");
 
 LogMgr::LogMgr()
 {
@@ -59,12 +58,7 @@ bool LogMgr::Start(ELogLevel log_lvl)
 			LoggerConfig *cfg = &S_LOG_CONFIGS[i];
 			switch (cfg->logger_type)
 			{
-				case ELoggerType_Stderr:
-				{
-					logger = spdlog::stderr_color_mt(cfg->name);
-				}
-				break;
-				case ELoggerType_Stdout:
+				case ELoggerType_Console:
 				{
 					logger = spdlog::stdout_color_mt(cfg->name);
 				}
