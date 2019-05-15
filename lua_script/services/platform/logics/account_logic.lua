@@ -61,32 +61,23 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
     body_tb[Alc.Token] = nil
     body_tb[Alc.Timestamp] = nil
 
-    -- TODO: 由于协程不能杀掉，所以感觉应该在携程上包一层，给它加上一些特性，比如Cancel自己
-    local share_info = {
-        fn_error = nil,
-        is_timeout = false,
-        timer_id = nil,
-    }
-
-    local cancel_timer = function()
-        if share_info.timer_id then
-            self.timer_proxy:remove(share_info.timer_id)
-            share_info.timer_id = nil
-        end
-    end
     local report_error = function(error_msg)
-        cancel_timer()
         body_tb.error = error_msg or "unknown"
         rsp_client(from_cnn_id, body_tb)
+        local co_ex = ex_coroutine_running()
+        if co_ex then
+            ex_coroutine_report_error(co, error_msg)
+        end
     end
 
     local fn = function()
+        local co_ok = nil
         local filter = { [Alc.UserName]= user_name }
         local opt = MongoOptFind:new()
         opt:set_max_time(10 * 1000)
         opt:set_projection({ [Alc.UserName]=true, [Alc.Pwd]=true })
-        local query_ret = self.db_client:co_find_one(1, self.query_db, Alc.Account, filter, opt)
-        if 0 ~= query_ret["err_num"] then
+        co_ok, query_ret = self.db_client:co_find_one(1, self.query_db, Alc.Account, filter, opt)
+        if not co_ok or 0 ~= query_ret["err_num"] then
             report_error("co_find_one fail")
             return
         end
@@ -97,8 +88,8 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
                 [Alc.UserName] = user_name,
                 [Alc.Pwd] = pwd,
             }
-            local insert_account_ret = self.db_client:co_insert_one(1, self.query_db, Alc.Account, doc)
-            if 0 ~= insert_account_ret["err_num"] then
+            local co_ok, insert_account_ret = self.db_client:co_insert_one(1, self.query_db, Alc.Account, doc)
+            if not co_ok or 0 ~= insert_account_ret["err_num"] then
                 report_error("insert account fail")
                 return
             end
@@ -113,7 +104,7 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
             [Alc.UserName] = user_name,
             [Alc.Timestamp] = timestamp,
         }
-        local insert_token_ret = self.db_client:co_insert_one(1, self.query_db, Alc.Token, doc)
+        co_ok, insert_token_ret = self.db_client:co_insert_one(1, self.query_db, Alc.Token, doc)
         if 0 ~= insert_token_ret["err_num"] then
             report_error("insert_token fail")
             return
@@ -121,21 +112,19 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
         body_tb[Alc.Token] = token_str
         body_tb[Alc.Timestamp] = timestamp
         rsp_client(from_cnn_id, body_tb)
-        cancel_timer()
     end
 
-    local co = coroutine.create(fn)
-    share_info.timer_id = self.timer_proxy:delay(function ()
-        self.timer_proxy:remove(share_info.timer_id)
-        share_info.timer_id = nil
-        share_info.is_timeout = true
-        body_tb.error = share_info.fn_error or "unknown"
-        if "dead" ~= coroutine.status(co) then
-            if not error_msg then
-                body_tb.error = "timeout"
-            end
+    local over_fn = function(co_ex)
+        -- local custom_data = co:get_custom_data()
+        local return_vals = co_ex:get_return_vals()
+        if not return_vals then
+            body_tb.error = co_ex:get_error_msg()
+            rsp_client(from_cnn_id, body_tb)
         end
-        rsp_client(from_cnn_id, body_tb)
-    end, 20 * 1000)
-    coroutine_resume(co)
+        Net.close(from_cnn_id)
+    end
+
+    local co = ex_coroutine_create(fn, over_fn)
+    ex_coroutine_expired(co,20 * 1000)
+    ex_coroutine_start(co)
 end

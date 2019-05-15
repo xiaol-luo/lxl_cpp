@@ -12,6 +12,14 @@ CoroutineKillReason = {
     Other = "other",
 }
 
+function ex_coroutine_running()
+    return CoroutineExMgr.get_running()
+end
+
+function ex_coroutine_create(main_logic, over_fn)
+    return CoroutineExMgr.create_co(main_logic, over_fn)
+end
+
 function ex_coroutine_start(co, ...)
     return co:start(...)
 end
@@ -48,4 +56,20 @@ function new_coroutine_callback(co)
     return Functional.make_closure(function(...)
         ex_coroutine_delay_resume(co, ...)
     end)
+end
+
+function ex_coroutine_expired(co, ms)
+    co:expired_after_ms(ms)
+end
+
+function ex_coroutine_cancel_expried(co)
+    co:cancel_expried()
+end
+
+function ex_coroutine_kill(co, kill_reason, error_msg)
+    co:kill(kill_reason, error_msg)
+end
+
+function ex_coroutine_report_error(co, error_msg)
+    co:report_error(error_msg)
 end

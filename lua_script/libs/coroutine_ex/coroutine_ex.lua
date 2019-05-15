@@ -25,6 +25,7 @@ function wrap_main_logic(main_logic)
         local n, vals = Functional.varlen_param_info(main_logic(...))
         local co = CoroutineExMgr.get_running()
         co.return_vals = { n=n, vals=vals }
+        co:cancel_expired()
         return table.unpack(vals, 1, n)
     end
 end

@@ -53,15 +53,15 @@ function RpcMgrBase:set_req_msg_coroutine_process_fn(fn_name, fn)
     end
 
     local real_fn = function(rsp, ...)
-        local co = coroutine.create(function (rsp, ...)
+        local co = ex_coroutine_create(function (rsp, ...)
             local co_fn = fn
             local n, rets = varlen_param_info(co_fn(rsp, ...))
             if n > 0 then
                 rsp:send_back(table.unpack(rets, 1, n))
             end
-        end)
+        end, nil)
         rsp.co = co
-        coroutine_resume(co, rsp, ...)
+        ex_coroutine_start(co, rsp, ...)
     end
     self.req_msg_process_fn[fn_name] = real_fn
 end
