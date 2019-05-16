@@ -26,7 +26,7 @@ void HttpRspCnn::OnClose(int err_num)
 	{
 		m_process_event_fn(this, eActionType_Close, err_num);
 	}
-	if (0 != err_num)
+	if (0 != err_num && Net::ERROR_PEER_CLOSED != err_num)
 	{
 		log_error("HttpRspCnn::OnClose {} {}", m_netid, err_num);
 	}

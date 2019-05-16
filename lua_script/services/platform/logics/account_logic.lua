@@ -5,7 +5,7 @@ AccountLogic_Const = {
     Account = "account",
     UserName = "username",
     Pwd = "pwd",
-    Oid = "Oid",
+    _Oid = "$oid",
     Val = "val",
     Token = "token",
     _Id = "_id",
@@ -14,6 +14,8 @@ AccountLogic_Const = {
     Appid = "appid",
     Err_Num = "err_num",
     Matched_Count = "matched_count",
+    Content = "content",
+    Uid = "uid",
 }
 
 local Alc = AccountLogic_Const
@@ -29,6 +31,7 @@ function AccountLogic:get_http_handle_fns()
     local ret = {}
     ret["/index"] = Functional.make_closure(AccountLogic.index, self)
     ret["/login"] = Functional.make_closure(AccountLogic.login, self)
+    ret["/app_auth"] = Functional.make_closure(AccountLogic.app_auth, self)
     return ret
 end
 
@@ -86,7 +89,7 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
             return
         end
         if query_ret[Alc.Matched_Count] > 0 then
-            rsp_body[Alc._Id] = query_ret[Alc.Val]["0"][Alc._Id]["$oid"]
+            -- rsp_body[Alc._Id] = query_ret[Alc.Val]["0"][Alc._Id][Alc._Oid]
         else
             local doc = {
                 [Alc.UserName] = user_name,
@@ -97,7 +100,7 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
                 report_error("insert account fail")
                 return
             end
-            rsp_body[Alc._Id] = insert_account_ret[Alc.Inserted_Ids][1]
+            -- rsp_body[Alc._Id] = insert_account_ret[Alc.Inserted_Ids][1]
         end
 
         local token_str = native.gen_uuid()
@@ -133,8 +136,8 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
     ex_coroutine_start(co)
 end
 
-function app_auth(from_cnn_id, method, req_url, kv_params, body)
-    local token = kv_params[Alc.UserName]
+function AccountLogic:app_auth(from_cnn_id, method, req_url, kv_params, body)
+    local token = kv_params[Alc.Token]
     local timestamp = kv_params[Alc.Timestamp]
 
     local rsp_body = {}
@@ -161,7 +164,7 @@ function app_auth(from_cnn_id, method, req_url, kv_params, body)
         local co_ok = nil
         local filter = {
             [Alc.Token] = token,
-            [Alc.Timestamp] = timestamp,
+            [Alc.Timestamp] = tonumber(timestamp),
         }
         local opt = MongoOptFind:new()
         opt:set_max_time(10 * 1000)
@@ -177,12 +180,18 @@ function app_auth(from_cnn_id, method, req_url, kv_params, body)
             return
         end
 
+        -- log_debug("app_auth query_ret is %s", query_ret)
+        local ret = query_ret[Alc.Val][tostring(0)]
+        rsp_body[Alc.Appid] = ret[Alc.Appid]
+        rsp_body[Alc.Uid] = ret[Alc._Id][Alc._Oid]
+        -- rsp_body.content = query_ret[Alc.Val]
+        rsp_client(from_cnn_id, rsp_body)
     end
 
     local over_fn = function(co_ex)
         local returnn_vals = co_ex:get_return_vals()
         if not returnn_vals then
-            rsp_body.error = co_ex:get_error_msg()
+            rsp_body.error = co_ex:get_error_msg() or "unknown"
             rsp_client(from_cnn_id, rsp_body)
         end
         Net.close(from_cnn_id)

@@ -162,8 +162,8 @@ function CoroutineEx:kill(kill_reason, error_msg)
         self.is_killed = true
         self.kill_reason = kill_reason
     end
-    log_error("coroutine_ex error : %s", self.error_msg or "unknown")
     self.error_msg = error_msg
+    log_error("coroutine_ex error : %s", self.error_msg or "unknown")
     self:cancel_expired()
 end
 
