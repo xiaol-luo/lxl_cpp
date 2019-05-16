@@ -47,12 +47,6 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
     local pwd = kv_params[Alc.Pwd] or ""
     local appid = kv_params[Alc.Appid]
 
-    if not user_name or #user_name <= 0 or not appid or #appid < 0 then
-        body_tb.error = "invalid user name or appid"
-        rsp_client(from_cnn_id, body_tb)
-        return
-    end
-
     local body_tb = {}
     body_tb.error = ""
     body_tb[Alc.Appid] = appid
@@ -60,6 +54,13 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
     body_tb[Alc._Id] = nil
     body_tb[Alc.Token] = nil
     body_tb[Alc.Timestamp] = nil
+
+
+    if not user_name or #user_name <= 0 or not appid or #appid < 0 then
+        body_tb.error = "invalid user name or appid"
+        rsp_client(from_cnn_id, body_tb)
+        return
+    end
 
     local report_error = function(error_msg)
         body_tb.error = error_msg or "unknown"

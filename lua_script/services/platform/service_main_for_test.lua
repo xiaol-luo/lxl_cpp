@@ -38,11 +38,17 @@ local for_test_main_logic = function(co, self)
     opt:set_max_time(10 * 1000)
     opt:set_projection({ [Alc.UserName]=true, [Alc.Pwd]=true })
 
-    co:expired_after_ms(1)
-    self.db_client:find_one(1, self.query_db, Alc.Account, filter, new_coroutine_callback(co), opt)
-    local n, rets = Functional.varlen_param_info(ex_coroutine_yield(co))
+    co:expired_after_ms(10 * 1000)
 
+    local n, rets = nil, nil
+--[[
+    self.db_client:find_one(1, self.query_db, Alc.Account, filter, new_coroutine_callback(co), opt)
+    n, rets = Functional.varlen_param_info(ex_coroutine_yield(co))
     log_debug("params 5 %s %s", n, rets)
+--]]
+
+    n, rets = Functional.varlen_param_info(HttpClient.co_get("http://127.0.0.1:10801/login?username=1246610"))
+    log_debug("params 6 %s %s", n, rets)
 
     log_debug("for_test_main_logic 5")
     return 1, 2, 3, 4

@@ -47,15 +47,15 @@ function EtcdClientOpBase:_handle_event_cb(op_id, etcd_event, err_num)
     end
 end
 
-function EtcdClientOpBase:_handle_result_cb(op_id, rsp_state, heads_map, body_str, body_len)
-    -- log_debug("EtcdClientOpBase._handle_result_cb._handle_result_cb op_id:%s rsp_state:%s head_map:%s body_len:%s bodoy_str:%s ",
-    --       op_id or "null", rsp_state or "null", heads_map or "null", body_len or "null", body_str or "null")
+function EtcdClientOpBase:_handle_result_cb(op_id, rsp_state, heads_map, body_str)
+    -- log_debug("EtcdClientOpBase._handle_result_cb._handle_result_cb op_id:%s rsp_state:%s head_map:%s bodoy_str:%s ",
+    --       op_id or "null", rsp_state or "null", heads_map or "null", body_str or "null")
     if not self.cb_fn then
         return
     end
     local ret = EtcdClientResult:new()
     ret[EtcdConst.Rsp_State] = rsp_state
-    if body_str and body_len > 0 then
+    if body_str then
         ret:prase_op_result(body_str)
     else
         ret.op_result = {}

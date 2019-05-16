@@ -32,8 +32,12 @@ HttpReqCnn::~HttpReqCnn()
 	mempool_free(m_parser_setting); m_parser_setting = nullptr;
 }
 
-void HttpReqCnn::OnClose(int err_num)
+void HttpReqCnn::OnClose(int num)
 {
+	int err_num = num;
+	if (m_is_message_completed)
+		err_num = 0;
+
 	if (nullptr != m_process_event_fn)
 	{
 		m_process_event_fn(this, eActionType_Close, err_num);
@@ -179,6 +183,8 @@ bool HttpReqCnn::SetReqData(Method method, const std::string &url, const std::un
 
 void HttpReqCnn::ProcessRsp()
 {
+	m_is_message_completed = true;
+
 	if (nullptr != m_process_event_fn)
 	{
 		m_process_event_fn(this, eActionType_Parse, 0);
@@ -186,12 +192,9 @@ void HttpReqCnn::ProcessRsp()
 	if (nullptr != m_process_rsp_fn)
 	{
 		m_process_rsp_fn(this, m_rsp_state, m_rsp_heads, 
-			std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()), m_rsp_body->Size());
+			std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()));
 	}
-	else
-	{
-		net_close(m_netid);
-	}
+	net_close(m_netid);
 }
 
 int HttpReqCnn::on_message_begin(http_parser * parser)

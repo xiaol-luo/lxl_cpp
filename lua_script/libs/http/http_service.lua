@@ -29,7 +29,7 @@ end
 
 function HttpService:set_handle_fn(method_name, handle_fn)
     if nil ~= method_name then
-        -- heandle_fn = function(enum_method, req_url, heads_map, body, body_len)
+        -- heandle_fn = function(enum_method, req_url, heads_map, body)
         self.fn_map[method_name] = handle_fn
     end
 end

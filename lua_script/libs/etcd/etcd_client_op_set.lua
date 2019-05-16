@@ -50,9 +50,3 @@ function EtcdClientOpSet:execute(etcd_client)
             etcd_client:get_heads(self.http_heads))
     return op_id;
 end
-
---[[
-function EtcdClientOpSet._handle_result_cb(op, op_id, url_str, heads_map, body_str, body_len)
-    log_debug("EtcdClientOpSet._handle_result_cb %s %s %s %s %s", op_id or "null", url_str or "null", heads_map or "null", body_str or "", body_len or "null")
-end
---]]

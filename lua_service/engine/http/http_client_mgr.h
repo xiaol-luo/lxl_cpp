@@ -41,7 +41,7 @@ protected:
 
 	void HandleHttpRsp(HttpReqCnn *cnn,
 		const std::string &rsp_state, const std::unordered_map<std::string, std::string> &heads,
-		std::string body, uint64_t body_len);
+		std::string body);
 
 	enum eHttpAction 
 	{

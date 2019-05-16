@@ -62,7 +62,7 @@ uint64_t HttpClientMgr::MethodHelp(HttpReqCnn::Method method, const std::string 
 	m_cnn_datas.insert(std::make_pair((uint64_t)cnn->GetPtr(), cnn_data));
 	cnn->SetReqData(method, url, heads, content);
 	cnn->SetRspCbFn(std::bind(&HttpClientMgr::HandleHttpRsp, this, std::placeholders::_1,
-		std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+		std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 	cnn->SetEventCbFn(std::bind(&HttpClientMgr::HandleHttpAction, this, std::placeholders::_1,
 		std::placeholders::_2, std::placeholders::_3));
 	m_server_logic->GetDnsService()->QueryIpAsync(cnn->GetHost(),
@@ -71,7 +71,7 @@ uint64_t HttpClientMgr::MethodHelp(HttpReqCnn::Method method, const std::string 
 	return (int64_t)cnn->GetPtr();
 }
 
-void HttpClientMgr::HandleHttpRsp(HttpReqCnn * cnn, const std::string &rsp_state, const std::unordered_map<std::string, std::string> &heads, std::string body, uint64_t body_len)
+void HttpClientMgr::HandleHttpRsp(HttpReqCnn * cnn, const std::string &rsp_state, const std::unordered_map<std::string, std::string> &heads, std::string body)
 {
 	uint64_t key = (uint64_t)cnn->GetPtr();
 	auto it = m_cnn_datas.find(key);
@@ -80,7 +80,7 @@ void HttpClientMgr::HandleHttpRsp(HttpReqCnn * cnn, const std::string &rsp_state
 		CnnData &cnn_data = it->second;
 		if (nullptr != cnn_data.rsp_cb)
 		{
-			cnn_data.rsp_cb(cnn, rsp_state, heads, body, body_len);
+			cnn_data.rsp_cb(cnn, rsp_state, heads, body);
 		}
 	}
 }

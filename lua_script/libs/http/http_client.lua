@@ -1,8 +1,8 @@
 
 HttpClient = HttpClient or {}
 
-function HttpClient.example_rsp_fn(id_int64, rsp_state, heads_map, body_str, body_len)
-    log_debug("HttpClient.example_rsp_fn id_int64:%s rsp_state:%s, heads_map:%s, body_len:%s, body_str:%s", id_int64, rsp_state, heads_map, body_len, body_str)
+function HttpClient.example_rsp_fn(id_int64, rsp_state, heads_map, body_str)
+    log_debug("HttpClient.example_rsp_fn id_int64:%s rsp_state:%s, heads_map:%s, body_str:%s", id_int64, rsp_state, heads_map, body_str)
 end
 
 function HttpClient.example_event_fn(id_int64, err_type_enum, err_num_int)
@@ -51,4 +51,47 @@ function HttpClient.post(url, content_str, rsp_fn, event_fn, heads_tb)
     return native.http_post(url, heads_tb, tostring(content_str), rsp_fn, event_fn)
 end
 
+-- TODO: 要做得更好需要写好event_fn
+function HttpClient.co_get(url, heads_tb)
+    local co = ex_coroutine_running()
+    assert(co, "should be called in a running coroutine")
+    local seq = HttpClient.get(url, new_coroutine_callback(co), nil, heads_tb)
+    if seq > 0 then
+        return ex_coroutine_yield(co)
+    else
+        return false, string.format("HttpClient.co_get fail, seq=%s", seq)
+    end
+end
 
+function HttpClient.co_delete(url, heads_tb)
+    local co = ex_coroutine_running()
+    assert(co, "should be called in a running coroutine")
+    local seq = HttpClient.delete(url, new_coroutine_callback(co), nil, heads_tb)
+    if seq > 0 then
+        return ex_coroutine_yield(co)
+    else
+        return false, string.format("HttpClient.co_delete fail, seq=%s", seq)
+    end
+end
+
+function HttpClient.co_put(url, content_str, heads_tb)
+    local co = ex_coroutine_running()
+    assert(co, "should be called in a running coroutine")
+    local seq = HttpClient.put(url, content_str, new_coroutine_callback(co), nil, heads_tb)
+    if seq > 0 then
+        return ex_coroutine_yield(co)
+    else
+        return false, string.format("HttpClient.co_put fail, seq=%s", seq)
+    end
+end
+
+function HttpClient.co_post(url, content_str, heads_tb)
+    local co = ex_coroutine_running()
+    assert(co, "should be called in a running coroutine")
+    local seq = HttpClient.post(url, content_str, new_coroutine_callback(co), nil, heads_tb)
+    if seq > 0 then
+        return ex_coroutine_yield(co)
+    else
+        return false, string.format("HttpClient.co_post fail, seq=%s", seq)
+    end
+end

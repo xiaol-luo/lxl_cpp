@@ -24,9 +24,9 @@ function HttpRspCnn:set_req_cb(fn)
     self.req_cb = fn
 end
 
-function HttpRspCnn:_on_req_cb(native_cnn , method, url, heads, body, body_len)
+function HttpRspCnn:_on_req_cb(native_cnn , method, url, heads, body)
     if self.req_cb then
-        local is_ok, ret = Functional.safe_call(self.req_cb, self, method, url, heads, body, body_len)
+        local is_ok, ret = Functional.safe_call(self.req_cb, self, method, url, heads, body)
         return is_ok and ret or false
     end
     return false

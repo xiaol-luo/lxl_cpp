@@ -29,8 +29,7 @@ public:
 		HttpReqCnn * /*self*/,
 		std::string /*rsp_state*/,
 		const std::unordered_map<std::string, std::string> &/*heads*/,
-		const std::string &/*body*/,
-		uint64_t /*body_len*/
+		const std::string &/*body*/
 		)>;
 	enum eEventType
 	{
@@ -57,7 +56,6 @@ public:
 	std::string GetHost() { return m_host; }
 	std::string GetMethod() { return m_method; }
 	int GetPort() { return m_port; }
-	bool IsGet() { return m_is_get; }
 
 protected:
 	void ProcessRsp();
@@ -78,6 +76,7 @@ protected:
 	std::weak_ptr<NetHandlerMap<INetConnectHandler>> m_cnn_map;
 	http_parser * m_parser = nullptr;
 	http_parser_settings *m_parser_setting = nullptr;
+	bool m_is_message_completed = false;
 	FnProcessRsp m_process_rsp_fn = nullptr;
 	FnProcessEvent m_process_event_fn = nullptr;
 	NetBuffer *m_recv_buff = nullptr;
@@ -105,5 +104,4 @@ protected:
 	std::string m_host;
 	std::string m_method;
 	int m_port = 0;
-	bool m_is_get = false;
 };
