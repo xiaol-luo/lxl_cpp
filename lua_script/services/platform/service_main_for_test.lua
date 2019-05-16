@@ -47,7 +47,7 @@ local for_test_main_logic = function(co, self)
     log_debug("params 5 %s %s", n, rets)
 --]]
 
-    n, rets = Functional.varlen_param_info(HttpClient.co_get("http://127.0.0.1:10801/login?username=1246610"))
+    n, rets = Functional.varlen_param_info(HttpClient.co_get("http://127.0.0.1:10801/login?username=1246610&appid=1024"))
     log_debug("params 6 %s %s", n, rets)
 
     log_debug("for_test_main_logic 5")
