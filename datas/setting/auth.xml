@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<http>
+		<listen_port>10802</listen_port>
+	</http>
+	<platform>
+		<host>127.0.0.1:10801</host>
+		<auth_method>app_auth</auth_method>
+	</platform>
+</root>
