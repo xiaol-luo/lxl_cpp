@@ -23,7 +23,6 @@ ServerLogic::ServerLogic()
 	m_memory_pool_mgr = new MemoryPoolMgr(bolck_sizes, getpagesize(), 8, 32);
 
 	m_module_mgr = new ModuleMgr(this);
-	m_log_mgr = new LogMgr();
 	m_timer_mgr = new TimerMgr(RealMs());
 	m_http_client_mgr = new HttpClientMgr(this);
 	memset(m_module_params, 0, sizeof(m_module_params));
@@ -38,14 +37,8 @@ ServerLogic::~ServerLogic()
 	delete m_timer_mgr; m_timer_mgr = nullptr;
 	delete m_async_task_mgr; m_async_task_mgr = nullptr;
 	delete m_dns_service; m_dns_service = nullptr;
-	m_log_mgr->Stop();
-	delete m_log_mgr; m_log_mgr = nullptr;
+	m_log_mgr = nullptr;
 	delete m_memory_pool_mgr;
-}
-
-bool ServerLogic::StartLog(ELogLevel log_lvl)
-{
-	return m_log_mgr->Start(log_lvl);
 }
 
 void ServerLogic::SetService(IService * service)
@@ -215,5 +208,4 @@ void ServerLogic::OnFrame()
 	m_timer_mgr->UpdateTime(m_logic_ms);
 	m_async_task_mgr->OnFrame();
 	m_dns_service->OnFrame();
-	// m_log_mgr->Flush();
 }

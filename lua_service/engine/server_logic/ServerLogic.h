@@ -62,6 +62,7 @@ private:
 
 public:
 	LogMgr * GetLogMgr() { return m_log_mgr; }
+	void SetLogMgr(LogMgr *log_mgr) { m_log_mgr = log_mgr; }
 private:
 	LogMgr *m_log_mgr = nullptr;
 

@@ -38,11 +38,17 @@ static void change_dir(std::string dir_path)
 
 #include "server_logic/ServerLogic.h"
 #include "iengine.h"
-ServerLogic *g_server_logic;
+ServerLogic *g_server_logic = nullptr;
+LogMgr *g_log_mgr = nullptr;
 
 ServerLogic * GServerLogic()
 {
 	return g_server_logic;
+}
+
+LogMgr * GetLogMgr()
+{
+	return g_log_mgr;
 }
 
 uint64_t http_get(const std::string &url, const std::unordered_map<std::string, std::string> *heads,
@@ -103,6 +109,14 @@ void add_async_task(TaskBase * task)
 	}
 }
 
+void flush_log()
+{
+	if (nullptr != g_log_mgr)
+	{
+		g_log_mgr->Flush();
+	}
+}
+
 int dns_query(std::string host, std::vector<std::string>* out_ips)
 {
 	int ret = -1;
@@ -125,7 +139,9 @@ void engine_init()
 {
 	if (nullptr == g_server_logic)
 	{
+		assert(g_log_mgr);
 		g_server_logic = new ServerLogic();
+		g_server_logic->SetLogMgr(g_log_mgr);
 	}
 }
 
@@ -201,7 +217,23 @@ void mempool_free(void *ptr)
 
 bool start_log(ELogLevel log_lvl)
 {
-	return g_server_logic->GetLogMgr()->Start(log_lvl);
+	if (nullptr == g_log_mgr)
+	{
+		g_log_mgr = new LogMgr();
+		return g_log_mgr->Start(log_lvl);
+	}
+	return false;
+}
+
+void stop_log()
+{
+	flush_log();
+
+	if (nullptr != g_log_mgr)
+	{
+		delete g_log_mgr;
+		g_log_mgr = nullptr;
+	}
 }
 
 void setup_service(IService *service)

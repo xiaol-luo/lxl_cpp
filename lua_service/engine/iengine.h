@@ -28,7 +28,6 @@ void * mempool_malloc(size_t malloc_size);
 void * mempool_realloc(void *ptr, size_t new_malloc_size);
 void mempool_free(void *ptr);
 
-bool start_log(ELogLevel log_lvl);
 void setup_service(IService *service);
 TimerID timer_add(TimerCallback cb_fn, int64_t start_ts_ms, int64_t execute_span_ms, int64_t execute_times);
 TimerID timer_next(TimerCallback cb_fn, int64_t start_ts_ms);
@@ -60,28 +59,34 @@ void add_async_task(TaskBase *task);
 int dns_query(std::string host, std::vector<std::string> *out_ips);
 void dns_query_async(std::string host, DnsQueryIpCallback cb);
 
+bool start_log(ELogLevel log_lvl);
+void stop_log();
+void flush_log();
+LogMgr * GetLogMgr();
+
 template <typename... Args>
 void log(ELogLevel log_level, const char* fmt, const Args&... args)
 {
-	GServerLogic()->GetLogMgr()->Log(log_level, fmt, args...);
+	GetLogMgr()->Log(log_level, fmt, args...);
 }
 template <typename... Args>
 void log_debug(const char* fmt, const Args&... args)
 {
-	GServerLogic()->GetLogMgr()->Debug(fmt, args...);
+	GetLogMgr()->Debug(fmt, args...);
 }
 template <typename... Args>
 void log_info(const char* fmt, const Args&... args)
 {
-	GServerLogic()->GetLogMgr()->Info(fmt, args...);
+	GetLogMgr()->Info(fmt, args...);
 }
 template <typename... Args>
 void log_warn(const char* fmt, const Args&... args)
 {
-	GServerLogic()->GetLogMgr()->Warn(fmt, args...);
+	GetLogMgr()->Warn(fmt, args...);
 }
 template <typename... Args>
 void log_error(const char* fmt, const Args&... args)
 {
-	GServerLogic()->GetLogMgr()->Error(fmt, args...);
+	GetLogMgr()->Error(fmt, args...);
 }
+

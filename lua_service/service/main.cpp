@@ -63,7 +63,7 @@ int main (int argc, char **argv)
 		printf("change work dir fail errno %d , dir is %s\n", errno, work_dir);
 		return -20;
 	}
-
+	start_log(ELogLevel_Debug);
 	engine_init();
 
 	ServiceBase *service = nullptr;
@@ -98,14 +98,16 @@ int main (int argc, char **argv)
 	mongocxx::instance ins{};
 
 	engine_loop_span(100);
-	start_log(ELogLevel_Debug);
 	setup_service(service);  
+	const int FLUSH_LOG_SPAN_MS = 10 * 1000;
+	timer_firm(std::bind(flush_log), FLUSH_LOG_SPAN_MS, EXECUTE_UNLIMIT_TIMES);
 	timer_next(std::bind(&ServiceBase::RunService, service, argc, argv), 0);
 	service = nullptr; // engine own the service
 	engine_loop();
 	ls->collect_garbage();
 	ls->~state(); ls = nullptr;
 	mempool_free(ls_mem); ls_mem = nullptr;
+	stop_log();
 	engine_destroy();
 	return 0;
 }
