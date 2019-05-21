@@ -215,12 +215,12 @@ void mempool_free(void *ptr)
 	g_server_logic->GetMemPool()->Free(ptr);
 }
 
-bool start_log(ELogLevel log_lvl)
+bool start_log(ELogLevel log_lvl, std::string console_logger_name)
 {
 	if (nullptr == g_log_mgr)
 	{
 		g_log_mgr = new LogMgr();
-		return g_log_mgr->Start(log_lvl);
+		return g_log_mgr->Start(log_lvl, console_logger_name);
 	}
 	return false;
 }

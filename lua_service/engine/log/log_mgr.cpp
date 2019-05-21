@@ -43,7 +43,7 @@ LogMgr::~LogMgr()
 
 }
 
-bool LogMgr::Start(ELogLevel log_lvl)
+bool LogMgr::Start(ELogLevel log_lvl, std::string console_prefix)
 {
 	m_min_record_log_level = log_lvl;
 	bool ret = true;
@@ -60,7 +60,12 @@ bool LogMgr::Start(ELogLevel log_lvl)
 			{
 				case ELoggerType_Console:
 				{
-					logger = spdlog::stdout_color_mt(cfg->name);
+					std::string logger_name = console_prefix;
+					if (logger_name.empty())
+					{
+						logger_name = cfg->name;
+					}
+					logger = spdlog::stdout_color_mt(logger_name);
 				}
 				break;
 				case ELoggerType_Common:

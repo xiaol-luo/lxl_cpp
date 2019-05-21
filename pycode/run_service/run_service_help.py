@@ -1,16 +1,20 @@
 import os
 import argparse
 from .define import *
+import subprocess
+import shlex
 
 
 class RunServiceHelp(object):
     def __init__(self, args):
         self.args = vars(args)
+        self.process = None
+        self.is_runned = False
 
     @staticmethod
     def parse_args(input_args):
         parser = argparse.ArgumentParser()
-        #parser.add_argument("py_exe")
+        # parser.add_argument("py_exe")
         parser.add_argument(Const.exe)
         parser.add_argument(Const.role)
         parser.add_argument(Const.code_dir)
@@ -27,11 +31,10 @@ class RunServiceHelp(object):
         is_ok, rsh= RunServiceHelp.parse_args(input_args)
         if not is_ok:
             return -1, "run service parse_args fail"
-        is_ok, error_msg = rsh.prepare_for_run()
-        if not is_ok:
-            return -2, error_msg
         ret_num, error_msg = rsh.run()
-        return ret_num, error_msg
+        if 0 != ret_num:
+            return ret_num, error_msg
+        return 0, rsh
 
     def check_valid(self):
         for key in [Const.exe, Const.role, Const.work_dir, Const.code_dir]:
@@ -50,7 +53,57 @@ class RunServiceHelp(object):
         return True, None
 
     def run(self):
+        self.is_runned = True
+        is_ok, error_msg = self.prepare_for_run()
+        if not is_ok:
+            return -2, error_msg
+        run_cmd = "{} {} {} {} {} {} --lua_args_begin-- -lua_path . -c_path . {} -require_files services.main  -execute_fns start_script".format(
+            self.exe,
+            self.role_str,
+            self.work_dir,
+            self.datas_dir(),
+            self.role_cfg_relate_path,
+            self.scripts_dir(),
+            self.exe_dir
+        )
+        try:
+            self.process = subprocess.Popen(
+                shlex.split(run_cmd),
+                #creationflags=subprocess.CREATE_NEW_CONSOLE,
+                shell=True
+            )
+        except Exception as e:
+            return -3, str(e)
+        # self.process.poll()
         return 0, None
+
+    @property
+    def is_running(self):
+        if not self.is_runned:
+            return False
+        if not self.process:
+            return False
+        if None != self.process.returncode:
+            return False
+        self.process.poll()
+        return True
+
+    @property
+    def return_code(self):
+        if not self.is_runned:
+            return None
+        if None == self.process:
+            return -1
+        self.process.poll()
+        return self.process.returncode
+
+    def send_signal(self, signal):
+        if self.is_runned and self.process:
+            self.process.send_signal(signal)
+
+    def terminate(self):
+        if self.is_runned and self.process:
+            self.process.terminate()
 
     @property
     def exe(self):
@@ -69,10 +122,10 @@ class RunServiceHelp(object):
         return self.args[Const.work_dir]
 
     def datas_dir(self):
-        return os.path.join(self.work_dir, "datas")
+        return os.path.join(self.code_dir, "datas").replace("\\", "/")
 
     def scripts_dir(self):
-        return os.path.join(self.work_dir, "scripts")
+        return os.path.join(self.code_dir, "lua_script").replace("\\", "/")
 
     @property
     def role(self):
@@ -96,6 +149,10 @@ class RunServiceHelp(object):
         return file_name
 
     @property
+    def exe_dir(self):
+        return os.path.dirname(self.exe)
+
+    @property
     def role_cfg_relate_path(self):
-        return os.path.join("setting", self.role_cfg_name)
+        return os.path.join("setting", self.role_cfg_name).replace("\\", "/")
 

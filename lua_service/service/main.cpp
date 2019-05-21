@@ -63,11 +63,12 @@ int main (int argc, char **argv)
 		printf("change work dir fail errno %d , dir is %s\n", errno, work_dir);
 		return -20;
 	}
-	start_log(ELogLevel_Debug);
+
+	std::string service_name = ExtractServiceName(argv[Args_Index_Service_Name]);
+	start_log(ELogLevel_Debug, service_name);
 	engine_init();
 
 	ServiceBase *service = nullptr;
-	std::string service_name = ExtractServiceName(argv[Args_Index_Service_Name]);
 	// const char *service_name = argv[Args_Index_Service_Name];
 	if (nullptr == service && "sidecar" == service_name)
 	{

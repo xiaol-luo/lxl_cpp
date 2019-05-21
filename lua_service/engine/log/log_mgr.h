@@ -46,7 +46,7 @@ class LogMgr
 public:
 	LogMgr();
 	~LogMgr();
-	bool Start(ELogLevel log_lvl);
+	bool Start(ELogLevel log_lvl, std::string console_prefix = "");
 	void Stop();
 	void Flush();
 

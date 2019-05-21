@@ -59,7 +59,7 @@ void add_async_task(TaskBase *task);
 int dns_query(std::string host, std::vector<std::string> *out_ips);
 void dns_query_async(std::string host, DnsQueryIpCallback cb);
 
-bool start_log(ELogLevel log_lvl);
+bool start_log(ELogLevel log_lvl, std::string console_logger_name);
 void stop_log();
 void flush_log();
 LogMgr * GetLogMgr();
