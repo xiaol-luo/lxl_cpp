@@ -1,0 +1,66 @@
+<root>
+	<platform_service>
+		<element>for_make_element_array</element>
+		<element>
+			<name>0</name>
+			<ip>127.0.0.1</ip>
+			<port>20100</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>platform_account</db_name>
+		</element>
+	</platform_service>
+	<auth_service>
+		<element>for_make_element_array</element>
+		<element>
+			<name>0</name>
+			<ip>127.0.0.1</ip>
+			<port>20200</port>
+			<auth_method>app_auth</auth_method>
+		</element>
+	</auth_service>
+	
+	<mongo_service>
+		<element>for_make_element_array</element>
+		<element>
+			<name>for_test</name>
+			<host>124.156.106.95:27017</host>
+			<auth_db>admin</auth_db>
+			<user>lxl</user>
+			<pwd>xiaolzz</pwd>
+		</element>
+	</mongo_service>
+
+	<etcd_service>
+		<element>for_make_element_array</element>
+		<element>
+			<name>zone_0</name>
+			<host>http://124.156.106.95:2379</host> 
+			<!-- <host>http://127.0.0.1:2379</host> -->
+			<user>root</user>
+			<pwd>xiaolzz</pwd>
+			<ttl>10</ttl>
+		</element>
+	</etcd_service>
+
+	<login>
+		<element>for_make_element_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>1000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>31000</port>
+		</element>
+	</login>
+
+	<gate>
+		<element>for_make_element_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>2000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>32000</port>
+		</element>
+	</gate>
+</root>
