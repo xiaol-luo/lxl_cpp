@@ -28,22 +28,20 @@ def thread_main_logic(pd):
     while not pd.is_exit and rsh.is_running:
         time.sleep(0.1)
     rsh.terminate()
-    time.sleep(1)
+    while rsh.is_running:
+        time.sleep(0.1)
     pd.return_code = rsh.return_code
     return pd.return_code
 
 
 def cleanup_process_datas(process_datas):
     for pd in process_datas:
-        if not pd.thread.is_alive():
-            print(" '{}' exit with code:{}".format(pd.cmd, pd.return_code))
-            continue
-        else:
-            if pd.main_logic:
-                pd.main_logic.terminate()
-            if pd.thread:
-                pd.is_exit = True
-        pd.thread.join(timeout=3)
+        pd.is_exit = True
+        if pd.thread:
+            if not pd.thread.is_alive():
+                print(" '{}' exit with code:{}".format(pd.cmd, pd.return_code))
+        pd.thread.join()
+        print("cleanup_process_datas joined '{}' ".format(pd.cmd))
 
 
 exit_progress = False
@@ -55,9 +53,15 @@ def signal_handler(sig_num, handler):
     print("!!!!!! signal_handler sig_num:{}".format(sig_num))
 
 
+def kill_alive_services():
+    subprocess.run(shlex.split("taskkill /f /t /im service.exe"), shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
+
+
 for sig_num in [signal.SIGINT, signal.SIGTERM]:
     signal.signal(sig_num, signal_handler)
 
+
+kill_alive_services()
 
 run_cmds = [
     r"E:\git\ws\lxl_cpp\Debug\service.exe platform E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\platform",
@@ -81,7 +85,8 @@ while not exit_progress:
     if is_one_exit:
         break
 cleanup_process_datas(process_datas)
-process_datas = list()
+# kill_alive_services()
+# time.sleep(10)
 sys.stdout.flush()
 sys.stderr.flush()
 sys.exit(0)
