@@ -18,12 +18,12 @@ function MsgHandlerBase:set_handler_msg_fn(pid, fn)
 end
 
 function MsgHandlerBase:on_msg(pid, bin, ...)
-    assert("should not reach here")
+    assert(false, "should not reach here")
     local processed = false
     return processed
 end
 
 function MsgHandlerBase:send(pid, bin, ...)
-    assert("should not reach here")
+    assert(false, "should not reach here")
     return false
 end

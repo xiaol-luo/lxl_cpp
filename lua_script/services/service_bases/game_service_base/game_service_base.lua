@@ -14,6 +14,7 @@ function GameServiceBase:ctor()
     self.all_service_cfg = nil
     self.service_cfg = nil
     self.etcd_cfg = nil
+    self.logic_mgr = nil
 end
 
 function GameServiceBase:init()
@@ -45,6 +46,9 @@ function GameServiceBase:setup_modules()
     self.rpc_mgr = self:new_zone_net_rpc_mgr()
     self.rpc_mgr:init(self.msg_handler)
     self.zone_net:add_msg_handler(self.msg_handler)
+    self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
+    self:setup_logics()
+    self.logic_mgr:init()
 end
 
 function GameServiceBase:idendify_whoami()
@@ -68,11 +72,15 @@ function GameServiceBase:init_proto_parser()
 end
 
 function GameServiceBase:new_zone_net_msg_handler()
-    assert("should not reach here")
+    assert(false, "should not reach here")
 end
 
 function GameServiceBase:new_zone_net_rpc_mgr()
-    assert("should not reach here")
+    assert(false, "should not reach here")
+end
+
+function GameServiceBase:setup_logics()
+    assert(false, "should not reach here")
 end
 
 function GameServiceBase:start()

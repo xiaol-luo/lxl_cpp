@@ -19,26 +19,26 @@ function RpcMgrBase:destory()
 end
 
 function RpcMgrBase:on_msg(from_host, pid, block, ...)
-    assert("should not reach here")
+    assert(false, "should not reach here")
 end
 
 function RpcMgrBase:net_call(req_id, remote_host, remote_fn, ...)
-    assert("should not reach here")
+    assert(false, "should not reach here")
     -- return Rpc_Error
 end
 
 function RpcMgrBase:net_response(remote_host, req_id, action, ...)
-    assert("should not reach here")
+    assert(false, "should not reach here")
     -- return Rpc_Error
 end
 
 function RpcMgrBase:pack_params(...)
-    assert("should not reach here")
+    assert(false, "should not reach here")
     -- return block
 end
 
 function RpcMgrBase:unpack_params(param_block)
-    assert("should not reach here")
+    assert(false, "should not reach here")
     -- return ...
 end
 
