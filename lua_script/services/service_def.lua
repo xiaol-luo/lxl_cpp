@@ -18,6 +18,19 @@ Service_Const =
     Etcd_Cfg_File = "etcd_cfg_file",
     Zone = "zone",
     Service = "service",
+    All_Service_Config = "all_service_config",
+    Platform_Service = "platform_service",
+    Etcd_Service = "etcd_service",
+    Auth_Service = "auth_service",
+    Mongo_Service = "mongo_service",
+    Login = "login",
+    Gate = "gate",
+    Element = "element",
+    Name = "name",
+    Service_Id = "service_id",
+    Ip = "ip",
+    Port = "port",
+    For_Make_Array = "for_make_array",
 }
 
 MAIN_ARGS_SERVICE = "service"

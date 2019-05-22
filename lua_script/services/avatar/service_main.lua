@@ -48,11 +48,7 @@ end
 
 function test_mongo_client(self)
     local mongo_task_cb = function (result_json_str)
-        local ret_tb = rapidjson.decode(result_json_str)
-        if ret_tb["val"] then
-            ret_tb["val_tb"] = rapidjson.decode(ret_tb["val"])
-        end
-        log_debug("mongo_task_cb %s", ret_tb)
+        -- log_debug("mongo_task_cb %s", result_json_str)
     end
 
     local tb_filter = {}

@@ -7,10 +7,13 @@ function GameServiceBase:ctor()
     self.zone_name = nil
     self.service_name = nil
     self.service_idx = nil
+    self.service_identify = nil
     self.zone_net = nil
     self.msg_handler = nil
     self.rpc_mgr = nil
     self.all_service_cfg = nil
+    self.service_cfg = nil
+    self.etcd_cfg = nil
 end
 
 function GameServiceBase:init()
@@ -24,19 +27,20 @@ function GameServiceBase:setup_modules()
 
     -- zone net module
     local SC = Service_Const
-    local all_service_cfg_file = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], SERVICE_SETTING[SC.All_Service_Config])
-    self.all_service_cfg = GameAllServiceConfig.parse_file(all_service_cfg_file)
-
-    etcd_cfg = self.all_service_cfg:get_etcd_cfg(self.zone_name)
-    local etcd_svr_cfg = etcd_cfg[self.zone_name][SC.Etcd]
-    local etcd_service_cfg = etcd_cfg[self.zone_name][self.service_name][tostring(self.service_idx)]
-    self.service_id = etcd_service_cfg[SC.Id]
+    self.etcd_cfg = self.all_service_cfg:get_third_party_service(SC.Etcd_Service, self.zone_name)
     self.zone_net = ZoneNetModule:new(self.module_mgr, "zone_net")
     self.module_mgr:add_module(self.zone_net)
     self.zone_net:init(
-            etcd_svr_cfg[SC.Etcd_Host], etcd_svr_cfg[SC.Etcd_User], etcd_svr_cfg[SC.Etcd_Pwd], etcd_svr_cfg[SC.Etcd_Ttl],
-            self.zone_name, self.service_name, self.service_idx,
-            etcd_service_cfg[SC.Id], etcd_service_cfg[SC.Listen_Port], etcd_service_cfg[SC.Listen_Ip])
+            self.etcd_cfg[SC.Etcd_Host],
+            self.etcd_cfg[SC.Etcd_User],
+            self.etcd_cfg[SC.Etcd_Pwd],
+            self.etcd_cfg[SC.Etcd_Ttl],
+            self.zone_name,
+            self.service_name,
+            self.service_idx,
+            self.service_identify,
+            self.service_cfg[SC.Port],
+            self.service_cfg[SC.Ip])
     self.msg_handler = self:new_zone_net_msg_handler()
     self.rpc_mgr = self:new_zone_net_rpc_mgr()
     self.rpc_mgr:init(self.msg_handler)
@@ -44,9 +48,15 @@ function GameServiceBase:setup_modules()
 end
 
 function GameServiceBase:idendify_whoami()
-    self.zone_name = SERVICE_SETTING[Service_Const.Zone]
-    self.service_name = SERVICE_SETTING[Service_Const.Service]
-    self.service_idx = SERVICE_SETTING[Service_Const.Idx]
+    local SC = Service_Const
+    self.zone_name = SERVICE_SETTING[SC.Zone]
+    self.service_name = SERVICE_SETTING[SC.Service]
+    self.service_idx = SERVICE_SETTING[SC.Idx]
+    local all_service_cfg_file = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], SERVICE_SETTING[SC.All_Service_Config])
+    self.all_service_cfg = GameAllServiceConfig.parse_file(all_service_cfg_file)
+    self.service_cfg = self.all_service_cfg:get_game_service(self.zone_name, self.service_name, self.service_idx)
+    assert(self.service_cfg)
+    self.service_identify = self.service_cfg[SC.Id]
 end
 
 function GameServiceBase:init_proto_parser()

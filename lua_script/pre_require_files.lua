@@ -70,7 +70,8 @@ local files = {
     "services.service_module.zone_net_module",
     "services.service_module.http_net_module",
     "services.service_module.mongo_client_module",
-    "services.service_bases.game_service_base",
+    "services.service_bases.game_service_base.game_service_base",
+    "services.service_bases.game_service_base.game_all_service_config",
     "common.init_global_vars",
 }
 return files

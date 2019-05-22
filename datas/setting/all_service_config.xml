@@ -1,6 +1,6 @@
 <root>
 	<platform_service>
-		<element>for_make_element_array</element>
+		<element>for_make_array</element>
 		<element>
 			<name>0</name>
 			<ip>127.0.0.1</ip>
@@ -10,7 +10,7 @@
 		</element>
 	</platform_service>
 	<auth_service>
-		<element>for_make_element_array</element>
+		<element>for_make_array</element>
 		<element>
 			<name>0</name>
 			<ip>127.0.0.1</ip>
@@ -20,7 +20,7 @@
 	</auth_service>
 	
 	<mongo_service>
-		<element>for_make_element_array</element>
+		<element>for_make_array</element>
 		<element>
 			<name>for_test</name>
 			<host>124.156.106.95:27017</host>
@@ -31,7 +31,7 @@
 	</mongo_service>
 
 	<etcd_service>
-		<element>for_make_element_array</element>
+		<element>for_make_array</element>
 		<element>
 			<name>zone_0</name>
 			<host>http://124.156.106.95:2379</host> 
@@ -43,7 +43,7 @@
 	</etcd_service>
 
 	<login>
-		<element>for_make_element_array</element>
+		<element>for_make_array</element>
 		<element>
 			<zone>zone_0</zone>
 			<idx>0</idx>
@@ -54,7 +54,7 @@
 	</login>
 
 	<gate>
-		<element>for_make_element_array</element>
+		<element>for_make_array</element>
 		<element>
 			<zone>zone_0</zone>
 			<idx>0</idx>
@@ -63,4 +63,15 @@
 			<port>32000</port>
 		</element>
 	</gate>
+	
+	<avatar>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>2000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>33000</port>
+		</element>
+	</avatar>
 </root>
