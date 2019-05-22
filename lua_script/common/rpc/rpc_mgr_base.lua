@@ -43,6 +43,11 @@ function RpcMgrBase:unpack_params(param_block)
 end
 
 function RpcMgrBase:set_req_msg_process_fn(fn_name, fn)
+    if not fn then
+        self.req_msg_process_fn[fn_name] = nil
+        return
+    end
+    assert(not self.req_msg_process_fn[fn_name])
     self.req_msg_process_fn[fn_name] = fn
 end
 
@@ -51,6 +56,8 @@ function RpcMgrBase:set_req_msg_coroutine_process_fn(fn_name, fn)
         self.req_msg_process_fn[fn_name] = nil
         return
     end
+
+    assert(not self.req_msg_process_fn[fn_name])
 
     local real_fn = function(rsp, ...)
         local co = ex_coroutine_create(function (rsp, ...)

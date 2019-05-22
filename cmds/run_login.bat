@@ -1,0 +1,1 @@
+service.exe login ../login_0 ../Debug/root/datas setting/login_0.xml ../Debug/root/lua_script --lua_args_begin-- -lua_path . -c_path . ../Debug -require_files services.main  -execute_fns start_script

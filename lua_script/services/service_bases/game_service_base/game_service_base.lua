@@ -100,3 +100,15 @@ function GameServiceBase:on_frame()
     GameServiceBase.super.on_frame(self)
     self.rpc_mgr:on_frame()
 end
+
+function GameServiceBase:set_process_msg_fn(pid, fn)
+    self.msg_handler:set_handler_msg_fn(pid, fn)
+end
+
+function GameServiceBase:set_process_rpc_fn(fn_name, fn)
+    self.rpc_mgr:set_req_msg_process_fn(fn_name, fn)
+end
+
+function GameServiceBase:set_process_rpc_coroutin_fn(fn_name, fn)
+    self.rpc_mgr:set_req_msg_coroutine_process_fn(fn_name, fn)
+end

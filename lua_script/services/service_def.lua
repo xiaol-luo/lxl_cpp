@@ -31,6 +31,12 @@ Service_Const =
     Ip = "ip",
     Port = "port",
     For_Make_Array = "for_make_array",
+    Host = "host",
+    Auth_Db = "auth_db",
+    User = "user",
+    Pwd = "pwd",
+    Db_name = "db_name",
+
 }
 
 MAIN_ARGS_SERVICE = "service"

@@ -50,6 +50,8 @@
 			<service_id>1000</service_id>
 			<ip>127.0.0.1</ip>
 			<port>31000</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>login_zone_0</db_name>
 		</element>
 	</login>
 
@@ -72,6 +74,8 @@
 			<service_id>2000</service_id>
 			<ip>127.0.0.1</ip>
 			<port>33000</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>game_zone_0</db_name>
 		</element>
 	</avatar>
 </root>
