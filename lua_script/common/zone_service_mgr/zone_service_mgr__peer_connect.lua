@@ -155,7 +155,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
     if st then
         st.net = nil
     end
-    log_debug("ZoneServiceMgr: peer service is closed. service:%s, netid:%s, err_num:%s",
+    log_debug("ZoneServiceMgr: connected peer service is closed. service:%s, netid:%s, err_num:%s",
             st and st.st:get_service() or "unknown", cnn_handler:netid(), err_num)
 end
 

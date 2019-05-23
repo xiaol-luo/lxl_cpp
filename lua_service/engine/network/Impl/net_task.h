@@ -28,6 +28,8 @@ namespace Net
 		std::string err_msg;
 		long long id = 0;
 		int fd = -1;
+		std::string ip;
+		uint64_t port = 0;
 	};
 
 	class NetTask

@@ -22,7 +22,6 @@ function GameAllServiceConfig:ctor()
         Service_Const.Gate,
         Service_Const.World,
         Service_Const.Game,
-        Service_Const.Avatar,
     }
 end
 

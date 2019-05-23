@@ -23,7 +23,7 @@ end
 
 function ZoneServiceMgr:_accept_cnn_handler_on_close(cnn_handler, err_num)
     local st = self.accept_cnn_states[cnn_handler:netid()]
-    log_debug("ZoneServiceMgr: peer service is closed. service:%s, netid:%s, err_num:%s",
+    log_debug("ZoneServiceMgr: accepted peer service is closed. service:%s, netid:%s, err_num:%s",
             st and st.peer_service_name or "unknown", cnn_handler:netid(), err_num)
     self.accept_cnn_states[cnn_handler:netid()] = nil
 end

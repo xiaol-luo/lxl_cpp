@@ -23,6 +23,8 @@ namespace Net
 	NetTaskConnect::NetTaskConnect(int64_t id, std::string ip, uint16_t port, void *opt)
 		: NetTask(ENetTask_Connect, id), m_ip(ip), m_port(port), m_opt(opt)
 	{
+		m_result.ip = ip;
+		m_result.port = port;
 	}
 
 	NetTaskConnect::~NetTaskConnect()
@@ -33,7 +35,8 @@ namespace Net
 	NetTaskListen::NetTaskListen(int64_t id, std::string ip, uint16_t port, void *opt)
 		: NetTask(ENetTask_Listen, id), m_ip(ip), m_port(port), m_opt(opt)
 	{
-
+		m_result.ip = ip;
+		m_result.port = port;
 	}
 
 	NetTaskListen::~NetTaskListen()

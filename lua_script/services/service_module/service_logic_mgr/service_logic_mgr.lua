@@ -36,7 +36,7 @@ function ServiceLogicMgr:stop()
     end
 end
 
-function ServiceModule:release()
+function ServiceLogicMgr:release()
     ServiceLogicMgr.super.release(self)
     for _, v in ipairs(self.logics) do
         v:release()

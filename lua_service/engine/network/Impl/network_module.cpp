@@ -406,7 +406,13 @@ void NetworkModule::ProcessNetTaskResult()
 			handler->OnOpen(err_num);
 			if (0 != err_num)
 			{
-				MODULE_LOG_MGR->Error("NetworkModule::ProcessConnectResult errno {0}, error reason {1}", err_num, err_msg);
+				std::string task_action = "connect";
+				if (Net::ENetTask_Listen == ret.task_type)
+				{
+					task_action == "listen";
+				}
+				MODULE_LOG_MGR->Error("NetworkModule::NetTask fail, can not {0} {1}:{2} , errno:{3}, error_msg:{4}", 
+					 task_action, ret.ip, ret.port, ret.err_num, ret.err_msg);
 			}
 		}
 		m_async_network_handlers.erase(ret.id);
