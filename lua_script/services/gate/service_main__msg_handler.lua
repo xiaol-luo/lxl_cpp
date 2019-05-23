@@ -1,6 +1,6 @@
 
-function GateService:new_zone_net_msg_handler()
-    local msg_handler = GateZoneServiceMsgHandler:new()
-    msg_handler:init()
-    return msg_handler
+
+function GateService:_init_zone_net_msg_handler()
+    self.msg_handler = ZoneServiceMsgHandlerbase:new()
+    self.msg_handler:init()
 end

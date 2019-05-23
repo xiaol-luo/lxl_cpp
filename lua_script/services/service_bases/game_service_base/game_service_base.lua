@@ -42,8 +42,8 @@ function GameServiceBase:setup_modules()
             self.service_identify,
             self.service_cfg[SC.Port],
             self.service_cfg[SC.Ip])
-    self.msg_handler = self:new_zone_net_msg_handler()
-    self.rpc_mgr = self:new_zone_net_rpc_mgr()
+    self:_init_zone_net_msg_handler()
+    self:_init_zone_net_rpc_mgr()
     self.rpc_mgr:init(self.msg_handler)
     self.zone_net:add_msg_handler(self.msg_handler)
     self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
@@ -71,11 +71,11 @@ function GameServiceBase:init_proto_parser()
     assert(PROTO_PARSER, "PROTO_PARSER init fail")
 end
 
-function GameServiceBase:new_zone_net_msg_handler()
+function GameServiceBase:_init_zone_net_msg_handler()
     assert(false, "should not reach here")
 end
 
-function GameServiceBase:new_zone_net_rpc_mgr()
+function GameServiceBase:_init_zone_net_rpc_mgr()
     assert(false, "should not reach here")
 end
 

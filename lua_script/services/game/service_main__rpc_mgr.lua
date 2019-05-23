@@ -1,6 +1,5 @@
 
 
-function GameService:new_zone_net_rpc_mgr()
-    local rpc_mgr = ZoneServiceRpcMgr:new()
-    return rpc_mgr
+function GameService:_init_zone_net_rpc_mgr()
+    self.rpc_mgr = ZoneServiceRpcMgr:new()
 end

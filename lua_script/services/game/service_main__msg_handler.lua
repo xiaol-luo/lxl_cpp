@@ -1,6 +1,6 @@
 
-function GameService:new_zone_net_msg_handler()
-    local msg_handler = GameZoneServiceMsgHandler:new()
-    msg_handler:init()
-    return msg_handler
+
+function GameService:_init_zone_net_msg_handler()
+    self.msg_handler = ZoneServiceMsgHandlerbase:new()
+    self.msg_handler:init()
 end

@@ -1,5 +1,5 @@
 
 
-function LoginService:setup_logics()
+function GameService:setup_logics()
 
 end

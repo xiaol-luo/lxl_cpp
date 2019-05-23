@@ -1,6 +1,5 @@
 
 
-function LoginService:new_zone_net_rpc_mgr()
-    local rpc_mgr = ZoneServiceRpcMgr:new()
-    return rpc_mgr
+function LoginService:_init_zone_net_rpc_mgr()
+    self.rpc_mgr = ZoneServiceRpcMgr:new()
 end
