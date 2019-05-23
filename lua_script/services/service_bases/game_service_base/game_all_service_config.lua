@@ -20,6 +20,8 @@ function GameAllServiceConfig:ctor()
         Service_Const.Auth_Service,
         Service_Const.Login,
         Service_Const.Gate,
+        Service_Const.World,
+        Service_Const.Game,
         Service_Const.Avatar,
     }
 end
@@ -27,7 +29,6 @@ end
 function GameAllServiceConfig:parse(file_path)
     local xml_cfg = xml.parse_file(file_path)
     self.kvs = xml_cfg["root"]
-    log_debug("xxxxxxxxxx %s", self.service_names)
     for _, name in pairs(self.service_names) do
         self.service_group[name] = {}
         assert(self.kvs[name] and self.kvs[name][Service_Const.Element])

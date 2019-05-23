@@ -1,1 +1,0 @@
-bin.exe test_listen ../test_listen E:/git/ws/lxl_cpp/Debug/root/datas ../Debug/root/lua_script  --lua_args_begin-- -lua_path E:/git/ws/lxl_cpp/Debug/root/lua_script -c_path E:/git/ws/lxl_cpp/Debug   -logic_param 1  -require_files services.main  -execute_fns start_script

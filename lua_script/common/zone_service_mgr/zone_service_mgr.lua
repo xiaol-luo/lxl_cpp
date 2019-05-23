@@ -61,9 +61,11 @@ function ZoneServiceMgr:stop()
     end
     for _, v in pairs(self.service_state_list) do
         local net = v.net
-        native.net_cancel_async(net.cnn_async_id)
-        native.net_close(net.cnn:netid())
-        net.cnn = nil
+        if net then
+            native.net_cancel_async(net.cnn_async_id)
+            native.net_close(net.cnn:netid())
+            net.cnn = nil
+        end
     end
     self.service_state_list = {}
 end
@@ -89,13 +91,13 @@ function ZoneServiceMgr:on_frame()
 end
 
 function ZoneServiceMgr:etcd_service_val_update()
-    log_debug("ZoneServiceMgr:etcd_service_val_update()")
+    -- log_debug("ZoneServiceMgr:etcd_service_val_update()")
     self.etcd_client:set(self.etcd_service_key, self.etcd_service_val:to_json(), self.etcd_ttl, false,
             Functional.make_closure(ZoneServiceMgr._etcd_service_val_set_cb, self))
 end
 
 function ZoneServiceMgr:_etcd_service_val_set_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_set_service_val_cb %s %s", op_id, string.toprint(ret))
+    -- log_debug("ZoneServiceMgr:_etcd_set_service_val_cb %s %s", op_id, string.toprint(ret))
     if not self.is_started then
         return
     end
@@ -110,7 +112,7 @@ function ZoneServiceMgr:_etcd_pull_service_states()
 end
 
 function ZoneServiceMgr:_etcd_pull_service_status_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_pull_service_status_cb %s %s", op_id, ret)
+    -- log_debug("ZoneServiceMgr:_etcd_pull_service_status_cb %s %s", op_id, ret)
     if not self.is_started then
         return
     end
@@ -130,7 +132,7 @@ function ZoneServiceMgr:_etcd_watch_service_states()
 end
 
 function ZoneServiceMgr:_etcd_watch_service_states_cb(op_id, op, ret)
-    log_debug("ZoneServiceMgr:_etcd_watch_service_states_cb %s %s", op_id, ret:is_ok())
+    -- log_debug("ZoneServiceMgr:_etcd_watch_service_states_cb %s %s", op_id, ret:is_ok())
     if not self.is_started then
         return
     end
@@ -163,13 +165,13 @@ function ZoneServiceMgr:_listen_handler_gen_cnn(listen_handler)
 end
 
 function ZoneServiceMgr:_listen_handler_on_open(listen_handler, err_num)
-    log_debug("ZoneServiceMgr:_listen_handler_on_open netid:%s, err_num:%s", listen_handler:netid(), err_num)
+    -- log_debug("ZoneServiceMgr:_listen_handler_on_open netid:%s, err_num:%s", listen_handler:netid(), err_num)
     self.etcd_service_val:set_online(0 == err_num)
     self:etcd_service_val_update()
 end
 
 function ZoneServiceMgr:_listen_handler_on_close(listen_handler, err_num)
-    log_debug("ZoneServiceMgr:_listen_handler_on_close netid:%s, err_num:%s", listen_handler:netid(), err_num)
+    -- log_debug("ZoneServiceMgr:_listen_handler_on_close netid:%s, err_num:%s", listen_handler:netid(), err_num)
     self.etcd_service_val:set_online(false)
     self.etcd_service_val_update()
 end

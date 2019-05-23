@@ -9,7 +9,7 @@ function ZoneServiceMgr:make_accept_cnn()
 end
 
 function ZoneServiceMgr:_accept_cnn_handler_on_open(cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_accept_cnn_handler_on_open netid:%s err_num:%s", cnn_handler:netid(), err_num)
+    -- log_debug("ZoneServiceMgr:_accept_cnn_handler_on_open netid:%s err_num:%s", cnn_handler:netid(), err_num)
     if 0 == err_num then
         local st = {}
         st.cnn = cnn_handler
@@ -22,7 +22,9 @@ function ZoneServiceMgr:_accept_cnn_handler_on_open(cnn_handler, err_num)
 end
 
 function ZoneServiceMgr:_accept_cnn_handler_on_close(cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_accept_cnn_handler_on_close netid:%s err_num:%s", cnn_handler:netid(), err_num)
+    local st = self.accept_cnn_states[cnn_handler:netid()]
+    log_debug("ZoneServiceMgr: peer service is closed. service:%s, netid:%s, err_num:%s",
+            st and st.peer_service_name or "unknown", cnn_handler:netid(), err_num)
     self.accept_cnn_states[cnn_handler:netid()] = nil
 end
 
@@ -44,7 +46,7 @@ function ZoneServiceMgr:_accept_cnn_handler_on_recv(cnn_handler, pid, bin)
     elseif ZoneServiceMgr.Pid_Pong == pid then
         st.pong_ms = native.logic_ms()
     elseif ZoneServiceMgr.Pid_Introduce_Self == pid then
-        log_debug("ZoneServiceMgr:_accept_cnn_handler_on_recv netid:%s, peer_service_name:%s", st.cnn:netid(), bin)
+        log_debug("ZoneServiceMgr: accept peer service:%s, netid:%s", bin, st.cnn:netid())
         st.peer_service_name = bin
     else
         -- log_debug("ZoneServiceMgr:_accept_cnn_handler_on_recv netid:%s, pid:%s", st.cnn:netid(), pid)

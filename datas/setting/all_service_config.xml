@@ -66,6 +66,32 @@
 		</element>
 	</gate>
 	
+	<world>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>1000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>31000</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>game_zone_0</db_name>
+		</element>
+	</world>
+	
+	<game>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>1000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>31000</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>game_zone_0</db_name>
+		</element>
+	</game>
+	
 	<avatar>
 		<element>for_make_array</element>
 		<element>

@@ -69,12 +69,12 @@ function ZoneServiceMgr:next_peer_cnn_seq()
 end
 
 function ZoneServiceMgr:_etcd_service_state_add(st)
-    log_debug("ZoneServiceMgr:_etcd_service_state_add")
+    -- log_debug("ZoneServiceMgr:_etcd_service_state_add %s", st)
     self.service_state_list[st.key] = {key=st.key, st = st.service_state, net = nil }
 end
 
 function ZoneServiceMgr:_etcd_service_state_update(st)
-    log_debug("ZoneServiceMgr:_etcd_service_state_update")
+    -- log_debug("ZoneServiceMgr:_etcd_service_state_update, %s", st)
     if not self.service_state_list[st.key] then
         return
     end
@@ -120,7 +120,7 @@ function ZoneServiceMgr:make_peer_cnn(peer_cnn_seq)
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_open peer_cnn_seq:%s, netid:%s err_num:%s", peer_cnn_seq, cnn_handler:netid(), err_num)
+    -- log_debug("ZoneServiceMgr:_peer_cnn_handler_on_open peer_cnn_seq:%s, netid:%s err_num:%s", peer_cnn_seq, cnn_handler:netid(), err_num)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
@@ -145,7 +145,6 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, err_num)
-    log_debug("ZoneServiceMgr:_peer_cnn_handler_on_close peer_cnn_seq:%s, netid:%s err_num:%s", peer_cnn_seq, cnn_handler:netid(), err_num)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
@@ -156,6 +155,8 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
     if st then
         st.net = nil
     end
+    log_debug("ZoneServiceMgr: peer service is closed. service:%s, netid:%s, err_num:%s",
+            st and st.st:get_service() or "unknown", cnn_handler:netid(), err_num)
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid, bin)
@@ -179,6 +180,8 @@ function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid
         if st.st:get_service() ~= bin then
             st.net = nil
             Net.close(cnn_handler:netid())
+        else
+            log_debug("ZoneServiceMgr: connect peer service:%s, netid:%s", bin, st.net.cnn:netid())
         end
     else
         log_error("ZoneServiceMgr:_peer_cnn_handler_on_recv should not reach here! peer_cnn_id:%s, pid:%s", peer_cnn_seq, pid)

@@ -16,7 +16,7 @@ function ProtobufStore:add_search_dirs(search_dirs)
 end
 
 function ProtobufStore:load_files(files)
-    log_debug("ProtobufStore:load_files %s", files)
+    -- log_debug("ProtobufStore:load_files %s", files)
     local ret = true
     for _, v in pairs(files) do
         if not self.pb_loader:loadfile(v) then
