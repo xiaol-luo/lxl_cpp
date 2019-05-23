@@ -23,34 +23,6 @@ function GameServiceBase:init()
     GameServiceBase.super.init(self)
 end
 
-function GameServiceBase:setup_modules()
-    log_debug("ServiceBase:setup_modules")
-
-    -- zone net module
-    local SC = Service_Const
-    self.etcd_cfg = self.all_service_cfg:get_third_party_service(SC.Etcd_Service, self.zone_name)
-    self.zone_net = ZoneNetModule:new(self.module_mgr, "zone_net")
-    self.module_mgr:add_module(self.zone_net)
-    self.zone_net:init(
-            self.etcd_cfg[SC.Etcd_Host],
-            self.etcd_cfg[SC.Etcd_User],
-            self.etcd_cfg[SC.Etcd_Pwd],
-            self.etcd_cfg[SC.Etcd_Ttl],
-            self.zone_name,
-            self.service_name,
-            self.service_idx,
-            self.service_identify,
-            self.service_cfg[SC.Port],
-            self.service_cfg[SC.Ip])
-    self:_init_zone_net_msg_handler()
-    self:_init_zone_net_rpc_mgr()
-    self.rpc_mgr:init(self.msg_handler)
-    self.zone_net:add_msg_handler(self.msg_handler)
-    self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
-    self:setup_logics()
-    self.logic_mgr:init()
-end
-
 function GameServiceBase:idendify_whoami()
     local SC = Service_Const
     self.zone_name = SERVICE_SETTING[SC.Zone]
@@ -71,6 +43,35 @@ function GameServiceBase:init_proto_parser()
     assert(PROTO_PARSER, "PROTO_PARSER init fail")
 end
 
+function GameServiceBase:setup_modules()
+    log_debug("ServiceBase:setup_modules")
+    -- service logic mgr
+    self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
+    self:setup_logics()
+    self.logic_mgr:init()
+    self.module_mgr:add_module(self.logic_mgr)
+    -- zone net module
+    local SC = Service_Const
+    self.etcd_cfg = self.all_service_cfg:get_third_party_service(SC.Etcd_Service, self.zone_name)
+    self.zone_net = ZoneNetModule:new(self.module_mgr, "zone_net")
+    self.module_mgr:add_module(self.zone_net)
+    self.zone_net:init(
+            self.etcd_cfg[SC.Etcd_Host],
+            self.etcd_cfg[SC.Etcd_User],
+            self.etcd_cfg[SC.Etcd_Pwd],
+            self.etcd_cfg[SC.Etcd_Ttl],
+            self.zone_name,
+            self.service_name,
+            self.service_idx,
+            self.service_identify,
+            self.service_cfg[SC.Port],
+            self.service_cfg[SC.Ip])
+    self:_init_zone_net_msg_handler()
+    self:_init_zone_net_rpc_mgr()
+    self.rpc_mgr:init(self.msg_handler)
+    self.zone_net:add_msg_handler(self.msg_handler)
+end
+
 function GameServiceBase:_init_zone_net_msg_handler()
     assert(false, "should not reach here")
 end
@@ -85,7 +86,6 @@ end
 
 function GameServiceBase:start()
     GameServiceBase.super.start(self)
-    self.avatar_rpc_client = create_rpc_client(self.rpc_mgr, self.zone_name, self.service_name, self.service_idx)
 end
 
 function GameServiceBase:stop()

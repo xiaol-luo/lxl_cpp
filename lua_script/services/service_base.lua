@@ -35,6 +35,7 @@ function ServiceBase:stop()
     self.module_mgr:stop()
     CoroutineExMgr.stop()
     self.timer_proxy:release_all()
+    self.module_mgr:release()
 end
 
 
