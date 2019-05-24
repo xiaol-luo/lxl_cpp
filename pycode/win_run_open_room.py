@@ -66,6 +66,10 @@ kill_alive_services()
 run_cmds = [
     r"E:\git\ws\lxl_cpp\Debug\service.exe platform E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\platform",
     r"E:\git\ws\lxl_cpp\Debug\service.exe auth E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\auth",
+    r"E:\git\ws\lxl_cpp\Debug\service.exe login_0 E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\login_0",
+    r"E:\git\ws\lxl_cpp\Debug\service.exe gate_0 E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\gate_0",
+    r"E:\git\ws\lxl_cpp\Debug\service.exe world_0 E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\world_0",
+    r"E:\git\ws\lxl_cpp\Debug\service.exe game_0 E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\game_0",
 ]
 process_datas = list()
 for cmd_str in run_cmds:

@@ -59,7 +59,7 @@ class RunServiceHelp(object):
             return -2, error_msg
         run_cmd = "{} {} {} {} {} {} --lua_args_begin-- -lua_path . -c_path . {} -require_files services.main  -execute_fns start_script".format(
             self.exe,
-            self.role_str,
+            self.role,
             self.work_dir,
             self.datas_dir(),
             self.role_cfg_relate_path,
@@ -69,7 +69,9 @@ class RunServiceHelp(object):
         try:
             self.process = subprocess.Popen(
                 shlex.split(run_cmd),
-                #creationflags=subprocess.CREATE_NEW_CONSOLE,
+                # stderr=subprocess.PIPE,
+                # stdout=subprocess.PIPE,
+                # creationflags=subprocess.CREATE_NEW_CONSOLE,
                 shell=True
             )
         except Exception as e:
@@ -130,15 +132,15 @@ class RunServiceHelp(object):
     @property
     def role(self):
         str_arr = self.role_str.split('_')
-        assert(str_arr and len(str_arr) >= 1)
+        assert(str_arr and len(str_arr) > 0)
         return str_arr[0]
 
     @property
     def role_idx(self):
         str_arr = self.role_str.split('_')
         ret = None
-        if str_arr and len(str_arr) >= 2:
-            ret = str_arr[2]
+        if str_arr and len(str_arr) > 1:
+            ret = str_arr[1]
         return ret
 
     @property

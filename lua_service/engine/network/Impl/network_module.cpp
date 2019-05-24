@@ -412,7 +412,7 @@ void NetworkModule::ProcessNetTaskResult()
 					task_action == "listen";
 				}
 				MODULE_LOG_MGR->Error("NetworkModule::NetTask fail, can not {0} {1}:{2} , errno:{3}, error_msg:{4}", 
-					 task_action, ret.ip, ret.port, ret.err_num, ret.err_msg);
+					 task_action, ret.ip.c_str(), ret.port, ret.err_num, ret.err_msg); 
 			}
 		}
 		m_async_network_handlers.erase(ret.id);
