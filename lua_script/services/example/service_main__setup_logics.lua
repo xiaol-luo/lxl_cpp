@@ -1,5 +1,5 @@
 
 
-function LoginService:setup_logics()
+function ExampleService:setup_logics()
 
 end

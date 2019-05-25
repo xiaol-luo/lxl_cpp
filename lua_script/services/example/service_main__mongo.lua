@@ -1,5 +1,5 @@
 
-function LoginService:_init_db_client()
+function ExampleService:_init_db_client()
     self.db_client = MongoClientModule:new(self.module_mgr, "db_client")
     self.module_mgr:add_module(self.db_client)
 
