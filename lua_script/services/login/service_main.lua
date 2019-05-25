@@ -17,8 +17,8 @@ function LoginService:ctor()
 end
 
 function LoginService:setup_modules()
-    LoginService.super.setup_modules(self)
-    self:_init_db_client()
     self:_init_client_cnn_mgr()
+    self:_init_db_client()
+    LoginService.super.setup_modules(self)
 end
 

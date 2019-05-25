@@ -37,8 +37,8 @@ end
 
 function GameServiceBase:init_proto_parser()
     local proto_dir = path.combine(MAIN_ARGS[MAIN_ARGS_DATA_DIR], "proto")
-    local proto_files = {} -- Todo: set this table by config
-    local pid_proto_map = {} -- Todo: set this table by config
+    local proto_files  = get_game_proto_files()
+    local pid_proto_map = get_game_pid_proto_map()
     PROTO_PARSER = parse_proto({ proto_dir }, proto_files, pid_proto_map)
     assert(PROTO_PARSER, "PROTO_PARSER init fail")
 end

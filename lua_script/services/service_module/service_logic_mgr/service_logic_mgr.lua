@@ -3,6 +3,7 @@ ServiceLogicMgr = ServiceLogicMgr or class("ServiceLogicMgr", ServiceModule)
 
 function ServiceLogicMgr:ctor(module_mgr, module_name)
     ServiceLogicMgr.super.ctor(self, module_mgr, module_name)
+    self.service = self.module_mgr.service
     self.logics = {}
 end
 

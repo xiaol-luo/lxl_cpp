@@ -2,7 +2,7 @@
 	<platform_service>
 		<element>for_make_array</element>
 		<element>
-			<name>0</name>
+			<name>for_test</name>
 			<ip>127.0.0.1</ip>
 			<port>20100</port>
 			<mongo_service>for_test</mongo_service>
@@ -12,7 +12,7 @@
 	<auth_service>
 		<element>for_make_array</element>
 		<element>
-			<name>0</name>
+			<name>for_test</name>
 			<ip>127.0.0.1</ip>
 			<port>20200</port>
 			<auth_method>app_auth</auth_method>
@@ -92,5 +92,15 @@
 			<db_name>game_zone_0</db_name>
 		</element>
 	</game>
-	
+
+	<robot>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>5000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>35000</port>
+		</element>
+	</robot>	
 </root>

@@ -22,7 +22,7 @@ function EventMgr:subscribe(ev_name, fn)
     node.fn = fn
     local ev_map = self.event_map[ev_name]
     if not ev_map then
-        ev_name = {}
+        ev_map = {}
         self.event_map[ev_name] = ev_map
     end
     ev_map[node.id] = node

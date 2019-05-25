@@ -27,6 +27,7 @@ Service_Const =
     Gate = "gate",
     World = "world",
     Game = "game",
+    Robot = "robot",
     Element = "element",
     Name = "name",
     Service_Id = "service_id",
@@ -39,6 +40,7 @@ Service_Const =
     Pwd = "pwd",
     Db_name = "db_name",
     Client_Port = "client_port",
+    For_Test = "for_test",
 }
 
 MAIN_ARGS_SERVICE = "service"

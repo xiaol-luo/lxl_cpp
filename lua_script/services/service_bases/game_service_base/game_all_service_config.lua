@@ -20,6 +20,7 @@ function GameAllServiceConfig:ctor()
         Service_Const.Gate,
         Service_Const.World,
         Service_Const.Game,
+        Service_Const.Robot,
     }
 end
 
@@ -40,7 +41,9 @@ end
 
 function GameAllServiceConfig:get_game_service(zone, name, idx)
     local ret = nil
+    idx = tostring(idx)
     local service_group = self.service_group[name]
+    -- log_debug("GameAllServiceConfig:get_game_service zone:%s name:%s idx=%s group:%s", zone, name, idx, service_group)
     for _, v in pairs(service_group) do
         if v.zone == zone and v.idx == idx then
             ret = v

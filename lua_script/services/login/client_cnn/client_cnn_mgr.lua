@@ -12,8 +12,8 @@ function ClientCnnMgr:init(listen_port)
     self.process_msg_fns = {}
 end
 
-function ClientCnnMgr:add_process_fn(pid, fn)
-    -- fn format function(ClientCnnMgr, ClientCnn, pid, msg)
+function ClientCnnMgr:set_process_fn(pid, fn)
+    -- fn format function(netid, pid, msg)
     if nil ~= fn then
         assert(not self.process_msg_fns[pid])
     end
@@ -28,7 +28,9 @@ end
 function ClientCnnMgr:stop()
     ClientCnnMgr.super.stop(self)
     for _, v in pairs(self.client_cnns) do
-        Net.close(v:netid())
+        if v.cnn then
+            Net.close(v.cnn:netid())
+        end
     end
     self.client_cnns = {}
     self.process_msg_fns = {}
@@ -59,6 +61,7 @@ function ClientCnnMgr:cnn_on_open(cnn, error_num)
         client_cnn.cnn = cnn
         client_cnn.netid = cnn:netid()
         client_cnn.last_recv_sec = logic_sec()
+        self.client_cnns[netid] = client_cnn
     else
         log_debug("ClientCnnMgr:cnn_on_open netid:%s error:%s", netid, error_num)
     end
@@ -68,7 +71,7 @@ end
 function ClientCnnMgr:cnn_on_close(cnn, error_num)
     local netid = cnn:netid()
     if 0 ~= error_num then
-        log_debug("ClientCnnMgr:cnn_on_open netid:%s error:%s", netid, error_num)
+        log_debug("ClientCnnMgr:cnn_on_close netid:%s error:%s", netid, error_num)
     end
     self.event_proxy:fire(Client_Cnn_Event_Close_Client , netid, error_num)
     self.client_cnns[netid] = nil
@@ -83,6 +86,23 @@ function ClientCnnMgr:cnn_on_recv(cnn, pid, bin)
     end
     local process_fn = self.process_msg_fns[pid]
     if process_fn then
-        process_fn(self, cnn, pid, bin)
+        local is_ok, msg = PROTO_PARSER:decode(pid, bin)
+        if is_ok then
+            safe_call(process_fn, netid, pid, msg)
+        else
+            log_error("ClientCnnMgr:cnn_on_recv decode fail pid:%s", pid)
+        end
     end
+end
+
+function ClientCnnMgr:get_client(netid)
+    return self.client_cnns[netid]
+end
+
+function ClientCnnMgr:send(netid, pid, tb)
+    local client = self:get_client(netid)
+    if not client then
+        return false
+    end
+    return client:send(pid, tb)
 end

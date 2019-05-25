@@ -1,5 +1,7 @@
 
 CoroutineExMgr = CoroutineExMgr or {}
+CoroutineExMgr.cos = CoroutineExMgr.cos or {}
+CoroutineExMgr.delay_execute_fns = CoroutineExMgr.delay_execute_fns or {}
 
 local self = CoroutineExMgr
 

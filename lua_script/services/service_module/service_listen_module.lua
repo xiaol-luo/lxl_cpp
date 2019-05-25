@@ -32,9 +32,6 @@ function ServiceListenModule:stop()
         Net.close(self.listen_handler:netid())
         self.listen_handler = nil
     end
-    for _, v in pairs(self.cnns) do
-        Net.close(v:netid())
-    end
 end
 
 function ServiceListenModule:release()

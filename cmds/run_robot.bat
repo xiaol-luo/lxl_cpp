@@ -1,0 +1,1 @@
+service.exe robot ../robot ../Debug/root/datas setting/robot.xml ../Debug/root/lua_script --lua_args_begin-- -lua_path . -c_path . ../Debug -require_files services.main  -execute_fns start_script

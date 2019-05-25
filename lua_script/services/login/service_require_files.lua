@@ -7,6 +7,10 @@ local files = {
     "services.login.client_cnn.client_cnn_def",
     "services.login.client_cnn.client_cnn",
     "services.login.client_cnn.client_cnn_mgr",
+    "services.login.auth.auth_def",
+    "services.login.auth.auth_mgr",
+    "services.login.login_game.login_game_def",
+    "services.login.login_game.login_game_mgr",
 }
 
 return files
