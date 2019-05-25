@@ -1,8 +1,6 @@
 
 GameAllServiceConfig =  GameAllServiceConfig or class("GameAllServiceConfig")
 
-local For
-
 function GameAllServiceConfig.parse_file(file_path)
     local cfg = GameAllServiceConfig:new()
     local ret = cfg:parse(file_path)

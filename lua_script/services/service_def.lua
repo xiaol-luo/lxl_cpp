@@ -38,7 +38,7 @@ Service_Const =
     User = "user",
     Pwd = "pwd",
     Db_name = "db_name",
-
+    Client_Port = "client_port",
 }
 
 MAIN_ARGS_SERVICE = "service"

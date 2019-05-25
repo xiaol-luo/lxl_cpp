@@ -52,6 +52,7 @@
 			<port>31000</port>
 			<mongo_service>for_test</mongo_service>
 			<db_name>login_zone_0</db_name>
+			<client_port>31001</client_port>
 		</element>
 	</login>
 

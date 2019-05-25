@@ -63,6 +63,24 @@ for sig_num in [signal.SIGINT, signal.SIGTERM]:
 
 kill_alive_services()
 
+# code_dir = r"E:\git\code\lxl_cpp"
+code_dir = r"E:\github\lxl_cpp"
+# exe_file = r"E:\git\ws\lxl_cpp\Debug\service.exe"
+exe_file = r"E:\ws\lxl_cpp\Debug\service.exe"
+# work_dir_base = r"E:\git\ws\lxl_cpp"
+work_dir_base = r"E:\ws\lxl_cpp"
+
+run_cmds = []
+for role_name in ["platform", "auth", "login_0", "gate_0", "world_0", "game_0"]:
+    run_cmd = "{} {} {} {}".format(
+        exe_file,
+        role_name,
+        code_dir,
+        os.path.join(work_dir_base, role_name)
+    )
+    run_cmds.append(run_cmd)
+
+'''
 run_cmds = [
     r"E:\git\ws\lxl_cpp\Debug\service.exe platform E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\platform",
     r"E:\git\ws\lxl_cpp\Debug\service.exe auth E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\auth",
@@ -71,6 +89,8 @@ run_cmds = [
     r"E:\git\ws\lxl_cpp\Debug\service.exe world_0 E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\world_0",
     r"E:\git\ws\lxl_cpp\Debug\service.exe game_0 E:\git\code\lxl_cpp  E:\git\ws\lxl_cpp\game_0",
 ]
+'''
+
 process_datas = list()
 for cmd_str in run_cmds:
     pd = _ProcessData()
