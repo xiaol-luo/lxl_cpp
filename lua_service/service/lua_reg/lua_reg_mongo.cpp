@@ -218,7 +218,8 @@ void lua_reg_mongo(lua_State *L)
 				"limit", MOFN_LIMIT,
 				"min", MOFN_MIN,
 				"max", MOFN_MAX,
-				"skip", MOFN_SKIP
+				"skip", MOFN_SKIP,
+				"return_after", MOFN_RETURN_AFTER
 			);
 			native_tb.set(class_name, meta_table);
 		}

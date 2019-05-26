@@ -23,8 +23,8 @@
 		<element>for_make_array</element>
 		<element>
 			<name>for_test</name>
-			<!-- <host>124.156.106.95:27017</host> -->
-			<host>127.0.0.1:27017</host>
+			<host>124.156.106.95:27017</host>
+			<!-- <host>127.0.0.1:27017</host> -->
 			<auth_db>admin</auth_db>
 			<user>lxl</user>
 			<pwd>xiaolzz</pwd>

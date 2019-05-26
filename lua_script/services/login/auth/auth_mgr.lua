@@ -28,6 +28,10 @@ function AuthMgr:stop()
     self.auth_items = {}
 end
 
+function AuthMgr:add_auth_task(task)
+
+end
+
 function AuthMgr:_on_event_stop_login(netid)
 
 end

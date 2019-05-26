@@ -8,6 +8,7 @@ mongo_opt_field_name.limit = native.mongo_opt_field_name.limit
 mongo_opt_field_name.min = native.mongo_opt_field_name.min
 mongo_opt_field_name.max = native.mongo_opt_field_name.max
 mongo_opt_field_name.skip = native.mongo_opt_field_name.skip
+mongo_opt_field_name.return_after = native.mongo_opt_field_name.return_after
 
 mongo_opt_base = mongo_opt_base or class("mongo_opt_base")
 function mongo_opt_base:to_json() 
@@ -125,12 +126,14 @@ MongoOptFindOneAndUpdate = MongoOptFindOneAndUpdate or class("MongoOptFindOneAnd
 function MongoOptFindOneAndUpdate:ctor()
     self[mongo_opt_field_name.upsert] = nil
     self[mongo_opt_field_name.projection] = nil
+    self[mongo_opt_field_name.return_after] = nil
 end
 
 function MongoOptFindOneAndUpdate:to_json()
     local tb = {}
     tb[mongo_opt_field_name.upsert] = self:get_upsert()
     tb[mongo_opt_field_name.projection] = self:get_projection()
+    tb[mongo_opt_field_name.return_after] = self:get_return_after()
     local ret = rapidjson.encode(tb)
     return ret
 end
@@ -149,4 +152,13 @@ end
 
 function MongoOptFindOneAndUpdate:get_projection()
     return self[mongo_opt_field_name.projection]
+end
+
+function MongoOptFindOneAndUpdate:set_return_after(val)
+    self[mongo_opt_field_name.return_after] = val
+end
+
+
+function MongoOptFindOneAndUpdate:get_return_after()
+    return self[mongo_opt_field_name.return_after]
 end

@@ -1,6 +1,7 @@
 
 LoginGameState = {
     Free = 1,
+    Auth = 2,
 }
 
 LoginGameItem = LoginGameItem or class("LoginGameItem")

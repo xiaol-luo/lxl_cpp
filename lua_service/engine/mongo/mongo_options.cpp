@@ -73,6 +73,21 @@ mongocxx::options::find_one_and_update MongoTask::GenFindOneAndUpdateOpt(const b
 			ret.projection(elem_val);
 		}
 	}
+	{
+		auto bson_elem = view[MOFN_RETURN_AFTER];
+		if (bson_elem && bsoncxx::type::k_bool == bson_elem.type())
+		{
+			bool elem_val = bson_elem.get_bool().value;
+			if (elem_val)
+			{
+				ret.return_document(mongocxx::v_noabi::options::return_document::k_after);
+			}
+		}
+	}
+	SetOptHelp(MOFN_UPSERT, k_bool, get_bool, upsert);
+
+
+
 	SetOptHelp(MOFN_UPSERT, k_bool, get_bool, upsert);
 	return ret;
 }

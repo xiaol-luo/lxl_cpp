@@ -88,8 +88,9 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
             report_error("co_find_one fail")
             return
         end
+        local user_id = nil
         if query_ret[Alc.Matched_Count] > 0 then
-            -- rsp_body[Alc._Id] = query_ret[Alc.Val]["0"][Alc._Id][Alc._Oid]
+            user_id = query_ret[Alc.Val]["0"][Alc._Id][Alc._Oid]
         else
             local doc = {
                 [Alc.UserName] = user_name,
@@ -100,7 +101,7 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
                 report_error("insert account fail")
                 return
             end
-            -- rsp_body[Alc._Id] = insert_account_ret[Alc.Inserted_Ids][1]
+            user_id = insert_account_ret[Alc.Inserted_Ids][1]
         end
 
         local token_str = native.gen_uuid()
@@ -108,8 +109,9 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
         local doc = {
             [Alc.Token] = token_str,
             [Alc.Appid] = appid,
-            [Alc.UserName] = user_name,
             [Alc.Timestamp] = timestamp,
+            [Alc.Uid] = user_id,
+            [Alc.UserName] = user_name
         }
         co_ok, insert_token_ret = self.db_client:co_insert_one(1, self.query_db, Alc.Token, doc)
         if 0 ~= insert_token_ret[Alc.Err_Num] then
@@ -183,7 +185,7 @@ function AccountLogic:app_auth(from_cnn_id, method, req_url, kv_params, body)
         -- log_debug("app_auth query_ret is %s", query_ret)
         local ret = query_ret[Alc.Val][tostring(0)]
         rsp_body[Alc.Appid] = ret[Alc.Appid]
-        rsp_body[Alc.Uid] = ret[Alc._Id][Alc._Oid]
+        rsp_body[Alc.Uid] = ret[Alc.Uid]
         -- rsp_body.content = query_ret[Alc.Val]
         rsp_client(from_cnn_id, rsp_body)
     end

@@ -14,3 +14,4 @@ const static char * MOFN_LIMIT = "limit";
 const static char * MOFN_MIN = "min";
 const static char * MOFN_MAX = "max";
 const static char * MOFN_SKIP = "skip";
+const static char * MOFN_RETURN_AFTER = "return_after";

@@ -3,9 +3,11 @@ AuthState = {
     Free = 1,
 }
 
-AuthItem = AuthItem or class("AuthItem")
+AuthTask = AuthTask or class("AuthTask")
 
-function AuthItem:cotr()
+function AuthTask:cotr()
     self.netid = netid
     self.state = AuthState.Free
+    self.cb_fn = nil
+
 end

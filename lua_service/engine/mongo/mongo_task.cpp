@@ -259,10 +259,11 @@ void MongoTask::DoTask_FindOneAndUpdate(mongocxx::client & client)
 	mongocxx::collection coll = this->GetColl(client);
 	mongocxx::options::find_one_and_update opt = GenFindOneAndUpdateOpt(m_opt->view());
 	mongocxx::stdx::optional<bsoncxx::document::value> ret = coll.find_one_and_update(m_filter->view(), m_content->view(), opt);
+
+	m_result.matched_count = 1;
+	m_result.modified_count = 1;
 	if (ret)
 	{
-		m_result.matched_count = 1;
-		m_result.modified_count = 1;
 		m_result.val = new bsoncxx::document::value(ret->view());
 	}
 }
