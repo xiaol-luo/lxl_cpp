@@ -70,7 +70,8 @@ local do_start = function(co)
     if co_ex then
         if CoroutineState.Dead ~= co_ex:status() then
             co_ex.can_resume = true
-            coroutine.resume(co_ex:get_key())
+            co_ex:resume()
+            -- coroutine.resume(co_ex:get_key())
         end
     end
 end
@@ -158,10 +159,12 @@ function CoroutineEx:get_kill_reason()
 end
 
 function CoroutineEx:kill(kill_reason, error_msg)
+    log_debug("CoroutineEx:kill %s %s", kill_reason, error_msg)
     if not self.is_killed then
         self.is_killed = true
         self.kill_reason = kill_reason
     end
+    error_msg = error_msg or kill_reason
     self.error_msg = error_msg
     log_error("coroutine_ex error : %s", self.error_msg or "unknown")
     self:cancel_expired()

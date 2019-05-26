@@ -105,7 +105,7 @@ function LoginAction:robot_main_logic(co)
 
     send_msg(self.cnn, ProtoId.req_login_game, {
         token = platform_login_ret["token"],
-        timestamp = logic_sec(),
+        timestamp = platform_login_ret["timestamp"],
         platform = "",
     })
     local pid, msg = nil, nil
