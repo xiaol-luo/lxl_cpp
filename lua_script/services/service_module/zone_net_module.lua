@@ -56,3 +56,13 @@ end
 function ZoneNetModule:on_update()
     self.zone_net:on_frame()
 end
+
+function ZoneNetModule:get_service(service_name, service_idx)
+    local ret = self.zone_net:get_peer_service(service_name, service_idx)
+    return ret
+end
+
+function ZoneNetModule:get_service_group(service_name)
+    local ret = self.zone_net:get_peer_service_group(service_name)
+    return ret
+end

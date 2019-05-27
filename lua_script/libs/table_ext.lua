@@ -231,7 +231,7 @@ function table.minn(t)
     return 0
 end
 
-function table.ConvertToArr(t)
+function table.ConvertToArray(t)
     local tArr = {}
     for k, v in pairs(t) do
         table.insert(tArr, {k, v})

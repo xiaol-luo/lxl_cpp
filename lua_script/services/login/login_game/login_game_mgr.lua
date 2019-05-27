@@ -22,7 +22,6 @@ function LoginGameMgr:start()
     self.event_proxy:subscribe(Client_Cnn_Event_Close_Client, Functional.make_closure(self._on_close_cnn, self))
 end
 
-
 function LoginGameMgr:stop()
     LoginGameMgr.super.stop(self)
     self.timer_proxy:release_all()
@@ -56,6 +55,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
     local ERROR_AUTH_LOGIN_FAIL = 3
     local ERROR_COROUTINE_RAISE_ERROR = 4
     local ERROR_DB_ERROR = 5
+    local ERROR_NO_GATE_AVAILABLE = 6
 
     local login_item = self.login_items[netid]
     if not login_item then
@@ -76,7 +76,8 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             error_code = ERROR_COROUTINE_RAISE_ERROR
             log_debug("process_req_login_game coroutine raise error: %s", co:get_error_msg())
         else
-            error_code, auth_sn, timestamp, app_id, user_id = table.unpack(return_vals.vals, 1, return_vals.n)
+            error_code, auth_sn, timestamp, app_id, user_id, gate_ip, gate_port, auth_ip, auth_port =
+                table.unpack(return_vals.vals, 1, return_vals.n)
         end
         log_debug("xxxxxxxxxxx %s", return_vals)
         self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, {
@@ -84,7 +85,11 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             auth_sn=auth_sn,
             timestamp=timestamp,
             app_id = app_id,
-            user_id = user_id
+            user_id = user_id,
+            gate_ip = gate_ip,
+            gate_port = gate_port,
+            auth_ip = auth_ip,
+            auth_port = auth_port,
         })
     end
     local main_logic = function(co, msg)
@@ -124,7 +129,19 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             return ERROR_DB_ERROR
         end
         local user_id = db_ret.val["_id"]["$oid"]
-        return 0, auth_login_ret.token, auth_login_ret.timestamp, app_id, user_id
+
+        local gate_list = self.service.zone_net:get_service_group(Service_Const.Gate)
+        local gate_keys = table.keys(gate_list)
+        if #gate_keys <= 0 then
+            return ERROR_NO_GATE_AVAILABLE
+        end
+        -- TODO: 过滤下
+        local rand_idx = math.random(#gate_keys)
+        local gate = gate_list[gate_keys[rand_idx]]
+        local gate_port = 32001 -- TODO: 需要完善gate向login上报自己的地址
+        log_debug("gate infos %s", gate)
+        return 0, auth_login_ret.token, auth_login_ret.timestamp, app_id, user_id,
+            gate.ip, gate_port, auth_cfg[Service_Const.Ip], tonumber(auth_cfg[Service_Const.Port])
     end
     local co = ex_coroutine_create(main_logic, over_cb)
     local start_ok = ex_coroutine_start(co, co, msg)

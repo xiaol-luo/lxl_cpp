@@ -11,9 +11,11 @@ end
 
 function GateService:ctor()
     GateService.super.ctor(self)
+    self.client_cnn_mgr = nil
 end
 
 function GateService:setup_modules()
+    self:_init_client_cnn_mgr()
     GateService.super.setup_modules(self)
 end
 

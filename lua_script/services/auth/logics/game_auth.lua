@@ -118,5 +118,5 @@ function GameAuth:login_auth(from_cnn_id, method, req_url, kv_params, body)
 end
 
 function GameAuth:gate_auth(from_cnn_id, method, req_url, kv_params, body)
-    self:index(from_cnn_id, method, req_url, kv_params, body)
+    self:login_auth(from_cnn_id, method, req_url, kv_params, body)
 end

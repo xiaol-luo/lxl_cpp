@@ -15,5 +15,9 @@ message RspLoginGame
 	string account_id = 4;
 	string app_id = 5;
 	string user_id = 6;
+	string gate_ip = 7;
+	int32 gate_port = 8;
+	string auth_ip = 9;
+	int32 auth_port = 10;
 }
 

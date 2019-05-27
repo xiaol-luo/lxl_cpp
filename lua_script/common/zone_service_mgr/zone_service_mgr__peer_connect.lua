@@ -235,3 +235,45 @@ function ZoneServiceMgr:send(service_name, pid, bin)
     return st.net.cnn:send(pid, bin)
 end
 
+local make_peer_service_query_result = function(node)
+    local ret = {}
+    ret.ip = node.st:get_ip()
+    ret.port = node.st:get_port()
+    ret.host_id = node.st:get_id()
+    ret.service_key = node.st:get_service()
+    ret.net_connected = false
+    ret.net_cnn_seq = nil
+    ret.net_netid = nil
+    if node.net then
+        ret.net_connected = node.net.connected
+        ret.net_cnn_seq = node.net.peer_cnn_seq
+        if node.net.cnn then
+            ret.net_netid = node.net.cnn:netid()
+        end
+    end
+    return ret
+end
+
+function ZoneServiceMgr:get_peer_service(service_role, service_idx)
+    service_idx = service_idx or 0
+    local service_key = path.combine(self.etcd_root_dir, service_role, service_idx)
+    local ret = make_peer_service_query_result(self.service_state_list[service_key])
+    return ret
+end
+
+function ZoneServiceMgr:get_peer_service_group(service_role)
+    local service_key_prefix = self.etcd_root_dir
+    if service_role then
+        service_key_prefix = path.combine(self.etcd_root_dir, service_role)
+        service_key_prefix = string.rtrim(service_key_prefix, "\\/") .. "/"
+    end
+    local ret = {}
+    for k, v in pairs(self.service_state_list) do
+        local start_idx = string.find(k, service_key_prefix)
+        if 1 == start_idx then
+            ret[k] = make_peer_service_query_result(v)
+        end
+    end
+    return ret
+end
+

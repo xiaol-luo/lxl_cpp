@@ -45,12 +45,16 @@ function LoginAction._on_tick()
 end
 
 function LoginAction:on_cnn_recv(cnn, pid, block)
+    if self.cnn ~= cnn then
+        return
+    end
     local is_ok, msg = PROTO_PARSER:decode(pid, block)
     if is_ok then
         if self.co then
-            ex_coroutine_resume(self.co, pid, msg)
+            ex_coroutine_delay_resume(self.co, pid, msg)
         end
     end
+    log_debug("LoginAction:on_cnn_recv %s %s", pid, msg)
 end
 
 function LoginAction:_on_new_cnn(cnn, error_code)
@@ -65,7 +69,7 @@ function LoginAction:_on_new_cnn(cnn, error_code)
 end
 
 function LoginAction:_on_close_cnn(cnn, error_code)
-    if self.co then
+    if self.cnn == cnn and self.co then
         ex_coroutine_kill(self.co)
         self.co = nil
     end
@@ -114,4 +118,20 @@ function LoginAction:robot_main_logic(co)
         return
     end
     log_debug("LoginAction:robot_main_logic pid:%s msg:%s", pid, msg)
+
+    Net.close(self.cnn:netid())
+
+    self.cnn = PidBinCnn:new()
+    self.cnn:set_recv_cb(Functional.make_closure(self.on_cnn_recv, self))
+    self.cnn:set_open_cb(function(cnn, error_code)
+        ex_coroutine_delay_resume(co, error_code)
+    end)
+    self.cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
+    Net.connect(msg.gate_ip, msg.gate_port, self.cnn)
+    local cnn_error_code = 0
+    co_ok, cnn_error_code = ex_coroutine_yield(co)
+    if not co_ok and 0 ~= cnn_error_code then
+        return
+    end
+    log_debug("to comunicate with gate")
 end
