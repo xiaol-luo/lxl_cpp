@@ -145,9 +145,8 @@ function AccountLogic:app_auth(from_cnn_id, method, req_url, kv_params, body)
     local rsp_body = {}
     rsp_body.error = ""
     rsp_body[Alc.Token] = token
-    rsp_body[Alc.Timestamp] = timestamp
 
-    if not token or #token <= 0 or not timestamp or #timestamp <= 0 then
+    if not token or #token <= 0 then
         rsp_body.error = "invalid token or timestamp"
         rsp_client(from_cnn_id, rsp_body)
         return
@@ -166,7 +165,6 @@ function AccountLogic:app_auth(from_cnn_id, method, req_url, kv_params, body)
         local co_ok = nil
         local filter = {
             [Alc.Token] = token,
-            [Alc.Timestamp] = tonumber(timestamp),
         }
         local opt = MongoOptFind:new()
         opt:set_max_time(10 * 1000)

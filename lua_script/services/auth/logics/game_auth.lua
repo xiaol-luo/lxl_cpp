@@ -56,16 +56,14 @@ end
 function GameAuth:login_auth(from_cnn_id, method, req_url, kv_params, body)
     log_debug("login_auth = %s", req_url)
     local token = kv_params[Gac.Token]
-    local timestamp = kv_params[Gac.Timestamp]
 
     local rsp_body = {}
     rsp_body.error = ""
     rsp_body[Gac.Token] = kv_params[Gac.Token]
-    rsp_body[Gac.Timestamp] = kv_params[Gac.Timestamp]
     rsp_body.uid = nil
 
-    if not token or #token <= 0 or not timestamp or #timestamp <= 0 then
-        rsp_body.error = "token or timestamp invalid"
+    if not token or #token <= 0 then
+        rsp_body.error = "token invalid"
         rsp_client(from_cnn_id, rsp_body)
         return
     end
@@ -84,7 +82,7 @@ function GameAuth:login_auth(from_cnn_id, method, req_url, kv_params, body)
         local url = string.format("http://%s/%s", self.platform_host, self.platform_auth_method)
         log_debug("main_logic 2")
         local url_params = {}
-        for _, key in ipairs({ Gac.Token, Gac.Timestamp }) do
+        for _, key in ipairs({ Gac.Token }) do
             table.insert(url_params, string.format("%s=%s", key, kv_params[key]))
         end
         log_debug("main_logic 3")

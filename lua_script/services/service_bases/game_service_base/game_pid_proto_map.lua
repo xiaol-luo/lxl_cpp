@@ -37,7 +37,7 @@ local pid_proto_map =
     {
         [Proto_Const.Proto_Id]=ProtoId.rsp_pull_role_digest,
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspPullRolesDigest"
+        [Proto_Const.Proto_Name]="RspPullRoleDigest"
     },
     {
         [Proto_Const.Proto_Id]=ProtoId.req_create_role,

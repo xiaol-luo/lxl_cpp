@@ -84,7 +84,7 @@ function LoginAction:robot_main_logic(co)
 
     local login_params = {
         appid="for_test",
-        username = "lxl",
+        username = "lxl2",
         pwd = "pwd",
     }
     local login_param_strs = {}
@@ -131,4 +131,50 @@ function LoginAction:robot_main_logic(co)
         return
     end
     log_debug("to comunicate with gate")
+
+    send_msg(self.cnn, ProtoId.req_user_login, {
+        user_id = msg.user_id,
+        app_id = msg.app_id,
+        auth_sn = msg.auth_sn,
+        auth_ip = msg.auth_ip,
+        auth_port = msg.auth_port,
+    })
+    co_ok, pid, msg = ex_coroutine_yield(co)
+    if not co_ok then
+        return
+    end
+    if 0 ~= msg.error_num then
+        log_debug("req_user_login error:%s msg:%s", msg.error_num, msg.error_msg)
+        return
+    end
+    send_msg(self.cnn, ProtoId.req_pull_role_digest, {
+        role_id = nil,
+    })
+    co, pid, msg = ex_coroutine_yield(co)
+    if  not co_ok then
+        return
+    end
+    log_debug("pull role digest msg:%s", msg)
+
+    send_msg(self.cnn, ProtoId.req_create_role, {
+        params = nil
+    })
+    co, pid, msg = ex_coroutine_yield(co)
+    if not co_ok then
+        return
+    end
+    if 0 ~= msg.error_num then
+        log_debug("create role fail msg:%s", msg)
+        return
+    end
+    log_debug("create role result msg:%s", msg)
+
+    send_msg(self.cnn, ProtoId.req_launch_role, {
+        role_id = msg.role_id
+    })
+    co, pid, msg = ex_coroutine_yield(co)
+    if not co then
+        return
+    end
+    log_debug("launch role msg:%s", msg)
 end
