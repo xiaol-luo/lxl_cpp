@@ -3,8 +3,11 @@ local files =
 {
     [Proto_Const.Pb] =
     {
-        "login.pb",
-        "gate.pb",
+        "client_login.pb",
+        "client_gate.pb",
+        "gate_world.pb",
+        "gate_game.pb",
+        "world_game.pb",
     },
     [Proto_Const.Sproto] =
     {

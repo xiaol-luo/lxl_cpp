@@ -19,7 +19,46 @@ local pid_proto_map =
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="RspLoginGame"
     },
-
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_user_login,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqUserLogin"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_user_login,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspUserLogin"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_pull_role_digest,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqPullRoleDigest"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_pull_role_digest,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspPullRolesDigest"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_create_role,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqCreateRole"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_create_role,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspCreateRole"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_launch_role,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqLaunchRole"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_launch_role,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspLaunchRole"
+    },
 }
 
 

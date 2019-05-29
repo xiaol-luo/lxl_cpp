@@ -95,12 +95,12 @@ function ClientCnnMgr:cnn_on_recv(cnn, pid, bin)
     end
 end
 
-function ClientCnnMgr:get_client(netid)
+function ClientCnnMgr:get_client_cnn(netid)
     return self.client_cnns[netid]
 end
 
 function ClientCnnMgr:send(netid, pid, tb)
-    local client = self:get_client(netid)
+    local client = self:get_client_cnn(netid)
     if not client then
         return false
     end

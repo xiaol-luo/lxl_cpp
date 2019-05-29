@@ -76,9 +76,6 @@ function LoginAction:_on_close_cnn(cnn, error_code)
 end
 
 function LoginAction:robot_over_logic(co)
-    if self.cnn then
-        Net.close(self.cnn:netid())
-    end
     self.co = nil
 end
 
@@ -127,7 +124,7 @@ function LoginAction:robot_main_logic(co)
         ex_coroutine_delay_resume(co, error_code)
     end)
     self.cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
-    Net.connect(msg.gate_ip, msg.gate_port, self.cnn)
+    Net.connect_async(msg.gate_ip, msg.gate_port, self.cnn)
     local cnn_error_code = 0
     co_ok, cnn_error_code = ex_coroutine_yield(co)
     if not co_ok and 0 ~= cnn_error_code then

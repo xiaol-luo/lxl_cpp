@@ -159,7 +159,7 @@ function CoroutineEx:get_kill_reason()
 end
 
 function CoroutineEx:kill(kill_reason, error_msg)
-    log_debug("CoroutineEx:kill %s %s", kill_reason, error_msg)
+    -- log_debug("CoroutineEx:kill %s %s", kill_reason, error_msg)
     if not self.is_killed then
         self.is_killed = true
         self.kill_reason = kill_reason

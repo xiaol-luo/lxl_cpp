@@ -6,6 +6,9 @@ local files = {
     "services.gate.client_cnn.client_cnn_def",
     "services.gate.client_cnn.client_cnn",
     "services.gate.client_cnn.client_cnn_mgr",
+    "services.gate.client_mgr.client_def",
+    "services.gate.client_mgr.client",
+    "services.gate.client_mgr.client_mgr",
 }
 
 return files
