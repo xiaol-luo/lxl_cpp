@@ -16,8 +16,8 @@ Rpc_Const =
 
 Rpc_Error =
 {
-    None = "None",
-    Wait_Expired = "Wait_Expired",
-    Remote_Host_Error = "Remote_Host_Error",
-    Unknown = "Unknown",
+    None = 0,
+    Unknown = 1,
+    Wait_Expired = 2,
+    Remote_Host_Error = 3,
 }

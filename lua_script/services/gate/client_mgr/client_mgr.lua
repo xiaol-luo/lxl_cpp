@@ -114,6 +114,11 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
         if co_get_ret.error_code and #co_get_ret.error_code > 0 then
             return ReqUserLoginError.Auth_Fail
         end
+
+
+        local world_rpc_client = self.service:create_rpc_client(self.service.zone_name, Service_Const.World, 0)
+        print(world_rpc_client:test("123354"))
+
         return ReqUserLoginError.None
     end
     local co = ex_coroutine_create(main_logic, over_cb)

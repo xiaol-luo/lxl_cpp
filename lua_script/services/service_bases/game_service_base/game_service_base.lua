@@ -80,6 +80,10 @@ function GameServiceBase:_init_zone_net_rpc_mgr()
     assert(false, "should not reach here")
 end
 
+function GameServiceBase:create_rpc_client(...)
+    return create_rpc_client(self.rpc_mgr, ...)
+end
+
 function GameServiceBase:setup_logics()
     assert(false, "should not reach here")
 end

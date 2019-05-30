@@ -1,13 +1,26 @@
 
 RpcClient = RpcClient or class("RpcClient")
 
+local mt = getmetatable(RpcClient)
+mt.__index = function(ins, key)
+    print("rpcclient mt.__index", key, ins)
+    if not IsString(key) then
+        return nil
+    end
+    local ret = function(ins, ...)
+        return RpcClient._co_call(ins, key, key)
+    end
+    ins[key] = ret
+    return ret
+end
+
 function RpcClient:ctor(rpc_mgr, remote_host)
     self.rpc_mgr = rpc_mgr
     self.remote_host = remote_host
 
     -- TODO: 优化：可改为用时创建
-    local fn_names = table.keys(self.rpc_mgr.req_msg_process_fn)
-    self:setup_coroutine_fns(fn_names)
+    -- local fn_names = table.keys(self.rpc_mgr.req_msg_process_fn)
+    -- self:setup_coroutine_fns(fn_names)
 end
 
 function RpcClient:setup_coroutine_fns(fn_names)

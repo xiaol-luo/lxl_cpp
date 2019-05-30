@@ -31,12 +31,7 @@ function class(class_name, super)
     end
 
     cls.new = function(_, ...)
-        local instance
-        if cls.__create then
-            instance = cls.__create(...)
-        else
-            instance = {}
-        end
+        local instance = {}
         setmetatableindex(instance, cls)
         instance._class_type = cls
         instance:ctor(...)
