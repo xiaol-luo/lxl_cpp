@@ -66,3 +66,8 @@ function ZoneNetModule:get_service_group(service_name)
     local ret = self.zone_net:get_peer_service_group(service_name)
     return ret
 end
+
+function ZoneNetModule:rand_service(service_name)
+    local ret = self.zone_net:rand_peer_service(service_name)
+    return ret
+end

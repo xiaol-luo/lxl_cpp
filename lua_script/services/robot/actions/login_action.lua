@@ -77,6 +77,9 @@ end
 
 function LoginAction:robot_over_logic(co)
     self.co = nil
+    if not co:get_return_vals() then
+        log_debug("LoginAction:robot_over_logic %s", co:get_error_msg())
+    end
 end
 
 function LoginAction:robot_main_logic(co)
@@ -115,7 +118,6 @@ function LoginAction:robot_main_logic(co)
         return
     end
     log_debug("LoginAction:robot_main_logic pid:%s msg:%s", pid, msg)
-
     Net.close(self.cnn:netid())
 
     self.cnn = PidBinCnn:new()
@@ -143,8 +145,8 @@ function LoginAction:robot_main_logic(co)
     if not co_ok then
         return
     end
+    log_debug("req_user_login msg:%s", msg)
     if 0 ~= msg.error_num then
-        log_debug("req_user_login error:%s msg:%s", msg.error_num, msg.error_msg)
         return
     end
     send_msg(self.cnn, ProtoId.req_pull_role_digest, {
@@ -154,7 +156,7 @@ function LoginAction:robot_main_logic(co)
     if  not co_ok then
         return
     end
-    log_debug("pull role digest msg:%s", msg)
+    log_debug("req_pull_role_digest msg:%s", msg)
 
     send_msg(self.cnn, ProtoId.req_create_role, {
         params = nil
@@ -163,18 +165,18 @@ function LoginAction:robot_main_logic(co)
     if not co_ok then
         return
     end
+    log_debug("req_create_role msg:%s", msg)
     if 0 ~= msg.error_num then
-        log_debug("create role fail msg:%s", msg)
         return
     end
-    log_debug("create role result msg:%s", msg)
+
 
     send_msg(self.cnn, ProtoId.req_launch_role, {
         role_id = msg.role_id
     })
     co, pid, msg = ex_coroutine_yield(co)
+    log_debug("req_launch_role:%s", msg)
     if not co then
         return
     end
-    log_debug("launch role msg:%s", msg)
 end

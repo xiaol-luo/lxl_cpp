@@ -138,14 +138,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         else
             user_id = db_ret.val["0"].user_id
         end
-        local gate_list = self.service.zone_net:get_service_group(Service_Const.Gate)
-        local gate_keys = table.keys(gate_list)
-        if #gate_keys <= 0 then
-            return ERROR_NO_GATE_AVAILABLE
-        end
-        -- TODO: 过滤下
-        local rand_idx = math.random(#gate_keys)
-        local gate = gate_list[gate_keys[rand_idx]]
+        local gate = self.service.zone_net:rand_service(Service_Const.Gate)
         local gate_port = 32001 -- TODO: 需要完善gate向login上报自己的地址
         log_debug("gate infos %s", gate)
         return 0, auth_login_ret.token, auth_login_ret.timestamp, app_id, user_id,

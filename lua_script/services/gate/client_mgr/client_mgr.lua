@@ -129,7 +129,7 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
 end
 
 function ClientMgr:process_req_pull_role_digest(netid, pid, msg)
-
+    log_debug("ClientMgr:process_req_pull_role_digest")
 end
 
 function ClientMgr:process_req_create_role(netid, pid, msg)

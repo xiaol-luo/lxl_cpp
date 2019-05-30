@@ -261,6 +261,18 @@ function ZoneServiceMgr:get_peer_service(service_role, service_idx)
     return ret
 end
 
+function ZoneServiceMgr:rand_peer_service(service_role)
+    local service_group = self:get_peer_service_group(service_role)
+    local keys = table.keys(service_group)
+    local ret = nil
+    if #keys > 0 then
+        local rand_idx = math.random(1, #keys)
+        local key = keys[rand_idx]
+        ret = service_group[key]
+    end
+    return ret
+end
+
 function ZoneServiceMgr:get_peer_service_group(service_role)
     local service_key_prefix = self.etcd_root_dir
     if service_role then
