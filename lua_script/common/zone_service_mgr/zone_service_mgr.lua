@@ -127,12 +127,13 @@ end
 
 function ZoneServiceMgr:_etcd_watch_service_states()
     assert(self.etcd_watch_wait_index)
+    -- log_debug("ZoneServiceMgr:_etcd_watch_service_states %s", self.etcd_watch_wait_index)
     self.etcd_watch_op_id = self.etcd_client:watch(self.etcd_root_dir, true, self.etcd_watch_wait_index,
             Functional.make_closure(ZoneServiceMgr._etcd_watch_service_states_cb, self))
 end
 
 function ZoneServiceMgr:_etcd_watch_service_states_cb(op_id, op, ret)
-    -- log_debug("ZoneServiceMgr:_etcd_watch_service_states_cb %s %s", op_id, ret:is_ok())
+    -- log_debug("ZoneServiceMgr:_etcd_watch_service_states_cb %s %s", op_id, ret)
     if not self.is_started then
         return
     end
@@ -142,8 +143,9 @@ function ZoneServiceMgr:_etcd_watch_service_states_cb(op_id, op, ret)
     if not ret:is_ok() then
         self:_etcd_pull_service_states()
     else
-        self.etcd_watch_wait_index = tonumber(ret.op_result[EtcdConst.Head_Index]) + 1
         self.etcd_watch_timerid = native.timer_next(Functional.make_closure(ZoneServiceMgr._etcd_watch_service_states, self), 0)
+        self.etcd_watch_wait_index = 0 -- 即使下一句赋值失败，etcd还能通过self:_etcd_pull_service_states()回复正常
+        self.etcd_watch_wait_index = tonumber(ret.op_result[EtcdConst.Node][EtcdConst.ModifiedIndex]) + 1
         self:_etcd_service_state_process_watch(ret)
     end
 end
