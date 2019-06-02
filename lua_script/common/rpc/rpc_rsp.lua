@@ -35,3 +35,10 @@ end
 function RpcRsp:send_back(rpc_action, ...)
     self.rpc_mgr:respone(self.id, self.from_host, self.from_id, rpc_action, ...)
 end
+
+function RpcRsp:create_rpc_client()
+    assert(self.from_host)
+    assert(self.rpc_mgr)
+    local client = create_rpc_client(self.rpc_mgr, self.from_host)
+    return client
+end

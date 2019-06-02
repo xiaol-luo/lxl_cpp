@@ -4,6 +4,7 @@ ServiceModule = ServiceModule or class("ServiceModule")
 function ServiceModule:ctor(module_mgr, module_name)
     self.module_mgr = module_mgr
     self.module_name = module_name
+    self.service = self.module_mgr.service
     self.curr_state = ServiceModuleState.Free
     self.event_proxy = nil
     self.error_num = nil

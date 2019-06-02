@@ -4,7 +4,8 @@
 		<listen_port>20100</listen_port>
 	</http>
 	<mongo>
-		<host>124.156.106.95:27017</host>
+		<!-- <host>119.28.224.75:27017</host> -->
+		<host>127.0.0.1:27017</host>
 		<auth_db>admin</auth_db>
 		<user>lxl</user>
 		<pwd>xiaolzz</pwd>

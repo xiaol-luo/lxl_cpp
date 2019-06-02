@@ -9,6 +9,7 @@ local files = {
     "services.gate.client_mgr.client_def",
     "services.gate.client_mgr.client",
     "services.gate.client_mgr.client_mgr",
+    "services.gate.client_mgr.client_mgr__process_msg",
 }
 
 return files

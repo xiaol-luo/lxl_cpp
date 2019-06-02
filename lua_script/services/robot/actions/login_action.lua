@@ -150,9 +150,9 @@ function LoginAction:robot_main_logic(co)
         return
     end
     send_msg(self.cnn, ProtoId.req_pull_role_digest, {
-        role_id = nil,
+        role_id = "12345",
     })
-    co, pid, msg = ex_coroutine_yield(co)
+    co_ok, pid, msg = ex_coroutine_yield(co)
     if  not co_ok then
         return
     end
@@ -161,7 +161,7 @@ function LoginAction:robot_main_logic(co)
     send_msg(self.cnn, ProtoId.req_create_role, {
         params = nil
     })
-    co, pid, msg = ex_coroutine_yield(co)
+    co_ok, pid, msg = ex_coroutine_yield(co)
     if not co_ok then
         return
     end

@@ -12,6 +12,15 @@ function ClientCnnMgr:init(listen_port)
     self.process_msg_fns = {}
 end
 
+function ClientCnnMgr:forward_client(rpc_rsp, netid, pid, tb)
+    log_debug("ClientCnnMgr:forward_client %s", tb)
+    local client_cnn = self:get_client_cnn(netid)
+    if client_cnn and client_cnn.cnn then
+        client_cnn:send(pid, tb)
+    end
+    rpc_rsp:respone()
+end
+
 function ClientCnnMgr:set_process_fn(pid, fn)
     -- fn format function(netid, pid, msg)
     if nil ~= fn then
@@ -23,6 +32,9 @@ end
 function ClientCnnMgr:start()
     ClientCnnMgr.super.start(self)
     self.client_cnns = {}
+
+    self.service.rpc_mgr:set_req_msg_process_fn(GateRpcFn.forword_client,
+            Functional.make_closure(self.forward_client, self))
 end
 
 function ClientCnnMgr:stop()

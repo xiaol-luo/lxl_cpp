@@ -21,6 +21,11 @@ function GameServiceBase:init()
     self:idendify_whoami()
     self:init_proto_parser()
     GameServiceBase.super.init(self)
+
+    -- init service logic mgr
+    self:setup_logics()
+    self.logic_mgr:init()
+
 end
 
 function GameServiceBase:idendify_whoami()
@@ -45,11 +50,6 @@ end
 
 function GameServiceBase:setup_modules()
     log_debug("ServiceBase:setup_modules")
-    -- service logic mgr
-    self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
-    self:setup_logics()
-    self.logic_mgr:init()
-    self.module_mgr:add_module(self.logic_mgr)
     -- zone net module
     local SC = Service_Const
     self.etcd_cfg = self.all_service_cfg:get_third_party_service(SC.Etcd_Service, self.zone_name)
@@ -70,6 +70,9 @@ function GameServiceBase:setup_modules()
     self:_init_zone_net_rpc_mgr()
     self.rpc_mgr:init(self.msg_handler)
     self.zone_net:add_msg_handler(self.msg_handler)
+    -- service logic mgr
+    self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
+    self.module_mgr:add_module(self.logic_mgr)
 end
 
 function GameServiceBase:_init_zone_net_msg_handler()
