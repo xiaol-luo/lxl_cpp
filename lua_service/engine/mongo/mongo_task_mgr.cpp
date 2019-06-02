@@ -178,7 +178,7 @@ uint64_t MongoTaskMgr::FindOneAndUpdate(uint32_t hash_code, const_str & db_name,
 
 uint64_t MongoTaskMgr::CountDocument(uint32_t hash_code, const_str & db_name, const_str & coll_name, const_bson_doc & filter, const_bson_doc & opt, MongoTask::ResultCbFn cb_fn)
 {
-	TaskActionBody(eMongoTask_Count, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
+	TaskActionBody(eMongoTask_CountDocuments, db_name, coll_name, filter, empty_doc->view(), opt, cb_fn);
 }
 
 void MongoTaskMgr::ThreadLoop(ThreadEnv * env)

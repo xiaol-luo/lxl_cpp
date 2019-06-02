@@ -87,7 +87,7 @@ function LoginAction:robot_main_logic(co)
 
     local login_params = {
         appid="for_test",
-        username = "lxl2",
+        username = "lxl4",
         pwd = "pwd",
     }
     local login_param_strs = {}
@@ -149,15 +149,20 @@ function LoginAction:robot_main_logic(co)
     if 0 ~= msg.error_num then
         return
     end
+    local role_ids = {}
     send_msg(self.cnn, ProtoId.req_pull_role_digest, {
-        role_id = "12345",
+        role_id = nil,
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
     if  not co_ok then
         return
     end
     log_debug("req_pull_role_digest msg:%s", msg)
-
+    if msg.role_digests then
+        for _, role_digest in pairs(msg.role_digests) do
+            table.insert(role_ids, role_digest.role_id)
+        end
+    end
     send_msg(self.cnn, ProtoId.req_create_role, {
         params = nil
     })
@@ -166,17 +171,34 @@ function LoginAction:robot_main_logic(co)
         return
     end
     log_debug("req_create_role msg:%s", msg)
-    if 0 ~= msg.error_num then
+    if 0 == msg.error_num then
+        send_msg(self.cnn, ProtoId.req_pull_role_digest, {
+            role_id = msg.role_id,
+        })
+        co_ok, pid, msg = ex_coroutine_yield(co)
+        if not co_ok then
+            return
+        end
+        log_debug("req_pull_role_digest after crete role msg:%s", msg)
+        if msg.role_digests then
+            for _, role_digest in pairs(msg.role_digests) do
+                table.insert(role_ids, role_digest.role_id)
+            end
+        end
+    end
+    if #role_ids <= 0 then
+        log_debug("not role to launch")
         return
     end
 
-
+    log_debug("try to req_lanch_role, now has role %s", role_ids)
     send_msg(self.cnn, ProtoId.req_launch_role, {
-        role_id = msg.role_id
+        role_id = role_ids[1]
     })
     co, pid, msg = ex_coroutine_yield(co)
     log_debug("req_launch_role:%s", msg)
     if not co then
         return
     end
+    log_debug("robot run complete successfully!!!")
 end

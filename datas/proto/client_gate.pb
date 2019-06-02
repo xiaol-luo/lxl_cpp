@@ -12,7 +12,6 @@ message ReqUserLogin
 message RspUserLogin
 {
     int32 error_num = 1;
-    string error_msg = 2;
 }
 
 message RoleDigest
@@ -39,8 +38,7 @@ message ReqCreateRole
 message RspCreateRole
 {
     int32 error_num = 1;
-    string error_msg = 2;
-	string role_id = 3;
+	string role_id = 2;
 }
 
 message ReqLaunchRole
@@ -51,5 +49,4 @@ message ReqLaunchRole
 message RspLaunchRole
 {
     int32 error_num = 1;
-    string error_msg = 2;
 }

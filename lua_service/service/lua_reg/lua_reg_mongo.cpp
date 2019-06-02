@@ -176,6 +176,15 @@ static uint64_t Wrap_MongoTaskMgr_FindOneAndReplace(MongoTaskMgr &mgr, uint32_t 
 	return mgr.FindOneAndReplace(hash_code, db_name, coll_name, fiter.view(), content.view(), opt.view(), cb_fn);
 }
 
+static uint64_t Wrap_MongoTaskMgr_CountDocument(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
+	const_str_ref filter_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+{
+	bsoncxx::document::value fiter = bsoncxx::from_json(filter_str);
+	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
+	MongoTask::ResultCbFn cb_fn = std::bind(Wrap_MongoTask_Handle_Result, std::placeholders::_1, lua_cb_fn);
+	return mgr.CountDocument(hash_code, db_name, coll_name, fiter.view(), opt.view(), cb_fn);
+}
+
 void lua_reg_mongo(lua_State *L)
 {
 	sol::table native_tb = get_or_create_table(L, TB_NATIVE);
@@ -199,7 +208,8 @@ void lua_reg_mongo(lua_State *L)
 				"update_many", Wrap_MongoTaskMgr_UpdateMany,
 				"find_one_and_delete", Wrap_MongoTaskMgr_FindOneAndDelete,
 				"find_one_and_update", Wrap_MongoTaskMgr_FindOneAndUpdate,
-				"find_one_and_replace", Wrap_MongoTaskMgr_FindOneAndReplace
+				"find_one_and_replace", Wrap_MongoTaskMgr_FindOneAndReplace,
+				"count_document", Wrap_MongoTaskMgr_CountDocument
 			);
 			native_tb.set_usertype(class_name, meta_table);
 		}
