@@ -11,6 +11,7 @@ local files = {
     "libs.type_check",
     "libs.assert",
     "libs.path_ext",
+    "libs.random",
     "libs.xml2lua.xml2lua_ext",
     "rapidjson",
     "pb",

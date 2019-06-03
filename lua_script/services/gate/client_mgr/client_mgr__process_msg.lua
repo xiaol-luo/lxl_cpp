@@ -97,7 +97,7 @@ function ClientMgr:process_req_pull_role_digest(netid, pid, msg)
             error_num = ErrorNum.No_WORLD_SERVICE
             break
         end
-        local world_rpc_client = self.service:create_rpc_client(world_service.service_key)
+        local world_rpc_client = self.service:create_rpc_client(world_service.key)
         world_rpc_client:call(function(rpc_error_num, role_digests, ...)
             local msg_error_num = ErrorNum.None
             local msg_role_digests = nil
@@ -137,7 +137,7 @@ function ClientMgr:process_req_create_role(netid, pid, msg)
             error_num = ErrorNum.No_WORLD_SERVICE
             break
         end
-        local world_rpc_client = self.service:create_rpc_client(world_service.service_key)
+        local world_rpc_client = self.service:create_rpc_client(world_service.key)
         world_rpc_client:call(function(rpc_error_num, new_role_id, ...)
             local msg_error_num = ErrorNum.None
             local msg_role_id = nil

@@ -10,15 +10,8 @@ function ClientCnnMgr:init(listen_port)
     ClientCnnMgr.super.init(self, listen_port)
     self.client_cnns = {}
     self.process_msg_fns = {}
-end
-
-function ClientCnnMgr:forward_client(rpc_rsp, netid, pid, tb)
-    log_debug("ClientCnnMgr:forward_client %s", tb)
-    local client_cnn = self:get_client_cnn(netid)
-    if client_cnn and client_cnn.cnn then
-        client_cnn:send(pid, tb)
-    end
-    rpc_rsp:respone()
+    self.client_connect_ip = self.service.service_cfg[Service_Const.Client_Ip]
+    assert(self.client_connect_ip and #self.client_connect_ip > 0)
 end
 
 function ClientCnnMgr:set_process_fn(pid, fn)
@@ -33,8 +26,8 @@ function ClientCnnMgr:start()
     ClientCnnMgr.super.start(self)
     self.client_cnns = {}
 
-    self.service.rpc_mgr:set_req_msg_process_fn(GateRpcFn.forword_client,
-            Functional.make_closure(self.forward_client, self))
+    self.service.rpc_mgr:set_req_msg_process_fn(GateRpcFn.forword_client, Functional.make_closure(self.on_rpc_forward_client, self))
+    self.service.rpc_mgr:set_req_msg_process_fn(GateRpcFn.query_state, Functional.make_closure(self.on_rpc_query_state, self))
 end
 
 function ClientCnnMgr:stop()
@@ -117,4 +110,22 @@ function ClientCnnMgr:send(netid, pid, tb)
         return false
     end
     return client:send(pid, tb)
+end
+
+function ClientCnnMgr:on_rpc_forward_client(rpc_rsp, netid, pid, tb)
+    log_debug("ClientCnnMgr:forward_client %s", tb)
+    local client_cnn = self:get_client_cnn(netid)
+    if client_cnn and client_cnn.cnn then
+        client_cnn:send(pid, tb)
+    end
+    rpc_rsp:respone()
+end
+
+
+function ClientCnnMgr:on_rpc_query_state(rpc_rsp)
+    local ret = {
+        client_connect_ip = self.client_connect_ip,
+        client_connect_port = self.listen_port,
+    }
+    rpc_rsp:respone(ret)
 end

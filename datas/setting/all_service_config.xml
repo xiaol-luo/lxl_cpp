@@ -65,6 +65,7 @@
 			<service_id>2000</service_id>
 			<ip>127.0.0.1</ip>
 			<port>32000</port>
+			<client_ip>127.0.0.1</client_ip>
 			<client_port>32001</client_port>
 		</element>
 	</gate>

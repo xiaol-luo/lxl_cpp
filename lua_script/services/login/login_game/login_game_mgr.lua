@@ -5,6 +5,10 @@ function LoginGameMgr:ctor(logic_mgr, logic_name)
     LoginGameMgr.super.ctor(self, logic_mgr, logic_name)
     self.login_items = {}
     self.client_cnn_mgr = self.service.client_cnn_mgr
+    self.gate_states = {}
+    self.last_query_gate_state_sec = 0
+    self.Query_Gate_State_Span_Sec = 5
+    self.rpc_mgr = self.service.rpc_mgr
 end
 
 function LoginGameMgr:init()
@@ -44,8 +48,31 @@ function LoginGameMgr:_on_close_cnn(netid, error_code)
     self.login_items[netid] = nil
 end
 
-function LoginGameMgr:_on_tick()
+function LoginGameMgr:CheckQueryGateStates()
+    local now_sec = logic_sec()
+    if now_sec >= self.last_query_gate_state_sec + self.Query_Gate_State_Span_Sec then
+        self.last_query_gate_state_sec = now_sec
+        local gate_infos = self.service.zone_net:get_service_group(Service_Const.Gate)
+        for _, gate_info in pairs(gate_infos) do
+            local gk = gate_info.key
+            self.service.rpc_mgr:call(function(error_num, ret)
+                log_debug("CheckQueryGateStates %s %s %s", gk, error_num, ret)
+                if Rpc_Error.None ~= error_num then
+                    self.gate_states[gk] = nil
+                else
+                    local gate_state = {
+                        client_connect_ip = ret.client_connect_ip,
+                        client_connect_port = ret.client_connect_port
+                    }
+                    self.gate_states[gk] = gate_state
+                end
+            end, gk, GateRpcFn.query_state)
+        end
+    end
+end
 
+function LoginGameMgr:_on_tick()
+    self:CheckQueryGateStates()
 end
 
 function LoginGameMgr:process_req_login_game(netid, pid, msg)
@@ -70,26 +97,26 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
 
     local over_cb = function(co)
         local error_code = 0
-        local auth_sn, timestamp, app_id, user_id = nil
+        local ret = {}
         local return_vals = co:get_return_vals()
         if not return_vals then
             error_code = ERROR_COROUTINE_RAISE_ERROR
             log_debug("process_req_login_game coroutine raise error: %s", co:get_error_msg())
         else
-            error_code, auth_sn, timestamp, app_id, user_id, gate_ip, gate_port, auth_ip, auth_port =
-                table.unpack(return_vals.vals, 1, return_vals.n)
+            error_code, ret = table.unpack(return_vals.vals, 1, return_vals.n)
         end
         log_debug("xxxxxxxxxxx %s", return_vals)
+        ret = ret or {}
         self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, {
-            error_code=error_code,
-            auth_sn=auth_sn,
-            timestamp=timestamp,
-            app_id = app_id,
-            user_id = user_id,
-            gate_ip = gate_ip,
-            gate_port = gate_port,
-            auth_ip = auth_ip,
-            auth_port = auth_port,
+            error_code = error_code,
+            auth_sn = ret.auth_sn,
+            timestamp = ret.timestamp,
+            app_id = ret.app_id,
+            user_id = ret.user_id,
+            gate_ip = ret.gate_ip,
+            gate_port = ret.gate_port,
+            auth_ip = ret.auth_ip,
+            auth_port = ret.auth_port,
         })
     end
     local main_logic = function(co, msg)
@@ -139,11 +166,25 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         else
             user_id = db_ret.val["0"].user_id
         end
-        local gate = self.service.zone_net:rand_service(Service_Const.Gate)
-        local gate_port = 32001 -- TODO: 需要完善gate向login上报自己的地址
-        log_debug("gate infos %s", gate)
-        return 0, auth_login_ret.token, auth_login_ret.timestamp, app_id, user_id,
-            gate.ip, gate_port, auth_cfg[Service_Const.Ip], tonumber(auth_cfg[Service_Const.Port])
+
+        local gk, gv = random.pick_one(self.gate_states)
+        log_debug("random.pick_one(self.gate_states) %s %s", gk, gv)
+        if not gv then
+            return ERROR_NO_GATE_AVAILABLE
+        end
+        local gate_port = gv.client_connect_port
+        local gate_ip = gv.client_connect_ip
+        local return_val = {
+            auth_sn = auth_login_ret.token,
+            timestamp = auth_login_ret.timestamp,
+            app_id = app_id,
+            user_id = user_id,
+            gate_ip = gate_ip,
+            gate_port = gate_port,
+            auth_ip = auth_cfg[Service_Const.Ip],
+            auth_port = tonumber(auth_cfg[Service_Const.Port]),
+        }
+        return 0, return_val
     end
     local co = ex_coroutine_create(main_logic, over_cb)
     local start_ok = ex_coroutine_start(co, co, msg)

@@ -40,6 +40,7 @@ Service_Const =
     Pwd = "pwd",
     Db_name = "db_name",
     Client_Port = "client_port",
+    Client_Ip = "client_ip",
     For_Test = "for_test",
 }
 
