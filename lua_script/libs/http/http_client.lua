@@ -51,11 +51,41 @@ function HttpClient.post(url, content_str, rsp_fn, event_fn, heads_tb)
     return native.http_post(url, heads_tb, tostring(content_str), rsp_fn, event_fn)
 end
 
--- TODO: 要做得更好需要写好event_fn
+local CallbackType = {
+    Event_Callback = 1,
+    Response_Callback = 2,
+}
+
+local make_co_fun_callback = function()
+    local is_done = false
+    local ret = function(co, cb_type, ret)
+        log_debug("make_co_fun_callback %s %s", cb_type, ret)
+        if not is_done and CoroutineState.Dead ~= ex_coroutine_status(co) then
+            if cb_type == CallbackType.Response_Callback then
+                is_done = true
+                ex_coroutine_delay_resume(co, ret)
+            end
+            if cb_type == CallbackType.Event_Callback then
+                if 0 ~= ret.error_num then
+                    is_done = true
+                    ex_coroutine_report_error(co, string.format("http query fail, event_type:%s, error_num:%s",
+                            ret.event_type, ret.error_num))
+                end
+            end
+        end
+    end
+    return ret
+end
+
 function HttpClient.co_get(url, heads_tb)
     local co = ex_coroutine_running()
     assert(co, "should be called in a running coroutine")
-    local seq = HttpClient.get(url, new_coroutine_callback(co), nil, heads_tb)
+    local cb_fn = make_co_fun_callback()
+    local seq = HttpClient.get(
+            url,
+            Functional.make_closure(cb_fn, co, CallbackType.Response_Callback),
+            Functional.make_closure(cb_fn, co, CallbackType.Event_Callback),
+            heads_tb)
     if seq > 0 then
         return ex_coroutine_yield(co)
     else
@@ -66,7 +96,11 @@ end
 function HttpClient.co_delete(url, heads_tb)
     local co = ex_coroutine_running()
     assert(co, "should be called in a running coroutine")
-    local seq = HttpClient.delete(url, new_coroutine_callback(co), nil, heads_tb)
+    local seq = HttpClient.delete(
+            url,
+            Functional.make_closure(cb_fn, co, CallbackType.Response_Callback),
+            Functional.make_closure(cb_fn, co, CallbackType.Event_Callback),
+            heads_tb)
     if seq > 0 then
         return ex_coroutine_yield(co)
     else
@@ -77,7 +111,11 @@ end
 function HttpClient.co_put(url, content_str, heads_tb)
     local co = ex_coroutine_running()
     assert(co, "should be called in a running coroutine")
-    local seq = HttpClient.put(url, content_str, new_coroutine_callback(co), nil, heads_tb)
+    local seq = HttpClient.put(
+            url,
+            Functional.make_closure(cb_fn, co, CallbackType.Response_Callback),
+            Functional.make_closure(cb_fn, co, CallbackType.Event_Callback),
+            heads_tb)
     if seq > 0 then
         return ex_coroutine_yield(co)
     else
@@ -88,7 +126,11 @@ end
 function HttpClient.co_post(url, content_str, heads_tb)
     local co = ex_coroutine_running()
     assert(co, "should be called in a running coroutine")
-    local seq = HttpClient.post(url, content_str, new_coroutine_callback(co), nil, heads_tb)
+    local seq = HttpClient.post(
+            url,
+            Functional.make_closure(cb_fn, co, CallbackType.Response_Callback),
+            Functional.make_closure(cb_fn, co, CallbackType.Event_Callback),
+            heads_tb)
     if seq > 0 then
         return ex_coroutine_yield(co)
     else
