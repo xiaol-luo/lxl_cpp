@@ -59,7 +59,7 @@ local CallbackType = {
 local make_co_fun_callback = function()
     local is_done = false
     local ret = function(co, cb_type, ret)
-        log_debug("make_co_fun_callback %s %s", cb_type, ret)
+        -- log_debug("make_co_fun_callback %s %s", cb_type, ret)
         if not is_done and CoroutineState.Dead ~= ex_coroutine_status(co) then
             if cb_type == CallbackType.Response_Callback then
                 is_done = true
@@ -113,6 +113,7 @@ function HttpClient.co_put(url, content_str, heads_tb)
     assert(co, "should be called in a running coroutine")
     local seq = HttpClient.put(
             url,
+            content_str,
             Functional.make_closure(cb_fn, co, CallbackType.Response_Callback),
             Functional.make_closure(cb_fn, co, CallbackType.Event_Callback),
             heads_tb)
@@ -128,6 +129,7 @@ function HttpClient.co_post(url, content_str, heads_tb)
     assert(co, "should be called in a running coroutine")
     local seq = HttpClient.post(
             url,
+            content_str,
             Functional.make_closure(cb_fn, co, CallbackType.Response_Callback),
             Functional.make_closure(cb_fn, co, CallbackType.Event_Callback),
             heads_tb)
