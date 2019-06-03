@@ -104,7 +104,8 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         local auth_cfg = self.service.all_service_cfg:get_third_party_service(Service_Const.Auth_Service, Service_Const.For_Test)
         local host = string.format("%s:%s", auth_cfg[Service_Const.Ip], auth_cfg[Service_Const.Port])
         local url = string.format("%s/%s?%s", host, "login_auth", table.concat(auth_param_strs, "&"))
-        local co_ok, id_int64, rsp_state, heads_map, body_str = HttpClient.co_get(url, {})
+        local co_ok, http_ret = HttpClient.co_get(url, {})
+        local rsp_state, body_str = http_ret.state, http_ret.body
         if not co_ok or "OK" ~= rsp_state then
             return ERROR_AUTH_LOGIN_FAIL
         end

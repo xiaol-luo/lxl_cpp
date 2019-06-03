@@ -88,10 +88,14 @@ function GameAuth:login_auth(from_cnn_id, method, req_url, kv_params, body)
         log_debug("main_logic 3")
         local url_query = string.format("%s?%s", url, table.concat(url_params,"&"))
         log_debug("url_query is %s", url_query)
-        local co_ok, id_int64, rsp_state, heads_map, body_str = HttpClient.co_get(url_query, {})
-        if not co_ok or Gac.OK ~= rsp_state then
-            log_debug("main_logic 4")
-            report_error(string.format("query platform fail %s", rsp_state))
+        local co_ok, http_ret = HttpClient.co_get(url_query, {})
+        if not co_ok then
+            report_error(string.format("query platform fail %s", "logic raise error"))
+            return
+        end
+        local rsp_state, body_str = http_ret.state, http_ret.body
+        if Gac.OK ~= rsp_state then
+            report_error(string.format("query platform fail http respone state: %s", rsp_state))
             return
         end
         log_debug("main_logic 5")

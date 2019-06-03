@@ -35,8 +35,8 @@ function EtcdClientOpBase:concat_values(keys_tb, kv_format, sep)
     return ret_str
 end
 
-function EtcdClientOpBase:_handle_event_cb(op_id, etcd_event, err_num)
-    -- log_debug("EtcdClientOpBase._Handle_event_cb %s %s %s",  op_id or "null", err_type_enum or "null", err_num or "null")
+function EtcdClientOpBase:_handle_event_cb(ret)
+    op_id, etcd_event, err_num = ret.id, ret.event_type, ret.error_num
     if 0 ~= err_num then
         local ret = EtcdClientResult:new()
         ret.fail_event = etcd_event
@@ -47,9 +47,8 @@ function EtcdClientOpBase:_handle_event_cb(op_id, etcd_event, err_num)
     end
 end
 
-function EtcdClientOpBase:_handle_result_cb(op_id, rsp_state, heads_map, body_str)
-    -- log_debug("EtcdClientOpBase._handle_result_cb._handle_result_cb op_id:%s rsp_state:%s head_map:%s bodoy_str:%s ",
-    --       op_id or "null", rsp_state or "null", heads_map or "null", body_str or "null")
+function EtcdClientOpBase:_handle_result_cb(ret)
+    op_id, rsp_state, heads_map, body_str = ret.id, ret.state, ret.heads, ret.body
     if not self.cb_fn then
         return
     end

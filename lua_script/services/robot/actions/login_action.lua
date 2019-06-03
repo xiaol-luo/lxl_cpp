@@ -98,12 +98,15 @@ function LoginAction:robot_main_logic(co)
     local host = string.format("%s:%s", platform_cfg[Service_Const.Ip], platform_cfg[Service_Const.Port])
     local url = string.format("%s/%s?%s", host, "login", table.concat(login_param_strs, "&"))
     log_debug("url = %s", url)
-    local co_ok, id_int64, rsp_state, heads_map, body_str = HttpClient.co_get(url, {})
-    log_debug("login_platform body_str %s %s",rsp_state,  body_str)
-    if not co_ok or "OK" ~= rsp_state then
+    local co_ok, http_ret = HttpClient.co_get(url, {})
+    if not co_ok then
         return
     end
-
+    local rsp_state, body_str = http_ret.state, http_ret.body
+    log_debug("login_platform body_str %s %s",rsp_state,  body_str)
+    if "OK" ~= rsp_state then
+        return
+    end
     local platform_login_ret = rapidjson.decode(body_str)
     log_debug("platform_login_ret %s", platform_login_ret)
 

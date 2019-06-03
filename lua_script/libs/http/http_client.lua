@@ -1,12 +1,12 @@
 
 HttpClient = HttpClient or {}
 
-function HttpClient.example_rsp_fn(id_int64, rsp_state, heads_map, body_str)
-    -- log_debug("HttpClient.example_rsp_fn id_int64:%s rsp_state:%s, heads_map:%s, body_str:%s", id_int64, rsp_state, heads_map, body_str)
+function HttpClient.example_rsp_fn(ret)
+    -- log_debug("HttpClient.example_rsp_fn %s", ret)
 end
 
-function HttpClient.example_event_fn(id_int64, err_type_enum, err_num_int)
-    -- log_debug("HttpClient.example_event_fn id_int64:%s err_type_enum:%s err_num_int:%s", id_int64, err_type_enum, err_num_int)
+function HttpClient.example_event_fn(ret)
+    -- log_debug("HttpClient.example_event_fn %s", ret)
 end
 
 function HttpClient.get(url, rsp_fn, event_fn, heads_tb)

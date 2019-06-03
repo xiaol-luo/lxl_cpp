@@ -42,11 +42,12 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
             token = msg.auth_sn
         })
         log_debug("query_url %s", query_url)
-        local id_int64, rsp_state, heads_map, body_str = nil
-        co_ok, id_int64, rsp_state, heads_map, body_str = HttpClient.co_get(query_url)
+        local http_ret = nil
+        co_ok, http_ret = HttpClient.co_get(query_url)
         if not co_ok then
             return ReqUserLoginError.Coroutine_Error
         end
+        local rsp_state, body_str = http_ret.state, http_ret.body
         if not is_rsp_ok(rsp_state) then
             return ReqUserLoginError.Auth_Fail
         end

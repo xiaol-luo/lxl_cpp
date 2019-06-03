@@ -43,15 +43,30 @@ HttpReqCnn::FnProcessRsp safe_http_req_process_rsp_cb(sol::protected_function lu
 {
 	HttpReqCnn::FnProcessRsp ret = [lua_fn](HttpReqCnn * self, std::string rsp_state,
 		const std::unordered_map<std::string, std::string> &heads, const std::string &body) {
-		lua_fn((int64_t)self->GetPtr(), rsp_state, sol::as_table(heads), body);
+		lua_State *ls = lua_fn.lua_state();
+		sol::state_view lsv(ls);
+		sol::table t = lsv.create_table_with(
+			"id", (int64_t)self->GetPtr(),
+			"state", rsp_state,
+			"heads", sol::as_table(heads),
+			"body", body
+		);
+		lua_fn(t);
 	};
 	return ret;
 }
 
 HttpReqCnn::FnProcessEvent safe_http_req_process_event_cb(sol::protected_function lua_fn)
 {
-	HttpReqCnn::FnProcessEvent ret = [lua_fn](HttpReqCnn * self, HttpReqCnn::eEventType err_type, int err_num) {
-		lua_fn((int64_t)self->GetPtr(), err_type, err_num);
+	HttpReqCnn::FnProcessEvent ret = [lua_fn](HttpReqCnn * self, HttpReqCnn::eEventType event_type, int err_num) {
+		lua_State *ls = lua_fn.lua_state();
+		sol::state_view lsv(ls);
+		sol::table t = lsv.create_table_with(
+			"id", (int64_t)self->GetPtr(),
+			"event_type", event_type,
+			"error_num", err_num
+		);
+		lua_fn(t);
 	};
 	return ret;
 }
