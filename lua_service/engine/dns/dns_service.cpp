@@ -32,7 +32,7 @@ int DnsService::QueryIp(std::string host, std::vector<std::string>* out_ips)
 	{
 		*out_ips = task.ips_;
 	}
-	return task.err_num_;
+	return task.error_num_;
 }
 
 void DnsService::QueryIpAsync(std::string host, DnsQueryIpCallback cb)
@@ -54,9 +54,9 @@ void DnsService::QueryTask::Process()
 		if (nullptr == ht)
 		{
 #ifdef WIN32
-			err_num_ = -1;
+			error_num_ = -1;
 #else
-			err_num_ = errno;
+			error_num_ = errno;
 #endif // WIN32
 
 		}
@@ -78,6 +78,6 @@ void DnsService::QueryTask::HandleResult()
 {
 	if (nullptr != cb_)
 	{
-		cb_(err_num_, host_, ips_);
+		cb_(error_num_, host_, ips_);
 	}
 }

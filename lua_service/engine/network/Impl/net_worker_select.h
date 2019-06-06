@@ -57,7 +57,7 @@ namespace Net
 		void WorkLoop_SendBuff();
 		void HandleNetRead(int fd);
 		void HandleNetWrite(int fd);
-		void HandleNetError(int fd, int err_num);
+		void HandleNetError(int fd, int error_num);
 		Node * GetNodeByFd(int fd);
 		void AddNetworkData(NetworkData *data);
 		int MakeFdUnblock(int fd);

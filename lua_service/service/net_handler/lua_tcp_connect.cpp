@@ -19,14 +19,14 @@ LuaTcpConnect::~LuaTcpConnect()
 	delete m_buff; m_buff = nullptr;
 }
 
-void LuaTcpConnect::OnClose(int err_num)
+void LuaTcpConnect::OnClose(int error_num)
 {
-	m_lua_logic[LUA_CNN_CB_ONCLOSE](m_lua_logic, err_num);
+	m_lua_logic[LUA_CNN_CB_ONCLOSE](m_lua_logic, error_num);
 }
 
-void LuaTcpConnect::OnOpen(int err_num)
+void LuaTcpConnect::OnOpen(int error_num)
 {
-	m_lua_logic[LUA_CNN_CB_ONOPEN](m_lua_logic, err_num);
+	m_lua_logic[LUA_CNN_CB_ONOPEN](m_lua_logic, error_num);
 }
 
 void LuaTcpConnect::OnRecvData(char * data, uint32_t len)

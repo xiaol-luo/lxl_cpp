@@ -14,8 +14,8 @@ class LuaTcpConnect : public INetConnectHandler
 public:
 	LuaTcpConnect();
 	virtual ~LuaTcpConnect();
-	virtual void OnClose(int err_num) override;
-	virtual void OnOpen(int err_num) override;
+	virtual void OnClose(int error_num) override;
+	virtual void OnOpen(int error_num) override;
 	virtual void OnRecvData(char *data, uint32_t len) override;
 
 	bool Init(sol::table lua_logic);

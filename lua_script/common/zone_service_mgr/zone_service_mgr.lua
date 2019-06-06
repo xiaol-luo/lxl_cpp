@@ -166,14 +166,14 @@ function ZoneServiceMgr:_listen_handler_gen_cnn(listen_handler)
     return self:make_accept_cnn()
 end
 
-function ZoneServiceMgr:_listen_handler_on_open(listen_handler, err_num)
-    -- log_debug("ZoneServiceMgr:_listen_handler_on_open netid:%s, err_num:%s", listen_handler:netid(), err_num)
-    self.etcd_service_val:set_online(0 == err_num)
+function ZoneServiceMgr:_listen_handler_on_open(listen_handler, error_num)
+    -- log_debug("ZoneServiceMgr:_listen_handler_on_open netid:%s, error_num:%s", listen_handler:netid(), error_num)
+    self.etcd_service_val:set_online(0 == error_num)
     self:etcd_service_val_update()
 end
 
-function ZoneServiceMgr:_listen_handler_on_close(listen_handler, err_num)
-    -- log_debug("ZoneServiceMgr:_listen_handler_on_close netid:%s, err_num:%s", listen_handler:netid(), err_num)
+function ZoneServiceMgr:_listen_handler_on_close(listen_handler, error_num)
+    -- log_debug("ZoneServiceMgr:_listen_handler_on_close netid:%s, error_num:%s", listen_handler:netid(), error_num)
     self.etcd_service_val:set_online(false)
     self.etcd_service_val_update()
 end

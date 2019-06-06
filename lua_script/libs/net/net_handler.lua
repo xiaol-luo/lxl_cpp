@@ -24,12 +24,12 @@ function NetHandler:set_close_cb(cb)
     self.close_cb = cb
 end
 
-function NetHandler:on_open(err_num)
-    Functional.safe_call(self.open_cb, self, err_num)
+function NetHandler:on_open(error_num)
+    Functional.safe_call(self.open_cb, self, error_num)
 end
 
-function NetHandler:on_close(err_num)
-    Functional.safe_call(self.close_cb, self, err_num)
+function NetHandler:on_close(error_num)
+    Functional.safe_call(self.close_cb, self, error_num)
 end
 
 function NetHandler:netid()

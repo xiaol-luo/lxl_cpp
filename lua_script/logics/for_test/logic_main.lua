@@ -17,14 +17,14 @@ g_cnn_handler_connect = nil
 g_cnn_handler_accept = nil
 
 
-function test_net_open(t, err_num)
+function test_net_open(t, error_num)
     print("test_net_open t", t:netid())
-    print("test_net_open err_num", err_num)
+    print("test_net_open error_num", error_num)
 end
 
-function test_net_close(t, err_num)
+function test_net_close(t, error_num)
     print("test_net_close t", t:netid())
-    print("test_net_close err_num", err_num)
+    print("test_net_close error_num", error_num)
 end
 
 

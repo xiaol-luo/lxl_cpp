@@ -32,15 +32,15 @@ public:
 	};
 	using FnProcessEvent = std::function<void(
 		HttpRspCnn * /*self*/,
-		eEventType /*err_type*/,
-		int /*err_num*/
+		eEventType /*error_type*/,
+		int /*error_num*/
 		)>;
 
 public:
 	HttpRspCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>> cnn_map);
 	virtual ~HttpRspCnn();
-	virtual void OnClose(int err_num) override;
-	virtual void OnOpen(int err_num) override;
+	virtual void OnClose(int error_num) override;
+	virtual void OnOpen(int error_num) override;
 	virtual void OnRecvData(char *data, uint32_t len) override;
 
 	void SetReqCbFn(HttpRspCnn_FnProcessReq fn) { m_process_req_fn = fn; }

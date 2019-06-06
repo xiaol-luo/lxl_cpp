@@ -18,9 +18,9 @@ function RpcRsp:respone(...)
     self:send_back(Rpc_Const.Action_Return_Result, ...)
 end
 
-function RpcRsp:report_error(err_str)
-    -- self.rpc_mgr:respone(self.id, self.from_host, self.from_id, Rpc_Const.Action_Report_Error, err_str)
-    self:send_back(Rpc_Const.Action_Report_Error, err_str)
+function RpcRsp:report_error(error_str)
+    -- self.rpc_mgr:respone(self.id, self.from_host, self.from_id, Rpc_Const.Action_Report_Error, error_str)
+    self:send_back(Rpc_Const.Action_Report_Error, error_str)
 end
 
 function RpcRsp:postpone_expire()

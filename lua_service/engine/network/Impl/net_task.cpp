@@ -61,8 +61,8 @@ namespace Net
 			sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			if (INVALID_SOCKET == sock)
 			{
-				m_result.err_num = GetLastError();
-				m_result.err_msg = "create socket fail";
+				m_result.error_num = GetLastError();
+				m_result.error_msg = "create socket fail";
 				sock = -1;
 				break;
 			}
@@ -74,8 +74,8 @@ namespace Net
 			memset(listen_addr.sin_zero, 0x00, 8);
 			if (0 != connect(sock, (struct sockaddr *)&listen_addr, sizeof(listen_addr)))
 			{
-				m_result.err_num = GetLastError();
-				m_result.err_msg = "connect socket fail";
+				m_result.error_num = GetLastError();
+				m_result.error_msg = "connect socket fail";
 				break;
 			}
 
@@ -84,7 +84,7 @@ namespace Net
 			m_result.fd = sock;
 
 		} while (false);
-		if (0 != m_result.err_num)
+		if (0 != m_result.error_num)
 		{
 			if (sock >= 0)
 				closesocket(sock);
@@ -104,8 +104,8 @@ namespace Net
 			sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			if (INVALID_SOCKET == sock)
 			{
-				m_result.err_num = GetLastError();
-				m_result.err_msg = "create socket fail";
+				m_result.error_num = GetLastError();
+				m_result.error_msg = "create socket fail";
 				sock = -1;
 				break;
 			}
@@ -117,14 +117,14 @@ namespace Net
 			memset(listen_addr.sin_zero, 0x00, 8);
 			if (0 != bind(sock, (struct sockaddr *)&listen_addr, sizeof(listen_addr)))
 			{
-				m_result.err_num = GetLastError();
-				m_result.err_msg = "bind socket fail";
+				m_result.error_num = GetLastError();
+				m_result.error_msg = "bind socket fail";
 				break;
 			}
 			if (0 != listen(sock, 64))
 			{
-				m_result.err_num = GetLastError();
-				m_result.err_msg = "listen socket fail";
+				m_result.error_num = GetLastError();
+				m_result.error_msg = "listen socket fail";
 				break;
 			}
 			Net::u_long ret = 0;
@@ -132,7 +132,7 @@ namespace Net
 			m_result.fd = sock;
 
 		} while (false);
-		if (0 != m_result.err_num)
+		if (0 != m_result.error_num)
 		{
 			if (sock >= 0)
 				closesocket(sock);
@@ -161,8 +161,8 @@ namespace Net
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 			if (-1 == sock)
 			{
-				m_result.err_num = errno;
-				m_result.err_msg = "create socket fail";
+				m_result.error_num = errno;
+				m_result.error_msg = "create socket fail";
 				sock = -1;
 				break;
 			}
@@ -173,8 +173,8 @@ namespace Net
 			listen_addr.sin_port = htons(m_port);
 			if (0 != connect(sock, (struct sockaddr *)&listen_addr, sizeof(listen_addr)))
 			{
-				m_result.err_num = errno;
-				m_result.err_msg = "connect socket fail";
+				m_result.error_num = errno;
+				m_result.error_msg = "connect socket fail";
 				break;
 			}
 
@@ -183,7 +183,7 @@ namespace Net
 			m_result.fd = sock;
 
 		} while (false);
-		if (0 != m_result.err_num)
+		if (0 != m_result.error_num)
 		{
 			if (sock >= 0)
 				close(sock);
@@ -203,8 +203,8 @@ namespace Net
 			sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			if (-1 == sock)
 			{
-				m_result.err_num = errno;
-				m_result.err_msg = "create socket fail";
+				m_result.error_num = errno;
+				m_result.error_msg = "create socket fail";
 				sock = -1;
 				break;
 			}
@@ -215,14 +215,14 @@ namespace Net
 			listen_addr.sin_port = htons(m_port);
 			if (0 != bind(sock, (struct sockaddr *)&listen_addr, sizeof(listen_addr)))
 			{
-				m_result.err_num = errno;
-				m_result.err_msg = "bind socket fail";
+				m_result.error_num = errno;
+				m_result.error_msg = "bind socket fail";
 				break;
 			}
 			if (0 != listen(sock, 64))
 			{
-				m_result.err_num = errno;
-				m_result.err_msg = "listen socket fail";
+				m_result.error_num = errno;
+				m_result.error_msg = "listen socket fail";
 				break;
 			}
 			int flag = fcntl(sock, F_GETFL, 0) | O_NONBLOCK;
@@ -230,7 +230,7 @@ namespace Net
 			m_result.fd = sock;
 
 		} while (false);
-		if (0 != m_result.err_num)
+		if (0 != m_result.error_num)
 		{
 			if (sock >= 0)
 				close(sock);

@@ -52,27 +52,27 @@ void CommonListener::RemoveCnn(NetId netid)
 	}
 }
 
-void CommonListener::OnClose(int err_num)
+void CommonListener::OnClose(int error_num)
 {
-	if (0 != err_num)
+	if (0 != error_num)
 	{
 		m_port = 0;
 	}
 	if (nullptr != m_cb.on_close)
 	{
-		m_cb.on_close(this, err_num);
+		m_cb.on_close(this, error_num);
 	}
 }
 
-void CommonListener::OnOpen(int err_num)
+void CommonListener::OnOpen(int error_num)
 {
-	if (0 != err_num)
+	if (0 != error_num)
 	{
 		m_port = 0;
 	}
 	if (nullptr != m_cb.on_open)
 	{
-		m_cb.on_open(this, err_num);
+		m_cb.on_open(this, error_num);
 	}
 }
 

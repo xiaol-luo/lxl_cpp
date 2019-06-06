@@ -85,7 +85,7 @@ void HttpClientMgr::HandleHttpRsp(HttpReqCnn * cnn, const std::string &rsp_state
 	}
 }
 
-void HttpClientMgr::HandleHttpAction(HttpReqCnn *cnn, int action_type, int err_num)
+void HttpClientMgr::HandleHttpAction(HttpReqCnn *cnn, int action_type, int error_num)
 {
 	uint64_t key = (uint64_t)cnn->GetPtr();
 	auto it = m_cnn_datas.find(key);
@@ -94,10 +94,10 @@ void HttpClientMgr::HandleHttpAction(HttpReqCnn *cnn, int action_type, int err_n
 		CnnData &cnn_data = it->second;
 		if (nullptr != cnn_data.rsp_cb)
 		{
-			cnn_data.event_cb(cnn, (HttpReqCnn::eEventType)action_type, err_num);
+			cnn_data.event_cb(cnn, (HttpReqCnn::eEventType)action_type, error_num);
 		}
 
-		if (0 != err_num || HttpReqCnn::eActionType_Close == action_type)
+		if (0 != error_num || HttpReqCnn::eActionType_Close == action_type)
 		{
 			m_cnn_datas.erase(it);
 			it = m_cnn_datas.end();
@@ -105,12 +105,12 @@ void HttpClientMgr::HandleHttpAction(HttpReqCnn *cnn, int action_type, int err_n
 	}
 }
 
-void HttpClientMgr::DoDnsQuery(std::shared_ptr<HttpReqCnn> cnn, int err_num, std::string host, std::vector<std::string>& ips)
+void HttpClientMgr::DoDnsQuery(std::shared_ptr<HttpReqCnn> cnn, int error_num, std::string host, std::vector<std::string>& ips)
 {
 	HttpReqCnn *cnn_ptr = dynamic_cast<HttpReqCnn *>(cnn->GetPtr());
-	HandleHttpAction(cnn_ptr, eHttpAction_DnsQuery, err_num);
+	HandleHttpAction(cnn_ptr, eHttpAction_DnsQuery, error_num);
 
-	if (0 == err_num && !ips.empty())
+	if (0 == error_num && !ips.empty())
 	{
 		auto it = m_cnn_datas.find((uint64_t)cnn->GetPtr());
 		if (m_cnn_datas.end() != it)

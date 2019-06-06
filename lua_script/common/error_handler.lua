@@ -1,7 +1,7 @@
 
-function error_handler(err_msg)
-    err_msg = debug.traceback(err_msg)
-    log_error(err_msg)
+function error_handler(error_msg)
+    error_msg = debug.traceback(error_msg)
+    log_error(error_msg)
 end
 
 function safe_call(fn, arg1, ...)

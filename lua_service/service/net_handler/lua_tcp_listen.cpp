@@ -32,14 +32,14 @@ bool LuaTcpListen::Init(sol::table lua_logic)
 	return true;
 }
 
-void LuaTcpListen::OnClose(int err_num)
+void LuaTcpListen::OnClose(int error_num)
 {
-	m_lua_logic[LUA_LISTEN_CB_ONCLOSE](m_lua_logic, err_num);
+	m_lua_logic[LUA_LISTEN_CB_ONCLOSE](m_lua_logic, error_num);
 }
 
-void LuaTcpListen::OnOpen(int err_num)
+void LuaTcpListen::OnOpen(int error_num)
 {
-	m_lua_logic[LUA_LISTEN_CB_ONOPEN](m_lua_logic, err_num);
+	m_lua_logic[LUA_LISTEN_CB_ONOPEN](m_lua_logic, error_num);
 }
 
 std::shared_ptr<INetConnectHandler> LuaTcpListen::GenConnectorHandler()

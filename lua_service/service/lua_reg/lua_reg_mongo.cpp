@@ -18,9 +18,9 @@ static void Wrap_MongoTask_Handle_Result(MongoTask *task, sol::protected_functio
 	doc.SetObject();
 	rapidjson::Document::AllocatorType& doc_allocator = doc.GetAllocator();
 	doc.AddMember("task_type", task->GetTaskType(), doc_allocator);
-	doc.AddMember("err_num", task->GetErrNum(), doc_allocator);
+	doc.AddMember("error_num", task->GetErrNum(), doc_allocator);
 	doc.AddMember("state", task->GetState(), doc_allocator);
-	doc.AddMember("err_msg", rapidjson::Value(task->GetErrMsg().c_str(), task->GetErrMsg().size(), doc_allocator), doc_allocator);
+	doc.AddMember("error_msg", rapidjson::Value(task->GetErrMsg().c_str(), task->GetErrMsg().size(), doc_allocator), doc_allocator);
 	doc.AddMember("inserted_count", ret.inserted_count, doc_allocator);
 	doc.AddMember("matched_count", ret.matched_count, doc_allocator);
 	doc.AddMember("deleted_count", ret.deleted_count, doc_allocator);

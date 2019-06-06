@@ -5,16 +5,16 @@
 int lua_panic_error(lua_State* L) 
 {
 	size_t messagesize;
-	std::string err_str;
+	std::string error_str;
 	const char* message = lua_tolstring(L, -1, &messagesize);
 	if (!message)
 	{
 		message = "lua_at_panic unexpected error";
 		messagesize = strlen(message);
 	}
-	std::string err_msg(message, messagesize);
-	log_error("lua_at_panic {}", err_msg.c_str());
-	throw sol::error(err_msg);
+	std::string error_msg(message, messagesize);
+	log_error("lua_at_panic {}", error_msg.c_str());
+	throw sol::error(error_msg);
 }
 
 int lua_pcall_error (lua_State* L) 

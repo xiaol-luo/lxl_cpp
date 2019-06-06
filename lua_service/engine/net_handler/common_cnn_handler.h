@@ -8,8 +8,8 @@ class CommonConnecter;
 
 struct CommonCnnCallback
 {
-	std::function<void(CommonConnecter* /*self*/, int /*err_num*/)> on_open = nullptr;
-	std::function<void(CommonConnecter* /*self*/, int /*err_num*/)> on_close = nullptr;
+	std::function<void(CommonConnecter* /*self*/, int /*error_num*/)> on_open = nullptr;
+	std::function<void(CommonConnecter* /*self*/, int /*error_num*/)> on_close = nullptr;
 	std::function<void(CommonConnecter* /*self*/, char * /*data*/, uint32_t /*data_len*/)> on_recv = nullptr;
 };
 
@@ -20,8 +20,8 @@ public:
 	CommonConnecter(std::weak_ptr<NetHandlerMap<INetConnectHandler>> cnn_map);
 	virtual ~CommonConnecter();
 	void SetCb(CommonCnnCallback & cb);
-	virtual void OnClose(int err_num) override;
-	virtual void OnOpen(int err_num) override;
+	virtual void OnClose(int error_num) override;
+	virtual void OnOpen(int error_num) override;
 	virtual void OnRecvData(char *data, uint32_t len) override;
 
 protected:

@@ -34,17 +34,17 @@ HttpReqCnn::~HttpReqCnn()
 
 void HttpReqCnn::OnClose(int num)
 {
-	int err_num = num;
+	int error_num = num;
 	if (m_is_message_completed)
-		err_num = 0;
+		error_num = 0;
 
 	if (nullptr != m_process_event_fn)
 	{
-		m_process_event_fn(this, eActionType_Close, err_num);
+		m_process_event_fn(this, eActionType_Close, error_num);
 	}
-	if (0 != err_num)
+	if (0 != error_num)
 	{
-		log_error("HttpReqCnn::OnClose {}", err_num);
+		log_error("HttpReqCnn::OnClose {}", error_num);
 	}
 	auto ap_cnn_map = m_cnn_map.lock();
 	if (ap_cnn_map)
@@ -53,16 +53,16 @@ void HttpReqCnn::OnClose(int num)
 	}
 }
 
-void HttpReqCnn::OnOpen(int err_num)
+void HttpReqCnn::OnOpen(int error_num)
 {
-	// log_debug("HttpReqCnn::OnOpen {} {}", m_netid, err_num);
+	// log_debug("HttpReqCnn::OnOpen {} {}", m_netid, error_num);
 
 	if (nullptr != m_process_event_fn)
 	{
-		m_process_event_fn(this, eActionType_Open, err_num);
+		m_process_event_fn(this, eActionType_Open, error_num);
 	}
 
-	if (0 != err_num)
+	if (0 != error_num)
 	{
 	}
 	else

@@ -15,8 +15,8 @@ class INetworkHandler : public std::enable_shared_from_this<INetworkHandler>
 public:
 	INetworkHandler(ENetworkHandlerType handler_type) : m_handler_type(handler_type) {}
 	virtual ~INetworkHandler() {}
-	virtual void OnClose(int err_num) = 0;
-	virtual void OnOpen(int err_num) = 0;
+	virtual void OnClose(int error_num) = 0;
+	virtual void OnOpen(int error_num) = 0;
 	ENetworkHandlerType HandlerType() { return m_handler_type; }
 	NetId GetNetId() { return m_netid; }
 	void SetNetId(NetId netid) { m_netid = netid; }

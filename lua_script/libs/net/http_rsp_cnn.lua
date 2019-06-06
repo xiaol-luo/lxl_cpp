@@ -32,9 +32,9 @@ function HttpRspCnn:_on_req_cb(native_cnn , method, url, heads, body)
     return false
 end
 
-function HttpRspCnn:_on_event_cb(native_cnn, event_type, err_num)
+function HttpRspCnn:_on_event_cb(native_cnn, event_type, error_num)
     if self.event_cb then
-        Functional.safe_call(self.event_cb, self, event_type, err_num)
+        Functional.safe_call(self.event_cb, self, event_type, error_num)
     end
 end
 

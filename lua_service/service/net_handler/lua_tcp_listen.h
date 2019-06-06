@@ -17,8 +17,8 @@ public:
 
 	bool Init(sol::table lua_logic);
 
-	virtual void OnClose(int err_num) override;
-	virtual void OnOpen(int err_num) override;
+	virtual void OnClose(int error_num) override;
+	virtual void OnOpen(int error_num) override;
 	virtual std::shared_ptr<INetConnectHandler> GenConnectorHandler() override;
 
 protected:

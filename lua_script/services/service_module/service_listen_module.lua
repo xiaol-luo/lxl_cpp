@@ -46,11 +46,11 @@ function ServiceListenModule:_listen_handler_gen_cnn(listen_handler)
     return self:_make_accept_cnn()
 end
 
-function ServiceListenModule:_listen_handler_on_open(listen_handler, err_num)
+function ServiceListenModule:_listen_handler_on_open(listen_handler, error_num)
 
 end
 
-function ServiceListenModule:_listen_handler_on_close(listen_handler, err_num)
+function ServiceListenModule:_listen_handler_on_close(listen_handler, error_num)
 
 end
 
@@ -62,11 +62,11 @@ function ServiceListenModule:_make_accept_cnn()
     return cnn
 end
 
-function ServiceListenModule:cnn_on_open(cnn, err_num)
+function ServiceListenModule:cnn_on_open(cnn, error_num)
     -- should override by subclass
 end
 
-function ServiceListenModule:cnn_on_close(cnn, err_num)
+function ServiceListenModule:cnn_on_close(cnn, error_num)
     -- should override by subclass
 end
 

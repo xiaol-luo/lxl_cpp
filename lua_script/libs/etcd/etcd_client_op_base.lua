@@ -36,11 +36,11 @@ function EtcdClientOpBase:concat_values(keys_tb, kv_format, sep)
 end
 
 function EtcdClientOpBase:_handle_event_cb(ret)
-    op_id, etcd_event, err_num = ret.id, ret.event_type, ret.error_num
-    if 0 ~= err_num then
+    op_id, etcd_event, error_num = ret.id, ret.event_type, ret.error_num
+    if 0 ~= error_num then
         local ret = EtcdClientResult:new()
         ret.fail_event = etcd_event
-        ret.fail_code = err_num
+        ret.fail_code = error_num
         if self.cb_fn then
             self.cb_fn(op_id, self, ret)
         end

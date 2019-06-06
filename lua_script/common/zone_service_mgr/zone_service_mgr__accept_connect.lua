@@ -8,9 +8,9 @@ function ZoneServiceMgr:make_accept_cnn()
     return cnn
 end
 
-function ZoneServiceMgr:_accept_cnn_handler_on_open(cnn_handler, err_num)
-    -- log_debug("ZoneServiceMgr:_accept_cnn_handler_on_open netid:%s err_num:%s", cnn_handler:netid(), err_num)
-    if 0 == err_num then
+function ZoneServiceMgr:_accept_cnn_handler_on_open(cnn_handler, error_num)
+    -- log_debug("ZoneServiceMgr:_accept_cnn_handler_on_open netid:%s error_num:%s", cnn_handler:netid(), error_num)
+    if 0 == error_num then
         local st = {}
         st.cnn = cnn_handler
         st.ping_ms = 0
@@ -21,10 +21,10 @@ function ZoneServiceMgr:_accept_cnn_handler_on_open(cnn_handler, err_num)
     end
 end
 
-function ZoneServiceMgr:_accept_cnn_handler_on_close(cnn_handler, err_num)
+function ZoneServiceMgr:_accept_cnn_handler_on_close(cnn_handler, error_num)
     local st = self.accept_cnn_states[cnn_handler:netid()]
-    log_debug("ZoneServiceMgr: accepted peer service is closed. service:%s, netid:%s, err_num:%s",
-            st and st.peer_service_name or "unknown", cnn_handler:netid(), err_num)
+    log_debug("ZoneServiceMgr: accepted peer service is closed. service:%s, netid:%s, error_num:%s",
+            st and st.peer_service_name or "unknown", cnn_handler:netid(), error_num)
     self.accept_cnn_states[cnn_handler:netid()] = nil
 end
 

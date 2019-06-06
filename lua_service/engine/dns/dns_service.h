@@ -7,7 +7,7 @@
 #include <functional>
 #include <vector>
 
-using DnsQueryIpCallback = std::function<void(int /*err_num*/, std::string /*host*/, std::vector<std::string>& /*ips*/)>;
+using DnsQueryIpCallback = std::function<void(int /*error_num*/, std::string /*host*/, std::vector<std::string>& /*ips*/)>;
 
 class DnsService
 {
@@ -33,7 +33,7 @@ private:
 
 		std::string host_;
 		DnsQueryIpCallback cb_ = nullptr;
-		int err_num_ = 0;
+		int error_num_ = 0;
 		std::vector<std::string > ips_;
 	};
 	const static int TASK_MGR_THEAD_NUM = 2;

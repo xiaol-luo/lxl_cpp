@@ -20,15 +20,15 @@ HttpRspCnn::~HttpRspCnn()
 	mempool_free(m_parser_setting); m_parser_setting = nullptr;
 }
 
-void HttpRspCnn::OnClose(int err_num)
+void HttpRspCnn::OnClose(int error_num)
 {
 	if (nullptr != m_process_event_fn)
 	{
-		m_process_event_fn(this, eActionType_Close, err_num);
+		m_process_event_fn(this, eActionType_Close, error_num);
 	}
-	if (0 != err_num && Net::ERROR_PEER_CLOSED != err_num)
+	if (0 != error_num && Net::ERROR_PEER_CLOSED != error_num)
 	{
-		log_error("HttpRspCnn::OnClose {} {}", m_netid, err_num);
+		log_error("HttpRspCnn::OnClose {} {}", m_netid, error_num);
 	}
 	auto ap_cnn_map = m_cnn_map.lock();
 	if (ap_cnn_map)
@@ -37,15 +37,15 @@ void HttpRspCnn::OnClose(int err_num)
 	}
 }
 
-void HttpRspCnn::OnOpen(int err_num)
+void HttpRspCnn::OnOpen(int error_num)
 {
 	if (nullptr != m_process_event_fn)
 	{
-		m_process_event_fn(this, eActionType_Open, err_num);
+		m_process_event_fn(this, eActionType_Open, error_num);
 	}
-	if (0 != err_num)
+	if (0 != error_num)
 	{
-		log_error("HttpRspCnn::OnClose {} {}", m_netid, err_num);
+		log_error("HttpRspCnn::OnClose {} {}", m_netid, error_num);
 	}
 	else
 	{

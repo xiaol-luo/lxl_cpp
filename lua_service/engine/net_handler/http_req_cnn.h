@@ -40,14 +40,14 @@ public:
 	};
 	using FnProcessEvent = std::function<void(
 		HttpReqCnn * /*self*/,
-		eEventType /*err_type*/,
-		int /*err_num*/
+		eEventType /*error_type*/,
+		int /*error_num*/
 		)>;
 public:
 	HttpReqCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>> cnn_map);
 	virtual ~HttpReqCnn();
-	virtual void OnClose(int err_num) override;
-	virtual void OnOpen(int err_num) override;
+	virtual void OnClose(int error_num) override;
+	virtual void OnOpen(int error_num) override;
 	virtual void OnRecvData(char *data, uint32_t len) override;
 	bool SetReqData(Method method, const std::string &url, const std::unordered_map<std::string, std::string> *heads, const std::string *content);
 	void SetRspCbFn(FnProcessRsp fn) { m_process_rsp_fn = fn; }

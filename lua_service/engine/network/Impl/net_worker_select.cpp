@@ -22,16 +22,16 @@ static int GetLastError()
 }
 #endif
 
-static bool IsFdUnready(int err_num)
+static bool IsFdUnready(int error_num)
 {
 	bool ret = false;
 #ifndef WIN32
-	if (EWOULDBLOCK == err_num || EAGAIN == err_num)
+	if (EWOULDBLOCK == error_num || EAGAIN == error_num)
 	{
 		ret = true;
 	}
 #else
-	if (WSAEWOULDBLOCK == err_num)
+	if (WSAEWOULDBLOCK == error_num)
 	{
 		ret = true;
 	}
@@ -171,7 +171,7 @@ namespace Net
 	{
 		const int MS_PER_LOOP = 25;
 		int max_fd = -1;
-		fd_set read_set, write_set, err_set;
+		fd_set read_set, write_set, error_set;
 		timeval timeout_tv;
 
 		int loop_times = 0;
@@ -183,7 +183,7 @@ namespace Net
 				max_fd = -1;
 				FD_ZERO(&read_set);
 				FD_ZERO(&write_set);
-				FD_ZERO(&err_set);
+				FD_ZERO(&error_set);
 
 				// ÉèÖÃfd_set
 				if (!this->m_id2nodes.empty())
@@ -195,7 +195,7 @@ namespace Net
 							continue;
 
 						FD_SET(node->fd, &read_set);
-						FD_SET(node->fd, &err_set);
+						FD_SET(node->fd, &error_set);
 						if (!node->send_buffs.empty())
 						{
 							FD_SET(node->fd, &write_set);
@@ -385,7 +385,7 @@ namespace Net
 		{
 			NetBuffer *buff = new NetBuffer(64, 64, nullptr, nullptr, nullptr);
 			int read_len = 0;
-			int err_num = 0;
+			int error_num = 0;
 			bool close_fd = false;
 			while (true)
 			{
@@ -401,13 +401,13 @@ namespace Net
 				if (0 == read_len)
 				{
 					close_fd = true;
-					err_num = Net::ERROR_PEER_CLOSED;
+					error_num = Net::ERROR_PEER_CLOSED;
 					break;
 				}
 				if (read_len < 0)
 				{
-					err_num = GetLastError();
-					if (!IsFdUnready(err_num))
+					error_num = GetLastError();
+					if (!IsFdUnready(error_num))
 					{
 						close_fd = true;
 					}
@@ -431,13 +431,13 @@ namespace Net
 			}
 			if (close_fd)
 			{
-				HandleNetError(fd, err_num);
+				HandleNetError(fd, error_num);
 			}
 		}
 		if (ENetworkHandler_Listen == node->handler_type)
 		{
 			int new_fd = accept(fd, nullptr, nullptr);
-			int err_no = GetLastError();
+			int error_no = GetLastError();
 			if (new_fd >= 0)
 			{
 				this->AddNetworkData(new NetworkData(
@@ -460,7 +460,7 @@ namespace Net
 
 		if (ENetworkHandler_Connect == node->handler_type)
 		{
-			int err_num = 0;
+			int error_num = 0;
 			bool close_fd = false;
 			while (!node->send_buffs.empty())
 			{
@@ -477,13 +477,13 @@ namespace Net
 					if (0 == write_len)
 					{
 						close_fd = true;
-						err_num = Net::ERROR_WRITE_CLOSED_SOCKET;
+						error_num = Net::ERROR_WRITE_CLOSED_SOCKET;
 						break;
 					}
 					if (write_len < 0)
 					{
-						err_num = GetLastError();
-						if (!IsFdUnready(err_num))
+						error_num = GetLastError();
+						if (!IsFdUnready(error_num))
 						{
 							close_fd = true;
 							break;
@@ -498,12 +498,12 @@ namespace Net
 			}
 			if (close_fd)
 			{
-				HandleNetError(fd, err_num);
+				HandleNetError(fd, error_num);
 			}
 		}
 	}
 
-	void NetWorkerSelect::HandleNetError(int fd, int err_num)
+	void NetWorkerSelect::HandleNetError(int fd, int error_num)
 	{
 		Node *node = this->GetNodeByFd(fd);
 		if (nullptr == node)
@@ -518,7 +518,7 @@ namespace Net
 			node->fd,
 			node->handler,
 			ENetWorkDataAction_Close,
-			err_num, 0, nullptr
+			error_num, 0, nullptr
 		));
 		Node::DestroyNode(node); node = nullptr;
 	}

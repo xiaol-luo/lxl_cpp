@@ -48,7 +48,7 @@ function ManageRoleLogic:get_role_digest(rpc_rsp, user_id, role_id)
     end
     self.db_client:find_many(1, self.query_db, self.query_coll, filter, function(db_ret)
         log_debug("get_role_digest db_ret %s", db_ret)
-        if 0 == db_ret.err_num then
+        if 0 == db_ret.error_num then
             local ret = {}
             for _, v in pairs(db_ret.val) do
                 table.insert(ret, { role_id=v.role_id })
@@ -56,7 +56,7 @@ function ManageRoleLogic:get_role_digest(rpc_rsp, user_id, role_id)
             rpc_rsp:respone(ret)
             return
         end
-        rpc_rsp:report_error(string.format("error_num:%s, error_msg:%s", db_ret.err_num, db_ret.err_msg))
+        rpc_rsp:report_error(string.format("error_num:%s, error_msg:%s", db_ret.error_num, db_ret.error_msg))
     end, find_opt)
 end
 
@@ -74,13 +74,13 @@ function ManageRoleLogic:create_role(rpc_rsp, user_id)
     filter.user_id = user_id
     self.db_client:count_document(1, self.query_db, self.query_coll, filter, function(db_ret)
         local Max_Role_Count = 3
-        if 0 == db_ret.err_num and db_ret.matched_count < Max_Role_Count then
+        if 0 == db_ret.error_num and db_ret.matched_count < Max_Role_Count then
             self.db_client:insert_one(1, self.query_db, self.query_coll, doc, function(db_ret)
                 log_debug("create role db_ret %s", db_ret)
-                if 0 == db_ret.err_num then
+                if 0 == db_ret.error_num then
                     rpc_rsp:respone(doc.role_id)
                 else
-                    rpc_rsp:report_error(string.format("error_num:%s, error_msg:%s", db_ret.err_num, db_ret.err_msg))
+                    rpc_rsp:report_error(string.format("error_num:%s, error_msg:%s", db_ret.error_num, db_ret.error_msg))
                 end
             end)
         else

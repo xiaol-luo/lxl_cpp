@@ -52,16 +52,16 @@ public:
 	void SetId(uint64_t id) { m_id = id; }
 	uint64_t GetId() { return m_id; }
 	eMongoTaskState GetState() { return m_state; }
-	int GetErrNum() { return m_err_num; }
-	const std::string & GetErrMsg() { return m_err_msg; }
+	int GetErrNum() { return m_error_num; }
+	const std::string & GetErrMsg() { return m_error_msg; }
 	eMongoTask GetTaskType() { return m_task_type; }
 	const MongoReuslt & GetResult() { return m_result; }
 
 protected:
 	eMongoTaskState m_state = eMongoTaskState_Count;
 	uint64_t m_id = 0;
-	int m_err_num = 0;
-	std::string m_err_msg;
+	int m_error_num = 0;
+	std::string m_error_msg;
 	eMongoTask m_task_type = eMongoTask_Count;
 	std::string m_db_name;
 	std::string m_coll_name;

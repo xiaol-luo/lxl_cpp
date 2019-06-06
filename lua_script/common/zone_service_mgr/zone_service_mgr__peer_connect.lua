@@ -119,8 +119,8 @@ function ZoneServiceMgr:make_peer_cnn(peer_cnn_seq)
     return cnn
 end
 
-function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err_num)
-    -- log_debug("ZoneServiceMgr:_peer_cnn_handler_on_open peer_cnn_seq:%s, netid:%s err_num:%s", peer_cnn_seq, cnn_handler:netid(), err_num)
+function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, error_num)
+    -- log_debug("ZoneServiceMgr:_peer_cnn_handler_on_open peer_cnn_seq:%s, netid:%s error_num:%s", peer_cnn_seq, cnn_handler:netid(), error_num)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
@@ -128,7 +128,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
             break
         end
     end
-    if 0 == err_num then
+    if 0 == error_num then
         if not st or not st.net then
             Net.close(cnn_handler:netid())
         else
@@ -144,7 +144,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
     end
 end
 
-function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, err_num)
+function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, error_num)
     local st = nil
     for k, v in pairs(self.service_state_list) do
         if v.net and v.net.peer_cnn_seq == peer_cnn_seq  then
@@ -155,8 +155,8 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
     if st then
         st.net = nil
     end
-    log_debug("ZoneServiceMgr: connected peer service is closed. service:%s, netid:%s, err_num:%s",
-            st and st.st:get_service() or "unknown", cnn_handler:netid(), err_num)
+    log_debug("ZoneServiceMgr: connected peer service is closed. service:%s, netid:%s, error_num:%s",
+            st and st.st:get_service() or "unknown", cnn_handler:netid(), error_num)
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid, bin)

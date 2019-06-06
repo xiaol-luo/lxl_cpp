@@ -20,7 +20,7 @@ void CommonConnecter::SetCb(CommonCnnCallback & cb)
 	m_cb = cb;
 }
 
-void CommonConnecter::OnClose(int err_num)
+void CommonConnecter::OnClose(int error_num)
 {
 	auto sp_cnn_map = m_cnn_map.lock();
 	if (nullptr != sp_cnn_map)
@@ -29,13 +29,13 @@ void CommonConnecter::OnClose(int err_num)
 	}
 	if (nullptr != m_cb.on_close)
 	{
-		m_cb.on_close(this, err_num);
+		m_cb.on_close(this, error_num);
 	}
 }
 
-void CommonConnecter::OnOpen(int err_num)
+void CommonConnecter::OnOpen(int error_num)
 {
-	if (0 == err_num)
+	if (0 == error_num)
 	{
 		auto sp_cnn_map = m_cnn_map.lock();
 		if (nullptr != sp_cnn_map)
@@ -45,7 +45,7 @@ void CommonConnecter::OnOpen(int err_num)
 	}
 	if (nullptr != m_cb.on_open)
 	{
-		m_cb.on_open(this, err_num);
+		m_cb.on_open(this, error_num);
 	}
 }
 

@@ -34,12 +34,12 @@ function HttpService:set_handle_fn(method_name, handle_fn)
     end
 end
 
-function HttpService:on_listener_open(net_listen, err_num)
-    log_debug("HttpService:on_listener_open err_num:%s", err_num)
+function HttpService:on_listener_open(net_listen, error_num)
+    log_debug("HttpService:on_listener_open error_num:%s", error_num)
 end
 
-function HttpService:on_listener_close(net_listen, err_num)
-    log_debug("HttpService:on_listener_close err_num:%s", err_num)
+function HttpService:on_listener_close(net_listen, error_num)
+    log_debug("HttpService:on_listener_close error_num:%s", error_num)
 end
 
 function HttpService:do_gen_cnn_handler(net_listen)
@@ -88,7 +88,7 @@ function HttpService:handle_req(cnn, method, req_url, kv_params, body)
     return true
 end
 
-function HttpService:handle_event(cnn, act, err_num)
+function HttpService:handle_event(cnn, act, error_num)
 
 end
 

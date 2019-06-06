@@ -94,9 +94,9 @@ void MongoTask::Process(mongocxx::client & client)
 	}
 	catch (mongocxx::exception & ex)
 	{
-		m_err_num = ex.code().value();
-		m_err_msg = ex.what();
-		log_error("MongoTask::Process fail task_type:{}, task_id:{}, db:{}, coll:{} err_num:{}, err_msg:{}", m_task_type, m_id, m_db_name, m_coll_name, m_err_num, m_err_msg);
+		m_error_num = ex.code().value();
+		m_error_msg = ex.what();
+		log_error("MongoTask::Process fail task_type:{}, task_id:{}, db:{}, coll:{} error_num:{}, error_msg:{}", m_task_type, m_id, m_db_name, m_coll_name, m_error_num, m_error_msg);
 	}	
 	m_state = eMongoTaskState_Done;
 }

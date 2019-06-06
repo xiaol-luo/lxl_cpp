@@ -145,7 +145,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         if not co_ok then
             return ERROR_COROUTINE_RAISE_ERROR
         end
-        if 0 ~= db_ret.err_num then
+        if 0 ~= db_ret.error_num then
             return ERROR_DB_ERROR
         end
         log_debug("co_find_one account_id:%s db_ret: %s", account_id, db_ret)
@@ -160,7 +160,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             if not co_ok then
                 return ERROR_COROUTINE_RAISE_ERROR
             end
-            if 0 ~= db_ret.err_num or db_ret.inserted_count <= 0 then
+            if 0 ~= db_ret.error_num or db_ret.inserted_count <= 0 then
                 return ERROR_DB_ERROR
             end
         else

@@ -31,17 +31,17 @@ struct NetworkData
 		int _fd, 
 		std::weak_ptr<INetworkHandler> _handle,
 		ENetWorkDataAction _action, 
-		int _err_num, 
+		int _error_num, 
 		int _new_fd, 
 		NetBuffer *_binary) 
-		: handler_type(_handler_type), netid(_netid), fd(_fd), handler(_handle), action(_action), err_num(_err_num),
+		: handler_type(_handler_type), netid(_netid), fd(_fd), handler(_handle), action(_action), error_num(_error_num),
 		new_fd(_new_fd), binary(_binary) {}
 	ENetworkHandlerType handler_type = ENetworkHandlerType_Max;
 	NetId netid = 0;
 	int fd = -1;
 	std::weak_ptr<INetworkHandler> handler;
 	ENetWorkDataAction action = ENetWorkDataAction_Max;
-	int err_num = 0;
+	int error_num = 0;
 	int new_fd = -1;
 	NetBuffer *binary = nullptr;
 };

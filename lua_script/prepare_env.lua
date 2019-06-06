@@ -59,9 +59,9 @@ function ParseArgs.setup_parse_fns(opt_fn_map, ret_fns)
     return ret_fns
 end
 
-function ParseArgs.error_handler(err_msg)
-    err_msg = debug.traceback(err_msg)
-    log_error(err_msg)
+function ParseArgs.error_handler(error_msg)
+    error_msg = debug.traceback(error_msg)
+    log_error(error_msg)
 end
 
 function ParseArgs.make_closure(fn, opt)

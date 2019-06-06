@@ -24,8 +24,8 @@ namespace Net
 	struct NetTaskResult
 	{
 		ENetTaskType task_type = ENetTaskType_Max;
-		int err_num = 0;
-		std::string err_msg;
+		int error_num = 0;
+		std::string error_msg;
 		long long id = 0;
 		int fd = -1;
 		std::string ip;

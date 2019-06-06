@@ -47,7 +47,7 @@ protected:
 	{
 		eHttpAction_DnsQuery = HttpReqCnn::eActionType_Count + 100
 	};
-	void HandleHttpAction(HttpReqCnn *cnn, int action_type, int err_num);
+	void HandleHttpAction(HttpReqCnn *cnn, int action_type, int error_num);
 
-	void DoDnsQuery(std::shared_ptr<HttpReqCnn> cnn, int err_num, std::string host, std::vector<std::string>& ips);
+	void DoDnsQuery(std::shared_ptr<HttpReqCnn> cnn, int error_num, std::string host, std::vector<std::string>& ips);
 };

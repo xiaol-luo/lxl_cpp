@@ -249,25 +249,25 @@ NetId NetworkModule::Listen(std::string ip, uint16_t port, void *opt, std::weak_
 	Net::NetTaskListen task(0, ip, port, opt);
 	task.Process();
 	const Net::NetTaskResult &ret = task.GetResult();
-	int err_num = ret.err_num;
-	std::string err_msg = ret.err_msg;
-	if (0 == err_num)
+	int error_num = ret.error_num;
+	std::string error_msg = ret.error_msg;
+	if (0 == error_num)
 	{
 		netid = this->GenNetId();
 		if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, sp_handler))
 		{
-			err_num = 1;
+			error_num = 1;
 			if (ret.fd >= 0)
 				close(ret.fd);
-			err_msg = "NetWorker::Add fail";
+			error_msg = "NetWorker::Add fail";
 		}
 	}
 
-	sp_handler->OnOpen(err_num);
-	if (0 != err_num)
+	sp_handler->OnOpen(error_num);
+	if (0 != error_num)
 	{
 		netid = 0;
-		MODULE_LOG_MGR->Error("NetworkModule::Listen {0}:{1} fail, errno {2}", ip, port, err_num);
+		MODULE_LOG_MGR->Error("NetworkModule::Listen {0}:{1} fail, errno {2}", ip, port, error_num);
 	}
 	return netid;
 }
@@ -281,27 +281,27 @@ NetId NetworkModule::Connect(std::string ip, uint16_t port, void *opt, std::weak
 	Net::NetTaskConnect task(0, ip, port, opt);
 	task.Process();
 	const Net::NetTaskResult &ret = task.GetResult();
-	int err_num = ret.err_num;
-	std::string err_msg = ret.err_msg;
-	if (0 == err_num)
+	int error_num = ret.error_num;
+	std::string error_msg = ret.error_msg;
+	if (0 == error_num)
 	{
 		netid = this->GenNetId();
 		if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, sp_handler))
 		{
-			err_num = 1;
+			error_num = 1;
 			if (ret.fd >= 0)
 			{
 				close(ret.fd);
 			}
-			err_msg = "NetWorker::Add fail";
+			error_msg = "NetWorker::Add fail";
 		}
 	}
 
-	sp_handler->OnOpen(err_num);
-	if (0 != err_num)
+	sp_handler->OnOpen(error_num);
+	if (0 != error_num)
 	{
 		netid = 0;
-		MODULE_LOG_MGR->Error("NetworkModule::Connect {0}:{1} fail, errno {2}", ip, port, err_num);
+		MODULE_LOG_MGR->Error("NetworkModule::Connect {0}:{1} fail, errno {2}", ip, port, error_num);
 	}
 	return netid;
 }
@@ -392,19 +392,19 @@ void NetworkModule::ProcessNetTaskResult()
 		else
 		{
 			std::shared_ptr<INetworkHandler> handler = it->second.lock();
-			int err_num = ret.err_num;
-			std::string err_msg = ret.err_msg;
-			if (0 == err_num)
+			int error_num = ret.error_num;
+			std::string error_msg = ret.error_msg;
+			if (0 == error_num)
 			{
 				NetId netid = this->GenNetId();
 				if (!ChoseWorker(netid)->AddCnn(netid, ret.fd, handler))
 				{
-					err_num = 1;
-					err_msg = "NetWorker::Add fail";
+					error_num = 1;
+					error_msg = "NetWorker::Add fail";
 				}
 			}
-			handler->OnOpen(err_num);
-			if (0 != err_num)
+			handler->OnOpen(error_num);
+			if (0 != error_num)
 			{
 				std::string task_action = "connect";
 				if (Net::ENetTask_Listen == ret.task_type)
@@ -412,7 +412,7 @@ void NetworkModule::ProcessNetTaskResult()
 					task_action == "listen";
 				}
 				MODULE_LOG_MGR->Error("NetworkModule::NetTask fail, can not {0} {1}:{2} , errno:{3}, error_msg:{4}", 
-					 task_action, ret.ip.c_str(), ret.port, ret.err_num, ret.err_msg); 
+					 task_action, ret.ip.c_str(), ret.port, ret.error_num, ret.error_msg); 
 			}
 		}
 		m_async_network_handlers.erase(ret.id);
@@ -451,7 +451,7 @@ void NetworkModule::ProcessNetDatas()
 						std::shared_ptr<INetConnectHandler> tmp_handler = std::dynamic_pointer_cast<INetConnectHandler>(handler);
 						if (ENetWorkDataAction_Close == data->action)
 						{
-							tmp_handler->OnClose(data->err_num);
+							tmp_handler->OnClose(data->error_num);
 						}
 						if (ENetWorkDataAction_Read == data->action)
 						{
@@ -463,22 +463,22 @@ void NetworkModule::ProcessNetDatas()
 						std::shared_ptr<INetListenHandler> tmp_handler = std::dynamic_pointer_cast<INetListenHandler>(handler);
 						if (ENetWorkDataAction_Close == data->action)
 						{
-							tmp_handler->OnClose(data->err_num);
+							tmp_handler->OnClose(data->error_num);
 						}
 						if (ENetWorkDataAction_Read == data->action)
 						{
 							std::shared_ptr<INetConnectHandler> new_handler = tmp_handler->GenConnectorHandler();
 							NetId netid = this->GenNetId();
-							int err_num = 0;
+							int error_num = 0;
 							if (nullptr == new_handler || !ChoseWorker(netid)->AddCnn(netid, data->new_fd, new_handler))
 							{
-								err_num = Net::ERROR_NET_HANDLER_EXPIRED;
+								error_num = Net::ERROR_NET_HANDLER_EXPIRED;
 							}
 							if (nullptr != new_handler)
 							{
-								new_handler->OnOpen(err_num);
+								new_handler->OnOpen(error_num);
 							}
-							if (0 != err_num)
+							if (0 != error_num)
 							{
 								if (data->new_fd >= 0)
 								{
