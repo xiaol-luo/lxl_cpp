@@ -87,7 +87,7 @@ function LoginAction:robot_main_logic(co)
 
     local login_params = {
         appid="for_test",
-        username = "lxl4",
+        username = "lxl8",
         pwd = "pwd",
     }
     local login_param_strs = {}

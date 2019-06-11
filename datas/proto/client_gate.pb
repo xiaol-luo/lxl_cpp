@@ -2,7 +2,7 @@ syntax="proto3"
 
 message ReqUserLogin
 {
-	string user_id = 1;
+	int64 user_id = 1;
     string app_id = 2;
     string auth_sn = 3;
 	string auth_ip = 4;
@@ -16,12 +16,12 @@ message RspUserLogin
 
 message RoleDigest
 {
-    string role_id = 1;
+    int64 role_id = 1;
 }
 
 message ReqPullRoleDigest
 {
-    string role_id = 1; // empty means pull all
+    int64 role_id = 1; // empty means pull all
 }
 
 message RspPullRoleDigest
@@ -38,12 +38,12 @@ message ReqCreateRole
 message RspCreateRole
 {
     int32 error_num = 1;
-	string role_id = 2;
+	int64 role_id = 2;
 }
 
 message ReqLaunchRole
 {
-    string role_id = 1;
+    int64 role_id = 1;
 }
 
 message RspLaunchRole

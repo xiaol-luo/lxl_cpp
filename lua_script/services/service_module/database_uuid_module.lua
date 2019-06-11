@@ -77,10 +77,6 @@ end
 
 function DatabaseUuidModule:on_update()
     self.db_client:on_tick()
-    for k, _ in pairs(self.uuid_names) do
-        local v = self:apply(k)
-        log_debug("DatabaseUuidModule:on_update %s %s", k, v)
-    end
 end
 
 function DatabaseUuidModule:cancel_check_start_success()
@@ -115,32 +111,6 @@ function DatabaseUuidModule:check_start_success(begin_sec)
         self:cancel_check_start_success()
     end
 end
---[[
-function DatabaseUuidModule:_check_insert_uuid_to_database(name)
-    local filter = { name=name }
-    self.db_client:find_one(1, self.query_db, self.query_coll, filter, function(db_ret)
-        if ServiceModuleState.Starting ~= self.curr_state then
-            return
-        end
-        if 0 ~= db_ret.error_num then
-            self.error_num = db_ret.error_num
-            self.error_msg = db_ret.error_msg
-        else
-            if db_ret.matched_count > 0 then
-                local doc = {
-                    name = name,
-                    last_id = 0,
-                }
-                self.db_client:insert_one(1, self.query_db, self.query_coll, doc, function (db_ret)
-                    self:_apply_uuids_from_database(name, 50)
-                end)
-            else
-                self:_apply_uuids_from_database(name, 50)
-            end
-        end
-    end)
-end
---]]
 
 function DatabaseUuidModule:_apply_uuids_from_database(name, apply_num)
     if apply_num <= 0 then
@@ -166,6 +136,12 @@ function DatabaseUuidModule:_apply_uuids_from_database(name, apply_num)
 end
 
 function DatabaseUuidModule:_apply_uuids_from_database_cb(name, apply_num, db_ret)
+    if 0 ~= db_ret.error_num then
+        log_error("DatabaseUuidModule:_apply_uuids_from_database_cb fail error_num:%s, error_msg:%s",
+            db_ret.error_num, db_ret.error_msg)
+        self:_apply_uuids_from_database(name, apply_num)
+        return
+    end
     local uuid_pool = self.uuid_pools[name]
     if uuid_pool then
         uuid_pool.querying = false
@@ -176,7 +152,6 @@ function DatabaseUuidModule:_apply_uuids_from_database_cb(name, apply_num, db_re
     for i=from_id, to_id do
         self:revert(name, i)
     end
-    log_debug("DatabaseUuidModule:_apply_uuids_from_database_cb %s %s %s %s", name, apply_num, db_ret, uuid_pool)
 end
 
 function DatabaseUuidModule:apply(name)

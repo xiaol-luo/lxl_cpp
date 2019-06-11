@@ -13,10 +13,12 @@ function WorldService:ctor()
     WorldService.super.ctor(self)
     self.db_client = nil
     self.query_db = nil
+    self.db_uuid = nil
 end
 
 function WorldService:setup_modules()
-    WorldService.super.setup_modules(self)
+    self:_init_db_uuid()
     self:_init_db_client()
+    WorldService.super.setup_modules(self)
 end
 

@@ -91,6 +91,7 @@
 			<port>33000</port>
 			<mongo_service>for_test</mongo_service>
 			<db_name>game_zone_0</db_name>
+			<uuid_mongo_service>for_uuid</uuid_mongo_service>
 		</element>
 	</world>
 	

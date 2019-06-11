@@ -43,7 +43,7 @@ function ManageRoleLogic:get_role_digest(rpc_rsp, user_id, role_id)
     find_opt:set_max_time(5 * 1000)
     local filter = {}
     filter.user_id = user_id
-    if #role_id > 0 then
+    if role_id > 0 then
         filter.role_id = role_id
     end
     self.db_client:find_many(1, self.query_db, self.query_coll, filter, function(db_ret)
@@ -66,9 +66,14 @@ function ManageRoleLogic:create_role(rpc_rsp, user_id)
         rpc_rsp:report_error("user_id is nil")
         return
     end
+    local role_id = self.service.db_uuid:apply(Service_Const.role_id)
+    if not role_id then
+        rpc_rsp:report_error("apply role id fail")
+        return
+    end
     local doc ={
         user_id = user_id,
-        role_id = native.gen_uuid(),
+        role_id = role_id,
     }
     local filter = {}
     filter.user_id = user_id

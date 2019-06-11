@@ -56,7 +56,7 @@ function LoginGameMgr:CheckQueryGateStates()
         for _, gate_info in pairs(gate_infos) do
             local gk = gate_info.key
             self.service.rpc_mgr:call(function(error_num, ret)
-                log_debug("CheckQueryGateStates %s %s %s", gk, error_num, ret)
+                -- log_debug("CheckQueryGateStates %s %s %s", gk, error_num, ret)
                 if Rpc_Error.None ~= error_num then
                     self.gate_states[gk] = nil
                 else
@@ -83,6 +83,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
     local ERROR_COROUTINE_RAISE_ERROR = 4
     local ERROR_DB_ERROR = 5
     local ERROR_NO_GATE_AVAILABLE = 6
+    local ERROR_APPLY_USER_ID_FAIL = 7
 
     local login_item = self.login_items[netid]
     if not login_item then
@@ -151,7 +152,10 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         log_debug("co_find_one account_id:%s db_ret: %s", account_id, db_ret)
         local user_id = nil
         if db_ret.matched_count <= 0 then
-            user_id = native.gen_uuid()
+            user_id = self.service.db_uuid:apply(Service_Const.user_id)
+            if not user_id then
+                return ERROR_APPLY_USER_ID_FAIL
+            end
             -- 数据库里需要对account_id设置唯一限制
             co_ok, db_ret = db_client:co_insert_one(1, query_db, "account",
                     { account_id=account_id, user_id=user_id }
