@@ -29,6 +29,16 @@
 			<user>lxl</user>
 			<pwd>xiaolzz</pwd>
 		</element>
+		<element>
+			<name>for_uuid</name>
+			<!-- <host>119.28.224.75:27017</host> -->
+			<host>127.0.0.1:27017</host>
+			<auth_db>admin</auth_db>
+			<user>lxl</user>
+			<pwd>xiaolzz</pwd>
+			<db_name>global_uuid</db_name>
+			<coll_name>uuids</coll_name>
+		</element>
 	</mongo_service>
 
 	<etcd_service>
@@ -54,6 +64,7 @@
 			<mongo_service>for_test</mongo_service>
 			<db_name>login_zone_0</db_name>
 			<client_port>31001</client_port>
+			<uuid_mongo_service>for_uuid</uuid_mongo_service>
 		</element>
 	</login>
 

@@ -76,6 +76,7 @@ local files = {
     "services.service_module.zone_net_module",
     "services.service_module.http_net_module",
     "services.service_module.mongo_client_module",
+    "services.service_module.database_uuid_module",
     "services.service_module.service_logic_mgr.service_logic_def",
     "services.service_module.service_logic_mgr.service_logic_mgr",
     "services.service_module.service_logic_mgr.service_logic",

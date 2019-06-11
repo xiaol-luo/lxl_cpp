@@ -1,6 +1,16 @@
 
 DatabaseUuidModule = DatabaseUuidModule or class("DatabaseUuidModule", ServiceModule)
 
+local _Const = {
+    name = "name",
+    last_id = "last_id",
+}
+
+local _ErrorNum = {
+    Start_Db_Client_Fail = 1,
+    Wait_Too_Long_To_Start = 2,
+}
+
 function DatabaseUuidModule:ctor(module_mgr, module_name)
     DatabaseUuidModule.super.ctor(self, module_mgr, module_name)
     self.hosts = nil
@@ -13,6 +23,9 @@ function DatabaseUuidModule:ctor(module_mgr, module_name)
     self.uuid_pools = nil -- { applying_database=false, }
     self.db_client = nil
     self.Thread_Num = 3
+    self.Wait_Start_Max_Second = 30
+    self.Hold_Uuid_Min_Count = 20
+    self.Apply_Uuid_Count_From_Database = 60
     self.timer_proxy = nil
     self.check_start_success_tid = nil
 end
@@ -35,7 +48,7 @@ function DatabaseUuidModule:init(hosts, auth_db, user_name, pwd, query_db, query
         v.querying = false
         v.ids = {}
         v.ids_count = 0
-        self.uuid_pools[k] = v.ids
+        self.uuid_pools[k] = v
     end
 end
 
@@ -43,14 +56,14 @@ function DatabaseUuidModule:start()
     self.curr_state = ServiceModuleState.Starting
     local ret = self.db_client:start()
     if not ret then
-        self.error_num = 1
+        self.error_num = _ErrorNum.Start_Db_Client_Fail
         self.error_msg = "start fail"
     else
         self.check_start_success_tid = self.timer_proxy:firm(
-                Functional.make_closure(self.check_start_success, self),
+                Functional.make_closure(self.check_start_success, self, logic_sec()),
                 1000, -1)
         for k, _ in pairs(self.uuid_names) do
-            self:_apply_uuids_from_database(k, 100)
+            self:_apply_uuids_from_database(k, self.Apply_Uuid_Count_From_Database)
         end
     end
 end
@@ -59,17 +72,36 @@ function DatabaseUuidModule:stop()
     self.curr_state = ServiceModuleState.Stopped
     self.db_client:stop()
     self.timer_proxy:release_all()
+    self.check_start_success_tid = nil
 end
 
 function DatabaseUuidModule:on_update()
     self.db_client:on_tick()
+    for k, _ in pairs(self.uuid_names) do
+        local v = self:apply(k)
+        log_debug("DatabaseUuidModule:on_update %s %s", k, v)
+    end
 end
 
-function DatabaseUuidModule:check_start_success()
+function DatabaseUuidModule:cancel_check_start_success()
+    if self.check_start_success_tid then
+        self.timer_proxy:remove(self.check_start_success_tid)
+        self.check_start_success_tid = nil
+    end
+end
+
+function DatabaseUuidModule:check_start_success(begin_sec)
+    if logic_sec() - begin_sec >= self.Wait_Start_Max_Second then
+        self:cancel_check_start_success()
+        if ServiceModuleState.Starting == self.curr_state then
+            self.error_num = _ErrorNum.Wait_Too_Long_To_Start
+            self.error_msg = "wait too long to start finish"
+            return
+        end
+    end
     if ServiceModuleState.Starting ~= self.curr_state then
         return
     end
-
     self.db_client:on_tick()
     local is_all_ok = true
     for _, uuid_pool in pairs(self.uuid_pools) do
@@ -80,8 +112,35 @@ function DatabaseUuidModule:check_start_success()
     end
     if is_all_ok then
         self.curr_state = ServiceModuleState.Started
+        self:cancel_check_start_success()
     end
 end
+--[[
+function DatabaseUuidModule:_check_insert_uuid_to_database(name)
+    local filter = { name=name }
+    self.db_client:find_one(1, self.query_db, self.query_coll, filter, function(db_ret)
+        if ServiceModuleState.Starting ~= self.curr_state then
+            return
+        end
+        if 0 ~= db_ret.error_num then
+            self.error_num = db_ret.error_num
+            self.error_msg = db_ret.error_msg
+        else
+            if db_ret.matched_count > 0 then
+                local doc = {
+                    name = name,
+                    last_id = 0,
+                }
+                self.db_client:insert_one(1, self.query_db, self.query_coll, doc, function (db_ret)
+                    self:_apply_uuids_from_database(name, 50)
+                end)
+            else
+                self:_apply_uuids_from_database(name, 50)
+            end
+        end
+    end)
+end
+--]]
 
 function DatabaseUuidModule:_apply_uuids_from_database(name, apply_num)
     if apply_num <= 0 then
@@ -101,19 +160,23 @@ function DatabaseUuidModule:_apply_uuids_from_database(name, apply_num)
     local opt = MongoOptFindOneAndUpdate:new()
     opt:set_upsert(true)
     opt:set_return_after(true)
-    self.db_client:find_one_and_update(1, self.query_db, self.query_coll, filter, {},
-        Functional.make_closure(self._apply_uuids_from_database_cb, self, name), opt)
+    self.db_client:find_one_and_update(1, self.query_db, self.query_coll, filter, doc,
+        Functional.make_closure(self._apply_uuids_from_database_cb, self, name, apply_num), opt)
     uuid_pool.querying = true
 end
 
-function DatabaseUuidModule:_apply_uuids_from_database_cb(name, db_ret)
+function DatabaseUuidModule:_apply_uuids_from_database_cb(name, apply_num, db_ret)
     local uuid_pool = self.uuid_pools[name]
     if uuid_pool then
         uuid_pool.querying = false
     end
-
-    log_debug("DatabaseUuidModule:_apply_uuids_from_database_cb", db_ret)
-    -- TODO:
+    local db_doc = db_ret.val
+    local to_id = db_doc.last_id
+    local from_id = db_doc.last_id - apply_num + 1
+    for i=from_id, to_id do
+        self:revert(name, i)
+    end
+    log_debug("DatabaseUuidModule:_apply_uuids_from_database_cb %s %s %s %s", name, apply_num, db_ret, uuid_pool)
 end
 
 function DatabaseUuidModule:apply(name)
@@ -124,8 +187,8 @@ function DatabaseUuidModule:apply(name)
         if ret then
             uuid_pool.ids[ret] = nil
             uuid_pool.ids_count = uuid_pool.ids_count - 1
-            if uuid_pool.ids_count < 20 then
-                self:_apply_uuids_from_database(uuid_pool.name, 100)
+            if uuid_pool.ids_count <= self.Hold_Uuid_Min_Count then
+                self:_apply_uuids_from_database(uuid_pool.name, self.Apply_Uuid_Count_From_Database)
             end
         end
     end
@@ -136,7 +199,7 @@ function DatabaseUuidModule:revert(name, uuid)
     local uuid_pool = self.uuid_pools[name]
     if uuid_pool then
         if not uuid_pool.ids[uuid] then
-            uuid_pool.ids[uuid] = uuid
+            uuid_pool.ids[uuid] = true
             uuid_pool.ids_count = uuid_pool.ids_count + 1
         end
     end

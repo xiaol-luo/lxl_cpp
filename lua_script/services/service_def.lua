@@ -42,6 +42,9 @@ Service_Const =
     Client_Port = "client_port",
     Client_Ip = "client_ip",
     For_Test = "for_test",
+    uuid_mongo_service = "uuid_mongo_service",
+    coll_name = "coll_name",
+    user_id = "user_id",
 }
 
 MAIN_ARGS_SERVICE = "service"
