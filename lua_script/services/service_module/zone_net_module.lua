@@ -55,21 +55,22 @@ function ZoneNetModule:start()
     self.zone_net:start()
     local start_sec = logic_sec()
     self.timer_proxy:firm(function()
-        if logic_sec() - start_sec >= self.Wait_Start_Max_Sec then
+        if ServiceModuleState.Starting ~= self.curr_state and ServiceModuleState.Started ~= self.curr_state then
             self:_cancel_check_zone_net_ready()
-            if ServiceModuleState.Starting == self.curr_state then
+            return
+        end
+        self.zone_net:on_frame()
+        if self.zone_net:is_ready() then
+            self:_cancel_check_zone_net_ready()
+            self.curr_state = ServiceModuleState.Started
+        end
+        if ServiceModuleState.Starting == self.curr_state then
+            if logic_sec() - start_sec >= self.Wait_Start_Max_Sec then
+                self:_cancel_check_zone_net_ready()
                 self.error_num =_ErrorNum.Wait_Start_Expired
                 self.error_num = "wait start expired"
                 return
             end
-        end
-        if ServiceModuleState.Starting ~= self.curr_state then
-            self:_cancel_check_zone_net_ready()
-            return
-        end
-        if self.zone_net:is_ready() then
-            self:_cancel_check_zone_net_ready()
-            self.curr_state = ServiceModuleState.Started
         end
     end,1 * 1000, -1)
 end
