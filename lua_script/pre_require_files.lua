@@ -44,6 +44,7 @@ local files = {
     "libs.etcd.etcd_client_result",
     "libs.etcd.etcd_client_cxx",
     "common.date_time",
+    "common.zone_service_mgr.zone_service_mgr_def",
     "common.zone_service_mgr.zone_service_mgr",
     "common.zone_service_mgr.zone_service_state",
     "common.zone_service_mgr.zone_service_mgr__peer_connect",

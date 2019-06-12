@@ -55,18 +55,20 @@ function LoginGameMgr:CheckQueryGateStates()
         local gate_infos = self.service.zone_net:get_service_group(Service_Const.Gate)
         for _, gate_info in pairs(gate_infos) do
             local gk = gate_info.key
-            self.service.rpc_mgr:call(function(error_num, ret)
-                -- log_debug("CheckQueryGateStates %s %s %s", gk, error_num, ret)
-                if Rpc_Error.None ~= error_num then
-                    self.gate_states[gk] = nil
-                else
-                    local gate_state = {
-                        client_connect_ip = ret.client_connect_ip,
-                        client_connect_port = ret.client_connect_port
-                    }
-                    self.gate_states[gk] = gate_state
-                end
-            end, gk, GateRpcFn.query_state)
+            if gk.net_connected then
+                self.service.rpc_mgr:call(function(error_num, ret)
+                    -- log_debug("CheckQueryGateStates %s %s %s", gk, error_num, ret)
+                    if Rpc_Error.None ~= error_num then
+                        self.gate_states[gk] = nil
+                    else
+                        local gate_state = {
+                            client_connect_ip = ret.client_connect_ip,
+                            client_connect_port = ret.client_connect_port
+                        }
+                        self.gate_states[gk] = gate_state
+                    end
+                end, gk, GateRpcFn.query_state)
+            end
         end
     end
 end

@@ -1,0 +1,3 @@
+
+Zone_Service_Mgr_Event_Connected_Service = "Zone_Service_Mgr_Event_Connected_Service"
+Zone_Service_Mgr_Event_Disconnected_Service = "Zone_Service_Mgr_Event_Disconnected_Service"

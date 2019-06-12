@@ -1,4 +1,23 @@
 
+local make_peer_service_query_result = function(node)
+    local ret = {}
+    ret.ip = node.st:get_ip()
+    ret.port = node.st:get_port()
+    ret.host_id = node.st:get_id()
+    ret.key = node.st:get_service()
+    ret.net_connected = false
+    ret.net_cnn_seq = nil
+    ret.net_netid = nil
+    if node.net then
+        ret.net_connected = node.net.connected
+        ret.net_cnn_seq = node.net.peer_cnn_seq
+        if node.net.cnn then
+            ret.net_netid = node.net.cnn:netid()
+        end
+    end
+    return ret
+end
+
 local parse_node = function(node)
     local key = node[EtcdConst.Key]
     local service_state = ZoneServiceState.from_json(node[EtcdConst.Value])
@@ -136,6 +155,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_open(peer_cnn_seq, cnn_handler, err
             st.net.ping_ms = 0
             st.net.pong_ms = native.logic_ms()
             st.net.cnn:send(ZoneServiceMgr.Pid_Introduce_Self, self.etcd_service_key)
+            self.observer_event_proxy:fire(Zone_Service_Mgr_Event_Connected_Service, make_peer_service_query_result(st))
         end
     else
         if st and st.net then
@@ -154,6 +174,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
     end
     if st then
         st.net = nil
+        self.observer_event_proxy:fire(Zone_Service_Mgr_Event_Disconnected_Service, make_peer_service_query_result(st))
     end
     log_debug("ZoneServiceMgr: connected peer service is closed. service:%s, netid:%s, error_num:%s",
             st and st.st:get_service() or "unknown", cnn_handler:netid(), error_num)
@@ -233,25 +254,6 @@ function ZoneServiceMgr:send(service_name, pid, bin)
         return false
     end
     return st.net.cnn:send(pid, bin)
-end
-
-local make_peer_service_query_result = function(node)
-    local ret = {}
-    ret.ip = node.st:get_ip()
-    ret.port = node.st:get_port()
-    ret.host_id = node.st:get_id()
-    ret.key = node.st:get_service()
-    ret.net_connected = false
-    ret.net_cnn_seq = nil
-    ret.net_netid = nil
-    if node.net then
-        ret.net_connected = node.net.connected
-        ret.net_cnn_seq = node.net.peer_cnn_seq
-        if node.net.cnn then
-            ret.net_netid = node.net.cnn:netid()
-        end
-    end
-    return ret
 end
 
 function ZoneServiceMgr:get_peer_service(service_role, service_idx)

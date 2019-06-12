@@ -1,10 +1,17 @@
 
 ZoneNetModule = ZoneNetModule or class("ZoneNetModule", ServiceModule)
 
+local _ErrorNum = {
+    Wait_Start_Expired = 1,
+}
+
 function ZoneNetModule:ctor(module_mgr, module_name)
     ZoneNetModule.super.ctor(self, module_mgr, module_name)
     self.zone_net = nil
     self.zone_name = nil
+    self.timer_proxy = TimerProxy:new()
+    self.check_zone_net_ready_tid = nil
+    self.Wait_Start_Max_Sec = 20
 end
 
 function ZoneNetModule:init(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name, service_name, service_idx, service_id, listen_port, listen_ip)
@@ -44,13 +51,33 @@ function ZoneNetModule:send(service_name, pid, bin)
 end
 
 function ZoneNetModule:start()
-    self.curr_state = ServiceModuleState.Started
+    self.curr_state = ServiceModuleState.Starting
     self.zone_net:start()
+    local start_sec = logic_sec()
+    self.timer_proxy:firm(function()
+        if logic_sec() - start_sec >= self.Wait_Start_Max_Sec then
+            self:_cancel_check_zone_net_ready()
+            if ServiceModuleState.Starting == self.curr_state then
+                self.error_num =_ErrorNum.Wait_Start_Expired
+                self.error_num = "wait start expired"
+                return
+            end
+        end
+        if ServiceModuleState.Starting ~= self.curr_state then
+            self:_cancel_check_zone_net_ready()
+            return
+        end
+        if self.zone_net:is_ready() then
+            self:_cancel_check_zone_net_ready()
+            self.curr_state = ServiceModuleState.Started
+        end
+    end,1 * 1000, -1)
 end
 
 function ZoneNetModule:stop()
     self.curr_state = ServiceModuleState.Stopped
     self.zone_net:stop()
+    self.timer_proxy:release_all()
 end
 
 function ZoneNetModule:on_update()
@@ -70,4 +97,11 @@ end
 function ZoneNetModule:rand_service(service_name)
     local ret = self.zone_net:rand_peer_service(service_name)
     return ret
+end
+
+function ZoneNetModule:_cancel_check_zone_net_ready()
+    if self.check_zone_net_ready_tid then
+        self.timer_proxy:remove(self.check_zone_net_ready_tid)
+        self.check_zone_net_ready_tid = nil
+    end
 end

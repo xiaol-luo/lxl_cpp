@@ -61,7 +61,7 @@ function DatabaseUuidModule:start()
     else
         self.check_start_success_tid = self.timer_proxy:firm(
                 Functional.make_closure(self.check_start_success, self, logic_sec()),
-                1000, -1)
+                1 * 1000, -1)
         for k, _ in pairs(self.uuid_names) do
             self:_apply_uuids_from_database(k, self.Apply_Uuid_Count_From_Database)
         end

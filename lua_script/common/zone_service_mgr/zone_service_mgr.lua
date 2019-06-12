@@ -14,6 +14,7 @@ function ZoneServiceMgr:ctor(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name,
     self.listen_ip = listen_ip
     self.service_id = service_id
     self.is_started = false
+    self.is_setted_service_state = false
     self.listen_handler = nil
     self.etcd_client = EtcdClient:new(etcd_host, etcd_usr, etcd_pwd)
     self.zone_name = string.lrtrim(zone_name, '/')
@@ -55,6 +56,7 @@ function ZoneServiceMgr:stop()
     self.is_started = false
     self.listen_handler = nil
     self.etcd_client:delete(self.etcd_service_key, false, nil)
+    self.is_setted_service_state = false
     if self.etcd_watch_timerid then
         native.timer_remove(self.etcd_watch_timerid)
         self.etcd_watch_timerid = nil
@@ -90,6 +92,10 @@ function ZoneServiceMgr:on_frame()
     end
 end
 
+function ZoneServiceMgr:is_ready()
+    return self.is_setted_service_state
+end
+
 function ZoneServiceMgr:etcd_service_val_update()
     -- log_debug("ZoneServiceMgr:etcd_service_val_update()")
     self.etcd_client:set(self.etcd_service_key, self.etcd_service_val:to_json(), self.etcd_ttl, false,
@@ -103,6 +109,8 @@ function ZoneServiceMgr:_etcd_service_val_set_cb(op_id, op, ret)
     end
     if not ret:is_ok() then
         self:etcd_service_val_update()
+    else
+        self.is_setted_service_state = true
     end
 end
 
