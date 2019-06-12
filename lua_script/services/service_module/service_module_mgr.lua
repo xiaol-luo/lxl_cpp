@@ -83,9 +83,8 @@ function ServiceModuleMgr:on_frame()
     if ServiceModuleState.Stopping == self.curr_state then
         local all_stoped = true
         for _, m in pairs(self.modules) do
-            local e_num, e_msg = m:get_error()
             local m_curr_state = m:get_curr_state()
-            if ServiceModuleState.Stopped ~= m_curr_state and not e_num then
+            if ServiceModuleState.Stopped ~= m_curr_state then
                 all_stoped = false
                 break
             end
