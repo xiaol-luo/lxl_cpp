@@ -32,6 +32,7 @@ local files = {
     "libs.http.http_def",
     "libs.http.http_service",
     "libs.http.http_client",
+    "libs.mongo.mongo_def",
     "libs.mongo.mongo_client",
     "libs.mongo.mongo_options",
     "libs.etcd.etcd_client_def",
