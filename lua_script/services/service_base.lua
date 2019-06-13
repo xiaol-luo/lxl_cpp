@@ -13,6 +13,7 @@ function ServiceBase:init()
     self.timer_proxy = TimerProxy:new()
     self.module_mgr = ServiceModuleMgr:new(self)
     self:setup_modules()
+    self.event_proxy:fire(Service_Base_Event_Inited, self)
 end
 
 function ServiceBase:setup_modules()
@@ -25,6 +26,7 @@ function ServiceBase:create_event_proxy()
 end
 
 function ServiceBase:start()
+    self.event_proxy:fire(Service_Base_Event_Start, self)
     CoroutineExMgr.start()
     self.module_mgr:start()
     self.timer_proxy:firm(Functional.make_closure(self.on_frame, self),
@@ -32,6 +34,7 @@ function ServiceBase:start()
 end
 
 function ServiceBase:stop()
+    self.event_proxy:fire(Service_Base_Event_Stop, self)
     self.module_mgr:stop()
     self.timer_proxy:release_all()
     self.module_mgr:release()
@@ -45,6 +48,7 @@ function ServiceBase:on_frame()
 end
 
 function ServiceBase:OnNotifyQuitGame()
+    self.event_proxy:fire(Service_Base_Event_Notify_Quit_Game, self)
     self:stop()
 end
 

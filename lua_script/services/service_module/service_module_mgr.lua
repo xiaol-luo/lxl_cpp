@@ -3,6 +3,7 @@ ServiceModuleMgr = ServiceModuleMgr or class("ServiceModuleMgr")
 
 function ServiceModuleMgr:ctor(service)
     self.service = service
+    self.event_proxy = self:create_event_proxy()
     self.modules = {}
     self.curr_state = ServiceModuleState.Free
     self.error_num = nil
@@ -24,6 +25,7 @@ end
 function ServiceModuleMgr:start()
     if self.curr_state < ServiceModuleState.Starting then
         self.curr_state = ServiceModuleState.Starting
+        self.event_proxy:fire(Service_Module_Event_State_Starting, self)
         for _, m in pairs(self.modules) do
             m:start()
         end
@@ -33,6 +35,7 @@ end
 function ServiceModuleMgr:stop()
     if self.curr_state >= ServiceModuleState.Starting and self.curr_state < ServiceModuleState.Stopping then
         self.curr_state = ServiceModuleState.Stopping
+        self.event_proxy:fire(Service_Module_Event_State_Stopping, self)
         for _, m in pairs(self.modules) do
             m:stop()
         end
@@ -44,6 +47,7 @@ function ServiceModuleMgr:release()
     for _, m in pairs(self.modules) do
         m:release()
     end
+    self.event_proxy:fire(Service_Module_Event_State_Released, self)
 end
 
 function ServiceModuleMgr:on_frame()
@@ -55,6 +59,7 @@ function ServiceModuleMgr:on_frame()
         end
         if ServiceModuleState.Started == self.curr_state then
             self.curr_state = ServiceModuleState.Update
+            self.event_proxy:fire(Service_Module_Event_State_To_Update, self)
             for _, m in pairs(self.modules) do
                 m:to_update_state()
             end
@@ -77,6 +82,7 @@ function ServiceModuleMgr:on_frame()
             end
             if all_started then
                 self.curr_state = ServiceModuleState.Started
+                self.event_proxy:fire(Service_Module_Event_State_Started, self)
             end
         end
     end
@@ -91,6 +97,7 @@ function ServiceModuleMgr:on_frame()
         end
         if all_stoped then
             self.curr_state = ServiceModuleState.Stopped
+            self.event_proxy:fire(Service_Module_Event_State_Stopped, self)
         end
     end
 end

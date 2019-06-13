@@ -67,3 +67,9 @@ function extract_service_name_idx(service_full_name)
     local service_idx = native.extract_service_idx(service_full_name)
     return service_name, service_idx
 end
+
+
+Service_Base_Event_Inited = "Service_Base_Event_Inited"
+Service_Base_Event_Start = "Service_Base_Event_Start"
+Service_Base_Event_Stop = "Service_Base_Event_Stop"
+Service_Base_Event_Notify_Quit_Game = "Service_Base_Event_Stop"
