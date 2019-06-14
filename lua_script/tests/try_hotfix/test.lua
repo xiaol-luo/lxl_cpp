@@ -44,7 +44,8 @@ mymod.set_a(3)
 print("AFTER reload foo fn is", foo)
 print("AFTER reload foo() is ", foo())
 native.log_debug(string.format("AFTER reload mod.getinfo is %s", mymod.getinfo))
-print("AFTER reload  mod.new_fn_get_a() is ", mymod.new_fn_get_a() or "nil")
+-- print("AFTER reload  mod.new_fn_get_a() is ", mymod.new_fn_get_a() or "nil")
+-- print("AFTER reload  mod.new_fn_get_fn() is ", mymod.new_fn_get_fn() or "nil")
 
 assert(tmp[foo] == foo)
 

@@ -2,6 +2,7 @@
 local mod = {}
 
 local a
+-- local a = 5
 
 local function foobar()
 	print("this is new foobar")
@@ -17,10 +18,17 @@ function mod.set_a(x)
 	print("this is New set_a a=", a)
 end
 
+--[[
 function mod.new_fn_get_a()
 	print("mod.new_fn_get_a a=", a or "nil")
 	return a
 end
+
+function mod.new_fn_get_fn()
+	print("mod.new_fn_get_fn foobar=", foobar or "nil")
+	return foobar
+end
+--]]
 
 -- local debug = require "debug"
 mod.getinfo = debug.getinfo
