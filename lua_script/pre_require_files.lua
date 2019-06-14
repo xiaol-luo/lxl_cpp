@@ -43,6 +43,7 @@ local files = {
     "libs.etcd.etcd_client_op_set",
     "libs.etcd.etcd_client_result",
     "libs.etcd.etcd_client_cxx",
+    "libs.reload",
     "common.date_time",
     "common.zone_service_mgr.zone_service_mgr_def",
     "common.zone_service_mgr.zone_service_mgr",
