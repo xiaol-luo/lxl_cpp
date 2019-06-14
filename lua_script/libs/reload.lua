@@ -6,6 +6,99 @@ local debug = debug
 
 do -- sandbox begin
 
+local _LOADED_DUMMY = {}
+local _LOADED = {}
+local weak = { __mode = "kv" }
+local dummy_cache
+local dummy_module_cache
+
+-- module_dummy_mt
+-- meta table of reload module
+local module_dummy_mt = {
+	__metatable = "MODULE",
+	__newindex = error,
+	__pairs = error,
+	__tostring = function(self) return dummy_module_cache[self] end,
+}
+function module_dummy_mt:__index(k)
+	assert(type(k) == "string", "module field is not string")
+	local parent_key = dummy_module_cache[self]
+	local key = parent_key .. "." .. k
+	if dummy_module_cache[key] then
+		return dummy_module_cache[key]
+	else
+		local obj = {}
+		dummy_module_cache[key] = obj
+		dummy_module_cache[obj] = key
+		return setmetatable(obj, module_dummy_mt)
+	end
+end
+local function make_dummy_module(name)
+	local name = "[" .. name .. "]"
+	if dummy_module_cache[name] then
+		return dummy_module_cache[name]
+	else
+		local obj = {}
+		dummy_module_cache[name] = obj
+		dummy_module_cache[obj] = name
+		return setmetatable(obj, module_dummy_mt)
+	end
+end
+
+-- global_dummy_mt
+-- meta table of loaded module in _G
+local global_dummy_mt = {
+	__metatable = "GLOBAL",
+	__tostring = function(self)	return dummy_cache[self] end,
+	__newindex = error,
+	__pairs = error,
+}
+local function make_dummy(k)
+	if dummy_cache[k] then
+		return dummy_cache[k]
+	else
+		local obj = {}
+		dummy_cache[obj] = k
+		dummy_cache[k] = obj
+		return setmetatable(obj, global_dummy_mt)
+	end
+end
+function global_dummy_mt:__index(k)
+	local parent_key = dummy_cache[self]
+	assert(type(k) == "string", "Global name must be a string")
+	local key = parent_key .. "." .. k
+	return make_dummy(key)
+end
+
+-- global_mt
+-- meta table of sandbox
+local global_mt = {
+	__newindex = error,
+	__pairs = error,
+	__metatable = "SANDBOX",
+}
+local _inext = ipairs {}
+-- the base lib function never return objects out of sandbox
+local safe_function = {
+	require = sandbox.require,	-- sandbox require
+	pairs = pairs,	-- allow pairs during require
+	next = next,
+	ipairs = ipairs,
+	_inext = _inext,
+	print = print,	-- for debug
+}
+function global_mt:__index(k)
+	assert(type(k) == "string", "Global name must be a string")
+	if safe_function[k] then
+		return safe_function[k]
+	else
+		return make_dummy(k)
+	end
+end
+local function make_sandbox()
+	return setmetatable({}, global_mt)
+end
+
 local function findloader(name)
 	if reload.postfix then
 		name = name .. reload.postfix
@@ -21,54 +114,6 @@ local function findloader(name)
 		end
 	end
 	error(string.format("module '%s' not found:%s", name, table.concat(msg)))
-end
-
-local global_mt = {
-	__newindex = error,
-	__pairs = error,
-	__metatable = "SANDBOX",
-}
-local _LOADED_DUMMY = {}
-local _LOADED = {}
-local weak = { __mode = "kv" }
-local dummy_cache
-local dummy_module_cache
-
-local module_dummy_mt = {
-	__metatable = "MODULE",
-	__newindex = error,
-	__pairs = error,
-	__tostring = function(self) return dummy_module_cache[self] end,
-}
-
-local function make_dummy_module(name)
-	local name = "[" .. name .. "]"
-	if dummy_module_cache[name] then
-		return dummy_module_cache[name]
-	else
-		local obj = {}
-		dummy_module_cache[name] = obj
-		dummy_module_cache[obj] = name
-		return setmetatable(obj, module_dummy_mt)
-	end
-end
-
-function module_dummy_mt:__index(k)
-	assert(type(k) == "string", "module field is not string")
-	local parent_key = dummy_module_cache[self]
-	local key = parent_key .. "." .. k
-	if dummy_module_cache[key] then
-		return dummy_module_cache[key]
-	else
-		local obj = {}
-		dummy_module_cache[key] = obj
-		dummy_module_cache[obj] = key
-		return setmetatable(obj, module_dummy_mt)
-	end
-end
-
-local function make_sandbox()
-	return setmetatable({}, global_mt)
 end
 
 function sandbox.require(name)
@@ -89,92 +134,6 @@ function sandbox.require(name)
 	end
 	_LOADED_DUMMY[name] = make_dummy_module(name)
 	return _LOADED_DUMMY[name]
-end
-
-local global_dummy_mt = {
-	__metatable = "GLOBAL",
-	__tostring = function(self)	return dummy_cache[self] end,
-	__newindex = error,
-	__pairs = error,
-}
-
-local function make_dummy(k)
-	if dummy_cache[k] then
-		return dummy_cache[k]
-	else
-		local obj = {}
-		dummy_cache[obj] = k
-		dummy_cache[k] = obj
-		return setmetatable(obj, global_dummy_mt)
-	end
-end
-
-function global_dummy_mt:__index(k)
-	local parent_key = dummy_cache[self]
-	assert(type(k) == "string", "Global name must be a string")
-	local key = parent_key .. "." .. k
-	return make_dummy(key)
-end
-
-local _inext = ipairs {}
-
--- the base lib function never return objects out of sandbox
-local safe_function = {
-	require = sandbox.require,	-- sandbox require
-	pairs = pairs,	-- allow pairs during require
-	next = next,
-	ipairs = ipairs,
-	_inext = _inext,
-	print = print,	-- for debug
-}
-
-function global_mt:__index(k)
-	assert(type(k) == "string", "Global name must be a string")
-	if safe_function[k] then
-		return safe_function[k]
-	else
-		return make_dummy(k)
-	end
-end
-
-local function get_G(obj)
-	local k = dummy_cache[obj]
-	local G = _G
-	for w in string.gmatch(k, "[_%a]%w*") do
-		if G == nil then
-			error("Invalid global", k)
-		end
-		G=G[w]
-	end
-	return G
-end
-
-local function get_M(obj)
-	local k = dummy_module_cache[obj]
-	local M = debug.getregistry()._LOADED
-	local from, to, name = string.find(k, "^%[([_%w]+)%]")
-	if from == nil then
-		error ("Invalid module " .. k)
-	end
-	local mod = assert(M[name])
-	for w in string.gmatch(k:sub(to+1), "[_%a]%w*") do
-		if mod == nil then
-			error("Invalid module key", k)
-		end
-		mod=mod[w]
-	end
-	return mod
-end
-
-function sandbox.value(obj)
-	local meta = getmetatable(obj)
-	if meta == "GLOBAL" then
-		return get_G(obj)
-	elseif meta == "MODULE" then
-		return get_M(obj)
-	else
-		error("Invalid object", obj)
-	end
 end
 
 function sandbox.init(list)
