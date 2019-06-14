@@ -6,26 +6,20 @@ local function foobar()
 	return a
 end
 
-print("foobar:", foobar)
-
-function mod.foo()
+function mod.get_fn()
 	return foobar
 end
 
-function mod.foo2()
-	return foobar
-end
-
-function mod.foobar(x)
+function mod.set_a(x)
 	a = x
+	print("this is Old set_a a=", a)
 end
 
 local meta = {}
-
 meta.__index = meta
 
 function meta:show()
-	print("OLD")
+	print("this is mod show OLD")
 end
 
 function mod.new()
