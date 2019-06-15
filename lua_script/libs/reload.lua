@@ -13,7 +13,7 @@ local dummy_cache
 local dummy_module_cache
 
 -- module_dummy_mt
--- meta table of reload module
+-- meta table of modules
 local module_dummy_mt = {
 	__metatable = "MODULE",
 	__newindex = error,
@@ -46,7 +46,7 @@ local function make_dummy_module(name)
 end
 
 -- global_dummy_mt
--- meta table of loaded module in _G
+-- meta table of global variables
 local global_dummy_mt = {
 	__metatable = "GLOBAL",
 	__tostring = function(self)	return dummy_cache[self] end,
@@ -77,28 +77,6 @@ local global_mt = {
 	__pairs = error,
 	__metatable = "SANDBOX",
 }
-local _inext = ipairs {}
--- the base lib function never return objects out of sandbox
-local safe_function = {
-	require = sandbox.require,	-- sandbox require
-	pairs = pairs,	-- allow pairs during require
-	next = next,
-	ipairs = ipairs,
-	_inext = _inext,
-	print = print,	-- for debug
-}
-function global_mt:__index(k)
-	assert(type(k) == "string", "Global name must be a string")
-	if safe_function[k] then
-		return safe_function[k]
-	else
-		return make_dummy(k)
-	end
-end
-local function make_sandbox()
-	return setmetatable({}, global_mt)
-end
-
 local function findloader(name)
 	if reload.postfix then
 		name = name .. reload.postfix
@@ -114,6 +92,9 @@ local function findloader(name)
 		end
 	end
 	error(string.format("module '%s' not found:%s", name, table.concat(msg)))
+end
+local function make_sandbox()
+	return setmetatable({}, global_mt)
 end
 
 function sandbox.require(name)
@@ -134,6 +115,27 @@ function sandbox.require(name)
 	end
 	_LOADED_DUMMY[name] = make_dummy_module(name)
 	return _LOADED_DUMMY[name]
+end
+
+-- global_mt
+-- meta table of sandbox
+local _inext = ipairs {}
+-- the base lib function never return objects out of sandbox
+local safe_function = {
+	require = sandbox.require,	-- sandbox require
+	pairs = pairs,	-- allow pairs during require
+	next = next,
+	ipairs = ipairs,
+	_inext = _inext,
+	print = print,	-- for debug
+}
+function global_mt:__index(k)
+	assert(type(k) == "string", "Global name must be a string")
+	if safe_function[k] then
+		return safe_function[k]
+	else
+		return make_dummy(k)
+	end
 end
 
 function sandbox.init(list)
@@ -195,13 +197,13 @@ local function enum_object(value)
 	local objs = {}
 	local function iterate(value)
 		if sandbox.isdummy(value) then
-			if print then print("ENUM", value, table.concat(path, ".")) end
+			if print then print("ENUM isdummy", value, table.concat(path, ".")) end
 			table.insert(all, { value, table.unpack(path) })
 			return
 		end
 		local t = type(value)
 		if t == "function" or t == "table" then
-			if print then print("ENUM", value, table.concat(path, ".")) end
+			if print then print("ENUM fn_or_tb", value, table.concat(path, ".")) end
 			table.insert(all, { value, table.unpack(path) })
 			if objs[value] then
 				-- already unfold
@@ -687,8 +689,9 @@ function reload.reload(list)
 		end
 	end
 
+	local n = 0
 	repeat
-		local n = solve_globals(result)
+		 n = solve_globals(result)
 	until n == 0
 
 	local func_map = {}

@@ -12,10 +12,10 @@
 
 
 #define sizeCclosure(n)	(cast(int, sizeof(CClosure)) + \
-                         cast(int, sizeof(TValue)*((n)-1)))
+                         cast(int, sizeof(TValue)*(n)))
 
 #define sizeLclosure(n)	(cast(int, sizeof(LClosure)) + \
-                         cast(int, sizeof(TValue *)*((n)-1)))
+                         cast(int, sizeof(TValue *)*(n)))
 
 
 /* test whether thread is in 'twups' list */

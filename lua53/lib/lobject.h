@@ -446,14 +446,16 @@ typedef struct UpVal UpVal;
 typedef struct CClosure {
   ClosureHeader;
   lua_CFunction f;
-  TValue upvalue[1];  /* list of upvalues */
+  // TValue upvalue[1];  /* list of upvalues */
+  TValue *upvalue;
 } CClosure;
 
 
 typedef struct LClosure {
   ClosureHeader;
   struct Proto *p;
-  UpVal *upvals[1];  /* list of upvalues */
+  // UpVal *upvals[1];  /* list of upvalues */
+  UpVal **upvals;
 } LClosure;
 
 
