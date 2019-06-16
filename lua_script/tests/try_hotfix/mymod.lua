@@ -1,6 +1,7 @@
 local mod = {}
 
 local a = 1
+local d = 4
 g_var = 1
 
 local function foobar()
@@ -13,7 +14,12 @@ end
 
 function mod.set_a(x)
 	a = x
+	tostring(d)
 	print("this is Old set_a a=", a)
+end
+
+function mod.print_a()
+	print("mod.print_a ", a)
 end
 
 local meta = {}

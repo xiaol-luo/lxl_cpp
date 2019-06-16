@@ -12,7 +12,7 @@ function hotfix_replace_one_upvalue(new_fn, name, idx, old_fn)
     return false
 end
 
-function hotfix_function(old_fn, new_fn)
+function hotfix_function(old_fn, new_fn, mod)
     local idx = 0
     while true do
         idx = idx + 1
@@ -21,6 +21,7 @@ function hotfix_function(old_fn, new_fn)
             break
         end
         local old_idx = 0
+        local joined = false
         while true do
             old_idx = old_idx + 1
             local old_name = debug.getupvalue(old_fn, old_idx)
@@ -29,7 +30,23 @@ function hotfix_function(old_fn, new_fn)
             end
             if name == old_name then
                 debug.upvaluejoin(new_fn, idx, old_fn, old_idx)
+                joined = true
                 break
+            end
+        end
+        if not joined and mod and "function" == type(mod.__ups) then
+            old_idx = 0
+            while true do
+                old_idx = old_idx + 1
+                local old_name = debug.getupvalue(mod.__ups, old_idx)
+                if not old_name then
+                    break
+                end
+                if name == old_name then
+                    debug.upvaluejoin(new_fn, idx, mod.__ups, old_idx)
+                    joined = true
+                    break
+                end
             end
         end
     end
@@ -37,6 +54,9 @@ function hotfix_function(old_fn, new_fn)
     debug.replace_proto(old_fn, new_fn)
     -- 用new_fn的upvalues替换old_fn的upvalues
     debug.copy_upvalues(old_fn, new_fn)
+    if mod then
+        hotfix_record_module_upvalues(mod)
+    end
 end
 
 function hotfix_record_module_upvalues(mod)
@@ -70,12 +90,11 @@ function hotfix_record_module_upvalues(mod)
                 code_variables, code_variables)
 
     end
-    print("code string \n", lua_code)
+    -- print("hotfix_record_module_upvalues lua_code:\n", lua_code)
     local lf, errmsg = load(lua_code)
     assert(lf, errmsg)
     debug.setupvalue(lf, 1, mod)
     local out_fn = lf()
-    print("xxxxxxxxxx", Functional.varlen_param_info(out_fn()))
     print("mod", mod)
     local idx = 0
     while true do
@@ -107,6 +126,5 @@ function hotfix_record_module_upvalues(mod)
         end
     end
     mod.__ups = out_fn
-    print("after update upvalue \nxxxxxxxxxx", Functional.varlen_param_info(out_fn()))
-    print("mod", mod)
+    -- print("hotfix_record_module_upvalues upvalues:\n", Functional.varlen_param_info(out_fn()))
 end
