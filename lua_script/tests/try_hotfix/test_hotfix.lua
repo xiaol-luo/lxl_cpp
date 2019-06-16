@@ -10,6 +10,7 @@ print("show mymod", mymod)
 
 local a = 1
 local b = 2
+local c = 3
 
 function old_fn()
 	print("old a is", a)
@@ -23,6 +24,15 @@ end
 
 local fn = old_fn
 fn()
+
+hotfix_record_module_upvalues(mymod)
+
+print("add function xxxx ")
+mymod.xxxx = function()
+	tostring(c)
+end
+
+hotfix_record_module_upvalues(mymod)
 
 hotfix_function(old_fn, new_fn)
 -- reload.reload { "mymod" }
