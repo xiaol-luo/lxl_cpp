@@ -14,45 +14,68 @@ function print_upvalues(f, pre_tag)
 	end
 end
 
-local a = 11
-local b = 21
-local d = 201
+local hotfix_chunk_str = "mod = mod\n g_var2=200\n g_var = 800\n local b = 1000\n local a=10000\n mod.print_vars = function() print('new vars', a or 'nil', b, g_var, g_var2) end\n"
+require("mymod")
 
-function old_fn()
-	print("old a is", a)
-end
-function new_fn()
-	print("new a is", a)
-	print("new b is", b)
-	print("1234566")
-end
-local fn = old_fn
-fn()
-hotfix_function(old_fn, new_fn)
-print("after hotfix")
-fn()
+if false then
+	mod.print_vars()
+	print("g_var2=", g_var2)
+	local env = {}
+	setmetatable(env, {
+		__index = _G,
+		__newindex = function(self, k, v)
+			print("__newindex", k, tostring(v))
+			if nil == v then
+				rawset(self, k, v)
+				print("__newindex 1", k, tostring(v))
+				return
+			end
+			if "table" ~= type(v) then
+				print("__newindex 2", k, tostring(v))
+				rawset(self, k, v)
+				return
+			end
+			local local_v = rawget(self, k)
+			if local_v == v then
+				print("__newindex 3", k, tostring(v))
+				return
+			end
+			if not local_v then
+				print("__newindex 4", k, tostring(v))
+				local_v = {}
+				setmetatable(local_v, {__index = v})
+				rawset(self, k, local_v)
+				return
+			end
+			print("__newindex 5", k, tostring(v))
+		end
+	})
 
+	print("mod", tostring(mod))
+	local f, error_msg = load(hotfix_chunk_str)
+	assert(f, error_msg)
+	debug.setupvalue(f, 1, env)
+	local ok, error_msg = pcall(f)
+	assert(ok, error_msg)
 
-local repalce_print_c = "repalce_print_c"
-print("test hotfix module function \n\n\n")
-local replace_print_a = function(self)
-	print("replace_print_a", a)
-end
-local replace_print_c = function(self)
-	print("repalce_print_c a=", a)
-	print("repalce_print_c =", repalce_print_c)
-	print("repalce_print_c d=", d)
-end
-local mymod = require("mymod")
-mymod.print_a()
-print("mod.print_c = ", mymod.print_c)
-mymod.print_c = function()
-	print("use this to hold place")
-end
-hotfix_function(mymod.print_a, replace_print_a, mymod)
-hotfix_function(mymod.print_c, replace_print_c, mymod)
-print("------------ after replace print_a")
-mymod.print_a()
-mymod.print_c()
+	print("mod", tostring(env.mod))
 
-print(mymod)
+	print("g_var2=", g_var2)
+
+	local opt = {
+		replace_fn = true,
+		replace_var = false,
+	}
+	print("env is ", env)
+	hotfix_table(_G, env, opt, {})
+
+	mod.print_vars()
+	mod.get_fn()
+	env.mod.print_vars()
+	env.mod.get_fn()
+else
+	mod.print_vars()
+	hotfix_chunk(_G, hotfix_chunk_str, "hotfix_chunk_str")
+	print("after hotfix_chunk")
+	mod.print_vars()
+end

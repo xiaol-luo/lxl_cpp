@@ -1,36 +1,20 @@
-local mod = {}
+mod = mod or {}
 
 local a = 1
-local d = 4
-g_var = 1
+g_var = 8
 
 local function foobar()
+	print("old function foobar")
 	return a
 end
 
 function mod.get_fn()
+	print("old function get_fn")
 	return foobar
 end
 
-function mod.set_a(x)
-	a = x
-	tostring(d)
-	print("this is Old set_a a=", a)
+function mod.print_vars()
+	print("old fn print_vars a=", a)
+
+	print("old fn print_vars, g_var=", g_var)
 end
-
-function mod.print_a()
-	print("mod.print_a ", a)
-end
-
-local meta = {}
-meta.__index = meta
-
-function meta:show()
-	print("this is mod show OLD, a=", a)
-end
-
-function mod.new()
-	return setmetatable({}, meta)
-end
-
-return mod
