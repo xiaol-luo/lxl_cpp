@@ -75,7 +75,9 @@ if false then
 	env.mod.get_fn()
 else
 	mod.print_vars()
-	hotfix_chunk(_G, hotfix_chunk_str, "hotfix_chunk_str")
-	print("after hotfix_chunk")
+	print("---------------------------------- before hotfix_file ------------------------------------------- ")
+	hotfix_file("mymod_update", _G)
+	print("---------------------------------- after hotfix_file ------------------------------------------- ")
 	mod.print_vars()
 end
+

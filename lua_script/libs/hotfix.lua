@@ -251,3 +251,27 @@ function hotfix_chunk(old_env_tb, chunk, chunk_name)
     hotfix_table(old_env_tb, env, opt, {})
 end
 
+function hotfix_file(file_path, old_env_tb)
+    if not old_env_tb then
+        old_env_tb = _G
+    end
+    local tmp_paths = string.split(file_path, "%.")
+    local real_file_path = table.concat(tmp_paths, "/")
+    local search_paths = string.split(package.path, ";")
+    for _, v in ipairs(search_paths) do
+        local full_path = string.gsub(v, "%?", real_file_path)
+        local file_attr = lfs.attributes(full_path)
+        print("hotfix_file", full_path, file_attr or "nil")
+        if file_attr and "file" == file_attr.mode then
+            local fd = io.open(full_path, "r")
+            if fd then
+                local chunk = fd:read("a")
+                fd:close()
+                -- print("chunk\n", chunk)
+                hotfix_chunk(old_env_tb, chunk, file_path)
+                break
+            end
+        end
+    end
+end
+

@@ -1,0 +1,1 @@
+service.exe hotfix ../hotfix hold_place hold_place ../Debug/root/lua_script --lua_args_begin-- -lua_path . -c_path . ../Debug -require_files tests.try_hotfix.test -execute_fns 

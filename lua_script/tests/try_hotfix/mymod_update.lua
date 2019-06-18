@@ -20,4 +20,6 @@ function mod.print_vars()
 	print("new fn print_vars a=", a)
 	print("old fn print_vars, b=", b)
 	print("new fn print_vars, g_var=", g_var)
+	print("new fn print_vars, g_var=", g_var2)
 end
+
