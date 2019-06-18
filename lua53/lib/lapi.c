@@ -1315,6 +1315,9 @@ LUA_API int lua_replace_proto(lua_State *L)
 	stkid_src = index2addr(L, 2);
 	cl_dest = clLvalue(stkid_dest);
 	cl_src = clLvalue(stkid_src);
+	if (cl_dest->p->cache == cl_dest)
+		cl_dest->p->cache = NULL;
+	// TODO: how to deal with the cl_dest->p before next statement£¿ dereference ?
 	cl_dest->p = cl_src->p;
 	luaC_objbarrier(L, cl_dest, cl_dest->p);
 	return 0;
