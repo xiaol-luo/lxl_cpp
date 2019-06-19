@@ -23,7 +23,7 @@ function hotfix_record_module_upvalues(mod)
                 if not name then
                     break
                 end
-                if "_ENV" ~= name then
+                if name and #name > 0 and "_ENV" ~= name then
                     up_names[name] = true
                 end
             end
@@ -31,14 +31,20 @@ function hotfix_record_module_upvalues(mod)
     end
     local lua_code = ""
     do
-        local code_variables = ""
-        for name, _ in pairs(up_names) do
-            code_variables = code_variables ..
-                    string.format("%s,", name)
+        local up_names_array = {}
+        for k, _ in pairs(up_names) do
+            table.insert(up_names_array, k)
         end
-        if #code_variables > 0 then
-            code_variables = string.sub(code_variables, 1, #code_variables - 1)
+        local code_variables = table.concat(up_names_array, ",")
+        local chs_val = { [' ']=true, [',']=true }
+        local idx = 0
+        for i = #code_variables, 1, -1 do
+            if not chs_val[string.byte(code_variables, i)] then
+                idx = i
+                break
+            end
         end
+        code_variables = idx < 1 and "" or string.sub(code_variables, 1, idx)
         lua_code = string.format("local %s = nil \n local function fn() return %s end\n return fn",
                 code_variables, code_variables)
 
@@ -83,7 +89,7 @@ function hotfix_record_module_upvalues(mod)
 end
 
 function hotfix_function(old_fn, new_fn, mod)
-    print("hotfix_function 1", tostring(old_fn), tostring(new_fn), mod)
+    -- print("hotfix_function 1", tostring(old_fn), tostring(new_fn), mod)
     local idx = 0
     while true do
         idx = idx + 1
@@ -101,7 +107,7 @@ function hotfix_function(old_fn, new_fn, mod)
             end
             if name == old_name then
                 debug.upvaluejoin(new_fn, idx, old_fn, old_idx)
-                print("hotfix_function upvalue 1", name)
+                -- print("hotfix_function upvalue 1", name)
                 joined = true
                 break
             end
@@ -115,7 +121,7 @@ function hotfix_function(old_fn, new_fn, mod)
                     break
                 end
                 if name == old_name then
-                    print("hotfix_function upvalue 2", name)
+                    -- print("hotfix_function upvalue 2", name)
                     debug.upvaluejoin(new_fn, idx, mod.__ups, old_idx)
                     joined = true
                     break
@@ -130,7 +136,7 @@ function hotfix_function(old_fn, new_fn, mod)
     if mod then
         hotfix_record_module_upvalues(mod)
     end
-    print("hotfix_function 1", tostring(old_fn), tostring(new_fn), mod)
+    -- print("hotfix_function 1", tostring(old_fn), tostring(new_fn), mod)
 end
 
 function hotfix_module(old_mod, new_mod)
@@ -182,7 +188,7 @@ function hotfix_table(old_tb, new_tb, opt, visited_record)
         else
             local old_value_type = type(old_val)
             if old_value_type ~= new_val_type then
-                print("hotfix_table warning type not match !")
+                -- print("hotfix_table warning type not match !")
             end
             if "function" == old_value_type then
                 if opt.replace_fn then
@@ -206,7 +212,28 @@ function hotfix_table(old_tb, new_tb, opt, visited_record)
     end
 end
 
-function hotfix_chunk(old_env_tb, chunk, chunk_name)
+function hotfix_read_file(file_path)
+    local file_content = nil
+    local tmp_paths = string.split(file_path, "%.")
+    local real_file_path = table.concat(tmp_paths, "/")
+    local search_paths = string.split(package.path, ";")
+    for _, v in ipairs(search_paths) do
+        local full_path = string.gsub(v, "%?", real_file_path)
+        local file_attr = lfs.attributes(full_path)
+        -- print("hotfix_file", full_path, file_attr or "nil")
+        if file_attr and "file" == file_attr.mode then
+            local fd = io.open(full_path, "r")
+            if fd then
+                file_content = fd:read("a")
+                fd:close()
+                break
+            end
+        end
+    end
+    return file_content
+end
+
+function hotfix_build_env(old_env_tb, chunk, chunk_name)
     local env = {}
     setmetatable(env, {
         __index = old_env_tb,
@@ -237,13 +264,25 @@ function hotfix_chunk(old_env_tb, chunk, chunk_name)
             -- print("__newindex 5", k, tostring(v))
         end
     })
-
     local lf, error_msg = load(chunk, chunk_name)
-    assert(lf, error_msg)
+    if not lf then
+        print("hotfix_build_env load fail:", error_msg)
+        return nil
+    end
     debug.setupvalue(lf, 1, env)
     local ok, error_msg = pcall(lf)
-    assert(ok, error_msg)
+    if not ok then
+        print("hotfix_build_env pcall fail:", error_msg)
+        return nil
+    end
+    return env
+end
 
+function hotfix_chunk(old_env_tb, chunk, chunk_name)
+    local env = hotfix_build_env(old_env_tb, chunk, chunk_name)
+    if not env then
+        return
+    end
     local opt = {
         replace_fn = true,
         replace_var = false,
@@ -255,23 +294,11 @@ function hotfix_file(file_path, old_env_tb)
     if not old_env_tb then
         old_env_tb = _G
     end
-    local tmp_paths = string.split(file_path, "%.")
-    local real_file_path = table.concat(tmp_paths, "/")
-    local search_paths = string.split(package.path, ";")
-    for _, v in ipairs(search_paths) do
-        local full_path = string.gsub(v, "%?", real_file_path)
-        local file_attr = lfs.attributes(full_path)
-        print("hotfix_file", full_path, file_attr or "nil")
-        if file_attr and "file" == file_attr.mode then
-            local fd = io.open(full_path, "r")
-            if fd then
-                local chunk = fd:read("a")
-                fd:close()
-                -- print("chunk\n", chunk)
-                hotfix_chunk(old_env_tb, chunk, file_path)
-                break
-            end
-        end
+    local file_content = hotfix_read_file(file_path)
+    if not file_content then
+        print("hotfix_file fail, can not read file", file_path)
+        return
     end
+    hotfix_chunk(old_env_tb, file_content, file_path)
 end
 

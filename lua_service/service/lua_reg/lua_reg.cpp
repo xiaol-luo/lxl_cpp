@@ -164,6 +164,7 @@ void register_native_libs(lua_State *L)
 	t.set_function("extract_service_idx", ExtractServiceIdx);
 	t.set_function("local_net_ip", lua_extract_net_ip);
 	t.set_function("gen_uuid", GenUuid);
+	t.set_function("try_quit_game", try_quit_game);
 	
 }
 

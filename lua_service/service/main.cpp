@@ -27,18 +27,7 @@ extern "C"
 
 void QuitGame(int signal)
 {
-	IService *service = engine_service();
-	ServiceBase *service_base = dynamic_cast<ServiceBase *>(service);
-	if (nullptr != service_base)
-	{
-		service_base->TryQuitGame();
-		log_debug("TryQuitGame");
-	}
-	else
-	{
-		printf("QuitGame");
-		exit(0);
-	}
+	try_quit_game();
 }
 
 int main (int argc, char **argv) 

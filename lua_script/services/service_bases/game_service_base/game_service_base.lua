@@ -15,6 +15,7 @@ function GameServiceBase:ctor()
     self.service_cfg = nil
     self.etcd_cfg = nil
     self.logic_mgr = nil
+    self.hotfit_module = nil
 end
 
 function GameServiceBase:init()
@@ -73,6 +74,11 @@ function GameServiceBase:setup_modules()
     -- service logic mgr
     self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
     self.module_mgr:add_module(self.logic_mgr)
+    self.hotfit_module = HotfixModule:new(self.module_mgr, "hotfix_module")
+    self.module_mgr:add_module(self.hotfit_module)
+    local hotifx_dir_path = path.combine(lfs.currentdir(), "hotifx_dir")
+    self.hotfit_module:init(hotifx_dir_path)
+	lfs.mkdir(hotifx_dir_path)
 end
 
 function GameServiceBase:_init_zone_net_msg_handler()

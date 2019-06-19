@@ -50,6 +50,10 @@ function ServiceModuleMgr:release()
     self.event_proxy:fire(Service_Module_Event_State_Released, self)
 end
 
+function ServiceModuleMgr:get_error()
+    return self.error_num, self.error_msg
+end
+
 function ServiceModuleMgr:on_frame()
     if not self.error_num then
         if ServiceModuleState.Update == self.curr_state then
@@ -73,6 +77,7 @@ function ServiceModuleMgr:on_frame()
                     all_started = false
                     self.error_num = e_num
                     self.error_msg = e_msg
+                    log_error("ServiceModuleMgr Start Fail! module %s, error_num %s, error_msg %s", m:get_module_name(), self.error_num, self.error_msg)
                     break
                 end
                 if ServiceModuleState.Started ~= m_curr_state then

@@ -12,5 +12,6 @@ function path.combine(...)
             ret = ret .. "/" .. string.ltrim(tostring(v), "\\/")
         end
     end
+    ret = string.gsub(ret, "\\", "/")
     return ret
 end

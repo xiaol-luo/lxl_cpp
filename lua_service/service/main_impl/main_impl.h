@@ -33,3 +33,4 @@ extern std::vector<std::string> ServiceMakeLuaExtraArgs(int argc, char ** argv);
 
 extern std::string ExtractServiceName(std::string full_name);
 extern int ExtractServiceIdx(std::string full_name);
+extern void try_quit_game();

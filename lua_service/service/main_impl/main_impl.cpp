@@ -1,4 +1,6 @@
 #include "main_impl.h"
+#include "iengine.h"
+#include "service_impl/service_base.h"
 
 const int Args_Index_Service_Name = 1;
 const int Args_Index_WorkDir = 2;
@@ -38,5 +40,21 @@ int ExtractServiceIdx(std::string full_name)
 	std::string val = full_name.substr(pos + 1);
 	int ret = std::stoi(val);
 	return ret;
+}
+
+void try_quit_game()
+{
+	IService *service = engine_service();
+	ServiceBase *service_base = dynamic_cast<ServiceBase *>(service);
+	if (nullptr != service_base)
+	{
+		service_base->TryQuitGame();
+		log_debug("TryQuitGame");
+	}
+	else
+	{
+		printf("QuitGame");
+		exit(0);
+	}
 }
 
