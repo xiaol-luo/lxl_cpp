@@ -55,7 +55,7 @@ function LoginGameMgr:CheckQueryGateStates()
         local gate_infos = self.service.zone_net:get_service_group(Service_Const.Gate)
         for _, gate_info in pairs(gate_infos) do
             local gk = gate_info.key
-            if gk.net_connected then
+            if gate_info.net_connected then
                 self.service.rpc_mgr:call(function(error_num, ret)
                     -- log_debug("CheckQueryGateStates %s %s %s", gk, error_num, ret)
                     if Rpc_Error.None ~= error_num then

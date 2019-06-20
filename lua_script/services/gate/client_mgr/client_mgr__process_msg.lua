@@ -93,7 +93,7 @@ function ClientMgr:process_req_pull_role_digest(netid, pid, msg)
             break
         end
         local world_service = self.service.zone_net:rand_service(Service_Const.World)
-        if not world_service then
+        if not world_service or not world_service.net_connected then
             error_num = ErrorNum.No_WORLD_SERVICE
             break
         end
@@ -154,7 +154,38 @@ function ClientMgr:process_req_create_role(netid, pid, msg)
     end
 end
 
+_Process_Launch_Role_Error = {
+    none = 0,
+    no_valid_world_service = 1,
+    rpc_error = 2,
+    launch_fail = 3,
+}
 function ClientMgr:process_req_launch_role(netid, pid, msg)
     log_debug("ClientMgr:process_req_launch_role %s", msg)
-    self.client_cnn_mgr:send(netid, ProtoId.rsp_launch_role, { error_num=0 })
+    local error_num = _Process_Launch_Role_Error.none
+    local world_service_idx = msg.role_id % WORLD_SERVICE_NUM
+    local service_info = self.service.zone_net:get_service(Service_Const.World, world_service_idx)
+    if not service_info or not service_info.net_connected then
+        error_num = _Process_Launch_Role_Error.no_valid_world_service
+    else
+        local world_rpc_client = self.service:create_rpc_client(service_info.key)
+        world_rpc_client:call(Functional.make_closure(self._rpc_rsp_req_luanch_role, self, netid), WorldRpcFn.launch_role, msg.role_id)
+    end
+
+    if _Process_Launch_Role_Error.none ~= error_num then
+        self.client_cnn_mgr:send(netid, ProtoId.rsp_launch_role, { error_num = error_num })
+    end
+end
+
+function ClientMgr:_rpc_rsp_req_luanch_role(netid, rpc_error_num, launch_error_num, game_key, ...)
+    local error_num = _Process_Launch_Role_Error.none
+    if Rpc_Error.None ~= rpc_error_num then
+        error_num = _Process_Launch_Role_Error.rpc_error
+    else
+        if 0 ~= launch_error_num then
+            error_num = _Process_Launch_Role_Error.launch_fail
+        end
+    end
+    log_debug("process_req_launch_role rpc game_key:%s error_num:%s, launch_error_num:%s", game_key, error_num, launch_error_num)
+    self.client_cnn_mgr:send(netid, ProtoId.rsp_launch_role, { error_num = error_num })
 end

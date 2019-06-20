@@ -21,7 +21,7 @@ MemoryPoolMgr::MemoryPoolMgr(const std::vector<size_t> block_sizes, size_t memor
 	m_max_block_size = tmp_block_sizes.back();
 	m_memory_pool_fast_idx = (MemoryPoolData **)malloc(sizeof(MemoryPoolData *) * (m_max_block_size / BLOCK_SIZE_MULTI_BASE + 1));
 	m_memory_pool_fast_idx[0] = nullptr;
-	size_t used_pool_idx = 0;
+	size_t used_pool_idx = -1;
 	for (size_t block_size : tmp_block_sizes)
 	{
 		MemoryPool *memory_pool = new MemoryPool(block_size + BLOCK_SIZE_DESCRIPT_LEN, memory_page_size, expect_working_block_set_num, min_block_num_per_block_set);
@@ -77,7 +77,7 @@ void * MemoryPoolMgr::Realloc(void * ptr, size_t new_malloc_size)
 		{
 			return ptr;
 		}
-		if (malloc_size <= m_max_block_size)
+		if (new_malloc_size <= m_max_block_size)
 		{
 			size_t pool_idx = CalPoolIndex(malloc_size);
 			size_t new_pool_idx = CalPoolIndex(new_malloc_size);

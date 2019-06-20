@@ -13,8 +13,9 @@ function ManageRoleLogic:init()
     ManageRoleLogic.super.init(self)
 
     local rpc_process_fns_map = {
-        get_role_digest = self.get_role_digest,
-        create_role = self.create_role,
+        [WorldRpcFn.get_role_digest] = self.get_role_digest,
+        [WorldRpcFn.create_role] = self.create_role,
+        [WorldRpcFn.launch_role] = self.launch_role,
     }
 
     local rpc_co_process_fns_map = {
@@ -92,4 +93,38 @@ function ManageRoleLogic:create_role(rpc_rsp, user_id)
             rpc_rsp:report_error(string.format("already create role %s/%s", db_ret.matched_count, Max_Role_Count))
         end
     end)
+end
+
+ManageRoleLogic._Launch_Role_Error = {
+    none = 0,
+    no_valid_game_service = 1,
+    launch_fail = 2,
+}
+
+function ManageRoleLogic:launch_role(rpc_rsp, role_id)
+    log_debug("world ManageRoleLogic:launch_role %s", role_id)
+    local error_num = ManageRoleLogic._Launch_Role_Error.none
+    local game_service_key = ""
+    repeat
+        local service_info = self.service.zone_net:rand_service(Service_Const.Game)
+        if not service_info then
+            error_num = ManageRoleLogic._Launch_Role_Error.no_valid_game_service
+            break
+        end
+        self.service.rpc_mgr:call(
+                Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, service_info.key, rpc_rsp),
+                service_info.key, GameRpcFn.launch_role, role_id)
+    until true
+    if ManageRoleLogic._Launch_Role_Error.none ~= error_num then
+        rpc_rsp:respone(error_num, game_service_key)
+    end
+end
+
+function ManageRoleLogic:_rpc_rsp_launch_role(role_id, to_game_service_key, rpc_rsp, rpc_error_num, launch_error_num)
+    log_debug("xxxxxxxxxxxxxxxx ManageRoleLogic:_rpc_rsp_launch_role %s %s", rpc_error_num, launch_error_num)
+    local error_num = ManageRoleLogic._Launch_Role_Error.none
+    if Rpc_Error.None ~= rpc_error_num or 0 ~= launch_error_num then
+        error_num = ManageRoleLogic._Launch_Role_Error.launch_fail
+    end
+    rpc_rsp:respone(error_num, to_game_service_key)
 end

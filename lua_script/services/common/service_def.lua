@@ -57,6 +57,8 @@ MICRO_SEC_PER_SEC = 1000
 SERVICE_FRAME_PER_SEC = 30
 SERVICE_MICRO_SEC_PER_FRAME = MICRO_SEC_PER_SEC / SERVICE_FRAME_PER_SEC
 
+WORLD_SERVICE_NUM = 1 -- 世界服的服务器数量
+
 function combine_service_full_name(service_name, service_idx)
     local ret = string.format("%s.%s", service_name, service_idx)
     return ret
