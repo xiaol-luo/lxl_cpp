@@ -1,5 +1,10 @@
 
-PidBinCnn = PidBinCnn or class("PidBinCnn", NetCnn)
+local PidBinCnn_gc =  function(self)
+    if self.native_handler then
+    end
+end
+
+PidBinCnn = PidBinCnn or class("PidBinCnn", NetCnn, { __gc = PidBinCnn_gc })
 
 function PidBinCnn:ctor()
     PidBinCnn.super.ctor(self)

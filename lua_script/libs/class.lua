@@ -1,19 +1,29 @@
 local setmetatableindex_
 setmetatableindex_ = function(t, index)
     local mt = getmetatable(t)
-    if not mt then mt = {} end
+    if not mt then
+        mt = {}
+        -- gc
+        if rawget(index, "__gc") then
+            if not mt.__gc then
+                mt.__gc = rawget(index, "__gc")
+            end
+        end
+    end
+    -- index
     if not mt.__index then
         mt.__index = index
         setmetatable(t, mt)
     elseif mt.__index ~= index then
         setmetatableindex_(mt, index)
     end
+
 end
 setmetatableindex = setmetatableindex_
 
 local tRegisterClass = {}
 
-function class(class_name, super)
+function class(class_name, super, extra_meta)
     assert(not tRegisterClass[class_name], string.format("class() - has created class \"%s\" ", class_name))
     tRegisterClass[class_name] = true
 
@@ -24,6 +34,11 @@ function class(class_name, super)
     local cls = { __cname = class_name }
     cls.super = super
     cls.__index = cls
+    if extra_meta then
+        if extra_meta.__gc then
+            cls.__gc = extra_meta.__gc
+        end
+    end
     setmetatable(cls, { __index = cls.super })
 
     if not cls.ctor then
@@ -32,7 +47,8 @@ function class(class_name, super)
 
     cls.new = function(_, ...)
         local instance = {}
-        setmetatableindex(instance, cls)
+        -- setmetatableindex(instance, cls)
+        setmetatable(instance, cls)
         instance._class_type = cls
         instance:ctor(...)
         return instance
