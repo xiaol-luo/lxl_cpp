@@ -74,4 +74,4 @@ end
 Service_Base_Event_Inited = "Service_Base_Event_Inited"
 Service_Base_Event_Start = "Service_Base_Event_Start"
 Service_Base_Event_Stop = "Service_Base_Event_Stop"
-Service_Base_Event_Notify_Quit_Game = "Service_Base_Event_Stop"
+Service_Base_Event_Notify_Quit_Game = "Service_Base_Event_Notify_Quit_Game"

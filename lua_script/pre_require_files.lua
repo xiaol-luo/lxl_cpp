@@ -73,6 +73,8 @@ local files = {
     "services.common.rpc.game_def",
     "services.common.rpc.gate_def",
     "services.common.rpc.world_def",
+    "services.common.enum_def.enum_error",
+    "services.common.enum_def.enum_error__launch_role",
     "services.service_module.service_module_def",
     "services.service_module.service_module",
     "services.service_module.service_module_mgr",
