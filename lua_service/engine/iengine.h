@@ -9,6 +9,7 @@ extern "C"
 }
 #include "server_logic/ServerLogic.h"
 #include "common/cross_platform/cross_platform_adapter.h"
+#include "coroutine/coro_mgr.h"
 
 extern ServerLogic *g_server_logic;
 

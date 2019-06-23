@@ -1,6 +1,10 @@
 
 local PidBinCnn_gc =  function(self)
     if self.native_handler then
+        if self.native_handler then
+            self.native_handler:notify_gc()
+            self.native_handler = nil
+        end
     end
 end
 

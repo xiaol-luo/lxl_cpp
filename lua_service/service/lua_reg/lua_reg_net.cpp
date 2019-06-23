@@ -140,6 +140,7 @@ void lua_reg_net(lua_State *L)
 			sol::constructors<LuaTcpConnect()>(),
 			sol::base_classes, sol::bases<INetConnectHandler, INetworkHandler>(),
 			"init", &LuaTcpConnect::Init,
+			"notify_gc", &LuaTcpConnect::NotifyGc,
 			"send", sol::overload(
 				[](LuaTcpConnect *self, uint32_t pid) { return self->Send(pid); },
 				[](LuaTcpConnect *self, uint32_t pid, const std::string &bin) { return self->Send(pid, bin); }

@@ -137,6 +137,7 @@ void dns_query_async(std::string host, DnsQueryIpCallback cb)
 
 void engine_init()
 {
+	InitCoroMgr();
 	if (nullptr == g_server_logic)
 	{
 		assert(g_log_mgr);

@@ -19,10 +19,12 @@ public:
 	virtual void OnRecvData(char *data, uint32_t len) override;
 
 	bool Init(sol::table lua_logic);
+	void NotifyGc();
 	bool Send(uint32_t pid);
 	bool Send(uint32_t pid, const std::string &data);
 
 protected:
+	bool m_already_gc = false;
 	sol::table m_lua_logic;
 	NetBuffer *m_buff = nullptr;
 

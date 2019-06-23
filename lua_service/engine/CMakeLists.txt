@@ -16,6 +16,7 @@ LINK_LIBRARIES(lua53)
 LINK_LIBRARIES(data_struct)
 LINK_LIBRARIES(http_parser)
 LINK_LIBRARIES(crossguid)
+LINK_LIBRARIES(coro)
 
 IF (WIN32)
 	LINK_LIBRARIES(mongocxx-static)
