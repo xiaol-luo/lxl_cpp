@@ -4,27 +4,44 @@
 #include <memory>
 #include <vector>
 
-class ICoroVar : public std::enable_shared_from_this<ICoroVar>
+enum ECoroStatus
 {
-public:
-	virtual ~ICoroVar()
-	{
-		this->Release();
-	}
-	virtual void Release() = 0;
+	ECoroStatus_Dead = 0,
+	ECoroStatus_Suspended,
+	ECoroStatus_Running,
 };
 
-class CommonCoroVar : public ICoroVar
+enum ECoroError
+{
+	ECoroError_None = 0,
+	ECoroError_Not_Resumable = 1,
+	ECoroError_Not_Yieldable = 2,
+	ECoroError_Not_Find = 3,
+	ECoroError_Not_Running_Coro = 4,
+	ECoroError_Other_Coro_Running = 5,
+};
+
+class CoroVar : public std::enable_shared_from_this<CoroVar>
 {
 public:
 	using Release_Fn = std::function<void(void **)>;
-	CommonCoroVar(void **data, Release_Fn release_fn) 
+	CoroVar(void **data, Release_Fn release_fn) 
 	{
 		m_data = data;
 		m_release_fn = release_fn;
 	}
 
-	virtual void Release() override
+	virtual ~CoroVar()
+	{
+		this->DoRelease();
+	}
+
+	virtual void Release()
+	{
+		this->DoRelease();
+	}
+
+	void DoRelease()
 	{
 		if (m_release_fn && m_data)
 		{
@@ -46,15 +63,15 @@ protected:
 struct CoroOpRet
 {
 	CoroOpRet() {}
-	CoroOpRet(int _error_num, std::shared_ptr<ICoroVar> _ret) 
+	CoroOpRet(ECoroError _error_num, std::shared_ptr<CoroVar> _ret)
 	{
 		error_num = _error_num;
 		ret = _ret;
 	}
-	int error_num = 0;
-	std::shared_ptr<ICoroVar> ret = nullptr;
+	ECoroError error_num = ECoroError_None;
+	std::shared_ptr<CoroVar> ret = nullptr;
 };
 
 using Coro_Create_Fn_Void_Void = std::function<void(void)>;
-using Coro_Create_Fn_Var_Void = std::function<std::shared_ptr<ICoroVar>(void)>;
-using Coro_Create_Fn_Var_Var = std::function<std::shared_ptr<ICoroVar>(std::shared_ptr<ICoroVar>)>;
+using Coro_Create_Fn_Var_Void = std::function<std::shared_ptr<CoroVar>(void)>;
+using Coro_Create_Fn_Var_Var = std::function<std::shared_ptr<CoroVar>(std::shared_ptr<CoroVar>)>;

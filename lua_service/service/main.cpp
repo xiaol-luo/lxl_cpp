@@ -25,10 +25,24 @@ extern "C"
 #include "service_impl/pure_lua_service/pure_lua_service.h"
 #include "service_impl/sidecar_service/sidecar_service.h"
 
+lua_State *g_lua_state;
+
 void QuitGame(int signal)
 {
 	try_quit_game();
 }
+
+std::shared_ptr<CoroVar> test_coro(std::shared_ptr<CoroVar> in_param)
+{
+	log_debug("test_coro here");
+	return nullptr;
+}
+
+struct TestCoroVar
+{
+	int int_val = 0;
+	float float_val = 0;
+};
 
 int main (int argc, char **argv) 
 {
@@ -57,6 +71,30 @@ int main (int argc, char **argv)
 	start_log(ELogLevel_Debug, service_name);
 	engine_init();
 
+	{
+		TestCoroVar coro_var;
+		coro_var.int_val = 1;
+		coro_var.float_val = 1;
+		std::make_shared<CoroVar>((void **)&coro_var, nullptr);
+	}
+	{
+		int64_t coro_id = Coro_Create(test_coro);
+		{
+			TestCoroVar coro_var;
+			coro_var.int_val = 1;
+			coro_var.float_val = 1;
+			std::shared_ptr<CoroVar> v = std::make_shared<CoroVar>((void **)&coro_var, nullptr);
+			CoroOpRet ret1 = Coro_Resume(coro_id, v);
+		}
+		{
+			TestCoroVar coro_var;
+			coro_var.int_val = 2;
+			coro_var.float_val = 2;
+			std::shared_ptr<CoroVar> v = std::make_shared<CoroVar>((void **)&coro_var, nullptr);
+			CoroOpRet ret1 = Coro_Resume(coro_id, v);
+		}
+	}
+
 	ServiceBase *service = nullptr;
 	// const char *service_name = argv[Args_Index_Service_Name];
 	if (nullptr == service && "sidecar" == service_name)
@@ -74,6 +112,7 @@ int main (int argc, char **argv)
 	void *ls_mem = mempool_malloc(sizeof(sol::state));
 	sol::state *ls = new(ls_mem)sol::state(lua_panic_error, LuaAlloc);
 	lua_State *L = ls->lua_state();
+	g_lua_state = L;
 	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 	service->SetLuaState(L);
 
@@ -91,13 +130,14 @@ int main (int argc, char **argv)
 	setup_service(service);  
 	const int FLUSH_LOG_SPAN_MS = 10 * 1000;
 	timer_firm(std::bind(flush_log), FLUSH_LOG_SPAN_MS, EXECUTE_UNLIMIT_TIMES);
+	timer_firm(std::bind([ls]() { ls->collect_garbage(); }), FLUSH_LOG_SPAN_MS, EXECUTE_UNLIMIT_TIMES);
 	timer_next(std::bind(&ServiceBase::RunService, service, argc, argv), 0);
 	service = nullptr; // engine own the service
 	engine_loop();
 	ls->collect_garbage();
 	ls->~state(); ls = nullptr;
-	mempool_free(ls_mem); ls_mem = nullptr;
 	stop_log();
+	mempool_free(ls_mem); ls_mem = nullptr;
 	engine_destroy();
 	return 0;
 }
