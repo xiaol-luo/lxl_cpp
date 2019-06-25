@@ -41,7 +41,7 @@ CoroOpRet CoroMgr::DoYield(std::shared_ptr<CoroVarBase> out_param)
 {
 	this->CheckResetRunningCoro();
 
-	int64_t coro_id = this->RunningCoroId();
+	int64_t coro_id = this->Running();
 	if (coro_id <= 0)
 	{
 		return CoroOpRet(ECoroError_Not_Running_Coro, nullptr);
@@ -67,7 +67,7 @@ ECoroStatus CoroMgr::Status(int64_t coro_id)
 	return ret;
 }
 
-int64_t CoroMgr::RunningCoroId()
+int64_t CoroMgr::Running()
 {
 	this->CheckResetRunningCoro();
 
@@ -92,24 +92,34 @@ std::shared_ptr<Coro> CoroMgr::GetCoro(int64_t coro_id)
 
 void CoroMgr::CheckResetRunningCoro()
 {
-	if (m_running_coro)
+	if (m_running_coro && ECoroStatus_Dead == m_running_coro->GetStatus())
 	{
-		if (ECoroStatus_Dead == m_running_coro->GetStatus())
-		{
-			int64_t coro_id = m_running_coro->GetId();
-			m_coro_map.erase(coro_id);
-			m_running_coro = nullptr;
-		}
-		if (ECoroStatus_Suspended == m_running_coro->GetStatus())
-		{
-			m_running_coro = nullptr;
-		}
+		int64_t coro_id = m_running_coro->GetId();
+		m_coro_map.erase(coro_id);
+		m_running_coro = nullptr;
+	}
+	if (m_running_coro && ECoroStatus_Suspended == m_running_coro->GetStatus())
+	{
+		m_running_coro = nullptr;
 	}
 }
 
 void CoroMgr::Kill(int64_t coro_id)
 {
-
+	auto coro = GetCoro(coro_id);
+	if (coro && ECoroStatus_Dead != coro->GetStatus())
+	{
+		if (ECoroStatus_Running == coro->GetStatus())
+		{
+			coro->Kill();
+			// 后边的代码不会执行了
+		}
+		else
+		{
+			m_coro_map.erase(coro_id);
+			coro->Kill();
+		}
+	}
 }
 
 
@@ -136,12 +146,17 @@ CoroOpRet Coro_Yield(std::shared_ptr<CoroVarBase> out_param)
 	return g_coro_mgr->DoYield(out_param);
 }
 
+void Coro_Kill(int64_t coro_id)
+{
+	g_coro_mgr->Kill(coro_id);
+}
+
 ECoroStatus Coro_Status(int64_t coro_id)
 {
 	return g_coro_mgr->Status(coro_id);
 }
 
-int64_t Coro_RunningCoroId()
+int64_t Coro_Running()
 {
-	return g_coro_mgr->RunningCoroId();
+	return g_coro_mgr->Running();
 }

@@ -39,6 +39,7 @@ std::shared_ptr<CoroVarBase> test_coro(std::shared_ptr<CoroVarBase> in_param)
 	std::shared_ptr<CoroVarBase> xx = std::make_shared<CoroVarBase>(nullptr);
 	auto xxx = Coro_Yield(xx);
 	log_debug("test_coro here 2");
+	Coro_Kill(Coro_Running());
 	return xx;
 }
 
@@ -100,6 +101,14 @@ int main (int argc, char **argv)
 			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVar<TestCoroVar *> >(coro_var, nullptr);
 			CoroOpRet ret1 = Coro_Resume(coro_id, v);
 			printf("xxxxxxxxxxxxxxxx 2\n");
+		}
+		{
+			TestCoroVar *coro_var = new TestCoroVar();
+			coro_var->int_val = 2;
+			coro_var->float_val = 2;
+			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVar<TestCoroVar *> >(coro_var, nullptr);
+			CoroOpRet ret1 = Coro_Resume(coro_id, v);
+			printf("xxxxxxxxxxxxxxxx 3\n");
 		}
 	}
 

@@ -19,6 +19,7 @@ enum ECoroError
 	ECoroError_Not_Find = 3,
 	ECoroError_Not_Running_Coro = 4,
 	ECoroError_Other_Coro_Running = 5,
+	ECoroError_Killed = 6,
 };
 
 class CoroVarBase : public std::enable_shared_from_this<CoroVarBase>
@@ -136,3 +137,12 @@ struct CoroOpRet
 using Coro_Create_Fn_Void_Void = std::function<void(void)>;
 using Coro_Create_Fn_Var_Void = std::function<std::shared_ptr<CoroVarBase>(void)>;
 using Coro_Create_Fn_Var_Var = std::function<std::shared_ptr<CoroVarBase>(std::shared_ptr<CoroVarBase>)>;
+
+void InitCoroMgr();
+int64_t Coro_Create(Coro_Create_Fn_Var_Var fn, std::shared_ptr<CoroVarBase> fn_param);
+CoroOpRet Coro_Resume(int64_t coro_id, std::shared_ptr<CoroVarBase > in_param);
+CoroOpRet Coro_Yield(std::shared_ptr<CoroVarBase> out_param);
+void Coro_Kill(int64_t coro_id);
+ECoroStatus Coro_Status(int64_t coro_id);
+int64_t Coro_Running();
+

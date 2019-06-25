@@ -37,6 +37,10 @@ CoroOpRet Coro::Resume(std::shared_ptr<CoroVarBase> in_param)
 	m_state = ECoroStatus_Running;
 	coroutine::resume(m_rt);
 
+	if (m_is_killed)
+	{
+		ret.error_num = ECoroError_Killed;
+	}
 	if (ECoroStatus_Dead == m_state)
 	{
 		ret.ret = m_over_var;
@@ -65,9 +69,27 @@ CoroOpRet Coro::DoYield(std::shared_ptr<CoroVarBase> out_param)
 	return ret;
 }
 
+void Coro::Kill()
+{
+	if (!m_is_killed && ECoroStatus_Dead != m_state)
+	{
+		m_is_killed = true;
+		ECoroStatus old_state = m_state;
+		m_state = ECoroStatus_Dead;
+		if (ECoroStatus_Running == old_state)
+		{
+			this->DoYield(nullptr);
+			// 后边的代码不会执行了
+		}
+	}
+}
+
 void Coro::ReleaseAll()
 {
-	coroutine::destroy(m_rt);
+	if (m_rt > 0)
+	{
+		coroutine::destroy(m_rt);
+	}
 	m_in_var_history.clear();
 	m_in_var = nullptr;
 	m_out_var = nullptr;
