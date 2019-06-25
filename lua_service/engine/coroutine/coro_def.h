@@ -21,17 +21,17 @@ enum ECoroError
 	ECoroError_Other_Coro_Running = 5,
 };
 
-class CoroVar : public std::enable_shared_from_this<CoroVar>
+class CoroVarBase : public std::enable_shared_from_this<CoroVarBase>
 {
 public:
 	using Release_Fn = std::function<void(void **)>;
-	CoroVar(void **data, Release_Fn release_fn) 
+	CoroVarBase(void **data, Release_Fn release_fn) 
 	{
 		m_data = data;
 		m_release_fn = release_fn;
 	}
 
-	virtual ~CoroVar()
+	virtual ~CoroVarBase()
 	{
 		this->DoRelease();
 	}
@@ -46,6 +46,7 @@ public:
 		if (m_release_fn && m_data)
 		{
 			m_release_fn(m_data);
+			m_data = nullptr;
 		}
 	}
 
@@ -60,18 +61,29 @@ protected:
 	Release_Fn m_release_fn = nullptr;
 };
 
+template <typename T>
+class CoroVar : public CoroVarBase
+{
+public:
+	using Release_Fn = std::function<void(T)>;
+	CoroVar(T data, Release_Fn fn)
+	{
+
+	}
+};
+
 struct CoroOpRet
 {
 	CoroOpRet() {}
-	CoroOpRet(ECoroError _error_num, std::shared_ptr<CoroVar> _ret)
+	CoroOpRet(ECoroError _error_num, std::shared_ptr<CoroVarBase> _ret)
 	{
 		error_num = _error_num;
 		ret = _ret;
 	}
 	ECoroError error_num = ECoroError_None;
-	std::shared_ptr<CoroVar> ret = nullptr;
+	std::shared_ptr<CoroVarBase> ret = nullptr;
 };
 
 using Coro_Create_Fn_Void_Void = std::function<void(void)>;
-using Coro_Create_Fn_Var_Void = std::function<std::shared_ptr<CoroVar>(void)>;
-using Coro_Create_Fn_Var_Var = std::function<std::shared_ptr<CoroVar>(std::shared_ptr<CoroVar>)>;
+using Coro_Create_Fn_Var_Void = std::function<std::shared_ptr<CoroVarBase>(void)>;
+using Coro_Create_Fn_Var_Var = std::function<std::shared_ptr<CoroVarBase>(std::shared_ptr<CoroVarBase>)>;

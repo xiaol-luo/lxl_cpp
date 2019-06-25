@@ -1,18 +1,18 @@
 #include "coro.hpp"
 #include "coro_mgr.h"
 #include <assert.h>
+#include <functional>
+#include "coroutine/coroutine.h"
 
-// extern CoroMgr *g_coro_mgr = nullptr;
+extern CoroMgr *g_coro_mgr;
 
-Coro::Coro(int64_t id, Coro_Create_Fn_Var_Var logic_fn)
+Coro::Coro(int64_t id, Coro_Create_Fn_Var_Var logic_fn, std::shared_ptr<CoroVarBase> fn_param)
 {
 	assert(logic_fn);
 	m_id = id;
 	m_logic_fn = logic_fn;
-	m_stack = new coro_stack();
-	coro_stack_alloc(m_stack, 0);
-	m_context = new coro_context();
-	coro_create(m_context, Coro::coro_func, this, m_stack->sptr, m_stack->ssze);
+	m_logic_param = fn_param;
+	m_rt = coroutine::create(std::bind(&Coro::coro_func, this));
 }
 
 Coro::~Coro()
@@ -20,7 +20,7 @@ Coro::~Coro()
 	this->ReleaseAll();
 }
 
-CoroOpRet Coro::Resume(std::shared_ptr<CoroVar> in_param)
+CoroOpRet Coro::Resume(std::shared_ptr<CoroVarBase> in_param)
 {
 	CoroOpRet ret;
 	m_in_var = in_param;
@@ -31,15 +31,24 @@ CoroOpRet Coro::Resume(std::shared_ptr<CoroVar> in_param)
 		return ret;
 	}
 
-	m_state = ECoroStatus_Running;
 	m_out_var = nullptr;
 	m_in_var_history.insert(in_param);
 
-	ret.ret = m_out_var;
+	m_state = ECoroStatus_Running;
+	coroutine::resume(m_rt);
+
+	if (ECoroStatus_Dead == m_state)
+	{
+		ret.ret = m_over_var;
+	}
+	else
+	{
+		ret.ret = m_out_var;
+	}
 	return ret;
 }
 
-CoroOpRet Coro::DoYield(std::shared_ptr<CoroVar> out_param)
+CoroOpRet Coro::DoYield(std::shared_ptr<CoroVarBase> out_param)
 {
 	CoroOpRet ret;
 	m_out_var = out_param;
@@ -49,35 +58,25 @@ CoroOpRet Coro::DoYield(std::shared_ptr<CoroVar> out_param)
 		ret.error_num = ECoroError_Not_Yieldable;
 		return ret;
 	}
+
 	m_state = ECoroStatus_Suspended;
+	coroutine::yield();
+	ret.ret = m_in_var;
 	return ret;
 }
 
 void Coro::ReleaseAll()
 {
-	if (m_context)
-	{
-		coro_destroy(m_context);
-		delete m_context;
-		m_context = nullptr;
-	}
-	if (m_stack)
-	{
-		coro_stack_free(m_stack);
-		delete m_stack;
-		m_stack = nullptr;
-	}
+	coroutine::destroy(m_rt);
 	m_in_var_history.clear();
 	m_in_var = nullptr;
 	m_out_var = nullptr;
 }
 
-void Coro::coro_func(void *arg)
+void Coro::coro_func()
 {
-	Coro * ptr = static_cast<Coro *>(arg);
-	std::shared_ptr<Coro> This = ptr->shared_from_this();
-
-	This->m_state = ECoroStatus_Dead;
+	this->m_over_var = m_logic_fn(m_logic_param);
+	this->m_state = ECoroStatus_Dead;
 }
 
 

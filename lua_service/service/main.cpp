@@ -32,10 +32,14 @@ void QuitGame(int signal)
 	try_quit_game();
 }
 
-std::shared_ptr<CoroVar> test_coro(std::shared_ptr<CoroVar> in_param)
+std::shared_ptr<CoroVarBase> test_coro(std::shared_ptr<CoroVarBase> in_param)
 {
-	log_debug("test_coro here");
-	return nullptr;
+	log_debug("test_coro here 1");
+
+	std::shared_ptr<CoroVarBase> xx = std::make_shared<CoroVarBase>(nullptr, nullptr);
+	auto xxx = Coro_Yield(xx);
+	log_debug("test_coro here 2");
+	return xx;
 }
 
 struct TestCoroVar
@@ -71,27 +75,31 @@ int main (int argc, char **argv)
 	start_log(ELogLevel_Debug, service_name);
 	engine_init();
 
+	if (false)
 	{
 		TestCoroVar coro_var;
 		coro_var.int_val = 1;
 		coro_var.float_val = 1;
-		std::make_shared<CoroVar>((void **)&coro_var, nullptr);
+		std::make_shared<CoroVarBase>((void **)&coro_var, nullptr);
 	}
+	if (true)
 	{
-		int64_t coro_id = Coro_Create(test_coro);
+		int64_t coro_id = Coro_Create(test_coro, nullptr);
 		{
 			TestCoroVar coro_var;
 			coro_var.int_val = 1;
 			coro_var.float_val = 1;
-			std::shared_ptr<CoroVar> v = std::make_shared<CoroVar>((void **)&coro_var, nullptr);
+			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVarBase>((void **)&coro_var, nullptr);
 			CoroOpRet ret1 = Coro_Resume(coro_id, v);
+			printf("xxxxxxxxxxxxxxxx 1\n");
 		}
 		{
 			TestCoroVar coro_var;
 			coro_var.int_val = 2;
 			coro_var.float_val = 2;
-			std::shared_ptr<CoroVar> v = std::make_shared<CoroVar>((void **)&coro_var, nullptr);
+			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVarBase>((void **)&coro_var, nullptr);
 			CoroOpRet ret1 = Coro_Resume(coro_id, v);
+			printf("xxxxxxxxxxxxxxxx 2\n");
 		}
 	}
 

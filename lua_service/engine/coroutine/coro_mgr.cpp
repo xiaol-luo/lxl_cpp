@@ -3,29 +3,23 @@
 
 CoroMgr::CoroMgr()
 {
-	m_context = new coro_context();
-	coro_create(m_context, nullptr, nullptr, nullptr, 0);
+
 }
 
 CoroMgr::~CoroMgr()
 {
-	if (m_context)
-	{
-		coro_destroy(m_context);
-		delete m_context;
-		m_context = nullptr;
-	}
+
 }
 
-int64_t CoroMgr::Create(Coro_Create_Fn_Var_Var fn)
+int64_t CoroMgr::Create(Coro_Create_Fn_Var_Var fn, std::shared_ptr<CoroVarBase> fn_param)
 {
 	++m_last_coro_id;
-	std::shared_ptr<Coro> item = std::make_shared<Coro>(m_last_coro_id, fn);
+	std::shared_ptr<Coro> item = std::make_shared<Coro>(m_last_coro_id, fn, fn_param);
 	m_coro_map.insert(std::make_pair(m_last_coro_id, item));
 	return m_last_coro_id;
 }
 
-CoroOpRet CoroMgr::Resume(int64_t coro_id, std::shared_ptr<CoroVar> in_param)
+CoroOpRet CoroMgr::Resume(int64_t coro_id, std::shared_ptr<CoroVarBase> in_param)
 {
 	this->CheckResetRunningCoro();
 	if (m_running_coro)
@@ -38,11 +32,12 @@ CoroOpRet CoroMgr::Resume(int64_t coro_id, std::shared_ptr<CoroVar> in_param)
 		return CoroOpRet(ECoroError_Not_Find, nullptr);
 	}
 
+	m_running_coro = coro;
 	CoroOpRet ret = coro->Resume(in_param);
 	return ret;
 }
 
-CoroOpRet CoroMgr::DoYield(std::shared_ptr<CoroVar> out_param)
+CoroOpRet CoroMgr::DoYield(std::shared_ptr<CoroVarBase> out_param)
 {
 	this->CheckResetRunningCoro();
 
@@ -118,7 +113,7 @@ void CoroMgr::Kill(int64_t coro_id)
 }
 
 
-extern CoroMgr *g_coro_mgr = nullptr;
+CoroMgr *g_coro_mgr = nullptr;
 
 void InitCoroMgr()
 {
@@ -126,17 +121,17 @@ void InitCoroMgr()
 	g_coro_mgr = new CoroMgr();
 }
 
-int64_t Coro_Create(Coro_Create_Fn_Var_Var fn)
+int64_t Coro_Create(Coro_Create_Fn_Var_Var fn, std::shared_ptr<CoroVarBase> fn_param)
 {
-	return g_coro_mgr->Create(fn);
+	return g_coro_mgr->Create(fn, fn_param);
 }
 
-CoroOpRet Coro_Resume(int64_t coro_id, std::shared_ptr<CoroVar> in_param)
+CoroOpRet Coro_Resume(int64_t coro_id, std::shared_ptr<CoroVarBase> in_param)
 {
 	return g_coro_mgr->Resume(coro_id, in_param);
 }
 
-CoroOpRet Coro_DoYield(std::shared_ptr<CoroVar> out_param)
+CoroOpRet Coro_Yield(std::shared_ptr<CoroVarBase> out_param)
 {
 	return g_coro_mgr->DoYield(out_param);
 }
