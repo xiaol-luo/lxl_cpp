@@ -76,14 +76,14 @@ int main (int argc, char **argv)
 	start_log(ELogLevel_Debug, service_name);
 	engine_init();
 
-	if (true)
+	if (false)
 	{
 		TestCoroVar coro_var;
 		coro_var.int_val = 1;
 		coro_var.float_val = 1;
 		std::make_shared<CoroVar<TestCoroVar> >(coro_var, nullptr);
 	}
-	if (true)
+	if (false)
 	{
 		int64_t coro_id = Coro_Create(test_coro, nullptr);
 		{

@@ -130,6 +130,7 @@ void register_native_libs(lua_State *L)
 	lua_reg_net(L);
 	lua_reg_make_shared_ptr(L);
 	lua_reg_mongo(L);
+	lua_reg_coro(L);
 
 	t.set_function("net_close", net_close);
 	t.set_function("net_connect", net_connect);

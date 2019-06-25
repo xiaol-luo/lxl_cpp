@@ -40,10 +40,10 @@ public:
 		m_ptr = nullptr;
 	}
 
-	template<typename T> 
-	T GetData()
+	template <typename T>
+	std::shared_ptr<T> GetSharedPtr()
 	{
-		return static_cast<T>(m_ptr);
+		return std::dynamic_pointer_cast<T>(this->shared_from_this());
 	}
 
 protected:
@@ -54,7 +54,7 @@ template <typename T>
 class CoroVar : public CoroVarBase
 {
 public:
-	using Release_Fn = std::function<void(T)>;
+	using Release_Fn = std::function<void(T &)>;
 	CoroVar(T data, Release_Fn fn) : CoroVarBase((void *)&data)
 	{
 		m_data = data;
@@ -80,6 +80,8 @@ public:
 			m_ptr = nullptr;
 		}
 	}
+
+	T GetData() { return m_data; }
 
 protected:
 	T m_data;
@@ -116,6 +118,8 @@ public:
 			m_ptr = nullptr;
 		}
 	}
+
+	T * GetData() { return m_data; }
 
 protected:
 	T *m_data;
