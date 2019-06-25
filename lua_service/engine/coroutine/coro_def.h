@@ -24,41 +24,29 @@ enum ECoroError
 class CoroVarBase : public std::enable_shared_from_this<CoroVarBase>
 {
 public:
-	using Release_Fn = std::function<void(void **)>;
-	CoroVarBase(void **data, Release_Fn release_fn) 
+	CoroVarBase(void *ptr) 
 	{
-		m_data = data;
-		m_release_fn = release_fn;
+		m_ptr = ptr;
 	}
 
 	virtual ~CoroVarBase()
 	{
-		this->DoRelease();
+		m_ptr = nullptr;
 	}
 
 	virtual void Release()
 	{
-		this->DoRelease();
-	}
-
-	void DoRelease()
-	{
-		if (m_release_fn && m_data)
-		{
-			m_release_fn(m_data);
-			m_data = nullptr;
-		}
+		m_ptr = nullptr;
 	}
 
 	template<typename T> 
 	T GetData()
 	{
-		return static_cast<T>(m_data);
+		return static_cast<T>(m_ptr);
 	}
 
 protected:
-	void **m_data = nullptr;
-	Release_Fn m_release_fn = nullptr;
+	void *m_ptr = nullptr;
 };
 
 template <typename T>
@@ -66,10 +54,71 @@ class CoroVar : public CoroVarBase
 {
 public:
 	using Release_Fn = std::function<void(T)>;
-	CoroVar(T data, Release_Fn fn)
+	CoroVar(T data, Release_Fn fn) : CoroVarBase((void *)&data)
 	{
-
+		m_data = data;
+		m_release_fn = fn;
 	}
+
+	virtual ~CoroVar()
+	{
+		this->DoRelease();
+	}
+
+	virtual void Release() override
+	{
+		this->DoRelease();
+	}
+
+	void DoRelease()
+	{
+		if (m_release_fn && m_ptr)
+		{
+			m_release_fn(m_data);
+			m_release_fn = nullptr;
+			m_ptr = nullptr;
+		}
+	}
+
+protected:
+	T m_data;
+	Release_Fn m_release_fn = nullptr;
+};
+
+template <typename T>
+class CoroVar<T *> : public CoroVarBase
+{
+public:
+	using Release_Fn = std::function<void(T *)>;
+	CoroVar(T *data, Release_Fn fn) : CoroVarBase((void *)data)
+	{
+		m_data = data;
+		m_release_fn = fn;
+	}
+
+	virtual ~CoroVar()
+	{
+		this->DoRelease();
+	}
+
+	virtual void Release() override
+	{
+		this->DoRelease();
+	}
+
+	void DoRelease()
+	{
+		if (m_release_fn && m_ptr)
+		{
+			m_release_fn(m_data);
+			m_release_fn = nullptr;
+			m_ptr = nullptr;
+		}
+	}
+
+protected:
+	T *m_data;
+	Release_Fn m_release_fn = nullptr;
 };
 
 struct CoroOpRet

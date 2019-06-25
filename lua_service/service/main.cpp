@@ -36,7 +36,7 @@ std::shared_ptr<CoroVarBase> test_coro(std::shared_ptr<CoroVarBase> in_param)
 {
 	log_debug("test_coro here 1");
 
-	std::shared_ptr<CoroVarBase> xx = std::make_shared<CoroVarBase>(nullptr, nullptr);
+	std::shared_ptr<CoroVarBase> xx = std::make_shared<CoroVarBase>(nullptr);
 	auto xxx = Coro_Yield(xx);
 	log_debug("test_coro here 2");
 	return xx;
@@ -75,12 +75,12 @@ int main (int argc, char **argv)
 	start_log(ELogLevel_Debug, service_name);
 	engine_init();
 
-	if (false)
+	if (true)
 	{
 		TestCoroVar coro_var;
 		coro_var.int_val = 1;
 		coro_var.float_val = 1;
-		std::make_shared<CoroVarBase>((void **)&coro_var, nullptr);
+		std::make_shared<CoroVar<TestCoroVar> >(coro_var, nullptr);
 	}
 	if (true)
 	{
@@ -89,15 +89,15 @@ int main (int argc, char **argv)
 			TestCoroVar coro_var;
 			coro_var.int_val = 1;
 			coro_var.float_val = 1;
-			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVarBase>((void **)&coro_var, nullptr);
+			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVar<TestCoroVar>>(coro_var, nullptr);
 			CoroOpRet ret1 = Coro_Resume(coro_id, v);
 			printf("xxxxxxxxxxxxxxxx 1\n");
 		}
 		{
-			TestCoroVar coro_var;
-			coro_var.int_val = 2;
-			coro_var.float_val = 2;
-			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVarBase>((void **)&coro_var, nullptr);
+			TestCoroVar *coro_var = new TestCoroVar();
+			coro_var->int_val = 2;
+			coro_var->float_val = 2;
+			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVar<TestCoroVar *> >(coro_var, nullptr);
 			CoroOpRet ret1 = Coro_Resume(coro_id, v);
 			printf("xxxxxxxxxxxxxxxx 2\n");
 		}
