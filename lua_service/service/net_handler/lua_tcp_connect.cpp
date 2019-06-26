@@ -21,29 +21,16 @@ LuaTcpConnect::~LuaTcpConnect()
 
 void LuaTcpConnect::OnClose(int error_num)
 {
-	if (m_already_gc)
-		return;
 	m_lua_logic[LUA_CNN_CB_ONCLOSE](m_lua_logic, error_num);
 }
 
 void LuaTcpConnect::OnOpen(int error_num)
 {
-	if (m_already_gc)
-	{
-		net_close(m_netid);
-		return;
-	}
 	m_lua_logic[LUA_CNN_CB_ONOPEN](m_lua_logic, error_num);
 }
 
 void LuaTcpConnect::OnRecvData(char * data, uint32_t len)
 {
-	if (m_already_gc)
-	{
-		net_close(m_netid);
-		return;
-	}
-
 	if (!m_pid_ctx_splitter->IsFail())
 	{
 		m_pid_ctx_splitter->Append(data, len);
@@ -91,11 +78,6 @@ bool LuaTcpConnect::Init(sol::main_table lua_logic)
 		assert(fn.is<sol::main_protected_function>());
 	}
 	return true;
-}
-
-void LuaTcpConnect::NotifyGc()
-{
-	m_already_gc = true;
 }
 
 bool LuaTcpConnect::Send(uint32_t pid)
