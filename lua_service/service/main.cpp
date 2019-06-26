@@ -25,29 +25,10 @@ extern "C"
 #include "service_impl/pure_lua_service/pure_lua_service.h"
 #include "service_impl/sidecar_service/sidecar_service.h"
 
-lua_State *g_lua_state;
-
 void QuitGame(int signal)
 {
 	try_quit_game();
 }
-
-std::shared_ptr<CoroVarBase> test_coro(std::shared_ptr<CoroVarBase> in_param)
-{
-	log_debug("test_coro here 1");
-
-	std::shared_ptr<CoroVarBase> xx = std::make_shared<CoroVarBase>(nullptr);
-	auto xxx = Coro_Yield(xx);
-	log_debug("test_coro here 2");
-	Coro_Kill(Coro_Running());
-	return xx;
-}
-
-struct TestCoroVar
-{
-	int int_val = 0;
-	float float_val = 0;
-};
 
 int main (int argc, char **argv) 
 {
@@ -76,42 +57,6 @@ int main (int argc, char **argv)
 	start_log(ELogLevel_Debug, service_name);
 	engine_init();
 
-	if (false)
-	{
-		TestCoroVar coro_var;
-		coro_var.int_val = 1;
-		coro_var.float_val = 1;
-		std::make_shared<CoroVar<TestCoroVar> >(coro_var, nullptr);
-	}
-	if (false)
-	{
-		int64_t coro_id = Coro_Create(test_coro, nullptr);
-		{
-			TestCoroVar coro_var;
-			coro_var.int_val = 1;
-			coro_var.float_val = 1;
-			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVar<TestCoroVar>>(coro_var, nullptr);
-			CoroOpRet ret1 = Coro_Resume(coro_id, v);
-			printf("xxxxxxxxxxxxxxxx 1\n");
-		}
-		{
-			TestCoroVar *coro_var = new TestCoroVar();
-			coro_var->int_val = 2;
-			coro_var->float_val = 2;
-			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVar<TestCoroVar *> >(coro_var, nullptr);
-			CoroOpRet ret1 = Coro_Resume(coro_id, v);
-			printf("xxxxxxxxxxxxxxxx 2\n");
-		}
-		{
-			TestCoroVar *coro_var = new TestCoroVar();
-			coro_var->int_val = 2;
-			coro_var->float_val = 2;
-			std::shared_ptr<CoroVarBase> v = std::make_shared<CoroVar<TestCoroVar *> >(coro_var, nullptr);
-			CoroOpRet ret1 = Coro_Resume(coro_id, v);
-			printf("xxxxxxxxxxxxxxxx 3\n");
-		}
-	}
-
 	ServiceBase *service = nullptr;
 	// const char *service_name = argv[Args_Index_Service_Name];
 	if (nullptr == service && "sidecar" == service_name)
@@ -129,8 +74,7 @@ int main (int argc, char **argv)
 	void *ls_mem = mempool_malloc(sizeof(sol::state));
 	sol::state *ls = new(ls_mem)sol::state(lua_panic_error, LuaAlloc);
 	lua_State *L = ls->lua_state();
-	g_lua_state = L;
-	sol::protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
+	sol::main_protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 	service->SetLuaState(L);
 
 #ifdef WIN32

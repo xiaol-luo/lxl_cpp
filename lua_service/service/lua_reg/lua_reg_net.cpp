@@ -6,7 +6,7 @@
 #include "net_handler/http_rsp_cnn.h"
 #include "net_handler/http_req_cnn.h"
 
-static bool http_rsp_cnn__req_cb_fn(sol::protected_function lua_fn, HttpRspCnn * self, std::string method, std::string url, std::unordered_map<std::string, std::string> heads,
+static bool http_rsp_cnn__req_cb_fn(sol::main_protected_function lua_fn, HttpRspCnn * self, std::string method, std::string url, std::unordered_map<std::string, std::string> heads,
 	std::string body)
 {
 	bool ret = false;
@@ -25,7 +25,7 @@ static bool http_rsp_cnn__req_cb_fn(sol::protected_function lua_fn, HttpRspCnn *
 	return ret;
 }
 
-static void wrap_http_rsp_cnn__set_req_cb_fn(HttpRspCnn &cnn, sol::protected_function lua_fn)
+static void wrap_http_rsp_cnn__set_req_cb_fn(HttpRspCnn &cnn, sol::main_protected_function lua_fn)
 {
 	cnn.SetReqCbFn(std::bind(http_rsp_cnn__req_cb_fn, lua_fn,
 		std::placeholders::_1, std::placeholders::_2,
@@ -35,7 +35,7 @@ static void wrap_http_rsp_cnn__set_req_cb_fn(HttpRspCnn &cnn, sol::protected_fun
 
 void lua_reg_net(lua_State *L)
 {
-	sol::table native_tb = get_or_create_table(L, TB_NATIVE);
+	sol::main_table native_tb = get_or_create_table(L, TB_NATIVE);
 	{
 		// INetworkHandler
 		std::string class_name = "INetworkHandler";

@@ -2,11 +2,11 @@
 #include "iengine.h"
 #include "main_impl/main_impl.h"
 
-sol::table get_or_create_table(lua_State *L, std::string tb_name)
+sol::main_table get_or_create_table(lua_State *L, std::string tb_name)
 {
 	sol::state_view lsv(L);
 	sol::object v = lsv.get<sol::object>(tb_name);
-	if (!v.is<sol::table>())
+	if (!v.is<sol::main_table>())
 	{
 		// 如果table不存在，那么只应该为nil，否则会有覆盖有效数据的风险
 		assert(v.is<sol::nil_t>());
@@ -15,7 +15,7 @@ sol::table get_or_create_table(lua_State *L, std::string tb_name)
 	return lsv[tb_name];
 }
 
-TimerCallback safe_timer_cb(sol::protected_function lua_fn)
+TimerCallback safe_timer_cb(sol::main_protected_function lua_fn)
 {
 	TimerCallback cb = [lua_fn]() {
 		lua_fn();
@@ -23,29 +23,29 @@ TimerCallback safe_timer_cb(sol::protected_function lua_fn)
 	return cb;
 }
 
-TimerID lua_timer_add(sol::protected_function cb_fn, int64_t start_ts_ms, int64_t execute_span_ms, int64_t execute_times)
+TimerID lua_timer_add(sol::main_protected_function cb_fn, int64_t start_ts_ms, int64_t execute_span_ms, int64_t execute_times)
 {
 	auto fn = safe_timer_cb(cb_fn);
 	return timer_add(fn, start_ts_ms, execute_span_ms, execute_times);
 }
-TimerID lua_timer_next(sol::protected_function cb_fn, int64_t start_ts_ms)
+TimerID lua_timer_next(sol::main_protected_function cb_fn, int64_t start_ts_ms)
 {
 	auto fn = safe_timer_cb(cb_fn);
 	return timer_next(fn, start_ts_ms);
 }
-TimerID lua_timer_firm(sol::protected_function cb_fn, int64_t execute_span_ms, int64_t execute_times)
+TimerID lua_timer_firm(sol::main_protected_function cb_fn, int64_t execute_span_ms, int64_t execute_times)
 {
 	auto fn = safe_timer_cb(cb_fn);
 	return timer_firm(fn, execute_span_ms, execute_times);
 }
 
-HttpReqCnn::FnProcessRsp safe_http_req_process_rsp_cb(sol::protected_function lua_fn)
+HttpReqCnn::FnProcessRsp safe_http_req_process_rsp_cb(sol::main_protected_function lua_fn)
 {
 	HttpReqCnn::FnProcessRsp ret = [lua_fn](HttpReqCnn * self, std::string rsp_state,
 		const std::unordered_map<std::string, std::string> &heads, const std::string &body) {
 		lua_State *ls = lua_fn.lua_state();
 		sol::state_view lsv(ls);
-		sol::table t = lsv.create_table_with(
+		sol::main_table t = lsv.create_table_with(
 			"id", (int64_t)self->GetPtr(),
 			"state", rsp_state,
 			"heads", sol::as_table(heads),
@@ -56,12 +56,12 @@ HttpReqCnn::FnProcessRsp safe_http_req_process_rsp_cb(sol::protected_function lu
 	return ret;
 }
 
-HttpReqCnn::FnProcessEvent safe_http_req_process_event_cb(sol::protected_function lua_fn)
+HttpReqCnn::FnProcessEvent safe_http_req_process_event_cb(sol::main_protected_function lua_fn)
 {
 	HttpReqCnn::FnProcessEvent ret = [lua_fn](HttpReqCnn * self, HttpReqCnn::eEventType event_type, int error_num) {
 		lua_State *ls = lua_fn.lua_state();
 		sol::state_view lsv(ls);
-		sol::table t = lsv.create_table_with(
+		sol::main_table t = lsv.create_table_with(
 			"id", (int64_t)self->GetPtr(),
 			"event_type", event_type,
 			"error_num", error_num
@@ -71,7 +71,7 @@ HttpReqCnn::FnProcessEvent safe_http_req_process_event_cb(sol::protected_functio
 	return ret;
 }
 
-int64_t lua_http_get(const std::string &url, sol::table heads_tb, sol::protected_function rsp_fn, sol::protected_function event_fn)
+int64_t lua_http_get(const std::string &url, sol::main_table heads_tb, sol::main_protected_function rsp_fn, sol::main_protected_function event_fn)
 {
 	std::unordered_map<std::string, std::string> heads;
 	lua_table_to_unorder_map(heads_tb, heads);
@@ -80,7 +80,7 @@ int64_t lua_http_get(const std::string &url, sol::table heads_tb, sol::protected
 	return http_get(url, &heads, safe_rsp_fn, safe_event_fn);
 }
 
-int64_t lua_http_delete(const std::string &url, sol::table heads_tb, sol::protected_function rsp_fn, sol::protected_function event_fn)
+int64_t lua_http_delete(const std::string &url, sol::main_table heads_tb, sol::main_protected_function rsp_fn, sol::main_protected_function event_fn)
 {
 	std::unordered_map<std::string, std::string> heads;
 	lua_table_to_unorder_map(heads_tb, heads);
@@ -89,8 +89,8 @@ int64_t lua_http_delete(const std::string &url, sol::table heads_tb, sol::protec
 	return http_delete(url, &heads, safe_rsp_fn, safe_event_fn);
 }
 
-uint64_t lua_http_post(const std::string &url, sol::table heads_tb, std::string content,
-	sol::protected_function rsp_fn, sol::protected_function error_fn)
+uint64_t lua_http_post(const std::string &url, sol::main_table heads_tb, std::string content,
+	sol::main_protected_function rsp_fn, sol::main_protected_function error_fn)
 {
 	std::unordered_map<std::string, std::string> heads;
 	lua_table_to_unorder_map(heads_tb, heads);
@@ -99,8 +99,8 @@ uint64_t lua_http_post(const std::string &url, sol::table heads_tb, std::string 
 	return http_post(url, &heads, &content, safe_rsp_fn, safe_event_fn);
 }
 
-uint64_t lua_http_put(const std::string &url, sol::table heads_tb, std::string content,
-	sol::protected_function rsp_fn, sol::protected_function error_fn)
+uint64_t lua_http_put(const std::string &url, sol::main_table heads_tb, std::string content,
+	sol::main_protected_function rsp_fn, sol::main_protected_function error_fn)
 {
 	std::unordered_map<std::string, std::string> heads;
 	lua_table_to_unorder_map(heads_tb, heads);
@@ -126,11 +126,10 @@ bool lua_net_send(NetId netid, const std::string &bin)
 void register_native_libs(lua_State *L)
 {
 	sol::state_view sv(L);
-	sol::table t = get_or_create_table(L, TB_NATIVE);
+	sol::main_table t = get_or_create_table(L, TB_NATIVE);
 	lua_reg_net(L);
 	lua_reg_make_shared_ptr(L);
 	lua_reg_mongo(L);
-	lua_reg_coro(L);
 
 	t.set_function("net_close", net_close);
 	t.set_function("net_connect", net_connect);
@@ -208,9 +207,9 @@ bool lua_object_to_string(sol::object lua_obj, std::string &out_str)
 	return ret;
 };
 
-bool lua_table_to_unorder_map(sol::table tb, std::unordered_map<std::string, std::string> &uo_map)
+bool lua_table_to_unorder_map(sol::main_table tb, std::unordered_map<std::string, std::string> &uo_map)
 {
-	if (!tb.valid() || !tb.is<sol::table>())
+	if (!tb.valid() || !tb.is<sol::main_table>())
 		return false;
 
 	for (auto kv_pair : tb)

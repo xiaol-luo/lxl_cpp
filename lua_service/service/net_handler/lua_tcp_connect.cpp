@@ -72,7 +72,7 @@ void LuaTcpConnect::OnRecvData(char * data, uint32_t len)
 	}
 }
 
-bool LuaTcpConnect::Init(sol::table lua_logic)
+bool LuaTcpConnect::Init(sol::main_table lua_logic)
 {
 	if (!lua_logic.valid())
 		return false;
@@ -80,15 +80,15 @@ bool LuaTcpConnect::Init(sol::table lua_logic)
 	m_lua_logic = lua_logic;
 	{
 		sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONCLOSE);
-		assert(fn.is<sol::function>());
+		assert(fn.is<sol::main_protected_function>());
 	}
 	{
 		sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONOPEN);
-		assert(fn.is<sol::function>());
+		assert(fn.is<sol::main_protected_function>());
 	}
 	{
 		sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONRECV);
-		assert(fn.is<sol::function>());
+		assert(fn.is<sol::main_protected_function>());
 	}
 	return true;
 }

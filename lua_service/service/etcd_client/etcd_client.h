@@ -17,7 +17,7 @@ public:
 	virtual uint64_t CmpDelete(const std::string &key, uint64_t prev_index, const std::string &prev_val, bool recursive, CallbackFn cb_fn)  override;
 
 protected:
-	sol::table m_lua_etcd_client;
+	sol::main_table m_lua_etcd_client;
 	lua_State *m_lua_state = nullptr;
-	sol::optional<sol::protected_function> MakeOpCbFn(IEtcdClient::CallbackFn fn);
+	sol::optional<sol::main_protected_function> MakeOpCbFn(IEtcdClient::CallbackFn fn);
 };

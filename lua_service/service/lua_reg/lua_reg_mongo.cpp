@@ -8,7 +8,7 @@
 
 using const_str_ref = const std::string &;
 
-static void Wrap_MongoTask_Handle_Result(MongoTask *task, sol::protected_function lua_fn)
+static void Wrap_MongoTask_Handle_Result(MongoTask *task, sol::main_protected_function lua_fn)
 {
 	if (nullptr == task || !lua_fn.valid())
 		return;
@@ -61,7 +61,7 @@ static void Wrap_MongoTask_Handle_Result(MongoTask *task, sol::protected_functio
 }
 
 static uint64_t Wrap_MongoTaskMgr_FindOne(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
@@ -71,7 +71,7 @@ static uint64_t Wrap_MongoTaskMgr_FindOne(MongoTaskMgr &mgr, uint32_t hash_code,
 
 
 static uint64_t Wrap_MongoTaskMgr_FindMany(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
@@ -80,7 +80,7 @@ static uint64_t Wrap_MongoTaskMgr_FindMany(MongoTaskMgr &mgr, uint32_t hash_code
 }
 
 static uint64_t Wrap_MongoTaskMgr_DeleteOne(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
@@ -89,7 +89,7 @@ static uint64_t Wrap_MongoTaskMgr_DeleteOne(MongoTaskMgr &mgr, uint32_t hash_cod
 }
 
 static uint64_t Wrap_MongoTaskMgr_DeleteMany(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
@@ -98,7 +98,7 @@ static uint64_t Wrap_MongoTaskMgr_DeleteMany(MongoTaskMgr &mgr, uint32_t hash_co
 }
 
 static uint64_t Wrap_MongoTaskMgr_InsertOne(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref content_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref content_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value content = bsoncxx::from_json(content_str);
 	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
@@ -107,7 +107,7 @@ static uint64_t Wrap_MongoTaskMgr_InsertOne(MongoTaskMgr &mgr, uint32_t hash_cod
 }
 
 static uint64_t Wrap_MongoTaskMgr_InsertMany(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref content_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref content_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	std::vector<bsoncxx::document::view_or_value> insert_docs;
 	{
@@ -128,7 +128,7 @@ static uint64_t Wrap_MongoTaskMgr_InsertMany(MongoTaskMgr &mgr, uint32_t hash_co
 }
 
 static uint64_t Wrap_MongoTaskMgr_UpdateOne(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value content = bsoncxx::from_json(content_str);
@@ -138,7 +138,7 @@ static uint64_t Wrap_MongoTaskMgr_UpdateOne(MongoTaskMgr &mgr, uint32_t hash_cod
 }
 
 static uint64_t Wrap_MongoTaskMgr_FindOneAndDelete(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
@@ -147,7 +147,7 @@ static uint64_t Wrap_MongoTaskMgr_FindOneAndDelete(MongoTaskMgr &mgr, uint32_t h
 }
 
 static uint64_t Wrap_MongoTaskMgr_UpdateMany(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value content = bsoncxx::from_json(content_str);
@@ -157,7 +157,7 @@ static uint64_t Wrap_MongoTaskMgr_UpdateMany(MongoTaskMgr &mgr, uint32_t hash_co
 }
 
 static uint64_t Wrap_MongoTaskMgr_FindOneAndUpdate(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value content = bsoncxx::from_json(content_str);
@@ -167,7 +167,7 @@ static uint64_t Wrap_MongoTaskMgr_FindOneAndUpdate(MongoTaskMgr &mgr, uint32_t h
 }
 
 static uint64_t Wrap_MongoTaskMgr_FindOneAndReplace(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref content_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value content = bsoncxx::from_json(content_str);
@@ -177,7 +177,7 @@ static uint64_t Wrap_MongoTaskMgr_FindOneAndReplace(MongoTaskMgr &mgr, uint32_t 
 }
 
 static uint64_t Wrap_MongoTaskMgr_CountDocument(MongoTaskMgr &mgr, uint32_t hash_code, const_str_ref db_name, const_str_ref coll_name,
-	const_str_ref filter_str, const_str_ref opt_str, sol::protected_function lua_cb_fn)
+	const_str_ref filter_str, const_str_ref opt_str, sol::main_protected_function lua_cb_fn)
 {
 	bsoncxx::document::value filter = bsoncxx::from_json(filter_str);
 	bsoncxx::document::value opt = bsoncxx::from_json(opt_str);
@@ -187,7 +187,7 @@ static uint64_t Wrap_MongoTaskMgr_CountDocument(MongoTaskMgr &mgr, uint32_t hash
 
 void lua_reg_mongo(lua_State *L)
 {
-	sol::table native_tb = get_or_create_table(L, TB_NATIVE);
+	sol::main_table native_tb = get_or_create_table(L, TB_NATIVE);
 	{
 		{
 			// MongoTaskMgr
@@ -220,7 +220,7 @@ void lua_reg_mongo(lua_State *L)
 			std::string class_name = "mongo_opt_field_name";
 			sol::object v = native_tb.raw_get_or(class_name, sol::lua_nil);
 			assert(!v.valid());
-			sol::table meta_table = lsv.create_table_with(
+			sol::main_table meta_table = lsv.create_table_with(
 				"max_time", MOFN_MAX_TIME,
 				"projection", MOFN_PROJECTION,
 				"upsert", MOFN_UPSERT,

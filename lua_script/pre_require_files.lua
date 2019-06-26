@@ -18,7 +18,6 @@ local files = {
     "lpeg",
     "tryuselualib",
     "lfs",
-    "libs.coro.coro",
     "libs.coroutine_ex.coroutine_ex_def",
     "libs.coroutine_ex.coroutine_ex",
     "libs.coroutine_ex.coroutine_ex_mgr",

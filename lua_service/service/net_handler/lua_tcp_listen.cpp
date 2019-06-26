@@ -11,7 +11,7 @@ LuaTcpListen::~LuaTcpListen()
 
 }
 
-bool LuaTcpListen::Init(sol::table lua_logic)
+bool LuaTcpListen::Init(sol::main_table lua_logic)
 {
 	if (!lua_logic.valid())
 		return false;
@@ -19,15 +19,15 @@ bool LuaTcpListen::Init(sol::table lua_logic)
 	m_lua_logic = lua_logic;
 	{
 		sol::object fn = m_lua_logic.get<sol::object>(LUA_LISTEN_CB_ONCLOSE);
-		assert(fn.is<sol::function>());
+		assert(fn.is<sol::main_protected_function>());
 	}
 	{
 		sol::object fn = m_lua_logic.get<sol::object>(LUA_LISTEN_CB_ONOPEN);
-		assert(fn.is<sol::function>());
+		assert(fn.is<sol::main_protected_function>());
 	}
 	{
 		sol::object fn = m_lua_logic.get<sol::object>(LUA_LISTEN_GEN_CNN);
-		assert(fn.is<sol::function>());
+		assert(fn.is<sol::main_protected_function>());
 	}
 	return true;
 }

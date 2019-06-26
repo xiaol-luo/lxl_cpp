@@ -8,7 +8,7 @@
 
 void lua_reg_make_shared_ptr(lua_State *L)
 {
-	sol::table native_tb = get_or_create_table(L, TB_NATIVE);
+	sol::main_table native_tb = get_or_create_table(L, TB_NATIVE);
 	{
 		native_tb.set_function("make_shared_lua_tcp_connect", []() { 
 			return std::make_shared<LuaTcpConnect>(); 

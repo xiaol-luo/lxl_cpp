@@ -15,12 +15,12 @@ public:
 	LuaTcpListen();
 	virtual ~LuaTcpListen();
 
-	bool Init(sol::table lua_logic);
+	bool Init(sol::main_table lua_logic);
 
 	virtual void OnClose(int error_num) override;
 	virtual void OnOpen(int error_num) override;
 	virtual std::shared_ptr<INetConnectHandler> GenConnectorHandler() override;
 
 protected:
-	sol::table m_lua_logic;
+	sol::main_table m_lua_logic;
 };
