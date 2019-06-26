@@ -40,23 +40,8 @@ function LoginAction:stop()
     self.timer_proxy:release_all()
 end
 
-function test_coro(...)
-    print("test_coro 1", ...)
-    local ret = nil
-    ret = coro.yield(11, 22)
-    print("test_coro 2")
-    ret = coro.yield(33, 44)
-    print("test_coro 3")
-end
-
 function LoginAction._on_tick()
-    local coro_id = coro.create(test_coro)
-    local ret = nil
-    print("LoginAction._on_tick 1")
-    ret = coro.resume(coro_id, 1, 2)
-    print("LoginAction._on_tick 2")
-    ret = coro.resume(coro_id, 3, 4)
-    print("LoginAction._on_tick 3")
+    
 end
 
 function LoginAction:on_cnn_recv(cnn, pid, block)
