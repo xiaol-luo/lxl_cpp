@@ -11,10 +11,7 @@ end
 function ClientMgr:init()
     ClientMgr.super.init(self)
     self.timer_proxy = TimerProxy:new()
-    self.client_cnn_mgr:set_process_fn(ProtoId.req_user_login, Functional.make_closure(self.process_req_user_login, self))
-    self.client_cnn_mgr:set_process_fn(ProtoId.req_pull_role_digest, Functional.make_closure(self.process_req_pull_role_digest, self))
-    self.client_cnn_mgr:set_process_fn(ProtoId.req_create_role, Functional.make_closure(self.process_req_create_role, self))
-    self.client_cnn_mgr:set_process_fn(ProtoId.req_launch_role, Functional.make_closure(self.process_req_launch_role, self))
+    self:setup_proto_handler()
 end
 
 function ClientMgr:start()
@@ -48,7 +45,13 @@ function ClientMgr:_on_new_cnn(netid, error_code)
 end
 
 function ClientMgr:_on_close_cnn(netid, error_code)
-    log_debug("ClientMgr:_on_close_cnn ")
+    local client = self:get_client(netid)
+    if client then
+        if client:is_launching() or client:is_ingame() then
+            -- todo: notify world service client disconnect
+        end
+    end
+    self.client[netid] = nil
 end
 
 function ClientMgr:_on_tick()

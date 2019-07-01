@@ -7,6 +7,9 @@ function ManageRoleLogic:ctor(logic_mgr, logic_name)
     self.db_client = self.service.db_client
     self.query_db = self.service.query_db
     self.query_coll = "role"
+    self.last_session_id = 0
+    self.session_id_to_role_id = {}
+    self.role_map = {}
 end
 
 function ManageRoleLogic:init()
@@ -16,6 +19,7 @@ function ManageRoleLogic:init()
         [WorldRpcFn.get_role_digest] = self.get_role_digest,
         [WorldRpcFn.create_role] = self.create_role,
         [WorldRpcFn.launch_role] = self.launch_role,
+        [WorldRpcFn.client_quit] = self.client_quit,
     }
 
     local rpc_co_process_fns_map = {
@@ -27,6 +31,11 @@ function ManageRoleLogic:init()
     for fn_name, fn in pairs(rpc_co_process_fns_map) do
         self.rpc_mgr:set_req_msg_coroutine_process_fn(fn_name, Functional.make_closure(fn, self))
     end
+end
+
+function ManageRoleLogic:next_session_id()
+    self.last_session_id = self.last_session_id + 1
+    return self.last_session_id
 end
 
 function ManageRoleLogic:start()
@@ -96,12 +105,11 @@ function ManageRoleLogic:create_role(rpc_rsp, user_id)
 end
 
 ManageRoleLogic._Launch_Role_Error = {
-    none = 0,
     no_valid_game_service = 1,
     launch_fail = 2,
 }
 
-function ManageRoleLogic:launch_role(rpc_rsp, role_id)
+function ManageRoleLogic:launch_role(rpc_rsp, role_id, client_netid)
     log_debug("world ManageRoleLogic:launch_role %s", role_id)
     local error_num = ManageRoleLogic._Launch_Role_Error.none
     local game_service_key = ""
@@ -112,7 +120,7 @@ function ManageRoleLogic:launch_role(rpc_rsp, role_id)
             break
         end
         self.service.rpc_mgr:call(
-                Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, service_info.key, rpc_rsp),
+                Functional.make_closure(self._rpc_rsp_launch_role, self, rpc_rsp, role_id, client_netid, service_info.key),
                 service_info.key, GameRpcFn.launch_role, role_id)
     until true
     if ManageRoleLogic._Launch_Role_Error.none ~= error_num then
@@ -120,11 +128,39 @@ function ManageRoleLogic:launch_role(rpc_rsp, role_id)
     end
 end
 
-function ManageRoleLogic:_rpc_rsp_launch_role(role_id, to_game_service_key, rpc_rsp, rpc_error_num, launch_error_num)
+function ManageRoleLogic:_rpc_rsp_launch_role(rpc_rsp, role_id, client_netid, to_game_service_key, rpc_error_num, launch_error_num)
     log_debug("xxxxxxxxxxxxxxxx ManageRoleLogic:_rpc_rsp_launch_role %s %s", rpc_error_num, launch_error_num)
-    local error_num = ManageRoleLogic._Launch_Role_Error.none
+    local error_num = Error_None
     if Rpc_Error.None ~= rpc_error_num or 0 ~= launch_error_num then
         error_num = ManageRoleLogic._Launch_Role_Error.launch_fail
     end
-    rpc_rsp:respone(error_num, to_game_service_key)
+    local session_id = 0
+    if Error_None == error_num then
+        local role = self.role_map[role_id]
+        if role then
+            session_id = self:next_session_id()
+            if role.gate_client.remote_host ~= rpc_rsp.from_host or client_netid ~= role.client_netid then
+                -- todo 通知gate踢人
+                role.gate_client = self.service:create_rpc_client(rpc_rsp.from_host)
+                role.client_netid = client_netid
+                self.session_id_to_role_id[role.session_id] = nil
+                role.session_id = session_id
+                self.session_id_to_role_id[role.session_id] = role.role_id
+            end
+        else
+            role = {}
+            role.role_id = role_id
+            role.session_id = session_id
+            role.client_netid = client_netid
+            role.gate_client = self.service:create_rpc_client(rpc_rsp.from_host)
+            role.game_client = self.service:create_rpc_client(to_game_service_key)
+            self.role_map[role.role_id] = role
+            self.session_id_to_role_id[role.session_id] = role.role_id
+        end
+    end
+    rpc_rsp:respone(error_num, to_game_service_key, session_id)
+end
+
+function ManageRoleLogic:client_quit(rpc_rsp, role_id)
+
 end
