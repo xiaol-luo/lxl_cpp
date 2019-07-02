@@ -28,6 +28,7 @@ function ClientCnnMgr:start()
 
     self.service.rpc_mgr:set_req_msg_process_fn(GateRpcFn.forword_client, Functional.make_closure(self.on_rpc_forward_client, self))
     self.service.rpc_mgr:set_req_msg_process_fn(GateRpcFn.query_state, Functional.make_closure(self.on_rpc_query_state, self))
+    self.service.rpc_mgr:set_req_msg_process_fn(GateRpcFn.kick_client, Functional.make_closure(self.on_kick_client, self))
 end
 
 function ClientCnnMgr:stop()
@@ -128,4 +129,9 @@ function ClientCnnMgr:on_rpc_query_state(rpc_rsp)
         client_connect_port = self.listen_port,
     }
     rpc_rsp:respone(ret)
+end
+
+function ClientCnnMgr:on_kick_client(rpc_rsp, netid, kick_reason)
+    rpc_rsp:respone()
+    Net.close(netid)
 end

@@ -25,7 +25,7 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
             error_num = _Req_User_Login_Error.No_Client
             break
         end
-        if client:is_free() then
+        if not client:is_free() then
             error_num = _Req_User_Login_Error.State_Not_Fit
             break
         end
@@ -57,7 +57,7 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
             client.state = ClientState.Manage_Role
             client.user_id = msg.user_id
         end
-        until false
+        until true
         self.client_cnn_mgr:send(netid, ProtoId.rsp_user_login, { error_num = error_num })
     end
 
@@ -79,12 +79,13 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
         end
         local co_get_ret = rapidjson.decode(body_str)
         log_debug("co_get ret %s", co_get_ret)
-        if co_get_ret.error_code and #co_get_ret.error_code > 0 then
+        if co_get_ret.error and #co_get_ret.error > 0 then
             return _Req_User_Login_Error.Auth_Fail
         end
 
         return _Req_User_Login_Error.None
     end
+
     local co = ex_coroutine_create(main_logic, over_cb)
     local start_ret = ex_coroutine_start(co, co, msg)
     if not start_ret then
@@ -110,7 +111,7 @@ function ClientMgr:process_req_pull_role_digest(netid, pid, msg)
             error_num = ErrorNum.No_Client
             break
         end
-        if self:is_authed() then
+        if not client:is_authed() then
             error_num = ErrorNum.Need_Auth
             break
         end
@@ -150,7 +151,7 @@ function ClientMgr:process_req_create_role(netid, pid, msg)
             error_num = ErrorNum.No_Client
             break
         end
-        if client:is_authed() then
+        if not client:is_authed() then
             error_num = ErrorNum.Need_Auth
             break
         end
@@ -205,9 +206,10 @@ function ClientMgr:process_req_launch_role(netid, pid, msg)
         end
         local world_rpc_client = self.service:create_rpc_client(service_info.key)
         client.state = ClientState.Launch_Role
+        client.world_client = world_rpc_client
         world_rpc_client:call(Functional.make_closure(self._rpc_rsp_req_luanch_role, self, netid), WorldRpcFn.launch_role, msg.role_id, netid)
     end
-    until false
+    until true
     if _Process_Launch_Role_Error.none ~= error_num then
         self.client_cnn_mgr:send(netid, ProtoId.rsp_launch_role, { error_num = error_num })
     end
@@ -226,13 +228,14 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, rpc_error_num, launch_error_n
             break
         end
         local client = self:get_client(netid)
-        if not client or ClientState.Manage_Role ~= client.state then
+        if not client or ClientState.Launch_Role ~= client.state then
             error_num = _Process_Launch_Role_Error.state_error
             break
         end
         client.state = ClientState.In_Game
+        client.world_session_id = world_session_id
     end
-    until false
+    until true
     self.client_cnn_mgr:send(netid, ProtoId.rsp_launch_role, { error_num = error_num })
     log_debug("process_req_launch_role rpc game_key:%s error_num:%s, launch_error_num:%s", game_key, error_num, launch_error_num)
 end

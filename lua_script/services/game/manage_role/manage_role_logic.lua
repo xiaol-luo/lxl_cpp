@@ -77,7 +77,7 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
         assert(db_data.role_id == role.role_id)
         role.state = Game_Role_State.in_game
         role:init_from_db(db_data)
-        rpc_rsp:respone(Error_None)
+        rpc_rsp:respone(Error_None, role_id)
         local opt = MongoOptFindOneAndUpdate:new()
         opt:set_projection({ last_access_time = true })
         local update_doc = {

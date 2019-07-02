@@ -47,8 +47,9 @@ end
 function ClientMgr:_on_close_cnn(netid, error_code)
     local client = self:get_client(netid)
     if client then
-        if client:is_launching() or client:is_ingame() then
+        if client:is_launching() or client:is_ingame() and client.world_client and client.world_session_id then
             -- todo: notify world service client disconnect
+            client.world_client:call(nil, WorldRpcFn.client_quit, client.world_session_id)
         end
     end
     self.client[netid] = nil

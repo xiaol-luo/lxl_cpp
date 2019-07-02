@@ -7,6 +7,7 @@ function Client:ctor()
     self.state = ClientState.Free
     self.user_id = nil
     self.world_client = nil
+    self.world_session_id = nil
 end
 
 function Client:is_authed()
