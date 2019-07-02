@@ -52,7 +52,7 @@ function ClientMgr:_on_close_cnn(netid, error_code)
             client.world_client:call(nil, WorldRpcFn.client_quit, client.world_session_id)
         end
     end
-    self.client[netid] = nil
+    self.clients[netid] = nil
 end
 
 function ClientMgr:_on_tick()

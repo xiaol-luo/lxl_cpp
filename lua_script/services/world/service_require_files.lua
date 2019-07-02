@@ -5,6 +5,7 @@ local files = {
     "services.world.service_main__database_uuid",
     "services.world.service_main__setup_logics",
     "services.world.manage_role.manage_role_logic",
+    "services.world.manage_role.role",
 }
 
 return files

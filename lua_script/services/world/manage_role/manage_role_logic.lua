@@ -104,7 +104,7 @@ function ManageRoleLogic:create_role(rpc_rsp, user_id)
     end)
 end
 
-ManageRoleLogic._Launch_Role_Error = {
+_Launch_Role_Error = {
     no_valid_game_service = 1,
     launch_fail = 2,
     repeat_launch = 3,
@@ -117,7 +117,7 @@ function ManageRoleLogic:launch_role(rpc_rsp, role_id, client_netid)
     local role = self.role_id_to_role[role_id]
     if role then
         if Role_State.released == self.state or Role_State.inited == self.state then
-            assert(false, string.format("should not happend %s", role))
+            assert(false, string.format("should not reach here %s", role))
             return
         end
         local old_session = role.session_id
@@ -152,7 +152,7 @@ function ManageRoleLogic:launch_role(rpc_rsp, role_id, client_netid)
         role.gate_client = self.service:create_rpc_client(rpc_rsp.from_host)
         role.client_netid = client_netid
         self.session_id_to_role[role.session_id] = role
-        if old_session ~= role.session_id then
+        if old_session and old_session ~= role.session_id then
             self.session_id_to_role[old_session] = nil
         end
     else
@@ -181,7 +181,7 @@ end
 function ManageRoleLogic:_rpc_rsp_launch_role(session_id, role_id, rpc_error_num, launch_error_num)
     log_debug("xxxxxxxxxxxxxxxx ManageRoleLogic:_rpc_rsp_launch_role %s %s", rpc_error_num, launch_error_num)
     local role = self.role_id_to_role[role_id]
-    if not role then
+    if not role or not role.session_id then
         return -- 可能客户端掉线执行了client_quit,直接返回就好
     end
     if role.session_id ~= session_id then
@@ -198,12 +198,32 @@ function ManageRoleLogic:_rpc_rsp_launch_role(session_id, role_id, rpc_error_num
     end
     if Rpc_Error.None ~= rpc_error_num or 0 ~= launch_error_num then
         role.cached_launch_rsp:respone(_Launch_Role_Error.launch_fail)
+        self.session_id_to_role[role.session_id] = nil
+        self.role_id_to_role[role.role_id] = nil
     else
+        role.state = Role_State.using
         role.cached_launch_rsp:respone(Error_None, role.game_client.remote_host, role.session_id)
     end
     role.cached_launch_rsp = nil
 end
 
-function ManageRoleLogic:client_quit(rpc_rsp, role_id)
-
+function ManageRoleLogic:client_quit(rpc_rsp, session_id)
+    rpc_rsp:respone()
+    local role = self.session_id_to_role[session_id]
+    if role then
+        self.session_id_to_role[role.session_id] = nil
+        role.session_id = nil
+        local role_state = role_state
+        if Role_State.using == role_state then
+            role.state = Role_State.idle
+            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id)
+        elseif Role_State.launch == role_state then
+            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id)
+            self.role_id_to_role[role_id] = nil
+        else
+            self.role_id_to_role[role_id] = nil
+            assert(false, string.format("should not reach here %s", role))
+        end
+    end
+    log_debug("ManageRoleLogic:client_quit %s", role)
 end

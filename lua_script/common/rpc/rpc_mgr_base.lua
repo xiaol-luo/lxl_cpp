@@ -162,7 +162,7 @@ end
 
 function RpcMgrBase:on_frame()
     local now_ms = native.logic_ms()
-    if self.last_check_expired_ms + self.Check_Expired_Span_ms >= now_ms then
+    if  now_ms >= self.last_check_expired_ms + self.Check_Expired_Span_ms then
         self.last_check_expired_ms = now_ms
         local expired_req_ids = {}
         for id, req in pairs(self.req_list) do

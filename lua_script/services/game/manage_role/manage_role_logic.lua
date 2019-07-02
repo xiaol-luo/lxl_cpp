@@ -16,6 +16,7 @@ function ManageRoleLogic:init()
 
     local rpc_process_fns_map = {
         [GameRpcFn.launch_role] = self.luanch_role,
+        [GameRpcFn.client_quit] = self.client_quit,
     }
 
     local rpc_co_process_fns_map = {
@@ -90,5 +91,9 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     else
         rpc_rsp:respone(Enum_Error.Launch_Role.unknown)
     end
+end
+
+function ManageRoleLogic:client_quit(role_id)
+
 end
 

@@ -234,6 +234,7 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, rpc_error_num, launch_error_n
         end
         client.state = ClientState.In_Game
         client.world_session_id = world_session_id
+        log_debug("process_req_launch_role rpc success client:%s", client)
     end
     until true
     self.client_cnn_mgr:send(netid, ProtoId.rsp_launch_role, { error_num = error_num })
