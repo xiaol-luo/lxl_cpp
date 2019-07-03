@@ -34,7 +34,7 @@ function ManageRoleLogic:get_role(role_id)
     return self.id_to_role[role_id]
 end
 
-function ManageRoleLogic:luanch_role(rpc_rsp, role_id)
+function ManageRoleLogic:luanch_role(rpc_rsp, role_id, session_id)
     log_debug("ManageRoleLogic:luanch_role %s %s", role_id, type(role_id))
     local role = self:get_role(role_id)
     if not role then
@@ -93,7 +93,7 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     end
 end
 
-function ManageRoleLogic:client_quit(role_id)
+function ManageRoleLogic:client_quit(role_id, session_id)
 
 end
 

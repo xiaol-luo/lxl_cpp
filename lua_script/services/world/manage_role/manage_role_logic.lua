@@ -10,10 +10,12 @@ function ManageRoleLogic:ctor(logic_mgr, logic_name)
     self.last_session_id = 0
     self.session_id_to_role = {} -- 辅
     self.role_id_to_role = {} -- 主
+    self.timer_proxy = nil
 end
 
 function ManageRoleLogic:init()
     ManageRoleLogic.super.init(self)
+    self.timer_proxy = TimerProxy:new()
 
     local rpc_process_fns_map = {
         [WorldRpcFn.get_role_digest] = self.get_role_digest,
@@ -40,10 +42,12 @@ end
 
 function ManageRoleLogic:start()
     ManageRoleLogic.super.start(self)
+    self.timer_proxy:firm(Functional.make_closure(ManageRoleLogic.on_frame, self), 5 * 1000, -1)
 end
 
 function ManageRoleLogic:stop()
     ManageRoleLogic.super.stop(self)
+    self.timer_proxy:release_all()
 end
 
 function ManageRoleLogic:get_role_digest(rpc_rsp, user_id, role_id)
@@ -110,20 +114,27 @@ _Launch_Role_Error = {
     repeat_launch = 3,
     another_launch = 4,
     unknown = 5,
+    releasing = 6,
 }
 
 function ManageRoleLogic:launch_role(rpc_rsp, role_id, client_netid)
     log_debug("world ManageRoleLogic:launch_role %s", role_id)
     local role = self.role_id_to_role[role_id]
     if role then
-        if Role_State.released == self.state or Role_State.inited == self.state then
+        if Role_State.released == role.state or Role_State.inited == role.state then
             assert(false, string.format("should not reach here %s", role))
+            return
+        end
+        if Role_State.releasing == role.state then
+            rpc_rsp:respone(_Launch_Role_Error.releasing)
             return
         end
         local old_session = role.session_id
 
         if Role_State.idle == role.state then
             role.session_id = self:next_session_id()
+            role.state = Role_State.using
+            role.idle_begin_sec = nil
             rpc_rsp:respone(Error_None, role.game_client.remote_host, role.session_id)
         end
         if Role_State.using == role.state then
@@ -145,10 +156,9 @@ function ManageRoleLogic:launch_role(rpc_rsp, role_id, client_netid)
                 role.session_id = self:next_session_id()
                 self.service.rpc_mgr:call(
                         Functional.make_closure(self._rpc_rsp_launch_role, self, role.session_id, role_id),
-                        service_info.key, GameRpcFn.launch_role, role_id)
+                        service_info.key, GameRpcFn.launch_role, role_id, role.session_id)
             end
         end
-
         role.gate_client = self.service:create_rpc_client(rpc_rsp.from_host)
         role.client_netid = client_netid
         self.session_id_to_role[role.session_id] = role
@@ -172,7 +182,7 @@ function ManageRoleLogic:launch_role(rpc_rsp, role_id, client_netid)
             self.session_id_to_role[role.session_id] = role
             self.service.rpc_mgr:call(
                     Functional.make_closure(self._rpc_rsp_launch_role, self, role.session_id, role_id),
-                    service_info.key, GameRpcFn.launch_role, role_id)
+                    service_info.key, GameRpcFn.launch_role, role_id, role.session_id)
             role.state = Role_State.launch
         end
     end
@@ -185,6 +195,7 @@ function ManageRoleLogic:_rpc_rsp_launch_role(session_id, role_id, rpc_error_num
         return -- 可能客户端掉线执行了client_quit,直接返回就好
     end
     if role.session_id ~= session_id then
+        role.cached_launch_rsp:respone(_Launch_Role_Error.another_launch)
         return -- 应该是被顶号了
     end
     if Role_State.launch ~= role.state then
@@ -216,14 +227,48 @@ function ManageRoleLogic:client_quit(rpc_rsp, session_id)
         local role_state = role_state
         if Role_State.using == role_state then
             role.state = Role_State.idle
-            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id)
+            role.idle_begin_sec = logic_sec()
+            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id, session_id)
         elseif Role_State.launch == role_state then
-            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id)
-            self.role_id_to_role[role_id] = nil
+            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id, session_id)
         else
             self.role_id_to_role[role_id] = nil
             assert(false, string.format("should not reach here %s", role))
         end
     end
     log_debug("ManageRoleLogic:client_quit %s", role)
+end
+
+function ManageRoleLogic:on_frame()
+    local now_sec = logic_sec()
+    local released_roles= {}
+    for role_id, role in pairs(self.role_id_to_role) do
+        if Role_State.releasing == role.state then
+            if false then
+                table.insert(released_roles, role)
+            end
+        end
+        if Role_State.idle == role.state and role.idle_begin_sec then
+            if now_sec > role.idle_begin_sec + Idle_Role_Hold_Max_Sec  then
+                role.state = Role_State.releasing
+                self:try_release_role(role_id)
+            end
+        end
+    end
+    for _, role in ipairs(released_roles) do
+        if role.session_id then
+
+        end
+    end
+end
+
+function ManageRoleLogic:try_release_role(role_id)
+    local role = self.role_id_to_role[role_id]
+    if not role then
+        return
+    end
+    role.release_try_times = role.release_try_times or 0
+    role.release_try_times = role.release_try_times + 1
+    role.release_begin_sec = logic_sec()
+    -- todo: 让game保存并释放role
 end
