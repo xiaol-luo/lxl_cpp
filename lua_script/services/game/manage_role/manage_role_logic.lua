@@ -17,6 +17,7 @@ function ManageRoleLogic:init()
     local rpc_process_fns_map = {
         [GameRpcFn.launch_role] = self.luanch_role,
         [GameRpcFn.client_quit] = self.client_quit,
+        [GameRpcFn.release_role] = self.release_role,
     }
 
     local rpc_co_process_fns_map = {
@@ -93,7 +94,14 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     end
 end
 
-function ManageRoleLogic:client_quit(role_id, session_id)
+function ManageRoleLogic:client_quit(rpc_rsp, role_id, session_id)
+    log_debug("ManageRoleLogic:release_role %s %s", role_id, session_id)
+    rpc_rsp:respone(Error_None)
+end
 
+
+function ManageRoleLogic:release_role(rpc_rsp, role_id)
+    log_debug("ManageRoleLogic:release_role %s", role_id)
+    rpc_rsp:respone(Error_None)
 end
 

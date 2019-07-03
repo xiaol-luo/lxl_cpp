@@ -8,6 +8,7 @@ function ManageRoleLogic:ctor(logic_mgr, logic_name)
     self.query_db = self.service.query_db
     self.query_coll = "role"
     self.last_session_id = 0
+    self.last_opera_id = 0
     self.session_id_to_role = {} -- 辅
     self.role_id_to_role = {} -- 主
     self.timer_proxy = nil
@@ -40,9 +41,14 @@ function ManageRoleLogic:next_session_id()
     return self.last_session_id
 end
 
+function ManageRoleLogic:next_opera_id()
+    self.last_opera_id = self.last_opera_id + 1
+    return self.last_opera_id
+end
+
 function ManageRoleLogic:start()
     ManageRoleLogic.super.start(self)
-    self.timer_proxy:firm(Functional.make_closure(ManageRoleLogic.on_frame, self), 5 * 1000, -1)
+    self.timer_proxy:firm(Functional.make_closure(ManageRoleLogic.on_frame, self), 1 * 1000, -1)
 end
 
 function ManageRoleLogic:stop()
@@ -224,7 +230,7 @@ function ManageRoleLogic:client_quit(rpc_rsp, session_id)
     if role then
         self.session_id_to_role[role.session_id] = nil
         role.session_id = nil
-        local role_state = role_state
+        local role_state = role.state
         if Role_State.using == role_state then
             role.state = Role_State.idle
             role.idle_begin_sec = logic_sec()
@@ -232,7 +238,7 @@ function ManageRoleLogic:client_quit(rpc_rsp, session_id)
         elseif Role_State.launch == role_state then
             role.game_client:call(nil, GameRpcFn.client_quit, role.role_id, session_id)
         else
-            self.role_id_to_role[role_id] = nil
+            self.role_id_to_role[role.role_id] = nil
             assert(false, string.format("should not reach here %s", role))
         end
     end
@@ -243,8 +249,9 @@ function ManageRoleLogic:on_frame()
     local now_sec = logic_sec()
     local released_roles= {}
     for role_id, role in pairs(self.role_id_to_role) do
-        if Role_State.releasing == role.state then
-            if false then
+        if Role_State.releasing == role.state and self.release_try_times and self.release_begin_sec then
+            if self.release_try_times and self.release_try_times > Role_Release_Try_Max_Times or
+                Role_Release_Try_Max_Times == self.release_try_times and now_sec >= self.release_begin_sec + Role_Release_Cmd_Expire_Sec then
                 table.insert(released_roles, role)
             end
         end
@@ -256,9 +263,11 @@ function ManageRoleLogic:on_frame()
         end
     end
     for _, role in ipairs(released_roles) do
+        role.state = Role_State.released
         if role.session_id then
-
+            self.session_id_to_role[role.session_id] = nil
         end
+        self.role_id_to_role[role.role_id] = nil
     end
 end
 
@@ -270,5 +279,33 @@ function ManageRoleLogic:try_release_role(role_id)
     role.release_try_times = role.release_try_times or 0
     role.release_try_times = role.release_try_times + 1
     role.release_begin_sec = logic_sec()
-    -- todo: 让game保存并释放role
+    role.release_opera_ids = role.release_opera_ids or {}
+    local opera_id = self:next_opera_id()
+    role.release_opera_ids[opera_id] = true
+    role.game_client:call(Functional.make_closure(ManageRoleLogic._rpc_rsp_try_release_role, self, role.role_id, opera_id),
+            GameRpcFn.release_role, role.role_id)
 end
+
+function ManageRoleLogic:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num, logic_error_num)
+    local role = self.role_id_to_role[role_id]
+    log_debug("ManageRoleLogic:_rpc_rsp_try_release_role %s %s %s", rpc_error_num, logic_error_num, role)
+    if not role.release_opera_ids then
+        return
+    end
+    if not role.release_opera_ids[opera_id] then
+        return
+    end
+    if Role_State.releasing ~= role.state then
+        return
+    end
+    if Error_None ~= rpc_error_num or Error_None ~= logic_error_num then
+        self:try_release_role(role_id)
+        return
+    end
+    role.state = Role_State.released
+    if role.session_id then
+        self.session_id_to_role[role.session_id] = nil
+    end
+    self.role_id_to_role[role.role_id] = nil
+end
+

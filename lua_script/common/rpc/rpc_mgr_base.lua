@@ -4,7 +4,7 @@ RpcMgrBase = RpcMgrBase or class("RpcMgrBase")
 function RpcMgrBase:ctor()
     self.req_list = {}
     self.last_check_expired_ms = 0
-    self.Check_Expired_Span_ms = 1000
+    self.Check_Expired_Span_ms = 15 * 1000
     self.rsp_list = {}
     self.req_msg_process_fn = {}
     self.delay_execute_fns = {}

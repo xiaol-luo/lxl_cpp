@@ -76,9 +76,14 @@ function ZoneNetModule:start()
 end
 
 function ZoneNetModule:stop()
-    self.curr_state = ServiceModuleState.Stopped
+    self.curr_state = ServiceModuleState.Stopping
     self.zone_net:stop()
     self.timer_proxy:release_all()
+    local Delay_Over_Sec_For_Zone_Service_Delete_Etcd_Key = 2
+    self.timer_proxy:delay(function()
+        self.curr_state = ServiceModuleState.Stopped
+        self.timer_proxy:release_all()
+    end, Delay_Over_Sec_For_Zone_Service_Delete_Etcd_Key * 1000)
 end
 
 function ZoneNetModule:on_update()

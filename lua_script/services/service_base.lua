@@ -45,9 +45,6 @@ end
 function ServiceBase:stop()
     self.event_proxy:fire(Service_Base_Event_Stop, self)
     self.module_mgr:stop()
-    self.timer_proxy:release_all()
-    self.module_mgr:release()
-    CoroutineExMgr.stop()
 end
 
 
@@ -70,7 +67,22 @@ function ServiceBase:OnNotifyQuitGame()
 end
 
 function ServiceBase:CheckCanQuitGame()
-    self.quit_state = QuitState.quited
-    return true
+    -- log_debug("ServiceBase:CheckCanQuitGame 1")
+    local can_quit = false
+    if not self.module_mgr then
+        log_debug("ServiceBase:CheckCanQuitGame 2")
+        can_quit = true
+    end
+    if self.module_mgr and ServiceModuleState.Stopped == self.module_mgr:get_curr_state() then
+        log_debug("ServiceBase:CheckCanQuitGame 3")
+        can_quit = true
+    end
+    if can_quit and QuitState.quiting == self.quit_state then
+        self.quit_state = QuitState.quited
+        self.module_mgr:release()
+        self.timer_proxy:release_all()
+        CoroutineExMgr.stop()
+    end
+    return can_quit
 end
 

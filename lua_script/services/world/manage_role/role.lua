@@ -26,6 +26,7 @@ function Role:ctor()
     self.idle_begin_sec = nil
     self.release_begin_sec = nil
     self.release_try_times = nil
+    self.release_opera_ids = nil
 end
 
 

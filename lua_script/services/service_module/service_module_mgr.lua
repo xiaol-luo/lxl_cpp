@@ -54,6 +54,10 @@ function ServiceModuleMgr:get_error()
     return self.error_num, self.error_msg
 end
 
+function ServiceModuleMgr:get_curr_state()
+    return self.curr_state
+end
+
 function ServiceModuleMgr:on_frame()
     if not self.error_num then
         if ServiceModuleState.Update == self.curr_state then

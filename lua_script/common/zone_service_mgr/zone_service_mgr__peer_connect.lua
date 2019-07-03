@@ -127,6 +127,7 @@ function ZoneServiceMgr:_etcd_service_state_delete(service_name)
         Net.cancel_async(net.cnn_async_id)
         Net.close(net.cnn:netid())
     end
+    log_debug("ZoneServiceMgr:_etcd_service_state_delete service:%s", service_name)
 end
 
 
@@ -176,8 +177,10 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
         st.net = nil
         self.observer_event_proxy:fire(Zone_Service_Mgr_Event_Disconnected_Service, make_peer_service_query_result(st))
     end
-    log_debug("ZoneServiceMgr: connected peer service is closed. service:%s, netid:%s, error_num:%s",
-            st and st.st:get_service() or "unknown", cnn_handler:netid(), error_num)
+    if st and st.st then
+        log_debug("ZoneServiceMgr: connected peer service is closed. service:%s, netid:%s, error_num:%s, st:%s",
+                st.st:get_service(), cnn_handler:netid(), error_num)
+    end
 end
 
 function ZoneServiceMgr:_peer_cnn_handler_on_recv(peer_cnn_seq, cnn_handler, pid, bin)
