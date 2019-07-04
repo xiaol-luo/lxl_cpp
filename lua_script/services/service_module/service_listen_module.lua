@@ -27,7 +27,7 @@ function ServiceListenModule:start()
 end
 
 function ServiceListenModule:stop()
-    ServiceListenModule.super.start(self)
+    ServiceListenModule.super.stop(self)
     if self.listen_handler then
         Net.close(self.listen_handler:netid())
         self.listen_handler = nil

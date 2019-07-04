@@ -97,6 +97,11 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
     end
 end
 
+function ClientMgr:process_reconnect(netid, pid, msg)
+
+end
+
+
 local ErrorNum = {
     None = 0,
     No_Client = 1,
@@ -211,7 +216,7 @@ function ClientMgr:process_req_launch_role(netid, pid, msg)
         local world_rpc_client = self.service:create_rpc_client(service_info.key)
         client.state = ClientState.Launch_Role
         client.world_client = world_rpc_client
-        world_rpc_client:call(Functional.make_closure(self._rpc_rsp_req_luanch_role, self, netid), WorldRpcFn.launch_role, msg.role_id, netid)
+        world_rpc_client:call(Functional.make_closure(self._rpc_rsp_req_luanch_role, self, netid, msg.role_id), WorldRpcFn.launch_role, msg.role_id, netid)
     end
     until true
     if _Process_Launch_Role_Error.none ~= error_num then
@@ -219,7 +224,7 @@ function ClientMgr:process_req_launch_role(netid, pid, msg)
     end
 end
 
-function ClientMgr:_rpc_rsp_req_luanch_role(netid, rpc_error_num, launch_error_num, game_key, world_session_id, ...)
+function ClientMgr:_rpc_rsp_req_luanch_role(netid, role_id, rpc_error_num, launch_error_num, game_key, world_session_id, ...)
     local error_num = _Process_Launch_Role_Error.none
     repeat
     do
@@ -237,6 +242,7 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, rpc_error_num, launch_error_n
             break
         end
         client.state = ClientState.In_Game
+        client.launch_role_id = role_id
         client.world_session_id = world_session_id
         log_debug("process_req_launch_role rpc success client:%s", client)
     end
@@ -245,10 +251,57 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, rpc_error_num, launch_error_n
     log_debug("process_req_launch_role rpc game_key:%s error_num:%s, launch_error_num:%s", game_key, error_num, launch_error_num)
 end
 
-function ClientMgr:process_logout_role(netid, pid, msg)
+_Logout_Role_Error = {
+    unknown = 1,
+    not_launch_role = 2,
+    logout_fail = 3,
+    rpc_fail = 4,
+    state_invalid = 5,
+}
 
+function ClientMgr:process_logout_role(netid, pid, msg)
+    local error_num = Error_None
+    repeat
+        local client = self:get_client(netid)
+        if not client then
+            error_num = _Logout_Role_Error.unknown
+            break
+        end
+        if ClientState.In_Game ~= client.state or not client.launch_role_id or msg.role_id ~= client.launch_role_id then
+            error_num = _Logout_Role_Error.not_launch_role
+            break
+        end
+        client.world_client:call(Functional.make_closure(self._rpc_rsp_logout_role, self),
+            WorldRpcFn.logout_role, client.world_session_id, client.role_id)
+    until true
+    if Error_None ~= error_num then
+        self.client_cnn_mgr:send(netid, ProtoId.rsp_logout_role, { error_num = error_num})
+    end
 end
 
-function ClientMgr:process_reconnect(netid, pid, msg)
-
+function ClientMgr:_rpc_rsp_logout_role(netid, rpc_error_num, logout_error_num)
+    local client = self:get_client(netid)
+    if not client then
+        return
+    end
+    local error_num = Error_None
+    repeat
+        if Error_None ~= rpc_error_num then
+            error_num = _Logout_Role_Error.rpc_fail
+            break
+        end
+        if Error_None ~= logout_error_num then
+            error_num = _Logout_Role_Error.logout_fail
+            break
+        end
+        if ClientState.In_Game == client.state then
+            error_num = _Logout_Role_Error.state_invalid
+            break
+        end
+        client.state = ClientState.Manage_Role
+        client.role_id = nil
+        client.world_client = nil
+        client.world_session_id = nil
+    until true
+    self.client_cnn_mgr:send(netid, ProtoId.rsp_logout_role, { error_num = error_num })
 end

@@ -23,6 +23,7 @@ function ManageRoleLogic:init()
         [WorldRpcFn.create_role] = self.create_role,
         [WorldRpcFn.launch_role] = self.launch_role,
         [WorldRpcFn.client_quit] = self.client_quit,
+        [WorldRpcFn.logout_role] = self.logout_role,
     }
 
     local rpc_co_process_fns_map = {
@@ -309,3 +310,24 @@ function ManageRoleLogic:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_
     self.role_id_to_role[role.role_id] = nil
 end
 
+_Logout_Role_Error = {
+    not_match_role_id = 1,
+}
+
+function ManageRoleLogic:logout_role(rpc_rsp, session_id, role_id)
+    local error_num = Error_None
+    repeat
+        local role = self.session_id_to_role[session_id]
+        if not role then
+            break
+        end
+        if role.role_id ~= role_id then
+            error_num = _Logout_Role_Error.not_match_role_id
+            break
+        end
+        self.session_id_to_role[role.session_id] = nil
+        role.session_id = nil
+        self:try_release_role(role_id)
+    until true
+    rpc_rsp:respone(error_num)
+end

@@ -58,6 +58,12 @@ function ServiceModuleMgr:get_curr_state()
     return self.curr_state
 end
 
+function ServiceModuleMgr:print_module_state()
+    for k, v in pairs(self.modules) do
+        log_debug("module state: %s is %s", k, v:get_curr_state())
+    end
+end
+
 function ServiceModuleMgr:on_frame()
     if not self.error_num then
         if ServiceModuleState.Update == self.curr_state then

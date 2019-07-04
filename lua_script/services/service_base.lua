@@ -70,11 +70,10 @@ function ServiceBase:CheckCanQuitGame()
     -- log_debug("ServiceBase:CheckCanQuitGame 1")
     local can_quit = false
     if not self.module_mgr then
-        log_debug("ServiceBase:CheckCanQuitGame 2")
         can_quit = true
     end
     if self.module_mgr and ServiceModuleState.Stopped == self.module_mgr:get_curr_state() then
-        log_debug("ServiceBase:CheckCanQuitGame 3")
+        log_debug("ServiceBase:CheckCanQuitGame true")
         can_quit = true
     end
     if can_quit and QuitState.quiting == self.quit_state then
@@ -82,6 +81,8 @@ function ServiceBase:CheckCanQuitGame()
         self.module_mgr:release()
         self.timer_proxy:release_all()
         CoroutineExMgr.stop()
+    else
+        -- self.module_mgr:print_module_state()
     end
     return can_quit
 end

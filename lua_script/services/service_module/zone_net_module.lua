@@ -11,7 +11,7 @@ function ZoneNetModule:ctor(module_mgr, module_name)
     self.zone_name = nil
     self.timer_proxy = TimerProxy:new()
     self.check_zone_net_ready_tid = nil
-    self.Wait_Start_Max_Sec = 20
+    self.Wait_Start_Max_Sec = 5
 end
 
 function ZoneNetModule:init(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name, service_name, service_idx, service_id, listen_port, listen_ip)
@@ -54,32 +54,34 @@ function ZoneNetModule:start()
     self.curr_state = ServiceModuleState.Starting
     self.zone_net:start()
     local start_sec = logic_sec()
-    self.timer_proxy:firm(function()
-        if ServiceModuleState.Starting ~= self.curr_state and ServiceModuleState.Started ~= self.curr_state then
+    self.timer_proxy:firm(Functional.make_closure(self._checkStartResult, self, start_sec),1 * 1000, -1)
+end
+
+function ZoneNetModule:_checkStartResult(start_sec)
+    if ServiceModuleState.Starting ~= self.curr_state and ServiceModuleState.Started ~= self.curr_state then
+        self:_cancel_check_zone_net_ready()
+        return
+    end
+    self.zone_net:on_frame()
+    if self.zone_net:is_ready() then
+        self:_cancel_check_zone_net_ready()
+        self.curr_state = ServiceModuleState.Started
+    end
+    if ServiceModuleState.Starting == self.curr_state then
+        if logic_sec() - start_sec >= self.Wait_Start_Max_Sec then
             self:_cancel_check_zone_net_ready()
+            self.error_num =_ErrorNum.Wait_Start_Expired
+            self.error_num = "wait start expired"
             return
         end
-        self.zone_net:on_frame()
-        if self.zone_net:is_ready() then
-            self:_cancel_check_zone_net_ready()
-            self.curr_state = ServiceModuleState.Started
-        end
-        if ServiceModuleState.Starting == self.curr_state then
-            if logic_sec() - start_sec >= self.Wait_Start_Max_Sec then
-                self:_cancel_check_zone_net_ready()
-                self.error_num =_ErrorNum.Wait_Start_Expired
-                self.error_num = "wait start expired"
-                return
-            end
-        end
-    end,1 * 1000, -1)
+    end
 end
 
 function ZoneNetModule:stop()
     self.curr_state = ServiceModuleState.Stopping
     self.zone_net:stop()
     self.timer_proxy:release_all()
-    local Delay_Over_Sec_For_Zone_Service_Delete_Etcd_Key = 2
+    local Delay_Over_Sec_For_Zone_Service_Delete_Etcd_Key = 1
     self.timer_proxy:delay(function()
         self.curr_state = ServiceModuleState.Stopped
         self.timer_proxy:release_all()
