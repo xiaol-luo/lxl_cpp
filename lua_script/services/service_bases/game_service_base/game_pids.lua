@@ -19,6 +19,8 @@ ProtoId = {
     rsp_create_role = 20005,
     req_launch_role = 20006,
     rsp_launch_role = 20007,
-
-
+    req_logout_role = 20008,
+    rsp_logout_role = 20009,
+    req_reconnect = 20010,
+    rsp_reconnect = 20011,
 }

@@ -4,6 +4,8 @@ function ClientMgr:setup_proto_handler()
     self.client_cnn_mgr:set_process_fn(ProtoId.req_pull_role_digest, Functional.make_closure(self.process_req_pull_role_digest, self))
     self.client_cnn_mgr:set_process_fn(ProtoId.req_create_role, Functional.make_closure(self.process_req_create_role, self))
     self.client_cnn_mgr:set_process_fn(ProtoId.req_launch_role, Functional.make_closure(self.process_req_launch_role, self))
+    self.client_cnn_mgr:set_process_fn(ProtoId.req_logout_role, Functional.make_closure(self.process_logout_role, self))
+    self.client_cnn_mgr:set_process_fn(ProtoId.req_reconnect, Functional.make_closure(self.process_reconnect, self))
 end
 
 
@@ -82,7 +84,9 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
         if co_get_ret.error and #co_get_ret.error > 0 then
             return _Req_User_Login_Error.Auth_Fail
         end
-
+        if co_get_ret["uid"] ~= msg.user_id or co_get_ret["appid"] ~= msg.app_id then
+            return _Req_User_Login_Error.Auth_Fail
+        end
         return _Req_User_Login_Error.None
     end
 
@@ -239,4 +243,12 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, rpc_error_num, launch_error_n
     until true
     self.client_cnn_mgr:send(netid, ProtoId.rsp_launch_role, { error_num = error_num })
     log_debug("process_req_launch_role rpc game_key:%s error_num:%s, launch_error_num:%s", game_key, error_num, launch_error_num)
+end
+
+function ClientMgr:process_logout_role(netid, pid, msg)
+
+end
+
+function ClientMgr:process_reconnect(netid, pid, msg)
+
 end

@@ -28,7 +28,8 @@ bool PureLuaService::CanQuitGame()
 	{
 		sol::state_view lsv(m_lua_state);
 		sol::object v = lsv.get<sol::object>(m_can_quit_game_fn_name);
-		if (v.is<sol::main_protected_function>())
+		if (v.is<sol::main_protected_function
+		>())
 		{
 			sol::main_protected_function fn = v.as<sol::main_protected_function>();
 			sol::protected_function_result ret = fn();
@@ -38,7 +39,7 @@ bool PureLuaService::CanQuitGame()
 			}
 		}
 	}
-	log_debug("PureLuaService::CanQuitGame {}", can_quit);
+	// log_debug("PureLuaService::CanQuitGame {}", can_quit);
 	return can_quit;
 }
 

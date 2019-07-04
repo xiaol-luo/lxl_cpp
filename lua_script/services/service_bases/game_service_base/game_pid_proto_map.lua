@@ -59,6 +59,26 @@ local pid_proto_map =
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="RspLaunchRole"
     },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_logout_role,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqLogoutRole"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_logout_role,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspLogoutRole"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_reconnect,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqReconnect"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_reconnect,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspReconnect"
+    },
 }
 
 
