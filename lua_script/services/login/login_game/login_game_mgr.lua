@@ -98,30 +98,6 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
 
     login_item.state = LoginGameState.Auth
 
-    local over_cb = function(co)
-        local error_code = 0
-        local ret = {}
-        local return_vals = co:get_return_vals()
-        if not return_vals then
-            error_code = ERROR_COROUTINE_RAISE_ERROR
-            log_debug("process_req_login_game coroutine raise error: %s", co:get_error_msg())
-        else
-            error_code, ret = table.unpack(return_vals.vals, 1, return_vals.n)
-        end
-        log_debug("xxxxxxxxxxx %s", return_vals)
-        ret = ret or {}
-        self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, {
-            error_code = error_code,
-            auth_sn = ret.auth_sn,
-            timestamp = ret.timestamp,
-            app_id = ret.app_id,
-            user_id = ret.user_id,
-            gate_ip = ret.gate_ip,
-            gate_port = ret.gate_port,
-            auth_ip = ret.auth_ip,
-            auth_port = ret.auth_port,
-        })
-    end
     local main_logic = function(co, msg)
         local auth_params = {
             token = msg.token,
@@ -140,6 +116,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             return ERROR_AUTH_LOGIN_FAIL
         end
         local auth_login_ret = rapidjson.decode(body_str)
+        log_debug("LoginGameMgr:process_req_login_game auth success %s", auth_login_ret)
         local account_id = auth_login_ret.uid
         local app_id = auth_login_ret.appid
         local db_client = self.service.db_client
@@ -183,6 +160,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         local return_val = {
             auth_sn = auth_login_ret.token,
             timestamp = auth_login_ret.timestamp,
+            account_id = account_id,
             app_id = app_id,
             user_id = user_id,
             gate_ip = gate_ip,
@@ -192,6 +170,32 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         }
         return 0, return_val
     end
+
+    local over_cb = function(co)
+        local error_code = 0
+        local ret = {}
+        local return_vals = co:get_return_vals()
+        if not return_vals then
+            error_code = ERROR_COROUTINE_RAISE_ERROR
+            log_debug("process_req_login_game coroutine raise error: %s", co:get_error_msg())
+        else
+            error_code, ret = table.unpack(return_vals.vals, 1, return_vals.n)
+        end
+        ret = ret or {}
+        self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, {
+            error_code = error_code,
+            auth_sn = ret.auth_sn,
+            timestamp = ret.timestamp,
+            account_id = ret.account_id,
+            app_id = ret.app_id,
+            user_id = ret.user_id,
+            gate_ip = ret.gate_ip,
+            gate_port = ret.gate_port,
+            auth_ip = ret.auth_ip,
+            auth_port = ret.auth_port,
+        })
+    end
+
     local co = ex_coroutine_create(main_logic, over_cb)
     local start_ok = ex_coroutine_start(co, co, msg)
     if not start_ok then

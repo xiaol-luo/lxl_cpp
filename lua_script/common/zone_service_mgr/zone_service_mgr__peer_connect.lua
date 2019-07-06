@@ -179,7 +179,7 @@ function ZoneServiceMgr:_peer_cnn_handler_on_close(peer_cnn_seq, cnn_handler, er
     end
     if st and st.st then
         log_debug("ZoneServiceMgr: connected peer service is closed. service:%s, netid:%s, error_num:%s, st:%s",
-                st.st:get_service(), cnn_handler:netid(), error_num)
+                st.st:get_service(), cnn_handler:netid(), error_num, st)
     end
 end
 

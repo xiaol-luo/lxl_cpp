@@ -7,6 +7,7 @@ message ReqUserLogin
     string auth_sn = 3;
 	string auth_ip = 4;
 	int32 auth_port = 5;
+	string account_id = 6;
 }
 
 message RspUserLogin
@@ -65,11 +66,9 @@ message ReqReconnect
 {
 	ReqUserLogin user_login_msg = 1;
 	int64 role_id = 2;
-	int64 session_id = 3;
 }
 
 message RspReconnect
 {
-	int32 user_login_error_num = 1
-	int32 role_launch_error_num = 2;
+	int32 error_num = 1;
 }

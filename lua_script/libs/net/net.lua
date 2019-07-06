@@ -22,11 +22,11 @@ function Net.send_userdata(netid, ptr, len)
 end
 
 function Net.connect_async(ip, port, cnn_handler)
-    return native.net_connect_async(ip, port, cnn_handler:cnn_handler_weak_ptr())
+    return native.net_connect_async(ip, tonumber(port), cnn_handler:cnn_handler_weak_ptr())
 end
 
 function Net.listen_async(ip, port, listen_handler)
-    return native.net_listen_async(ip, port, listen_handler:listen_handler_weak_ptr())
+    return native.net_listen_async(ip, tonumber(port), listen_handler:listen_handler_weak_ptr())
 end
 
 function Net.cancel_async(async_id)

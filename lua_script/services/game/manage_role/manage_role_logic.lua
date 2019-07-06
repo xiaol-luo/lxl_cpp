@@ -95,7 +95,7 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
 end
 
 function ManageRoleLogic:client_quit(rpc_rsp, role_id, session_id)
-    log_debug("ManageRoleLogic:release_role %s %s", role_id, session_id)
+    log_debug("ManageRoleLogic:client_quit %s %s", role_id, session_id)
     rpc_rsp:respone(Error_None)
 end
 

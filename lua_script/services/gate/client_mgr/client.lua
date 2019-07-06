@@ -9,6 +9,8 @@ function Client:ctor()
     self.launch_role_id = nil
     self.world_client = nil
     self.world_session_id = nil
+    self.game_client = nil
+    self.token = nil
 end
 
 function Client:is_authed()

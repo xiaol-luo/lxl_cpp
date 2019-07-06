@@ -8,7 +8,7 @@ mt.__index = function(ins, key)
         return nil
     end
     local ret = function(ins, ...)
-        return RpcClient._co_call(ins, key, key)
+        return RpcClient.coro_call(ins, key, ...)
     end
     ins[key] = ret
     return ret
@@ -24,7 +24,7 @@ function RpcClient:setup_coroutine_fns(fn_names)
         if IsString(fn_name) and #fn_name > 0 then
             assert(not self[fn_names], string.format("can not change attribute already exist %s", fn_name))
             self[fn_name] = function(self, ...)
-                return self:_co_call(fn_name, ...)
+                return self:coro_call(fn_name, ...)
             end
         end
     end
@@ -35,10 +35,10 @@ function RpcClient:call(cb_fn, remote_fn, ...)
     self.rpc_mgr:call(cb_fn, self.remote_host, remote_fn, ...)
 end
 
-function RpcClient:_co_call(remote_fn, ...)
+function RpcClient:coro_call(remote_fn, ...)
     local co = ex_coroutine_running()
     assert(co, "should be called in a running coroutine")
-    -- log_debug("RpcClient:_co_call fn_name:%s", remote_fn)
+    -- log_debug("RpcClient:coro_call fn_name:%s", remote_fn)
     self:call(new_coroutine_callback(co), remote_fn, ...)
     return ex_coroutine_yield(co)
 end

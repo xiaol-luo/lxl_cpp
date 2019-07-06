@@ -22,17 +22,22 @@ function LoginAction:init()
 end
 
 function LoginAction:start()
-    LoginAction.super.start(self)
     self.timer_proxy:release_all()
     local Tick_Span_Ms = 1 * 1000
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
-    self.cnn = PidBinCnn:new()
-    self.cnn:set_recv_cb(Functional.make_closure(self.on_cnn_recv, self))
-    self.cnn:set_open_cb(Functional.make_closure(self._on_new_cnn, self))
-    self.cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
 
-    local login_cfg = self.service.all_service_cfg:get_game_service(self.service.zone_name, Service_Const.Login, 0)
-    Net.connect("127.0.0.1", login_cfg[Service_Const.Client_Port], self.cnn)
+    self.co = ex_coroutine_create(
+            Functional.make_closure(self.robot_main_logic, self),
+            Functional.make_closure(self.robot_over_logic, self)
+    )
+    local is_ok, msg = ex_coroutine_start(self.co, self.co)
+    log_debug("start robot main logic ret:%s", is_ok)
+    if not is_ok then
+        self.error_num = 1
+        self.error_msg = "start logic faifl"
+    else
+        LoginAction.super.start(self)
+    end
 end
 
 function LoginAction:stop()
@@ -40,8 +45,15 @@ function LoginAction:stop()
     self.timer_proxy:release_all()
 end
 
-function LoginAction._on_tick()
-    
+function LoginAction:_on_tick()
+    if not self.co or "Dead" == ex_coroutine_status(self.co) then
+        self.co = ex_coroutine_create(
+                Functional.make_closure(self.robot_main_logic, self),
+                Functional.make_closure(self.robot_over_logic, self)
+        )
+        ex_coroutine_start(self.co, self.co)
+        log_debug("main logic one more time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    end
 end
 
 function LoginAction:on_cnn_recv(cnn, pid, block)
@@ -57,26 +69,33 @@ function LoginAction:on_cnn_recv(cnn, pid, block)
     log_debug("LoginAction:on_cnn_recv %s %s", pid, msg)
 end
 
+_LoginAction_Const = {
+    cb_new_cnn = "cb_new_cnn",
+    cb_close_cnn = "cb_close_cnn",
+}
+
 function LoginAction:_on_new_cnn(cnn, error_code)
-    if 0 == error_code then
-        self.co = ex_coroutine_create(
-                Functional.make_closure(self.robot_main_logic, self),
-                Functional.make_closure(self.robot_over_logic, self)
-        )
-        local is_ok, msg = ex_coroutine_start(self.co, self.co)
-        log_debug("start robot main logic ret:%s", is_ok)
+    log_debug("LoginAction:_on_new_cnn, error_code:%s", error_code)
+    if Error_None ~= error_code then
+        if self.cnn and self.cnn == cnn and self.co then
+            ex_coroutine_kill(self.co, "connection is open fail")
+        end
+    else
+        if self.co then
+            ex_coroutine_delay_resume(self.co, _LoginAction_Const.cb_new_cnn, error_code)
+        end
     end
 end
 
 function LoginAction:_on_close_cnn(cnn, error_code)
-    if self.cnn == cnn and self.co then
-        ex_coroutine_kill(self.co)
-        self.co = nil
+    if self.cnn and self.cnn == cnn and self.co then
+        ex_coroutine_kill(self.co, "connection is close unexpected")
     end
 end
 
 function LoginAction:robot_over_logic(co)
     self.co = nil
+    self.cnn = nil
     if not co:get_return_vals() then
         log_debug("LoginAction:robot_over_logic %s", co:get_error_msg())
     end
@@ -85,9 +104,15 @@ end
 function LoginAction:robot_main_logic(co)
     log_debug("LoginAction:robot_main_logic 1")
 
+    -- platform service
+    local user_name = "lxl11"
+    if true then
+        user_name = string.format("%s_%s_%s", self.logic_name, logic_ms(), math.random(1, 10000))
+    end
+    local co_ok = true
     local login_params = {
         appid="for_test",
-        username = "lxl11",
+        username = user_name,
         pwd = "pwd",
     }
     local login_param_strs = {}
@@ -98,7 +123,7 @@ function LoginAction:robot_main_logic(co)
     local host = string.format("%s:%s", platform_cfg[Service_Const.Ip], platform_cfg[Service_Const.Port])
     local url = string.format("%s/%s?%s", host, "login", table.concat(login_param_strs, "&"))
     log_debug("url = %s", url)
-    local co_ok, http_ret = HttpClient.co_get(url, {})
+    co_ok, http_ret = HttpClient.co_get(url, {})
     if not co_ok then
         return
     end
@@ -110,7 +135,26 @@ function LoginAction:robot_main_logic(co)
     local platform_login_ret = rapidjson.decode(body_str)
     log_debug("platform_login_ret %s", platform_login_ret)
 
-    send_msg(self.cnn, ProtoId.req_login_game, {
+    -- login service
+    local cnn = PidBinCnn:new()
+    self.cnn = cnn
+    cnn:set_recv_cb(Functional.make_closure(self.on_cnn_recv, self))
+    cnn:set_open_cb(Functional.make_closure(self._on_new_cnn, self))
+    cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
+
+    local login_cfg = self.service.all_service_cfg:get_game_service(self.service.zone_name, Service_Const.Login, 0)
+    Net.connect_async("127.0.0.1", login_cfg[Service_Const.Client_Port], cnn)
+
+    log_debug("LoginAction:robot_main_logic 1")
+    local cb_type, cb_error_num = nil
+    co_ok, cb_type, cb_error_num = ex_coroutine_yield(co)
+    if not co_ok or Error_None ~= cb_error_num then
+        log_debug("LoginAction:robot_main_logic 2, %s %s", co_ok, cb_error_num)
+        return
+    end
+    log_debug("LoginAction:robot_main_logic 3")
+
+    send_msg(cnn, ProtoId.req_login_game, {
         token = platform_login_ret["token"],
         timestamp = platform_login_ret["timestamp"],
         platform = "",
@@ -121,39 +165,46 @@ function LoginAction:robot_main_logic(co)
         return
     end
     log_debug("LoginAction:robot_main_logic pid:%s msg:%s", pid, msg)
-    Net.close(self.cnn:netid())
+    self.cnn = nil
+    Net.close(cnn:netid())
 
-    self.cnn = PidBinCnn:new()
-    self.cnn:set_recv_cb(Functional.make_closure(self.on_cnn_recv, self))
-    self.cnn:set_open_cb(function(cnn, error_code)
-        ex_coroutine_delay_resume(co, error_code)
-    end)
-    self.cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
-    Net.connect_async(msg.gate_ip, msg.gate_port, self.cnn)
+    -- gate service
+    cnn = PidBinCnn:new()
+    self.cnn = cnn
+    cnn:set_recv_cb(Functional.make_closure(self.on_cnn_recv, self))
+    cnn:set_open_cb(Functional.make_closure(self._on_new_cnn, self))
+    cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
+    Net.connect_async(msg.gate_ip, msg.gate_port, cnn)
     local cnn_error_code = 0
-    co_ok, cnn_error_code = ex_coroutine_yield(co)
+    co_ok, cb_type, cnn_error_code = ex_coroutine_yield(co)
     if not co_ok and 0 ~= cnn_error_code then
         return
     end
     log_debug("to comunicate with gate")
 
-    send_msg(self.cnn, ProtoId.req_user_login, {
+
+    local gate_ip = msg.gate_ip
+    local gate_port = msg.gate_port
+    local user_login_msg = {
         user_id = msg.user_id,
         app_id = msg.app_id,
         auth_sn = msg.auth_sn,
         auth_ip = msg.auth_ip,
         auth_port = msg.auth_port,
-    })
+        account_id = msg.account_id,
+    }
+
+    send_msg(cnn, ProtoId.req_user_login, user_login_msg)
     co_ok, pid, msg = ex_coroutine_yield(co)
     if not co_ok then
         return
     end
-    log_debug("req_user_login msg:%s", msg)
+    log_debug("req_user_login  pid:%s msg:%s", pid, msg)
     if 0 ~= msg.error_num then
         return
     end
     local role_ids = {}
-    send_msg(self.cnn, ProtoId.req_pull_role_digest, {
+    send_msg(cnn, ProtoId.req_pull_role_digest, {
         role_id = nil,
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
@@ -166,7 +217,7 @@ function LoginAction:robot_main_logic(co)
             table.insert(role_ids, role_digest.role_id)
         end
     end
-    send_msg(self.cnn, ProtoId.req_create_role, {
+    send_msg(cnn, ProtoId.req_create_role, {
         params = nil
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
@@ -175,7 +226,7 @@ function LoginAction:robot_main_logic(co)
     end
     log_debug("req_create_role msg:%s", msg)
     if 0 == msg.error_num then
-        send_msg(self.cnn, ProtoId.req_pull_role_digest, {
+        send_msg(cnn, ProtoId.req_pull_role_digest, {
             role_id = msg.role_id,
         })
         co_ok, pid, msg = ex_coroutine_yield(co)
@@ -195,13 +246,43 @@ function LoginAction:robot_main_logic(co)
     end
 
     log_debug("try to req_lanch_role, now has role %s", role_ids)
-    send_msg(self.cnn, ProtoId.req_launch_role, {
+    send_msg(cnn, ProtoId.req_launch_role, {
         role_id = role_ids[1]
     })
-    co, pid, msg = ex_coroutine_yield(co)
+    co_ok, pid, msg = ex_coroutine_yield(co)
     log_debug("req_launch_role:%s", msg)
     if not co then
         return
     end
     log_debug("robot run complete successfully!!!")
+
+    self.cnn = nil
+    Net.close(cnn:netid())
+
+    -- gate service to reconnect
+    cnn = PidBinCnn:new()
+    self.cnn = cnn
+    cnn:set_recv_cb(Functional.make_closure(self.on_cnn_recv, self))
+    cnn:set_open_cb(Functional.make_closure(self._on_new_cnn, self))
+    cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
+    Net.connect_async(gate_ip, gate_port, cnn)
+    co_ok, cb_type, cnn_error_code = ex_coroutine_yield(co)
+    if not co_ok and 0 ~= cnn_error_code then
+        return
+    end
+    log_debug("to comunicate with gate for reconnect")
+
+    send_msg(cnn, ProtoId.req_reconnect, {
+        user_login_msg = user_login_msg,
+        role_id = role_ids[1],
+    })
+    co_ok, pid, msg = ex_coroutine_yield(co)
+
+    send_msg(cnn, ProtoId.req_logout_role, {
+        role_id = role_ids[1]
+    })
+    co_ok, pid, msg = ex_coroutine_yield(co)
+
+    self.cnn = nil
+    Net.close(cnn:netid())
 end

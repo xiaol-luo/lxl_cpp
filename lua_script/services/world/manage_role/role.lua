@@ -11,7 +11,7 @@ Role_State =
     released = 5,
 }
 
-Idle_Role_Hold_Max_Sec = 30
+Idle_Role_Hold_Max_Sec = 60
 Role_Release_Cmd_Expire_Sec = 10
 Role_Release_Try_Max_Times = 3
 
@@ -27,6 +27,7 @@ function Role:ctor()
     self.release_begin_sec = nil
     self.release_try_times = nil
     self.release_opera_ids = nil
+    self.token = nil
 end
 
 
