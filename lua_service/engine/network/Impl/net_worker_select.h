@@ -32,6 +32,7 @@ namespace Net
 		};
 
 		std::unordered_map<NetId, Node *> m_id2nodes;
+		uint64_t m_next_it_advance = 0;
 
 		std::mutex m_new_nodes_mutex;
 		std::unordered_map<NetId, Node *> m_new_nodes;

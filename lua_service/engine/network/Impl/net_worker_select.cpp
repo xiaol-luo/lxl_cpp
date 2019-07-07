@@ -188,9 +188,21 @@ namespace Net
 				// 设置fd_set
 				if (!this->m_id2nodes.empty())
 				{
-					for (auto kv : this->m_id2nodes)
+					// 因为fd_set的大小有限，用这种方式使得所有的fd都有机会被处理
+					auto it = m_id2nodes.begin();
+					if (m_next_it_advance < m_id2nodes.size())
 					{
-						Node *node = kv.second;
+						std::advance(it, m_next_it_advance);
+					}
+					else
+					{
+						m_next_it_advance = 0;
+					}
+					uint64_t read_set_count = 0;
+					for (; this->m_id2nodes.end() != it; ++it)
+					{
+						++m_next_it_advance;
+						Node *node = it->second;
 						if (node->closed || node->fd < 0)
 							continue;
 
@@ -204,7 +216,22 @@ namespace Net
 						{
 							max_fd = node->fd;
 						}
+						++read_set_count;
+						if (read_set_count >= FD_SETSIZE)
+						{
+							break;
+						}
 					}
+					/*
+					{
+						if (m_id2nodes.end() == it)
+						{
+							m_next_it_advance = 0;
+						}
+						log_debug("select work max fd:{}, count:{}, fd_array_size:{}, read_set_count:{}, m_next_it_advance:{}",
+							max_fd, m_id2nodes.size(), FD_SETSIZE, read_set_count, m_next_it_advance);
+					}
+					*/
 				}
 			}
 			timeout_tv.tv_sec = 0;
@@ -235,6 +262,7 @@ namespace Net
 						}
 					}
 				}
+				// log_debug("select worker ret:{}, hit times:{}", ret, hited_count);
 			}
 			WorkLoop_RemoveConn();
 

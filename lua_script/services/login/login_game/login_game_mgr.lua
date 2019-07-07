@@ -117,6 +117,9 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         end
         local auth_login_ret = rapidjson.decode(body_str)
         log_debug("LoginGameMgr:process_req_login_game auth success %s", auth_login_ret)
+        if auth_login_ret.error and #auth_login_ret.error > 0 then
+            return ERROR_AUTH_LOGIN_FAIL
+        end
         local account_id = auth_login_ret.uid
         local app_id = auth_login_ret.appid
         local db_client = self.service.db_client

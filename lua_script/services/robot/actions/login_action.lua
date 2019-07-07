@@ -52,6 +52,7 @@ function LoginAction:_on_tick()
                 Functional.make_closure(self.robot_over_logic, self)
         )
         ex_coroutine_start(self.co, self.co)
+        ex_coroutine_expired(self.co, 20 * 1000)
         log_debug("main logic one more time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     end
 end
@@ -95,6 +96,9 @@ end
 
 function LoginAction:robot_over_logic(co)
     self.co = nil
+    if self.cnn then
+        Net.close(self.cnn:netid())
+    end
     self.cnn = nil
     if not co:get_return_vals() then
         log_debug("LoginAction:robot_over_logic %s", co:get_error_msg())
@@ -181,7 +185,6 @@ function LoginAction:robot_main_logic(co)
         return
     end
     log_debug("to comunicate with gate")
-
 
     local gate_ip = msg.gate_ip
     local gate_port = msg.gate_port

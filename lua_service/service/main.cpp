@@ -95,9 +95,9 @@ int main (int argc, char **argv)
 	service = nullptr; // engine own the service
 	engine_loop();
 	ls->collect_garbage();
-	ls->~state(); ls = nullptr;
+	// mempool_free(ls_mem); ls_mem = nullptr;
+	// ls->~state(); ls = nullptr;
 	stop_log();
-	mempool_free(ls_mem); ls_mem = nullptr;
 	engine_destroy();
 	return 0;
 }
