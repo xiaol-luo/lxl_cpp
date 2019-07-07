@@ -108,7 +108,7 @@ function ZoneServiceMgr:_etcd_service_val_set_cb(op_id, op, ret)
         return
     end
     if not ret:is_ok() then
-        self:etcd_service_val_update()
+        timer_delay(Functional.make_closure(self.etcd_service_val_update, self), 1 * 1000)
     else
         self.is_setted_service_state = true
     end
@@ -125,7 +125,7 @@ function ZoneServiceMgr:_etcd_pull_service_status_cb(op_id, op, ret)
         return
     end
     if not ret:is_ok() then
-        self:_etcd_pull_service_states()
+        timer_delay(Functional.make_closure(self._etcd_pull_service_states, self), 1 * 1000)
     else
         self.etcd_watch_wait_index = tonumber(ret.op_result[EtcdConst.Head_Index]) + 1
         self:_etcd_watch_service_states()
