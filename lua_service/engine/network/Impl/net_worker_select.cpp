@@ -169,7 +169,7 @@ namespace Net
 
 	void NetWorkerSelect::WorkLoop()
 	{
-		const int MS_PER_LOOP = 25;
+		const int MS_PER_LOOP = 10;
 		int max_fd = -1;
 		fd_set read_set, write_set, error_set;
 		timeval timeout_tv;

@@ -79,17 +79,9 @@ end
 
 function LoginGameMgr:process_req_login_game(netid, pid, msg)
     log_debug("LoginGameMgr.process_req_login_game %s %s", pid, msg)
-    local ERROR_NOT_LOGIN_ITEM = 1
-    local ERROR_START_CO_FAIL = 2
-    local ERROR_AUTH_LOGIN_FAIL = 3
-    local ERROR_COROUTINE_RAISE_ERROR = 4
-    local ERROR_DB_ERROR = 5
-    local ERROR_NO_GATE_AVAILABLE = 6
-    local ERROR_APPLY_USER_ID_FAIL = 7
-
     local login_item = self.login_items[netid]
     if not login_item then
-        self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, {error_code=ERROR_NOT_LOGIN_ITEM})
+        self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, { error_code=Error.Login_Game.not_login_item })
         return
     end
     if LoginGameState.Free ~= login_item.state then
@@ -113,12 +105,12 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         local co_ok, http_ret = HttpClient.co_get(url, {})
         local rsp_state, body_str = http_ret.state, http_ret.body
         if not co_ok or "OK" ~= rsp_state then
-            return ERROR_AUTH_LOGIN_FAIL
+            return Error.Login_Game.auth_login_fail
         end
         local auth_login_ret = rapidjson.decode(body_str)
         log_debug("LoginGameMgr:process_req_login_game auth success %s", auth_login_ret)
         if auth_login_ret.error and #auth_login_ret.error > 0 then
-            return ERROR_AUTH_LOGIN_FAIL
+            return Error.Login_Game.auth_login_fail
         end
         local account_id = auth_login_ret.uid
         local app_id = auth_login_ret.appid
@@ -126,17 +118,17 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         local query_db = self.service.query_db
         co_ok, db_ret = db_client:co_find_one(1, query_db, "account", { account_id=account_id })
         if not co_ok then
-            return ERROR_COROUTINE_RAISE_ERROR
+            return Error.Login_Game.coro_raise_error
         end
         if 0 ~= db_ret.error_num then
-            return ERROR_DB_ERROR
+            return Error.Login_Game.query_db_error
         end
         log_debug("co_find_one account_id:%s db_ret: %s", account_id, db_ret)
         local user_id = nil
         if db_ret.matched_count <= 0 then
             user_id = self.service.db_uuid:apply(Service_Const.user_id)
             if not user_id then
-                return ERROR_APPLY_USER_ID_FAIL
+                return Error.Login_Game.apply_user_id_fail
             end
             -- 数据库里需要对account_id设置唯一限制
             co_ok, db_ret = db_client:co_insert_one(1, query_db, "account",
@@ -144,10 +136,10 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             )
             log_debug("co_insert_one db_ret: %s", db_ret)
             if not co_ok then
-                return ERROR_COROUTINE_RAISE_ERROR
+                return Error.Login_Game.coro_raise_error
             end
             if 0 ~= db_ret.error_num or db_ret.inserted_count <= 0 then
-                return ERROR_DB_ERROR
+                return Error.Login_Game.query_db_error
             end
         else
             user_id = db_ret.val["0"].user_id
@@ -156,7 +148,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         local gk, gv = random.pick_one(self.gate_states)
         log_debug("random.pick_one(self.gate_states) %s %s", gk, gv)
         if not gv then
-            return ERROR_NO_GATE_AVAILABLE
+            return Error.Login_Game.no_gate_available
         end
         local gate_port = gv.client_connect_port
         local gate_ip = gv.client_connect_ip
@@ -179,7 +171,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         local ret = {}
         local return_vals = co:get_return_vals()
         if not return_vals then
-            error_code = ERROR_COROUTINE_RAISE_ERROR
+            error_code = Error.Login_Game.coro_raise_error
             log_debug("process_req_login_game coroutine raise error: %s", co:get_error_msg())
         else
             error_code, ret = table.unpack(return_vals.vals, 1, return_vals.n)
@@ -202,7 +194,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
     local co = ex_coroutine_create(main_logic, over_cb)
     local start_ok = ex_coroutine_start(co, co, msg)
     if not start_ok then
-        self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, {error_code=ERROR_START_CO_FAIL})
+        self.client_cnn_mgr:send(netid, ProtoId.rsp_login_game, { error_code = Error.Login_Game.start_coro_fail })
         return
     end
     local Expired_Ms = 15 * 1000

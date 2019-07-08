@@ -43,11 +43,11 @@ function ManageRoleLogic:luanch_role(rpc_rsp, role_id, session_id)
         self.id_to_role[role_id] = role
     end
     if Game_Role_State.load_from_db == role.state then
-        rpc_rsp:respone(Enum_Error.Launch_Role.loading_from_db)
+        rpc_rsp:respone(Error.Launch_Role.loading_from_db)
         return
     end
     if Game_Role_State.in_error == role.state then
-        rpc_rsp:respone(Enum_Error.Launch_Role.in_error)
+        rpc_rsp:respone(Error.Launch_Role.game_role_state_in_error)
         return
     end
     if Game_Role_State.in_game == role.state then
@@ -71,7 +71,7 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
         if 0 ~= db_ret.error_num or db_ret.matched_count <= 0 then
             role.state = Game_Role_State.in_error
             self.id_to_role[role_id] = nil
-            rpc_rsp:respone(Enum_Error.Launch_Role.db_query_fail)
+            rpc_rsp:respone(Error.Launch_Role.query_db_fail)
             return
         end
         local db_data = db_ret.val["0"]
