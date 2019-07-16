@@ -6,6 +6,7 @@ import argparse
 
 from global_def import *
 import opera
+import auto_gen
 
 
 def parse_args(input_args):
@@ -19,6 +20,7 @@ def parse_args(input_args):
     arg_parse.add_argument("zone", help="zone need to like format {name}_{num}")
     arg_parse.add_argument("--code_dir", help="code directory located")
     arg_parse.add_argument("--exe_dir", help="service.exe located directory")
+    arg_parse.add_argument("--work_dir", help="work directory, default .", default=".")
 
     ret = arg_parse.parse_args(input_args)
     return ret
@@ -43,7 +45,6 @@ def opera_ps_zone(parse_ret):
 
 if __name__ == "__main__":
     parse_ret = parse_args(sys.argv[1:])
-
     opera_fns = {
         Opera_Create: opera_create_zone,
         Opera_Start: opera_start_zone,
