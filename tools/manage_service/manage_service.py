@@ -7,6 +7,7 @@ import argparse
 from global_def import *
 import opera
 import auto_gen
+import config
 
 
 def parse_args(input_args):
@@ -53,6 +54,8 @@ if __name__ == "__main__":
     }
     for (k, v) in vars(parse_ret).items():
         print("k,v {0}, {1}".format(k, v))
+
+    config.get_service_setting()
     selected_fn = opera_fns[parse_ret.opera]
     selected_fn(parse_ret)
 

@@ -13,38 +13,29 @@ etcd_service = {
     "ttl": 10,
 }
 
-platform_service = [
-    {
-        "ip": "127.0.0.1",
-        "port": 20100,
-    },
-    {
-        "ip": "127.0.0.1",
-        "port": 20101,
-    },
-]
+platform_service_count = 2
 platform_service_db_name = "platform_account"
 
-auth_service = [
-    {
-        "ip": "127.0.0.1",
-        "port": 20200,
-    },
-    {
-        "ip": "127.0.0.1",
-        "port": 20201,
-    },
-]
+auth_service_count = 2
 auth_service_auth_method = "app_auth"
 
-login_service = [
-    {
-        "ip": "127.0.0.1",
-        "port": 31000,
-    },
-    {
-        "ip": "127.0.0.1",
-        "port": 20201,
-    },
-]
+login_service_count = 2
+gate_service_count = 2
+world_service_count = 2
+game_service_count = 2
+robot_service_count = 2
+
+public_ip = "127.0.0.1"
+internal_ip = "127.0.0.1"
+
+
+def get_service_setting():
+    global mongo_service, etcd_service
+    ret = {
+        "mongo_service": mongo_service
+    }
+    return {}
+
+
+
 
