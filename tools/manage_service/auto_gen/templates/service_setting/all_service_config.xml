@@ -1,1 +1,125 @@
-1234
+<root>
+	<platform_service>
+		<element>for_make_array</element>
+    {%- for elem in platform_service  %}
+        <element>
+            <name>{{ elem.name }}</name>
+            <ip>{{ elem.ip }}</ip>
+            <port>{{ elem.port }}</port>
+            <mongo_service>{{ platform_service.mongo_service }}</mongo_service>
+            <db_name>{{ platform_service.db }}</db_name>
+        </element>
+    {%- endfor %}
+	</platform_service>
+	<auth_service>
+		<element>for_make_array</element>
+    {%- for elem in auth_service  %}
+        <element>
+            <name>{{ elem.name }}</name>
+            <ip>{{ elem.ip }}</ip>
+            <port>{{ elem.port }}</port>
+            <auth_method>{{ elem.auth_method }}</auth_method>
+        </element>
+    {%- endfor %}
+	</auth_service>
+	
+	<mongo_service>
+		<element>for_make_array</element>
+		<element>
+			<name>for_test</name>
+			<!-- <host>119.28.224.75:27017</host> -->
+			<host>127.0.0.1:27017</host>
+			<auth_db>admin</auth_db>
+			<user>lxl</user>
+			<pwd>xiaolzz</pwd>
+		</element>
+		<element>
+			<name>for_uuid</name>
+			<!-- <host>119.28.224.75:27017</host> -->
+			<host>127.0.0.1:27017</host>
+			<auth_db>admin</auth_db>
+			<user>lxl</user>
+			<pwd>xiaolzz</pwd>
+			<db_name>global_uuid</db_name>
+			<coll_name>uuids</coll_name>
+		</element>
+	</mongo_service>
+
+	<etcd_service>
+		<element>for_make_array</element>
+		<element>
+			<name>zone_0</name>
+			<!-- <host>http://119.28.224.75:2379</host>-->
+			<host>http://127.0.0.1:2379</host>
+			<user>root</user>
+			<pwd>xiaolzz</pwd>
+			<ttl>10</ttl>
+		</element>
+	</etcd_service>
+
+	<login>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>1000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>31000</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>login_zone_0</db_name>
+			<client_port>31001</client_port>
+			<uuid_mongo_service>for_uuid</uuid_mongo_service>
+		</element>
+	</login>
+
+	<gate>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>2000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>32000</port>
+			<client_ip>127.0.0.1</client_ip>
+			<client_port>32001</client_port>
+		</element>
+	</gate>
+	
+	<world>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>3000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>33000</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>game_zone_0</db_name>
+			<uuid_mongo_service>for_uuid</uuid_mongo_service>
+		</element>
+	</world>
+	
+	<game>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>4000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>34000</port>
+			<mongo_service>for_test</mongo_service>
+			<db_name>game_zone_0</db_name>
+		</element>
+	</game>
+
+	<robot>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>5000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>35000</port>
+		</element>
+	</robot>	
+</root>
