@@ -83,7 +83,7 @@ protected:
 	int64_t GenAsyncId();
 
 protected:
-	int m_net_worker_num = 1;
+	int m_net_worker_num = 10;
 	Net::INetWorker **m_net_workers = nullptr;
 	Net::INetWorker * ChoseWorker(NetId netid);
 	void ProcessNetDatas();

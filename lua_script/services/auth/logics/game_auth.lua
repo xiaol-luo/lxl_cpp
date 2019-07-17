@@ -27,7 +27,12 @@ local Gac = GameAuth_Const
 function GameAuth:ctor(service_main)
     self.service_main = service_main
     self.timer_proxy = TimerProxy:new()
-    self.platform_host = SERVICE_SETTING[Gac.Platform][Gac.Host]
+    self.platform_hosts = {}
+    for item in SERVICE_SETTING[Gac.Platform][Gac.Host] do
+        if item ~= Service_Const.For_Make_Array then
+            table.insert(self.platform_hosts, item)
+        end
+    end
     self.platform_auth_method = SERVICE_SETTING[Gac.Platform][Gac.Auth_Method]
     self.auth_cached = {}
 end
@@ -79,7 +84,9 @@ function GameAuth:login_auth(from_cnn_id, method, req_url, kv_params, body)
 
     local main_logic = function()
         log_debug("main_logic 1")
-        local url = string.format("http://%s/%s", self.platform_host, self.platform_auth_method)
+        local rand_idx = math.random(1, #self.platform_hosts)
+        local platform_host = self.platform_hosts[rand_idx]
+        local url = string.format("http://%s/%s", platform_host, self.platform_auth_method)
         log_debug("main_logic 2")
         local url_params = {}
         for _, key in ipairs({ Gac.Token }) do

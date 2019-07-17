@@ -4,7 +4,10 @@
 		<listen_port>20200</listen_port>
 	</http>
 	<platform>
-		<host>127.0.0.1:20100</host>
+		<host>
+			<element>for_make_array</element>
+			<element>127.0.0.1:20100</element>
+		</host>
 		<auth_method>app_auth</auth_method>
 	</platform>
 </root>
