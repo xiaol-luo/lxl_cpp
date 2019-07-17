@@ -20,6 +20,7 @@ GameAuth_Const = {
     Host = "host",
     Auth_Method = "auth_method",
     OK = "OK",
+    element = "element"
 }
 
 local Gac = GameAuth_Const
@@ -28,9 +29,9 @@ function GameAuth:ctor(service_main)
     self.service_main = service_main
     self.timer_proxy = TimerProxy:new()
     self.platform_hosts = {}
-    for item in SERVICE_SETTING[Gac.Platform][Gac.Host] do
-        if item ~= Service_Const.For_Make_Array then
-            table.insert(self.platform_hosts, item)
+    for _, host in pairs(SERVICE_SETTING[Gac.Platform][Gac.Host][Gac.element]) do
+        if host ~= Service_Const.For_Make_Array then
+            table.insert(self.platform_hosts, host)
         end
     end
     self.platform_auth_method = SERVICE_SETTING[Gac.Platform][Gac.Auth_Method]
