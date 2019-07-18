@@ -1,6 +1,7 @@
 <root>
 	<platform_service>
 		<element>for_make_array</element>
+		<element>for_make_array</element>
     {%- for elem in platform_service  %}
         <element>
             <name>{{ elem.name }}</name>
@@ -12,6 +13,7 @@
     {%- endfor %}
 	</platform_service>
 	<auth_service>
+		<element>for_make_array</element>
 		<element>for_make_array</element>
     {%- for elem in auth_service  %}
         <element>
@@ -25,101 +27,116 @@
 	
 	<mongo_service>
 		<element>for_make_array</element>
+		<element>for_make_array</element>
 		<element>
-			<name>for_test</name>
-			<!-- <host>119.28.224.75:27017</host> -->
-			<host>127.0.0.1:27017</host>
-			<auth_db>admin</auth_db>
-			<user>lxl</user>
-			<pwd>xiaolzz</pwd>
+			<name>{{ mongo_service.name }}</name>
+			<host>{{ mongo_service.host }}</host>
+			<auth_db>{{ mongo_service.auth_db }}</auth_db>
+			<user>{{ mongo_service.user }}</user>
+			<pwd>{{ mongo_service.pwd }}</pwd>
 		</element>
 		<element>
-			<name>for_uuid</name>
-			<!-- <host>119.28.224.75:27017</host> -->
-			<host>127.0.0.1:27017</host>
-			<auth_db>admin</auth_db>
-			<user>lxl</user>
-			<pwd>xiaolzz</pwd>
-			<db_name>global_uuid</db_name>
-			<coll_name>uuids</coll_name>
+		<element>
+			<name>{{ uuid_mongo_service.name }}</name>
+			<host>{{ uuid_mongo_service.host }}</host>
+			<auth_db>{{ uuid_mongo_service.auth_db }}</auth_db>
+			<user>{{ uuid_mongo_service.user }}</user>
+			<pwd>{{ uuid_mongo_service.pwd }}</pwd>
+			<db_name>{{ uuid_mongo_service.db_name }}</db_name>
+			<coll_name>{{ uuid_mongo_service.coll_name }}</coll_name>
 		</element>
 	</mongo_service>
 
 	<etcd_service>
 		<element>for_make_array</element>
+		<element>for_make_array</element>
 		<element>
-			<name>zone_0</name>
-			<!-- <host>http://119.28.224.75:2379</host>-->
-			<host>http://127.0.0.1:2379</host>
-			<user>root</user>
-			<pwd>xiaolzz</pwd>
-			<ttl>10</ttl>
+			<name>{{ etcd_service.name }}</name>
+			<host>{{ etcd_service.host }}</host>
+			<user>{{ etcd_service.user }}</user>
+			<pwd>{{ etcd_service.pwd }}</pwd>
+			<ttl>{{ etcd_service.ttl }}</ttl>
 		</element>
 	</etcd_service>
 
 	<login>
 		<element>for_make_array</element>
+		<element>for_make_array</element>
+	{%- for elem in login_service  %}
 		<element>
-			<zone>zone_0</zone>
-			<idx>0</idx>
-			<service_id>1000</service_id>
-			<ip>127.0.0.1</ip>
-			<port>31000</port>
-			<mongo_service>for_test</mongo_service>
-			<db_name>login_zone_0</db_name>
-			<client_port>31001</client_port>
-			<uuid_mongo_service>for_uuid</uuid_mongo_service>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
+			<mongo_service>{{ elem.mongo_service }}</mongo_service>
+			<db_name>{{ elem.db_name }}</db_name>
+			<client_port>{{ elem.client_port }}</client_port>
+			<uuid_mongo_service>{{ elem.uuid_mongo_service }}</uuid_mongo_service>
 		</element>
+	{%- endfor %}
 	</login>
 
 	<gate>
 		<element>for_make_array</element>
+		<element>for_make_array</element>
+	{%- for elem in gate_service  %}
 		<element>
-			<zone>zone_0</zone>
-			<idx>0</idx>
-			<service_id>2000</service_id>
-			<ip>127.0.0.1</ip>
-			<port>32000</port>
-			<client_ip>127.0.0.1</client_ip>
-			<client_port>32001</client_port>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
+			<client_ip>{{ elem.client_ip }}</client_ip>
+			<client_port>{{ elem.client_port }}</client_port>
 		</element>
+	{%- endfor %}
 	</gate>
 	
 	<world>
 		<element>for_make_array</element>
+		<element>for_make_array</element>
+	{%- for elem in world_service  %}
 		<element>
-			<zone>zone_0</zone>
-			<idx>0</idx>
-			<service_id>3000</service_id>
-			<ip>127.0.0.1</ip>
-			<port>33000</port>
-			<mongo_service>for_test</mongo_service>
-			<db_name>game_zone_0</db_name>
-			<uuid_mongo_service>for_uuid</uuid_mongo_service>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
+			<mongo_service>{{ elem.mongo_service }}</mongo_service>
+			<db_name>{{ elem.db_name }}</db_name>
+			<uuid_mongo_service>{{ elem.uuid_mongo_service }}</uuid_mongo_service>
 		</element>
+	{%- endfor %}
 	</world>
 	
 	<game>
+	{%- for elem in game_service  %}
+		<element>for_make_array</element>
 		<element>for_make_array</element>
 		<element>
-			<zone>zone_0</zone>
-			<idx>0</idx>
-			<service_id>4000</service_id>
-			<ip>127.0.0.1</ip>
-			<port>34000</port>
-			<mongo_service>for_test</mongo_service>
-			<db_name>game_zone_0</db_name>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
+			<mongo_service>{{ elem.mongo_service }}</mongo_service>
+			<db_name>{{ elem.db_name }}</db_name>
 		</element>
+	{%- endfor %}
 	</game>
 
 	<robot>
+	{%- for elem in game_service  %}
+		<element>for_make_array</element>
 		<element>for_make_array</element>
 		<element>
-			<zone>zone_0</zone>
-			<idx>0</idx>
-			<service_id>5000</service_id>
-			<ip>127.0.0.1</ip>
-			<port>35000</port>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
 		</element>
+	{%- endfor %}
 	</robot>	
 </root>
