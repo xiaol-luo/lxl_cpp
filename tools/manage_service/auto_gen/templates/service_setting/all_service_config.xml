@@ -36,7 +36,6 @@
 			<pwd>{{ mongo_service.pwd }}</pwd>
 		</element>
 		<element>
-		<element>
 			<name>{{ uuid_mongo_service.name }}</name>
 			<host>{{ uuid_mongo_service.host }}</host>
 			<auth_db>{{ uuid_mongo_service.auth_db }}</auth_db>

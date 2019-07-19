@@ -13,7 +13,7 @@ def get_env():
 def render(tt_path, *args, **kwargs):
     tt = get_template(tt_path)
     if tt:
-        return True, tt.render(args, kwargs)
+        return True, tt.render(*args, **kwargs)
     return False, None
 
 

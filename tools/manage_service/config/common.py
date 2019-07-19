@@ -1,5 +1,17 @@
 
 import re
+from enum import Enum, IntEnum
+
+
+class Service_Type(IntEnum):
+    platform = 1
+    auth = 2
+    login = 3
+    world = 4
+    game = 5
+    robot = 6
+    gate = 7
+
 
 
 def parse_zone_name(zone_name):

@@ -1,5 +1,4 @@
 from .common import *
-from enum import Enum, IntEnum
 import copy
 
 mongo_service = {
@@ -32,17 +31,6 @@ game_service_count = 2
 robot_service_count = 2
 
 access_ip = "127.0.0.1"
-
-
-class Service_Type(IntEnum):
-    platform = 1
-    auth = 2
-    login = 3
-    world = 4
-    game = 5
-    robot = 6
-    gate = 7
-
 
 All_Begin_Port = 40000
 Zone_Port_Span = 100
@@ -99,6 +87,7 @@ def get_service_setting(zone_name):
         mongo_service["db"] = platform_service_db_name
         mongo_service["mongo_service"] = mongo_service_name
         platforms.append({
+            "role": "platform",
             "name": zone_name,
             "ip": access_ip,
             "port": platform_next_port,
@@ -114,6 +103,7 @@ def get_service_setting(zone_name):
         platform_hosts.append("{0}:{1}".format(v["ip"], v["port"]))
     for i in range(0, auth_service_count):
         auths.append({
+            "role": "auth",
             "ip": access_ip,
             "name": zone_name,
             "port": auth_next_port,
@@ -131,6 +121,7 @@ def get_service_setting(zone_name):
     for i in range(0, login_service_count):
         service_id = login_next_port
         logins.append({
+            "role": "login",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
@@ -149,6 +140,7 @@ def get_service_setting(zone_name):
     for i in range(0, gate_service_count):
         service_id = gate_next_port
         gates.append({
+            "role": "gate",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
@@ -166,6 +158,7 @@ def get_service_setting(zone_name):
     for i in range(0, world_service_count):
         service_id = world_next_port
         worlds.append({
+            "role": "world",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
@@ -183,6 +176,7 @@ def get_service_setting(zone_name):
     for i in range(0, game_service_count):
         service_id = game_next_port
         games.append({
+            "role": "game",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
@@ -199,6 +193,7 @@ def get_service_setting(zone_name):
     for i in range(0, robot_service_count):
         service_id = robot_next_port
         robots.append({
+            "role": "robot",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
