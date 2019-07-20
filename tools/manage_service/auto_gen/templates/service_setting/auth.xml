@@ -1,0 +1,15 @@
+<root>
+	<http>
+		<listen_port>{{ port }}</listen_port>
+	</http>
+	<platform>
+		<host>
+			<element>for_make_array</element>
+            <element>for_make_array</element>
+        {%- for host in platform.host  %}
+			<element>{{ host }}</element>
+        {%- endfor %}
+		</host>
+		<auth_method>{{ auth_method }}</auth_method>
+	</platform>
+</root>

@@ -126,7 +126,7 @@
 	</game>
 
 	<robot>
-	{%- for elem in game_service  %}
+	{%- for elem in robot_service  %}
 		<element>for_make_array</element>
 		<element>for_make_array</element>
 		<element>

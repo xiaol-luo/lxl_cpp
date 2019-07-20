@@ -99,7 +99,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         for k, v in pairs(auth_params) do
             table.insert(auth_param_strs, string.format("%s=%s", k, v))
         end
-        local auth_cfg = self.service.all_service_cfg:get_third_party_service(Service_Const.Auth_Service, Service_Const.For_Test)
+        local auth_cfg = self.service.all_service_cfg:get_third_party_service(Service_Const.Auth_Service, self.logic_mgr.service.zone_name)
         local host = string.format("%s:%s", auth_cfg[Service_Const.Ip], auth_cfg[Service_Const.Port])
         local url = string.format("%s/%s?%s", host, "login_auth", table.concat(auth_param_strs, "&"))
         local co_ok, http_ret = HttpClient.co_get(url, {})

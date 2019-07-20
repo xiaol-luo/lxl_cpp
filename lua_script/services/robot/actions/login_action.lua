@@ -23,7 +23,7 @@ end
 
 function LoginAction:start()
     self.timer_proxy:release_all()
-    local Tick_Span_Ms = 100 * 1000
+    local Tick_Span_Ms = 5 * 1000
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
 
     self.co = ex_coroutine_create(
@@ -54,6 +54,8 @@ function LoginAction:_on_tick()
         ex_coroutine_start(self.co, self.co)
         ex_coroutine_expired(self.co, 20 * 1000)
         log_debug("main logic one more time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    else
+        log_debug("LoginAction:_on_tick", self.co and ex_coroutine_status(self.co) or "co null")
     end
 end
 
@@ -95,6 +97,7 @@ function LoginAction:_on_close_cnn(cnn, error_code)
 end
 
 function LoginAction:robot_over_logic(co)
+    log_debug("LoginAction:robot_over_logic reach")
     self.co = nil
     if self.cnn then
         Net.close(self.cnn:netid())
@@ -123,7 +126,7 @@ function LoginAction:robot_main_logic(co)
     for k, v in pairs(login_params) do
         table.insert(login_param_strs, string.format("%s=%s", k, v))
     end
-    local platform_cfg = self.service.all_service_cfg:get_third_party_service(Service_Const.Platform_Service, Service_Const.For_Test)
+    local platform_cfg = self.service.all_service_cfg:get_third_party_service(Service_Const.Platform_Service, self.logic_mgr.service.zone_name)
     local host = string.format("%s:%s", platform_cfg[Service_Const.Ip], platform_cfg[Service_Const.Port])
     local url = string.format("%s/%s?%s", host, "login", table.concat(login_param_strs, "&"))
     log_debug("url = %s", url)
@@ -146,7 +149,8 @@ function LoginAction:robot_main_logic(co)
     cnn:set_open_cb(Functional.make_closure(self._on_new_cnn, self))
     cnn:set_close_cb(Functional.make_closure(self._on_close_cnn, self))
 
-    local login_cfg = self.service.all_service_cfg:get_game_service(self.service.zone_name, Service_Const.Login, 0)
+    local login_cfg_group = self.service.all_service_cfg:get_game_service_group(self.service.zone_name, Service_Const.Login)
+    local _, login_cfg = random.pick_one(login_cfg_group)
     Net.connect_async("127.0.0.1", login_cfg[Service_Const.Client_Port], cnn)
 
     log_debug("LoginAction:robot_main_logic 1")
@@ -257,7 +261,6 @@ function LoginAction:robot_main_logic(co)
     if not co then
         return
     end
-    log_debug("robot run complete successfully!!!")
 
     self.cnn = nil
     Net.close(cnn:netid())
@@ -288,4 +291,6 @@ function LoginAction:robot_main_logic(co)
 
     self.cnn = nil
     Net.close(cnn:netid())
+
+    log_debug("robot run complete successfully!!!")
 end

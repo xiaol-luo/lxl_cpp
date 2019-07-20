@@ -53,6 +53,17 @@ function GameAllServiceConfig:get_game_service(zone, name, idx)
     return ret
 end
 
+function GameAllServiceConfig:get_game_service_group(zone, name)
+    local ret = {}
+    local service_group = self.service_group[name]
+    for _, v in pairs(service_group) do
+        if v.zone == zone then
+            table.insert(ret, v)
+        end
+    end
+    return ret
+end
+
 function GameAllServiceConfig:get_third_party_service(service_name, identify_name)
     local ret = nil
     for _, v in pairs(self.service_group[service_name]) do

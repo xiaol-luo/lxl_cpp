@@ -32,14 +32,17 @@ def opera_create_zone(parse_ret):
 
 def opera_start_zone(parse_ret):
     print("opera_start_zone")
+    opera.start_zone(parse_ret)
 
 
 def opera_stop_zone(parse_ret):
     print("opera_stop_zone")
+    opera.stop_zone(parse_ret)
 
 
 def opera_ps_zone(parse_ret):
     print("opera_ps_zone")
+    opera.ps_zone(parse_ret)
 
 
 if __name__ == "__main__":

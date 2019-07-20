@@ -30,3 +30,7 @@ def cal_zone_script_dir_path(parse_ret):
     return os.path.join(cal_zone_share_dir_path(parse_ret), "lua_script")
 
 
+def cal_zone_manage_service_file_path(parse_ret):
+    return os.path.join(cal_zone_dir_path(parse_ret), "do_manage_service.py")
+
+

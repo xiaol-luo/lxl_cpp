@@ -1,0 +1,12 @@
+<root>
+	<http>
+		<listen_port>{{ port }}</listen_port>
+	</http>
+	<mongo>
+		<host>{{ mongo.host }}</host>
+		<auth_db>{{ mongo.auth_db }}</auth_db>
+		<user>{{ mongo.user }}</user>
+		<pwd>{{ mongo.pwd }}</pwd>
+		<db>{{ db }}</db>
+	</mongo>
+</root>

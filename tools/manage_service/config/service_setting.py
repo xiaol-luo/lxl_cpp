@@ -15,10 +15,10 @@ etcd_service = {
     "ttl": 10,
 }
 
-platform_service_count = 2
+platform_service_count = 1
 platform_service_db_name = "platform_account"
 
-auth_service_count = 2
+auth_service_count = 1
 auth_service_auth_method = "app_auth"
 
 uuid_db_name = "global_uuid"
@@ -92,6 +92,7 @@ def get_service_setting(zone_name):
             "ip": access_ip,
             "port": platform_next_port,
             "mongo": mongo_setting,
+            "db": platform_service_db_name,
         })
         platform_next_port += 1
     # auth service
