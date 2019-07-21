@@ -53,14 +53,16 @@ def opera_stop_zone(parse_ret):
     for srv_dir in service_dirs:
         run_file = os.path.join(srv_dir, stop_file_name()).replace("\\", "/")
         subprocess.run(shlex.split(run_file), shell=True)
-        break
+        if is_win_platform():
+            break
 
 
 def opera_ps_zone(parse_ret):
     for srv_dir in service_dirs:
         run_file = os.path.join(srv_dir, ps_file_name()).replace("\\", "/")
         subprocess.run(shlex.split(run_file), shell=True)
-        break
+        if is_win_platform():
+            break
 
 def opera_start_zone(parse_ret):
     global service_dirs
