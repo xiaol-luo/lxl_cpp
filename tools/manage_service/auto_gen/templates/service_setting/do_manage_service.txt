@@ -3,6 +3,11 @@ import os
 import argparse
 import subprocess
 import shlex
+import platform
+
+def is_win_platform():
+    return platform.system() == 'Windows'
+
 
 service_dirs = [
  {%- for elem in service_Infos  %}
@@ -12,13 +17,22 @@ service_dirs = [
 
 
 def run_file_name():
-    return "run.bat"
+    if is_win_platform():
+        return "run.bat"
+    else:
+        return "run.sh"
 
 def stop_file_name():
-    return "stop.bat"
+    if is_win_platform():
+        return "stop.bat"
+    else:
+        return "stop.sh"
 
 def ps_file_name():
-    return "ps.bat"
+    if is_win_platform():
+        return "ps.bat"
+    else:
+        return "ps.sh"
 
 
 Opera_Start = "start"

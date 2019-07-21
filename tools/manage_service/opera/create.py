@@ -1,8 +1,11 @@
 import auto_gen
-import config
-import os
-import config
+import platform
 from .common import *
+import config
+
+
+def is_win_platform():
+    return platform.system() == 'Windows'
 
 
 class ServiceHelper(object):
@@ -22,7 +25,10 @@ class ServiceHelper(object):
 
     @property
     def bin_file_name(self):
-        return "service.exe"
+        if is_win_platform():
+            return "service.exe"
+        else:
+            return "service"
 
     @property
     def config_name(self):
@@ -44,11 +50,13 @@ class ServiceHelper(object):
     def proto_dir(self):
         return "proto"
 
-    @property
-    def run_script_file(self):
-        return "run.bat"
-
     def setup_cmds(self, params):
+        if is_win_platform():
+            self.setup_win_cmds(params)
+        else:
+            self.setup_linux_cmds(params)
+
+    def setup_win_cmds(self, params):
         run_cmd = "start cmd /c {0} {1} {2} {3} {4} {5} --lua_args_begin-- -lua_path . -c_path . {6} -require_files services.main  -execute_fns start_script".format(
             params["bin_file"],
             params["role"],
@@ -58,11 +66,29 @@ class ServiceHelper(object):
             params["script_dir"],
             params["bin_dir"]
         )
-        write_file(os.path.join(params["service_dir"], self.run_script_file), run_cmd)
+        write_file(os.path.join(params["service_dir"], "run.bat"), run_cmd)
         stop_cmd = "taskkill /f /t /im service.exe"
         write_file(os.path.join(params["service_dir"], "stop.bat"), stop_cmd)
         ps_cmd = """ tasklist /fi "imagename eq service.exe" """
         write_file(os.path.join(params["service_dir"], "ps.bat"), ps_cmd)
+
+
+    def setup_linux_cmds(self, params):
+        run_cmd = "{0} {1} {2} {3} {4} {5} --lua_args_begin-- -lua_path . -c_path . {6} -require_files services.main  -execute_fns start_script &".format(
+            params["bin_file"],
+            params["role"],
+            params["service_dir"],
+            params["datas_dir"],
+            params["run_setting_file"],
+            params["script_dir"],
+            params["bin_dir"]
+        )
+        write_file(os.path.join(params["service_dir"], "run.sh"), run_cmd)
+        stop_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(params["bin_file"])
+        stop_cmd = stop_cmd + "| awk '{print $2}' | xargs kill -9 "
+        write_file(os.path.join(params["service_dir"], "stop.sh"), stop_cmd)
+        ps_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(params["bin_file"])
+        write_file(os.path.join(params["service_dir"], "ps.sh"), ps_cmd)
 
 
     def setup_services(self):
@@ -85,7 +111,7 @@ class ServiceHelper(object):
             write_file(run_setting_file, setting_content)
             bin_dir = os.path.join(service_dir, self.bin_dir)
             relink(bin_dir, self.parse_ret.exe_dir, True)
-            self.setup_cmds({
+            cmd_params = {
                 "service_dir": service_dir,
                 "bin_dir": os.path.abspath(bin_dir).replace("\\", "/"),
                 "bin_file": os.path.abspath(os.path.join(bin_dir, self.bin_file_name)).replace("\\", "/"),
@@ -93,7 +119,8 @@ class ServiceHelper(object):
                 "datas_dir": os.path.abspath(datas_dir).replace("\\", "/"),
                 "run_setting_file": os.path.join(self.run_setting_file).replace("\\", "/"),
                 "script_dir": os.path.abspath(script_dir).replace("\\", "/"),
-            })
+            }
+            self.setup_cmds(cmd_params)
             print(cfg)
 
     def extract_info(self):
