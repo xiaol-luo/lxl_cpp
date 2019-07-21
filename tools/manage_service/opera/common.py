@@ -1,9 +1,10 @@
 
 import os
+import platform
 
 
 def cal_zone_dir_path(parse_ret):
-    return os.path.join(parse_ret.work_dir, parse_ret.zone)
+    return os.path.abspath(os.path.join(parse_ret.work_dir, parse_ret.zone))
 
 
 def cal_zone_service_dir_path(parse_ret, service_name, idx):
@@ -32,5 +33,16 @@ def cal_zone_script_dir_path(parse_ret):
 
 def cal_zone_manage_service_file_path(parse_ret):
     return os.path.join(cal_zone_dir_path(parse_ret), "do_manage_service.py")
+
+
+def is_win_platform():
+    return platform.system() == 'Windows'
+
+
+def python_bin():
+    if is_win_platform():
+        return "python"
+    else:
+        return "python3"
 
 

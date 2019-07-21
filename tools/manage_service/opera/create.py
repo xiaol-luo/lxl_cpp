@@ -4,10 +4,6 @@ from .common import *
 import config
 
 
-def is_win_platform():
-    return platform.system() == 'Windows'
-
-
 class ServiceHelper(object):
     def __init__(self, role, parse_ret, setting):
         self.role = role
