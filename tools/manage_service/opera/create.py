@@ -127,7 +127,7 @@ class ServiceHelper(object):
         ret = []
         for i, cfg in enumerate(self.setting[self.config_name]):
             idx = cfg.get("idx", i)
-            service_dir = cal_zone_service_dir_path(self.parse_ret, self.role, idx).replace("\\", "/")
+            service_dir = os.path.abspath(cal_zone_service_dir_path(self.parse_ret, self.role, idx)).replace("\\", "/")
             ret.append({
                 "role": cfg["role"],
                 "idx": idx,

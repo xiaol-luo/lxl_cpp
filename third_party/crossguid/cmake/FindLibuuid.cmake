@@ -5,8 +5,6 @@ pkg_check_modules(PKG_LIBUUID QUIET uuid)
 set(LIBUUID_DEFINITIONS ${PKG_LIBUUID_CFLAGS_OTHER})
 set(LIBUUID_VERSION ${PKG_LIBUUID_VERSION})
 
-message(FATAL_ERROR "ssssssssssssssssssssssssssssssssssss")
-
 find_path(LIBUUID_INCLUDE_DIR
 	NAMES uuid/uuid.h
 	HINTS ${PKG_LIBUUID_INCLUDE_DIRS}
