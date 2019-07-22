@@ -2,6 +2,7 @@ import auto_gen
 import platform
 from .common import *
 import config
+import stat
 
 
 class ServiceHelper(object):
@@ -79,12 +80,18 @@ class ServiceHelper(object):
             params["script_dir"],
             params["bin_dir"]
         )
-        write_file(os.path.join(params["service_dir"], "run.sh"), run_cmd)
-        stop_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(params["bin_file"])
-        stop_cmd = stop_cmd + "| awk '{print $2}' | xargs kill -9 "
-        write_file(os.path.join(params["service_dir"], "stop.sh"), stop_cmd)
+        sh_mod = stat.S_IRWXU | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH
+        run_sh_path = os.path.join(params["service_dir"], "run.sh")
+        write_file(run_sh_path, run_cmd)
+        os.chmod(run_sh_path, mode=sh_mod)
+        stop_cmd = """ for pid in `ps -ef | grep '{0}' | grep -v 'grep' | awk '{1}' `; do kill -9 $pid; done """.format(params["bin_file"], "{print $2}")
+        stop_sh_path = os.path.join(params["service_dir"], "stop.sh")
+        write_file(stop_sh_path, stop_cmd)
+        os.chmod(stop_sh_path, mode=sh_mod)
         ps_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(params["bin_file"])
-        write_file(os.path.join(params["service_dir"], "ps.sh"), ps_cmd)
+        ps_sh_path = os.path.join(params["service_dir"], "ps.sh")
+        write_file(ps_sh_path, ps_cmd)
+        os.chmod(ps_sh_path, mode=sh_mod)
 
 
     def setup_services(self):
