@@ -70,7 +70,7 @@ class ServiceHelper(object):
 
 
     def setup_linux_cmds(self, params):
-        run_cmd = "{0} {1} {2} {3} {4} {5} --lua_args_begin-- -lua_path . -c_path . {6} -require_files services.main  -execute_fns start_script &".format(
+        run_cmd = "{0} {1} {2} {3} {4} {5} --lua_args_begin-- -lua_path . -c_path . {6} -require_files services.main  -execute_fns start_script 2>&1 1>/dev/null &".format(
             params["bin_file"],
             params["role"],
             params["service_dir"],
