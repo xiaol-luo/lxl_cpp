@@ -319,7 +319,7 @@ namespace Net
 				{
 					Node *node = node_it->second;
 					bool need_send = false;
-					if (!node->closed && node->fd > 0)
+					if (!node->closed && node->fd >= 0)
 					{
 						if (!node->send_buffs.empty())
 						{
@@ -533,10 +533,13 @@ namespace Net
 
 	void NetWorkerSelect::HandleNetError(int fd, int error_num)
 	{
+		if (fd >= 0)
+		{
+			close(fd);
+		}
 		Node *node = this->GetNodeByFd(fd);
 		if (nullptr == node)
 		{
-			close(fd);
 			return;
 		}
 		m_id2nodes.erase(node->netid);
