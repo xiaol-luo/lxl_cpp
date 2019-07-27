@@ -208,7 +208,14 @@ namespace Net
 				sock = -1;
 				break;
 			}
-
+			int yes = 1;
+			if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)))
+			{
+				m_result.error_num = errno;
+				m_result.error_msg = "set socket option fail";
+				sock = -1;
+				break;
+			}
 			struct sockaddr_in listen_addr;
 			listen_addr.sin_family = AF_INET;
 			listen_addr.sin_addr.s_addr = inet_addr(m_ip.c_str());

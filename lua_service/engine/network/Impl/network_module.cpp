@@ -267,7 +267,7 @@ NetId NetworkModule::Listen(std::string ip, uint16_t port, void *opt, std::weak_
 	if (0 != error_num)
 	{
 		netid = 0;
-		MODULE_LOG_MGR->Error("NetworkModule::Listen {0}:{1} fail, errno {2}", ip, port, error_num);
+		MODULE_LOG_MGR->Error("NetworkModule::Listen {0}:{1} fail, errno {2}, error_reason {3}", ip, port, error_num, error_msg);
 	}
 	return netid;
 }
@@ -301,7 +301,7 @@ NetId NetworkModule::Connect(std::string ip, uint16_t port, void *opt, std::weak
 	if (0 != error_num)
 	{
 		netid = 0;
-		MODULE_LOG_MGR->Error("NetworkModule::Connect {0}:{1} fail, errno {2}", ip, port, error_num);
+		MODULE_LOG_MGR->Error("NetworkModule::Connect {0}:{1} fail, errno {2}, error_msg {3}", ip, port, error_num, error_msg);
 	}
 	return netid;
 }

@@ -1,6 +1,12 @@
 
 HttpRspCnn = HttpRspCnn or class("HttpRspCnn", NetCnn)
 
+Http_Rsp_Cnn_Event = {
+    Open = 1,
+    Close = 2,
+    Parse = 3,
+}
+
 function HttpRspCnn:ctor(net_handler_map)
     HttpRspCnn.super.ctor(self)
     self.native_handler = native.make_shared_http_rsp_cnn(net_handler_map:get_native_weak_ptr())
@@ -35,6 +41,12 @@ end
 function HttpRspCnn:_on_event_cb(native_cnn, event_type, error_num)
     if self.event_cb then
         Functional.safe_call(self.event_cb, self, event_type, error_num)
+    end
+    if Http_Rsp_Cnn_Event.Open then
+        self:on_open(error_num)
+    end
+    if Http_Rsp_Cnn_Event.Close then
+        self:on_close(error_num)
     end
 end
 

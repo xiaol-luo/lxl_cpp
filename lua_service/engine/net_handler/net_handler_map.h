@@ -39,6 +39,11 @@ public:
 		m_handlers.clear();
 	}
 
+	int64_t Size()
+	{
+		return m_handlers.size();
+	}
+
 protected:
 	std::unordered_map<NetId, std::shared_ptr<T> > m_handlers;
 };

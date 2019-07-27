@@ -194,7 +194,8 @@ void lua_reg_net(lua_State *L)
 		sol::usertype<INetworkHandlerMap> meta_table(
 			"add", &INetworkHandlerMap::Add,
 			"remove", &INetworkHandlerMap::Remove,
-			"clear", &INetworkHandlerMap::Clear
+			"clear", &INetworkHandlerMap::Clear,
+			"size", &INetworkHandlerMap::Size
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}
@@ -207,7 +208,8 @@ void lua_reg_net(lua_State *L)
 		sol::usertype<INetCnnHandlerMap> meta_table(
 			"add", &INetCnnHandlerMap::Add,
 			"remove", &INetCnnHandlerMap::Remove,
-			"clear", &INetCnnHandlerMap::Clear
+			"clear", &INetCnnHandlerMap::Clear,
+			"size", &INetCnnHandlerMap::Size
 		);
 		native_tb.set_usertype(class_name, meta_table);
 	}
