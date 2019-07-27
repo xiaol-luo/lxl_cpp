@@ -18,6 +18,10 @@ function CnnHandlerMap:clear()
     self.native_map:clear()
 end
 
+function CnnHandlerMap:size()
+    return self.native_map:size()
+end
+
 function CnnHandlerMap:get_native_shared_ptr()
     return self.native_map
 end

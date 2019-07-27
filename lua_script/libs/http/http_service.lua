@@ -47,10 +47,10 @@ function HttpService:do_gen_cnn_handler(net_listen)
     cnn:set_req_cb(Functional.make_closure(HttpService.handle_req, self))
     cnn:set_event_cb(Functional.make_closure(HttpService.handle_event, self))
     cnn:set_open_cb(function(cnn, error_num)
-        log_debug("HttpService cnn set_open_cb")
+        -- log_debug("HttpService cnn set_open_cb cnn count is %s", self.net_handler_map:size())
     end)
     cnn:set_close_cb(function(cnn, error_num)
-        log_debug("HttpService cnn set_close_cb")
+        -- log_debug("HttpService cnn set_close_cb cnn count is %s", self.net_handler_map:size())
     end)
     return cnn
 end

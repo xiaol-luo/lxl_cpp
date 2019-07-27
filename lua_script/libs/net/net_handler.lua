@@ -9,7 +9,7 @@ end
 
 function NetHandler:reset()
     if self.native_handler then
-        Net.close(self.native_handler:netid())
+        Net.close(self.native_handler.netid)
         self.native_handler = nil
     end
     self.open_cb = nil
@@ -25,11 +25,19 @@ function NetHandler:set_close_cb(cb)
 end
 
 function NetHandler:on_open(error_num)
-    Functional.safe_call(self.open_cb, self, error_num)
+    if self.open_cb then
+        Functional.safe_call(self.open_cb, self, error_num)
+    end
+    if 0 ~= error_num then
+        self:reset()
+    end
 end
 
 function NetHandler:on_close(error_num)
-    Functional.safe_call(self.close_cb, self, error_num)
+    if self.close_cb then
+        Functional.safe_call(self.close_cb, self, error_num)
+    end
+    self:reset()
 end
 
 function NetHandler:netid()

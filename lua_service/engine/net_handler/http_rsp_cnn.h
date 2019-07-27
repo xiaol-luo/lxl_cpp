@@ -88,4 +88,6 @@ protected:
 	NetBuffer *m_req_body = nullptr; // ÇëÇóÊý¾Ý
 
 	void CollectHead();
+
+	void ReleaseAll();
 };

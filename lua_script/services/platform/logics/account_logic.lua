@@ -39,6 +39,7 @@ function AccountLogic:index(from_cnn_id, method, req_url, kv_params, body)
     local rsp_content = gen_http_rsp_content(200, "OK", kv_params["xxx"], {})
     Net.send(from_cnn_id, rsp_content)
     Net.close(from_cnn_id)
+    -- log_debug("AccountLogic:index reach")
 end
 
 local rsp_client = function(cnn_id, tb)
@@ -48,6 +49,7 @@ local rsp_client = function(cnn_id, tb)
 end
 
 function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
+    -- log_debug("AccountLogic:login reach")
     local user_name = kv_params[Alc.UserName]
     local pwd = kv_params[Alc.Pwd] or ""
     local appid = kv_params[Alc.Appid]
@@ -139,6 +141,7 @@ function AccountLogic:login(from_cnn_id, method, req_url, kv_params, body)
 end
 
 function AccountLogic:app_auth(from_cnn_id, method, req_url, kv_params, body)
+    -- log_debug("AccountLogic:app_auth reach")
     local token = kv_params[Alc.Token]
     local timestamp = kv_params[Alc.Timestamp]
 

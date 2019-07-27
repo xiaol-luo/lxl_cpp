@@ -14,10 +14,7 @@ HttpRspCnn::HttpRspCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>>  cnn_map
 
 HttpRspCnn::~HttpRspCnn()
 {
-	delete m_recv_buff; m_recv_buff = nullptr;
-	delete m_req_body; m_req_body = nullptr;
-	mempool_free(m_parser); m_parser = nullptr;
-	mempool_free(m_parser_setting); m_parser_setting = nullptr;
+	this->ReleaseAll();
 }
 
 void HttpRspCnn::OnClose(int error_num)
@@ -35,6 +32,7 @@ void HttpRspCnn::OnClose(int error_num)
 	{
 		ap_cnn_map->Remove(m_netid);
 	}
+	this->ReleaseAll();
 }
 
 void HttpRspCnn::OnOpen(int error_num)
@@ -264,4 +262,14 @@ void HttpRspCnn::CollectHead()
 	}
 	m_handling_head = EHandlingHead_None;
 	m_req_head_kv.Reset();
+}
+
+void HttpRspCnn::ReleaseAll()
+{
+	m_process_event_fn = nullptr;
+	m_process_req_fn = nullptr;
+	delete m_recv_buff; m_recv_buff = nullptr;
+	delete m_req_body; m_req_body = nullptr;
+	mempool_free(m_parser); m_parser = nullptr;
+	mempool_free(m_parser_setting); m_parser_setting = nullptr;
 }
