@@ -2,9 +2,9 @@
 HttpRspCnn = HttpRspCnn or class("HttpRspCnn", NetCnn)
 
 Http_Rsp_Cnn_Event = {
-    Open = 1,
-    Close = 2,
-    Parse = 3,
+    Open = 0,
+    Close = 1,
+    Parse = 2,
 }
 
 function HttpRspCnn:ctor(net_handler_map)
@@ -42,10 +42,10 @@ function HttpRspCnn:_on_event_cb(native_cnn, event_type, error_num)
     if self.event_cb then
         Functional.safe_call(self.event_cb, self, event_type, error_num)
     end
-    if Http_Rsp_Cnn_Event.Open then
+    if Http_Rsp_Cnn_Event.Open == event_type then
         self:on_open(error_num)
     end
-    if Http_Rsp_Cnn_Event.Close then
+    if Http_Rsp_Cnn_Event.Close == event_type then
         self:on_close(error_num)
     end
 end

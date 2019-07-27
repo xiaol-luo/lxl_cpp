@@ -2,7 +2,7 @@
 	<platform_service>
 		<element>for_make_array</element>
 		<element>
-			<name>for_test</name>
+			<name>zone_0</name>
 			<ip>127.0.0.1</ip>
 			<port>20100</port>
 			<mongo_service>for_test</mongo_service>
@@ -12,7 +12,7 @@
 	<auth_service>
 		<element>for_make_array</element>
 		<element>
-			<name>for_test</name>
+			<name>zone_0</name>
 			<ip>127.0.0.1</ip>
 			<port>20200</port>
 			<auth_method>app_auth</auth_method>
