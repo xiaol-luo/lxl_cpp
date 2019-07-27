@@ -15,18 +15,28 @@ LuaTcpConnect::LuaTcpConnect()
 
 LuaTcpConnect::~LuaTcpConnect()
 {
-	delete m_pid_ctx_splitter; m_pid_ctx_splitter = nullptr;
-	delete m_buff; m_buff = nullptr;
+	this->ReleaseAll();
 }
 
 void LuaTcpConnect::OnClose(int error_num)
 {
-	m_lua_logic[LUA_CNN_CB_ONCLOSE](m_lua_logic, error_num);
+	if (m_lua_logic.valid())
+	{
+		m_lua_logic[LUA_CNN_CB_ONCLOSE](m_lua_logic, error_num);
+	}
+	this->ReleaseAll();
 }
 
 void LuaTcpConnect::OnOpen(int error_num)
 {
-	m_lua_logic[LUA_CNN_CB_ONOPEN](m_lua_logic, error_num);
+	if (m_lua_logic.valid())
+	{
+		m_lua_logic[LUA_CNN_CB_ONOPEN](m_lua_logic, error_num);
+	}
+	if (0 != error_num)
+	{
+		this->ReleaseAll();
+	}
 }
 
 void LuaTcpConnect::OnRecvData(char * data, uint32_t len)
@@ -41,13 +51,18 @@ void LuaTcpConnect::OnRecvData(char * data, uint32_t len)
 			uint32_t ctx_len = m_pid_ctx_splitter->CtxLen();
 			if (ctx_len > 0)
 			{
-
-				std::string bin(ctx, ctx_len);
-				m_lua_logic[LUA_CNN_CB_ONRECV](m_lua_logic, pid, bin);
+				if (m_lua_logic.valid())
+				{
+					std::string bin(ctx, ctx_len);
+					m_lua_logic[LUA_CNN_CB_ONRECV](m_lua_logic, pid, bin);
+				}
 			}
 			else
 			{
-				m_lua_logic[LUA_CNN_CB_ONRECV](m_lua_logic, pid);
+				if (m_lua_logic.valid())
+				{
+					m_lua_logic[LUA_CNN_CB_ONRECV](m_lua_logic, pid);
+				}
 			}
 			m_pid_ctx_splitter->PopUsingBuffer();
 		}
@@ -65,17 +80,20 @@ bool LuaTcpConnect::Init(sol::main_table lua_logic)
 		return false;
 
 	m_lua_logic = lua_logic;
+	if (m_lua_logic.valid())
 	{
-		sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONCLOSE);
-		assert(fn.is<sol::main_protected_function>());
-	}
-	{
-		sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONOPEN);
-		assert(fn.is<sol::main_protected_function>());
-	}
-	{
-		sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONRECV);
-		assert(fn.is<sol::main_protected_function>());
+		{
+			sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONCLOSE);
+			assert(fn.is<sol::main_protected_function>());
+		}
+		{
+			sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONOPEN);
+			assert(fn.is<sol::main_protected_function>());
+		}
+		{
+			sol::object fn = m_lua_logic.get<sol::object>(LUA_CNN_CB_ONRECV);
+			assert(fn.is<sol::main_protected_function>());
+		}
 	}
 	return true;
 }
@@ -109,4 +127,11 @@ bool LuaTcpConnect::Send(uint32_t pid, const std::string & data)
 	net_send(m_netid, buff, buff_len);
 	mempool_free(buff); buff = nullptr;
 	return true;
+}
+
+void LuaTcpConnect::ReleaseAll()
+{
+	m_lua_logic = sol::nil;
+	delete m_pid_ctx_splitter; m_pid_ctx_splitter = nullptr;
+	delete m_buff; m_buff = nullptr;
 }

@@ -25,6 +25,7 @@ public:
 protected:
 	sol::main_table m_lua_logic;
 	NetBuffer *m_buff = nullptr;
-
 	NetPidContentSplitter *m_pid_ctx_splitter;
+
+	void ReleaseAll();
 };
