@@ -45,7 +45,7 @@ void HttpRspCnn::OnOpen(int error_num)
 	}
 	if (0 != error_num)
 	{
-		log_error("HttpRspCnn::OnClose {} {}", m_netid, error_num);
+		log_error("HttpRspCnn::OnOpen {} {}", m_netid, error_num);
 	}
 	else
 	{
