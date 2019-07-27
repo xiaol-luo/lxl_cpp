@@ -8,6 +8,13 @@ class CommonConnecter;
 
 struct CommonCnnCallback
 {
+	void reset()
+	{
+		on_open = nullptr;
+		on_close = nullptr;
+		on_recv = nullptr;
+	}
+
 	std::function<void(CommonConnecter* /*self*/, int /*error_num*/)> on_open = nullptr;
 	std::function<void(CommonConnecter* /*self*/, int /*error_num*/)> on_close = nullptr;
 	std::function<void(CommonConnecter* /*self*/, char * /*data*/, uint32_t /*data_len*/)> on_recv = nullptr;
@@ -27,5 +34,7 @@ public:
 protected:
 	std::weak_ptr<NetHandlerMap<INetConnectHandler>> m_cnn_map;
 	CommonCnnCallback m_cb;
+
+	void ReleaseAll();
 };
 

@@ -12,7 +12,7 @@ CommonConnecter::CommonConnecter(std::weak_ptr<NetHandlerMap<INetConnectHandler>
 
 CommonConnecter::~CommonConnecter()
 {
-
+	this->ReleaseAll();
 }
 
 void CommonConnecter::SetCb(CommonCnnCallback & cb)
@@ -31,6 +31,7 @@ void CommonConnecter::OnClose(int error_num)
 	{
 		m_cb.on_close(this, error_num);
 	}
+	this->ReleaseAll();
 }
 
 void CommonConnecter::OnOpen(int error_num)
@@ -55,4 +56,9 @@ void CommonConnecter::OnRecvData(char * data, uint32_t len)
 	{
 		m_cb.on_recv(this, data, len);
 	}
+}
+
+void CommonConnecter::ReleaseAll()
+{
+	m_cb.reset();
 }

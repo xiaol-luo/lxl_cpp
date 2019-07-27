@@ -104,4 +104,6 @@ protected:
 	std::string m_host;
 	std::string m_method;
 	int m_port = 0;
+
+	void ReleaseAll();
 };
