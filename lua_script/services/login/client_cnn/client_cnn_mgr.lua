@@ -1,3 +1,4 @@
+Client_Cnn_Tolerate_No_Recv_Sec = 15
 
 ClientCnnMgr = ClientCnnMgr or class("ClientCnnMgr", ServiceListenModule)
 
@@ -42,7 +43,6 @@ function ClientCnnMgr:on_update()
     local now_sec = logic_sec()
     if now_sec - self.last_check_client_cnn_expired_sec >= Check_Expired_Span_Sec then
         local expired_netids = {}
-        Client_Cnn_Tolerate_No_Recv_Sec = now_sec
         for netid, client_cnn in pairs(self.client_cnns) do
             if now_sec - client_cnn.last_recv_sec >= Client_Cnn_Tolerate_No_Recv_Sec then
                 table.insert(expired_netids, netid)
@@ -84,6 +84,7 @@ function ClientCnnMgr:cnn_on_recv(cnn, pid, bin)
         log_error("ClientCnnMgr:cnn_on_recv not find client %s", netid)
         return
     end
+    client_cnn.last_recv_sec = logic_sec()
     local process_fn = self.process_msg_fns[pid]
     if process_fn then
         local is_ok, msg = PROTO_PARSER:decode(pid, bin)

@@ -76,6 +76,7 @@ namespace Net
 			if (m_new_nodes.count(id) <= 0)
 			{
 				ret = true;
+				handler->SetNetId(id);
 				Node *node = new Node();
 				node->netid = id;
 				node->handler = handler;
@@ -83,10 +84,11 @@ namespace Net
 				node->handler_type = handler->HandlerType();
 				m_new_nodes.insert(std::make_pair(id, node));
 			}
+			else
+			{
+				ret = false;
+			}
 			m_new_nodes_mutex.unlock();
-			handler->SetNetId(id);
-
-			ret = true;
 		} while (false);
 		if (!ret)
 		{
@@ -418,7 +420,11 @@ namespace Net
 	{
 		Node *node = this->GetNodeByFd(fd);
 		if (nullptr == node)
+		{
+			if (fd >= 0)
+				close(fd);
 			return;
+		}
 
 		if (ENetworkHandler_Connect == node->handler_type)
 		{
@@ -495,7 +501,11 @@ namespace Net
 	{
 		Node *node = this->GetNodeByFd(fd);
 		if (nullptr == node)
+		{
+			if (fd >= 0)
+				close(fd);
 			return;
+		}
 
 		if (ENetworkHandler_Connect == node->handler_type)
 		{
