@@ -358,6 +358,17 @@ namespace Net
 						Node::DestroyNode(node); node = nullptr;
 					}
 				}
+				else
+				{
+					// 新连接希望它能走完open close事件回调
+					this->m_new_nodes_mutex.lock();
+					if (this->m_new_nodes.end() != this->m_new_nodes.find(netid))
+					{
+						is_remove = false;
+						delay_remove_netids.insert(netid);
+					}
+					this->m_new_nodes_mutex.unlock();
+				}
 				if (is_remove)
 				{
 					this->m_wait_send_buffs_mutex.lock();

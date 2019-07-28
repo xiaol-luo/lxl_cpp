@@ -109,7 +109,7 @@ void TimerMgr::ClearAll()
 				node_queue.push(node->right);
 			if (nullptr != node->data)
 				delete (TimerItem *)node->data;
-			delete node;
+			free(node);
 		}
 	}
 }
@@ -135,7 +135,7 @@ void TimerMgr::ChekRemoveNodes()
 	{
 		auto it = m_id_to_timer_node.find(timer_id);
 		if (m_id_to_timer_node.end() == it)
-			continue;;
+			continue;
 		srv_rbtree_node_t *node = it->second;
 		if (node->parent || node == m_rbtree_timer_items->root)
 			srv_rbtree_delete(m_rbtree_timer_items, node);

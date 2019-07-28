@@ -488,7 +488,7 @@ void NetworkModule::ProcessNetDatas()
 						}
 					}
 				}
-				free(data->binary); data->binary = nullptr;
+				delete data->binary; data->binary = nullptr;
 				delete data; data = nullptr;
 			}
 		}
