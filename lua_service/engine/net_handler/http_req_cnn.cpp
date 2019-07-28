@@ -325,7 +325,7 @@ void HttpReqCnn::ReleaseAll()
 	m_process_event_fn = nullptr;
 	delete m_recv_buff; m_recv_buff = nullptr;
 	delete m_rsp_body; m_rsp_body = nullptr;
-	delete m_rsp_body; m_rsp_body = nullptr;
+	delete m_req_data_buff; m_req_data_buff = nullptr;
 	mempool_free(m_parser); m_parser = nullptr;
 	mempool_free(m_parser_setting); m_parser_setting = nullptr;
 }
