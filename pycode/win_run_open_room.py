@@ -66,9 +66,9 @@ kill_alive_services()
 in_home = True
 
 if in_home:
-	code_dir = r"E:\github\lxl_cpp"
-	exe_file = r"E:\ws\lxl_cpp\Debug\service.exe"
-	work_dir_base = r"E:\ws\lxl_cpp"
+	code_dir = r"F:\github\lxl_cpp"
+	exe_file = r"F:\ws\lxl_cpp\Debug\service.exe"
+	work_dir_base = r"F:\ws\lxl_cpp"
 else:
 	code_dir = r"E:\git\code\lxl_cpp"
 	exe_file = r"E:\git\ws\lxl_cpp\Debug\service.exe"

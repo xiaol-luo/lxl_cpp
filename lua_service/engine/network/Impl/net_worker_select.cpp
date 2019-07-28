@@ -546,7 +546,7 @@ namespace Net
 		this->AddNetworkData(new NetworkData(
 			node->handler_type,
 			node->netid,
-			node->fd,
+			-1,
 			node->handler,
 			ENetWorkDataAction_Close,
 			error_num, 0, nullptr

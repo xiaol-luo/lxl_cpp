@@ -20,7 +20,7 @@ function CoroutineExMgr.get_co(key)
 end
 
 function CoroutineExMgr.get_running()
-    local co = coroutine.running()
+    local co = tostring(coroutine.running())
     return self.get_co(co)
 end
 

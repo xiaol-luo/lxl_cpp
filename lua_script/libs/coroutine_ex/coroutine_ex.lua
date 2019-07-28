@@ -62,7 +62,7 @@ function CoroutineEx:cancel_expired()
 end
 
 function CoroutineEx:get_key()
-    return self.co
+    return tostring(self.co)
 end
 
 local do_start = function(co)
@@ -96,6 +96,9 @@ function CoroutineEx:start(...)
 end
 
 function CoroutineEx:resume(...)
+    if not self.co then
+        assert(false)
+    end
     if not self.is_started or not self.can_resume then
         local msg = "can not resume an not started coroutine"
         self:report_error(msg)
@@ -124,6 +127,9 @@ function CoroutineEx:resume(...)
 end
 
 function CoroutineEx:yield(...)
+    if not self.co then
+        assert(false)
+    end
     local is_ok = true
     local error_msg = nil
     local running_co = coroutine.running()
@@ -144,7 +150,7 @@ function CoroutineEx:yield(...)
 end
 
 function CoroutineEx:status()
-    if self.is_killed then
+    if self.is_killed or not self.co then
         return CoroutineState.Dead
     end
     return coroutine.status(self.co)
@@ -183,6 +189,10 @@ function CoroutineEx:trigger_over_cb()
         if IsFunction(self.over_cb) then
             self.over_cb(self)
         end
+        self.co = nil
+        self.over_cb = nil
+        self.custom_data = nil
+        self.return_vals = nil
     end
 end
 
