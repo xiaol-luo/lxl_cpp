@@ -46,16 +46,16 @@ function LoginAction:stop()
 end
 
 function LoginAction:_on_tick()
-    if not self.co or "Dead" == ex_coroutine_status(self.co) then
+    if not self.co or CoroutineState.Dead == ex_coroutine_status(self.co) then
         self.co = ex_coroutine_create(
                 Functional.make_closure(self.robot_main_logic, self),
                 Functional.make_closure(self.robot_over_logic, self)
         )
         ex_coroutine_start(self.co, self.co)
         ex_coroutine_expired(self.co, 20 * 1000)
-        log_debug("main logic one more time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        log_debug("main logic one more time +++++++++++++++++++++++++++++++++++++++")
     else
-        log_debug("LoginAction:_on_tick", self.co and ex_coroutine_status(self.co) or "co null")
+        log_debug("LoginAction:_on_tick %s, memory used %s", self.co and ex_coroutine_status(self.co) or "co null", collectgarbage("count"))
     end
 end
 
@@ -97,6 +97,9 @@ function LoginAction:_on_close_cnn(cnn, error_code)
 end
 
 function LoginAction:robot_over_logic(co)
+    if true then
+        return
+    end
     log_debug("LoginAction:robot_over_logic reach")
     self.co = nil
     if self.cnn then
@@ -110,7 +113,6 @@ end
 
 function LoginAction:robot_main_logic(co)
     log_debug("LoginAction:robot_main_logic 1")
-
     -- platform service
     local user_name = "lxl11"
     if true then

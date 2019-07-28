@@ -305,7 +305,7 @@ function string.toprint(t, maxlevel)
 			local str
 			if tp == "string" then
 				str = string.format("%s = %q,", key, v)
-			elseif tp == "number" or tp == "boolean" or tp == "function" or tp == "userdata" then
+			elseif tp == "number" or tp == "boolean" or tp == "function" or tp == "userdata" or tp == "thread" then
 				str = string.format("%s = %s,", key, tostring(v))
 			elseif tp == "table" then
 				if names[v] then

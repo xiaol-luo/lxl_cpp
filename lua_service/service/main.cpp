@@ -89,8 +89,15 @@ int main (int argc, char **argv)
 
 	engine_loop_span(100);
 	setup_service(service);  
-	const int FLUSH_LOG_SPAN_MS = 10 * 1000;
-	timer_firm(std::bind(flush_log), FLUSH_LOG_SPAN_MS, EXECUTE_UNLIMIT_TIMES);
+	{
+		// setup timer
+		const int FLUSH_LOG_SPAN_MS = 10 * 1000;
+		timer_firm(std::bind(flush_log), FLUSH_LOG_SPAN_MS, EXECUTE_UNLIMIT_TIMES);
+		const int COLLECT_GARBAGE_MS = 30 * 1000;
+		timer_firm(std::bind([ls]() {
+			ls->collect_garbage();
+		}), COLLECT_GARBAGE_MS, EXECUTE_UNLIMIT_TIMES);
+	}
 	timer_next(std::bind(&ServiceBase::RunService, service, argc, argv), 0);
 	service = nullptr; // engine own the service
 	engine_loop();

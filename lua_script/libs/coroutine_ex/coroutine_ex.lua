@@ -17,7 +17,11 @@
             co:resume("a", "b")
 --]]
 
-CoroutineEx = CoroutineEx or class("CoroutineEx")
+function print_gc(self)
+    --log_debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CoroutineEx gc reach! object is %s", tostring(self))
+end
+
+CoroutineEx = CoroutineEx or class("CoroutineEx", nil, { __gc = print_gc })
 
 function wrap_main_logic(main_logic)
     return function(...)
@@ -189,10 +193,7 @@ function CoroutineEx:trigger_over_cb()
         if IsFunction(self.over_cb) then
             self.over_cb(self)
         end
-        self.co = nil
-        self.over_cb = nil
-        self.custom_data = nil
-        self.return_vals = nil
+        self:release_all()
     end
 end
 
@@ -206,4 +207,11 @@ end
 
 function CoroutineEx:get_return_vals()
     return self.return_vals
+end
+
+function CoroutineEx:release_all()
+    self.co = nil
+    self.over_cb = nil
+    self.custom_data = nil
+    self.return_vals = nil
 end

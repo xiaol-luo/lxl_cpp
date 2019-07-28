@@ -1,5 +1,5 @@
-local setmetatableindex_
-setmetatableindex_ = function(t, index)
+local setmetatable_help_
+setmetatable_help_ = function(t, index)
     local mt = getmetatable(t)
     if not mt then
         mt = {}
@@ -15,11 +15,11 @@ setmetatableindex_ = function(t, index)
         mt.__index = index
         setmetatable(t, mt)
     elseif mt.__index ~= index then
-        setmetatableindex_(mt, index)
+        setmetatable_help_(mt, index)
     end
 
 end
-setmetatableindex = setmetatableindex_
+setmetatable_help = setmetatable_help_
 
 local tRegisterClass = {}
 
@@ -47,8 +47,8 @@ function class(class_name, super, extra_meta)
 
     cls.new = function(_, ...)
         local instance = {}
-        -- setmetatableindex(instance, cls)
-        setmetatable(instance, cls)
+        setmetatable_help(instance, cls)
+        -- setmetatable(instance, cls)
         instance._class_type = cls
         instance:ctor(...)
         return instance
