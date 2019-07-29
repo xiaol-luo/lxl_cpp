@@ -128,7 +128,8 @@ function LoginAction:robot_main_logic(co)
     for k, v in pairs(login_params) do
         table.insert(login_param_strs, string.format("%s=%s", k, v))
     end
-    local platform_cfg = self.service.all_service_cfg:get_third_party_service(Service_Const.Platform_Service, self.logic_mgr.service.zone_name)
+    local platform_cfg_group = self.service.all_service_cfg:get_third_party_service_group(Service_Const.Platform_Service, self.logic_mgr.service.zone_name)
+    local _, platform_cfg = random.pick_one(platform_cfg_group)
     local host = string.format("%s:%s", platform_cfg[Service_Const.Ip], platform_cfg[Service_Const.Port])
     local url = string.format("%s/%s?%s", host, "login", table.concat(login_param_strs, "&"))
     log_debug("url = %s", url)

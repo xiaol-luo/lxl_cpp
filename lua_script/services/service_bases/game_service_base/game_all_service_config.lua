@@ -75,3 +75,18 @@ function GameAllServiceConfig:get_third_party_service(service_name, identify_nam
     return ret
 end
 
+function GameAllServiceConfig:get_third_party_service_group(service_name, identify_name)
+    local ret = {}
+    for _, v in pairs(self.service_group[service_name]) do
+        if not identify_name then
+            table.insert(ret, v)
+        else
+            if v.name == identify_name then
+                table.insert(ret, v)
+            end
+        end
+    end
+    return ret
+end
+
+
