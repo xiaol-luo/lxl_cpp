@@ -57,7 +57,6 @@ function ClientCnnMgr:on_update()
         for _, netid in ipairs(expired_netids) do
             Net.close(netid)
         end
-        log_debug("gate now client cnn size %s", table.size(self.client_cnns))
     end
 end
 

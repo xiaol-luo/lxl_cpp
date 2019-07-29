@@ -20,3 +20,7 @@ function RoleModuleBase:pack_for_db(out_ret)
     return info
     --]]
 end
+
+function RoleModuleBase:set_dirty()
+    self.role:module_set_dirty(self.module_name)
+end
