@@ -20,6 +20,7 @@ function GameRole:ctor(role_id)
     self._modules[self.base_info.module_name] = self.base_info
     self.last_save_sec = 0
     self._is_dirty = false
+    self._is_module_dirty = {}
     self.world_client = nil
 end
 
@@ -36,14 +37,21 @@ end
 
 function GameRole:clear_dirty()
     self._is_dirty = false
+    self._is_module_dirty = {}
 end
 
 function GameRole:is_dirty()
-    return self._is_dirty
+    if self._is_dirty then
+        return true
+    end
+    if next(self._is_module_dirty) then
+        return true
+    end
+    return false
 end
 
 function GameRole:module_set_dirty(module_name)
-    self:set_dirty()
+    self._is_module_dirty[module_name] = true
 end
 
 function GameRole:init_from_db(db_ret)
@@ -70,18 +78,17 @@ function GameRole:init_from_db(db_ret)
     self.data_struct_version = data_struct_version
     self.last_launch_sec = db_ret.last_launch_sec or 0
     for _, v in ipairs(module_init_order) do
-        v:init_from_db(db_ret)
+        v:init_from_db(db_ret.modules or {})
     end
 end
 
 function GameRole:pack_for_db()
     ret = {}
-    ret.role_id = self.role_id
-    ret.user_id = self.user_id
     ret.data_struct_version = self.data_struct_version
     ret.last_launch_sec = self.last_launch_sec
+    ret.modules = {}
     for _, role_module in pairs(self._modules) do
-        role_module:pack_for_db(ret)
+        role_module:pack_for_db(ret.modules)
     end
     return ret
 end
@@ -103,12 +110,31 @@ function GameRole:save(db_client, db_name, coll_name)
     if Game_Role_State.in_game ~= self.state then
         return
     end
-    self:clear_dirty()
-    self.last_save_sec = logic_sec()
     local filter = {
         role_id = self.role_id,
     }
-    local doc = self:pack_for_db()
+
+    local doc = {}
+    local set_tb = {}
+    doc["$set"] = set_tb
+
+    local pack_info = self:pack_for_db()
+    if self._is_dirty then
+        set_tb.last_launch_sec = pack_info.last_launch_sec
+        set_tb.data_struct_version = pack_info.data_struct_version
+    end
+
+    for module_name, _ in pairs(self._is_module_dirty) do
+        if self._modules[module_name] and pack_info.modules[module_name] then
+            local set_key_format = "modules.%s"
+            local set_key = string.format(set_key_format, module_name)
+            set_tb[set_key] = pack_info.modules[module_name]
+        end
+    end
+
+    self:clear_dirty()
+    self.last_save_sec = logic_sec()
+
     log_debug("GameRole:save: doc: %s", doc)
     db_client:find_one_and_replace(self.db_hash, db_name, coll_name, filter, doc, function(db_ret)
         log_debug("GameRole:save: db_ret:%s", db_ret)
