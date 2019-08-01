@@ -23,4 +23,6 @@ ProtoId = {
     rsp_logout_role = 20009,
     req_reconnect = 20010,
     rsp_reconnect = 20011,
+
+    req_client_forward_game = 20012,
 }
