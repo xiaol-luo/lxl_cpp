@@ -109,6 +109,13 @@ namespace Net
 				sock = -1;
 				break;
 			}
+			char yes = 1;
+			if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)))
+			{
+				m_result.error_num = GetLastError();
+				m_result.error_msg = "set socket option fail";
+				break;
+			}
 
 			struct sockaddr_in listen_addr;
 			listen_addr.sin_family = AF_INET;
@@ -213,7 +220,6 @@ namespace Net
 			{
 				m_result.error_num = errno;
 				m_result.error_msg = "set socket option fail";
-				sock = -1;
 				break;
 			}
 			struct sockaddr_in listen_addr;

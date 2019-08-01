@@ -59,6 +59,13 @@ function ProtoParser:init(load_files, pid_proto_map)
     return ret
 end
 
+ function ProtoParser:exist(proto_id)
+     if self.id2proto_detail[proto_id] then
+         return true
+     end
+     return false
+ end
+
 function ProtoParser:encode(proto_id, param)
     local proto_detail = self.id2proto_detail[proto_id]
     assert(proto_detail)

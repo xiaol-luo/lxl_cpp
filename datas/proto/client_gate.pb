@@ -72,3 +72,9 @@ message RspReconnect
 {
 	int32 error_num = 1;
 }
+
+message ReqForwardMsg
+{
+	int32 proto_id = 1;
+	bytes proto_bytes = 2;
+}

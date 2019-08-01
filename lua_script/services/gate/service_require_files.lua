@@ -10,6 +10,7 @@ local files = {
     "services.gate.client_mgr.client",
     "services.gate.client_mgr.client_mgr",
     "services.gate.client_mgr.client_mgr__process_msg",
+    "services.gate.net.net_forward",
 }
 
 return files

@@ -10,12 +10,12 @@ end
 function ServiceLogicMgr:init()
     ServiceLogicMgr.super.init(self)
     for _, v in ipairs(self.logics) do
-        v:init()
-    end
-    for _, v in ipairs(self.logics) do
         local logic_name = v:get_logic_name()
         assert(not self.module_mgr.service[logic_name])
         self.module_mgr.service[logic_name] = v
+    end
+    for _, v in ipairs(self.logics) do
+        v:init()
     end
 end
 

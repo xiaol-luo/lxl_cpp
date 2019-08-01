@@ -23,7 +23,7 @@ end
 
 function LoginAction:start()
     self.timer_proxy:release_all()
-    local Tick_Span_Ms = 5 * 1000
+    local Tick_Span_Ms = 1 * 1000
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
 
     self.co = ex_coroutine_create(
@@ -55,7 +55,7 @@ function LoginAction:_on_tick()
         ex_coroutine_expired(self.co, 20 * 1000)
         log_debug("main logic one more time +++++++++++++++++++++++++++++++++++++++")
     else
-        log_debug("LoginAction:_on_tick %s, memory used %s", self.co and ex_coroutine_status(self.co) or "co null", collectgarbage("count"))
+        -- log_debug("LoginAction:_on_tick %s, memory used %s", self.co and ex_coroutine_status(self.co) or "co null", collectgarbage("count"))
     end
 end
 
@@ -114,8 +114,8 @@ end
 function LoginAction:robot_main_logic(co)
     log_debug("LoginAction:robot_main_logic 1")
     -- platform service
-    local user_name = "lxl11"
-    if true then
+    local user_name = "lxl_zz_11"
+    if false then
         user_name = string.format("%s_%s_%s", self.logic_name, logic_ms(), math.random(1, 10000))
     end
     local co_ok = true
@@ -286,6 +286,16 @@ function LoginAction:robot_main_logic(co)
         role_id = role_ids[1],
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
+
+    local proto_id = ProtoId.req_pull_role_digest
+    local is_ok, proto_bytes = PROTO_PARSER:encode(proto_id, {
+        role_id = 1024,
+    })
+    send_msg(cnn, ProtoId.req_client_forward_game, {
+        proto_id = proto_id,
+        proto_bytes = proto_bytes,
+    })
+    -- co_ok, pid, msg = ex_coroutine_yield(co)
 
     send_msg(cnn, ProtoId.req_logout_role, {
         role_id = role_ids[1]
