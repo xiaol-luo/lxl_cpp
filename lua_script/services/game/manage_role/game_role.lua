@@ -54,6 +54,11 @@ function GameRole:module_set_dirty(module_name)
     self._is_module_dirty[module_name] = true
 end
 
+function GameRole:set_launch_sec()
+    self.last_launch_sec = logic_sec()
+    self:set_dirty()
+end
+
 function GameRole:init_from_db(db_ret)
     self.last_save_sec = logic_sec()
     local data_struct_version = db_ret.data_struct_version or Data_Struct_Version_Game_Role
@@ -61,6 +66,9 @@ function GameRole:init_from_db(db_ret)
         -- 第一次登陆，要做一些初始化操作
         self:set_dirty()
         self.last_save_sec = logic_sec() - Game_Role_Save_Span_Sec
+        for _, m in pairs(self._modules) do
+            m:set_dirty()
+        end
     end
 
     local module_init_order = {
@@ -76,7 +84,7 @@ function GameRole:init_from_db(db_ret)
 
     self.user_id = db_ret.user_id
     self.data_struct_version = data_struct_version
-    self.last_launch_sec = db_ret.last_launch_sec or 0
+    self:set_launch_sec()
     for _, v in ipairs(module_init_order) do
         v:init_from_db(db_ret.modules or {})
     end

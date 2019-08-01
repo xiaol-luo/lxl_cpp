@@ -17,7 +17,7 @@ extern "C"
 
 int64_t RealMs()
 {
-	std::chrono::high_resolution_clock::time_point tp = std::chrono::high_resolution_clock::now();
+	std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
 	long long now = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count();
 	return now;
 }

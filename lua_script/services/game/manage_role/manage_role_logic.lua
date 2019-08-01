@@ -104,6 +104,7 @@ function ManageRoleLogic:luanch_role(rpc_rsp, role_id, session_id)
         return
     end
     if Game_Role_State.in_game == role.state then
+        role:set_launch_sec()
         rpc_rsp:respone(Error_None)
         return
     end

@@ -16,7 +16,6 @@ function RoleBaseInfo:init_from_db(db_ret)
     end
     if GameRole.is_first_launch(db_ret) then
         self.name = string.format("role_name_%s", self.role.role_id)
-        self:set_dirty()
     else
         self.name = db_info.name
     end
