@@ -20,14 +20,14 @@ function Role:ctor()
     self.role_id = nil
     self.session_id = nil
     self.gate_client = nil
-    self.client_netid = nil
+    self.gate_client_netid = nil
     self.game_client = nil
     self.cached_launch_rsp = nil -- 主要是为了处理launch过程中被顶号
     self.idle_begin_sec = nil
     self.release_begin_sec = nil
     self.release_try_times = nil
     self.release_opera_ids = nil
-    self.token = nil
+    self.auth_token = nil
 end
 
 

@@ -40,3 +40,7 @@ function NetForward:_on_client_forward_msg(rpc_rsp, role_id, pid, msg_bytes)
 
     -- Todo:
 end
+
+function NetForward:to_client()
+
+end

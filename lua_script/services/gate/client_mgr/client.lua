@@ -7,9 +7,9 @@ function Client:ctor()
     self.state = ClientState.Free
     self.user_id = nil
     self.launch_role_id = nil
-    self.world_client = nil
-    self.world_session_id = nil
     self.game_client = nil
+    self.world_client = nil
+    self.world_role_session_id = nil
     self.token = nil
 end
 

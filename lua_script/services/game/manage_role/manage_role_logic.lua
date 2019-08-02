@@ -20,6 +20,7 @@ function ManageRoleLogic:init()
     local rpc_process_fns_map = {
         [GameRpcFn.launch_role] = self.luanch_role,
         [GameRpcFn.client_quit] = self.client_quit,
+        [GameRpcFn.client_change] = self.client_change,
         [GameRpcFn.release_role] = self.release_role,
     }
 
@@ -87,7 +88,7 @@ function ManageRoleLogic:remove_role(role_id)
     self.id_to_role[role_id] = nil
 end
 
-function ManageRoleLogic:luanch_role(rpc_rsp, role_id, session_id)
+function ManageRoleLogic:luanch_role(rpc_rsp, role_id, world_role_session_id)
     log_debug("ManageRoleLogic:luanch_role %s %s", role_id, type(role_id))
     local role = self:get_role(role_id)
     if not role then
@@ -144,8 +145,13 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     end
 end
 
-function ManageRoleLogic:client_quit(rpc_rsp, role_id, session_id)
-    log_debug("ManageRoleLogic:client_quit %s %s", role_id, session_id)
+function ManageRoleLogic:client_quit(rpc_rsp, role_id, world_role_session_id)
+    log_debug("ManageRoleLogic:client_quit %s", role_id)
+    rpc_rsp:respone(Error_None)
+end
+
+function ManageRoleLogic:client_change(rpc_rsp, role_id, is_disconnect, gate_service_key, client_netid)
+    log_debug("ManageRoleLogic:client_quit %s", role_id)
     rpc_rsp:respone(Error_None)
 end
 
