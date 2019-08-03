@@ -115,7 +115,7 @@ function LoginAction:robot_main_logic(co)
     log_debug("LoginAction:robot_main_logic 1")
     -- platform service
     local user_name = "lxl_zz_11"
-    if false then
+    if true then
         user_name = string.format("%s_%s_%s", self.logic_name, logic_ms(), math.random(1, 10000))
     end
     local co_ok = true

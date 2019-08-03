@@ -89,4 +89,7 @@ function GameAllServiceConfig:get_third_party_service_group(service_name, identi
     return ret
 end
 
-
+function GameAllServiceConfig:get_world_service_count(zone_name)
+    local world_cfg_group = self:get_game_service_group(zone_name, Service_Const.World)
+    return #world_cfg_group
+end
