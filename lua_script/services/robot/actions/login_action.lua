@@ -295,7 +295,8 @@ function LoginAction:robot_main_logic(co)
         proto_id = proto_id,
         proto_bytes = proto_bytes,
     })
-    -- co_ok, pid, msg = ex_coroutine_yield(co)
+    co_ok, pid, msg = ex_coroutine_yield(co)
+    log_debug("req_client_forward_game result is pid:%s, msg:%s", pid, msg)
 
     send_msg(cnn, ProtoId.req_logout_role, {
         role_id = role_ids[1]

@@ -124,7 +124,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
         if 0 ~= db_ret.error_num then
             return Error.Login_Game.query_db_error
         end
-        log_debug("co_find_one account_id:%s db_ret: %s", account_id, db_ret)
+        -- log_debug("co_find_one account_id:%s db_ret: %s", account_id, db_ret)
         local user_id = nil
         if db_ret.matched_count <= 0 then
             user_id = self.service.db_uuid:apply(Service_Const.user_id)

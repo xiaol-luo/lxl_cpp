@@ -69,7 +69,7 @@ function ManageRoleLogic:get_role_digest(rpc_rsp, user_id, role_id)
         filter.role_id = role_id
     end
     self.db_client:find_many(1, self.query_db, self.query_coll, filter, function(db_ret)
-        log_debug("get_role_digest db_ret %s", db_ret)
+        -- log_debug("get_role_digest db_ret %s", db_ret)
         if 0 == db_ret.error_num then
             local ret = {}
             for _, v in pairs(db_ret.val) do
@@ -223,15 +223,15 @@ function ManageRoleLogic:_rpc_rsp_launch_role(session_id, role_id, rpc_error_num
     end
 
     if Error_None == rpc_error_num and Error_None == launch_error_num then
-        role.game_client:call(function(rpc_error_num, launch_error_num)
-            if Error_None == rpc_error_num and Error_None == launch_error_num then
+        role.game_client:call(function(rpc_error_num, error_num)
+            if Error_None == rpc_error_num and Error_None == error_num then
                 role.state = Role_State.using
                 role.cached_launch_rsp:respone(Error_None, role.game_client.remote_host, role.session_id)
                 role.cached_launch_rsp = nil
             else
-                fail_action(launch_error_num or rpc_error_num)
+                fail_action(Error.Launch_Role.game_change_client)
             end
-        end, GameRpcFn.client_change, true, role.gate_client.remote_host, role.gate_client_netid)
+        end, GameRpcFn.client_change, role.role_id, false, role.gate_client.remote_host, role.gate_client_netid)
     else
         fail_action(launch_error_num or rpc_error_num)
     end
@@ -249,17 +249,15 @@ function ManageRoleLogic:client_quit(rpc_rsp, session_id)
         if Role_State.using == role_state then
             role.state = Role_State.idle
             role.idle_begin_sec = logic_sec()
-            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id, session_id)
-            role.game_client:call(nil, GameRpcFn.client_change, true, nil, nil)
+            role.game_client:call(nil, GameRpcFn.client_change, role.role_id, true, nil, nil)
         elseif Role_State.launch == role_state then
-            role.game_client:call(nil, GameRpcFn.client_quit, role.role_id, session_id)
-            role.game_client:call(nil, GameRpcFn.client_change, true, nil, nil)
+            role.game_client:call(nil, GameRpcFn.client_change, role.role_id, true, nil, nil)
         else
             self.role_id_to_role[role.role_id] = nil
             assert(false, string.format("should not reach here %s", role))
         end
+        log_debug("ManageRoleLogic:client_quit %s", role.role_id)
     end
-    log_debug("ManageRoleLogic:client_quit %s", role)
 end
 
 function ManageRoleLogic:on_frame()
@@ -306,7 +304,7 @@ end
 
 function ManageRoleLogic:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num, logic_error_num)
     local role = self.role_id_to_role[role_id]
-    log_debug("ManageRoleLogic:_rpc_rsp_try_release_role %s %s %s", rpc_error_num, logic_error_num, role)
+    log_debug("ManageRoleLogic:_rpc_rsp_try_release_role %s %s", rpc_error_num, logic_error_num)
     if not role.release_opera_ids then
         return
     end
@@ -353,7 +351,6 @@ function ManageRoleLogic:reconnect_role(rpc_rsp, auth_token, role_id, gate_clien
     log_debug("ManageRoleLogic:reconnect_role 1 auth_token:%s", auth_token)
     local error_num = Error_None
     local session_id = -1
-    local game_service_key = ""
     repeat
         local role = self.role_id_to_role[role_id]
         if not role then
@@ -366,18 +363,61 @@ function ManageRoleLogic:reconnect_role(rpc_rsp, auth_token, role_id, gate_clien
             break
         end
         if Role_State.idle ~= role.state then
-            error_num = Error.Reconnect_Game.world_no_role.role_not_idle
+            error_num = Error.Reconnect_Game.role_not_idle
+            break
+        end
+        if not role.game_client then
+            error_num = Error_Unknown
             break
         end
         session_id = self:next_opera_id()
-        game_service_key = role.game_client.remote_host
         role.state = Role_State.using
         role.session_id = session_id
         role.idle_begin_sec = nil
         role.gate_client = self.service:create_rpc_client(rpc_rsp.from_host)
         role.gate_client_netid = gate_client_netid
         self.session_id_to_role[role.session_id] = role
+        role.game_client:call(Functional.make_closure(self._reconnect_role_game_change_client_cb, self, rpc_rsp, role.session_id, role),
+                GameRpcFn.client_change, role_id, false, role.gate_client.remote_host, role.gate_client_netid)
     until true
-    log_debug("ManageRoleLogic:reconnect_role error_num:%s", error_num)
-    rpc_rsp:respone(error_num, game_service_key, session_id)
+end
+
+function ManageRoleLogic:_reconnect_role_game_change_client_cb(rpc_rsp, record_session_id, role, rpc_error_num, error_num)
+    -- 这里证明回调回来的时候，这个role对象被改变过,这里失去了控制权，不后续处理了
+    log_debug("ManageRoleLogic:_reconnect_role_game_change_client_cb 1")
+    if not role.session_id or record_session_id ~= role.session_id then
+        rpc_rsp:respone(Error_Unknown)
+        return
+    end
+    local is_ok = true
+    if Role_State.using ~= role.state then
+        is_ok = false
+    end
+    if not role.game_client then
+        is_ok = false
+    end
+    if Error_None ~= rpc_error_num or Error_None ~= error_num then
+        is_ok = false
+    end
+    log_debug("ManageRoleLogic:_reconnect_role_game_change_client_cb 2 %s %s %s",  is_ok, rpc_error_num, error_num)
+    if is_ok then
+        rpc_rsp:respone(Error_None, role.game_client.remote_host, role.session_id)
+        log_debug("ManageRoleLogic:_reconnect_role_game_change_client_cb 3 %s %s %s",
+                Error_None, role.game_client.remote_host, role.session_id)
+    else
+        rpc_rsp:respone(Error_Unknown)
+        -- 或者直接踢掉这个客户端会比较简单
+        -- if role.gate_client then
+            -- role.gate_client:call(nil, GateRpcFn.kick_client, role.gate_client_netid) -- 通知gate踢人
+        -- end
+        -- 又或者在这里处理好role的状态
+        self.session_id_to_role[role.session_id] = nil
+        role.session_id = nil
+        role.gate_client = nil
+        role.gate_client_netid = nil
+        if Role_State.using == role.state then
+            role.state = Role_State.idle
+            role.idle_begin_sec = logic_sec()
+        end
+    end
 end

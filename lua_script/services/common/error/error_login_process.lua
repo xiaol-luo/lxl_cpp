@@ -26,6 +26,7 @@ Error.Reconnect_Game = {
     world_no_role = 6,
     token_not_fit = 7,
     role_not_idle = 8,
+    game_change_client = 9,
 }
 
 Error.Pull_Role_Digest = {
@@ -53,6 +54,7 @@ Error.Launch_Role = {
     loading_from_db = 8,
     game_role_state_in_error = 9,
     query_db_fail = 10,
+    game_change_client = 11,
 
 }
 

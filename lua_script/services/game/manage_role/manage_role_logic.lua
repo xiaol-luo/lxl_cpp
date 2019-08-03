@@ -19,7 +19,6 @@ function ManageRoleLogic:init()
 
     local rpc_process_fns_map = {
         [GameRpcFn.launch_role] = self.luanch_role,
-        [GameRpcFn.client_quit] = self.client_quit,
         [GameRpcFn.client_change] = self.client_change,
         [GameRpcFn.release_role] = self.release_role,
     }
@@ -120,7 +119,7 @@ function ManageRoleLogic:luanch_role(rpc_rsp, role_id, world_role_session_id)
 end
 
 function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
-    log_debug("ManageRoleLogic:_db_rsp_launch_role %s %s", role_id, db_ret)
+    log_debug("ManageRoleLogic:_db_rsp_launch_role %s", role_id)
     local role = self:get_role(role_id)
     if not role or Game_Role_State.load_from_db ~= role.state then
         rpc_rsp:respone(Enum_Error.Launch_Role.unknown)
@@ -145,19 +144,32 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     end
 end
 
-function ManageRoleLogic:client_quit(rpc_rsp, role_id, world_role_session_id)
-    log_debug("ManageRoleLogic:client_quit %s", role_id)
-    rpc_rsp:respone(Error_None)
-end
 
-function ManageRoleLogic:client_change(rpc_rsp, role_id, is_disconnect, gate_service_key, client_netid)
-    log_debug("ManageRoleLogic:client_quit %s", role_id)
+function ManageRoleLogic:client_change(rpc_rsp, role_id, is_disconnect, gate_service_key, gate_client_netid)
+    log_debug("ManageRoleLogic:client_change %s %s %s %s", role_id, is_disconnect, gate_service_key, gate_client_netid)
     rpc_rsp:respone(Error_None)
+    local role = self:get_role(role_id)
+    if role then
+        if is_disconnect then
+            role.gate_client = nil
+            role.gate_client_netid = nil
+        else
+            role.gate_client = self.service:create_rpc_client(gate_service_key)
+            role.gate_client_netid = gate_client_netid
+        end
+    end
 end
 
 
 function ManageRoleLogic:release_role(rpc_rsp, role_id)
     log_debug("ManageRoleLogic:release_role %s", role_id)
     rpc_rsp:respone(Error_None)
+    local role = self:get_role(role_id)
+    if role then
+        if role:is_dirty() then
+            role:save(self.db_client, self.query_db, self.query_coll)
+        end
+    end
+    self:remove_role(role_id)
 end
 

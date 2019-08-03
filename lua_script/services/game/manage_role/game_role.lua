@@ -22,6 +22,8 @@ function GameRole:ctor(role_id)
     self._is_dirty = false
     self._is_module_dirty = {}
     self.world_client = nil
+    self.gate_client = nil
+    self.gate_client_netid = nil
 end
 
 function GameRole.is_first_launch(db_ret)
@@ -143,9 +145,9 @@ function GameRole:save(db_client, db_name, coll_name)
     self:clear_dirty()
     self.last_save_sec = logic_sec()
 
-    log_debug("GameRole:save: doc: %s", doc)
+    -- log_debug("GameRole:save: doc: %s", doc)
     db_client:find_one_and_replace(self.db_hash, db_name, coll_name, filter, doc, function(db_ret)
-        log_debug("GameRole:save: db_ret:%s", db_ret)
+        -- log_debug("GameRole:save: db_ret:%s", db_ret)
     end)
 end
 

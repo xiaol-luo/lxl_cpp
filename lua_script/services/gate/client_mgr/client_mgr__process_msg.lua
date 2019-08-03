@@ -142,7 +142,7 @@ function ClientMgr:process_reconnect(netid, pid, msg)
         client.world_client = self.service:create_rpc_client(service_info.key)
         local co_ok, rpc_error_num, logic_error_num, game_key, world_role_session_id = client.world_client:coro_call(
                 WorldRpcFn.reconnect_role, client.token, msg.role_id, client.netid)
-        -- log_debug("bind world role callback values: %s %s %s %s %s", co_ok, rpc_error_num, logic_error_num, game_key, world_role_session_id)
+        log_debug("bind world role callback values: %s %s %s %s %s", co_ok, rpc_error_num, logic_error_num, game_key, world_role_session_id)
         if not co_ok or Error_None ~= rpc_error_num or Error_None ~= logic_error_num then
             return Error.Reconnect_Game.bind_role_fail
         end
@@ -328,7 +328,7 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, role_id, rpc_error_num, launc
         client.launch_role_id = role_id
         client.world_role_session_id = world_role_session_id
         client.game_client = self.service:create_rpc_client(game_key)
-        log_debug("process_req_launch_role rpc success client:%s", client)
+        log_debug("process_req_launch_role rpc success role_id:%s", client.launch_role_id)
     end
     until true
     if Error_None ~= error_num then
@@ -389,6 +389,6 @@ function ClientMgr:_rpc_rsp_logout_role(netid, rpc_error_num, logout_error_num)
         client.world_client = nil
         client.world_role_session_id = nil
     until true
-    log_debug("ClientMgr:process_logout_role 3 %s, client:%s", error_num, client)
+    log_debug("ClientMgr:process_logout_role 3 %s", error_num)
     self.client_cnn_mgr:send(netid, ProtoId.rsp_logout_role, { error_num = error_num })
 end

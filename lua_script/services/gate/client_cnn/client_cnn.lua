@@ -14,3 +14,7 @@ function ClientCnn:send(pid, tb)
     end
     return self.cnn:send(pid, block)
 end
+
+function ClientCnn:send_msg_bytes(pid, msg_bytes)
+    return self.cnn:send(pid, msg_bytes)
+end
