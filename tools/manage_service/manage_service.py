@@ -20,6 +20,7 @@ def parse_args(input_args):
     arg_parse.add_argument("--code_dir", help="code directory located")
     arg_parse.add_argument("--exe_dir", help="service.exe located directory")
     arg_parse.add_argument("--work_dir", help="work directory, default .", default=".")
+    arg_parse.add_argument("--role", help="filter of role", default="")
 
     ret = arg_parse.parse_args(input_args)
     return ret

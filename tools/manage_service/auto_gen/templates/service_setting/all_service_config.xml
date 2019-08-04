@@ -110,9 +110,9 @@
 	</world>
 	
 	<game>
+		<element>for_make_array</element>
+		<element>for_make_array</element>
 	{%- for elem in game_service  %}
-		<element>for_make_array</element>
-		<element>for_make_array</element>
 		<element>
 			<zone>{{ elem.zone }}</zone>
 			<idx>{{ elem.idx }}</idx>
@@ -126,9 +126,9 @@
 	</game>
 
 	<robot>
+		<element>for_make_array</element>
+		<element>for_make_array</element>
 	{%- for elem in robot_service  %}
-		<element>for_make_array</element>
-		<element>for_make_array</element>
 		<element>
 			<zone>{{ elem.zone }}</zone>
 			<idx>{{ elem.idx }}</idx>

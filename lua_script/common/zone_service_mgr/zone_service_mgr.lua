@@ -34,7 +34,7 @@ function ZoneServiceMgr:ctor(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name,
     self.check_cnn_last_ms = 0
     self.Check_Cnn_Ms_Span = 1000
     self.accept_cnn_states = {} -- cnn, ping_ms, pong_ms
-    self.Cnn_Ping_Ms_Span = 2 * 1000
+    self.Cnn_Ping_Ms_Span = 5 * 1000
     self.Cnn_Alive_Without_Pong = self.Cnn_Ping_Ms_Span * 3
     self.msg_handlers = {}
 end

@@ -134,7 +134,11 @@ function ClientMgr:process_reconnect(netid, pid, msg)
         client.user_id = auth_msg.user_id
         client.token = auth_msg.auth_sn
 
-        local service_info = self.service.zone_net:get_service(Service_Const.World, msg.role_id % WORLD_SERVICE_NUM)
+        local world_service_count = self.service.all_service_cfg:get_world_service_count(self.service.zone_name)
+        if world_service_count <= 0 then
+            return Error.Reconnect_Game.no_valid_world_service
+        end
+        local service_info = self.service.zone_net:get_service(Service_Const.World, msg.role_id % world_service_count)
         if not service_info or not service_info.net_connected then
             return Error.Reconnect_Game.no_valid_world_service
         end
