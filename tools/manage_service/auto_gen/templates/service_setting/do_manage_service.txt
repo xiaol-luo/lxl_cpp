@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import shlex
 import platform
+import time
 
 def is_win_platform():
     return platform.system() == 'Windows'
@@ -81,6 +82,7 @@ def opera_ps_zone(parse_ret):
         subprocess.run(shlex.split(run_file), shell=True)
         if is_win_platform():
             break
+    time.sleep(2)
 
 def opera_start_zone(parse_ret):
     fit_service_infos = filter_service(parse_ret)
