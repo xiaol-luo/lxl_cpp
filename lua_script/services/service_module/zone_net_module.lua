@@ -11,7 +11,7 @@ function ZoneNetModule:ctor(module_mgr, module_name)
     self.zone_name = nil
     self.timer_proxy = TimerProxy:new()
     self.check_zone_net_ready_tid = nil
-    self.Wait_Start_Max_Sec = 5
+    self.Wait_Start_Max_Sec = 60
 end
 
 function ZoneNetModule:init(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name, service_name, service_idx, service_id, listen_port, listen_ip)

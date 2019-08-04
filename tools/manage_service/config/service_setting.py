@@ -33,8 +33,8 @@ robot_service_count = 2
 access_ip = "127.0.0.1"
 
 All_Begin_Port = 40000
-Zone_Port_Span = 100
-Service_Port_Span = 10
+Zone_Port_Span = 1000
+Service_Port_Span = 100
 
 
 def cal_service_begin_port(zone_id, service_type):

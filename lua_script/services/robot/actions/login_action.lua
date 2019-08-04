@@ -52,7 +52,7 @@ function LoginAction:_on_tick()
                 Functional.make_closure(self.robot_over_logic, self)
         )
         ex_coroutine_start(self.co, self.co)
-        ex_coroutine_expired(self.co, 20 * 1000)
+        ex_coroutine_expired(self.co, 60 * 1000)
         log_debug("main logic one more time +++++++++++++++++++++++++++++++++++++++")
     else
         -- log_debug("LoginAction:_on_tick %s, memory used %s", self.co and ex_coroutine_status(self.co) or "co null", collectgarbage("count"))
@@ -116,7 +116,7 @@ function LoginAction:robot_main_logic(co)
     -- platform service
     local user_name = "lxl_zz_11"
     if true then
-        user_name = string.format("%s_%s_%s", self.logic_name, logic_ms(), math.random(1, 10000))
+        user_name = string.format("%s_%s_%s", self.logic_name, logic_ms(), native.gen_uuid())
     end
     local co_ok = true
     local login_params = {
@@ -154,7 +154,7 @@ function LoginAction:robot_main_logic(co)
 
     local login_cfg_group = self.service.all_service_cfg:get_game_service_group(self.service.zone_name, Service_Const.Login)
     local _, login_cfg = random.pick_one(login_cfg_group)
-    Net.connect_async("127.0.0.1", login_cfg[Service_Const.Client_Port], cnn)
+    Net.connect_async(login_cfg[Service_Const.Ip], login_cfg[Service_Const.Client_Port], cnn)
 
     log_debug("LoginAction:robot_main_logic 1")
     local cb_type, cb_error_num = nil
