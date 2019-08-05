@@ -5,7 +5,7 @@ function LoginGameMgr:ctor(logic_mgr, logic_name)
     LoginGameMgr.super.ctor(self, logic_mgr, logic_name)
     self.login_items = {}
     self.client_cnn_mgr = self.service.client_cnn_mgr
-    self.gate_states = {}
+    self.gate_service_states = {}
     self.last_query_gate_state_sec = 0
     self.Query_Gate_State_Span_Sec = 5
     self.rpc_mgr = self.service.rpc_mgr
@@ -24,6 +24,7 @@ function LoginGameMgr:start()
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
     self.event_proxy:subscribe(Client_Cnn_Event_New_Client, Functional.make_closure(self._on_new_cnn, self))
     self.event_proxy:subscribe(Client_Cnn_Event_Close_Client, Functional.make_closure(self._on_close_cnn, self))
+    self:_check_query_gate_service_states()
 end
 
 function LoginGameMgr:stop()
@@ -48,33 +49,34 @@ function LoginGameMgr:_on_close_cnn(netid, error_code)
     self.login_items[netid] = nil
 end
 
-function LoginGameMgr:CheckQueryGateStates()
+function LoginGameMgr:_check_query_gate_service_states()
     local now_sec = logic_sec()
     if now_sec >= self.last_query_gate_state_sec + self.Query_Gate_State_Span_Sec then
         self.last_query_gate_state_sec = now_sec
-        local gate_infos = self.service.zone_net:get_service_group(Service_Const.Gate)
-        for _, gate_info in pairs(gate_infos) do
-            local gk = gate_info.key
+        for _, gate_info in pairs(self.service.zone_net:get_service_group(Service_Const.Gate)) do
+            local service_key = gate_info.key
             if gate_info.net_connected then
-                self.service.rpc_mgr:call(function(error_num, ret)
-                    -- log_debug("CheckQueryGateStates %s %s %s", gk, error_num, ret)
-                    if Rpc_Error.None ~= error_num then
-                        self.gate_states[gk] = nil
-                    else
-                        local gate_state = {
-                            client_connect_ip = ret.client_connect_ip,
-                            client_connect_port = ret.client_connect_port
-                        }
-                        self.gate_states[gk] = gate_state
-                    end
-                end, gk, GateRpcFn.query_state)
+                self.service.rpc_mgr:call(Functional.make_closure(self._rpc_cb_gate_query_state, self, service_key), service_key, GateRpcFn.query_state)
             end
         end
     end
 end
 
+function LoginGameMgr:_rpc_cb_gate_query_state(service_key, rpc_error_num, ret)
+    if Error_None == rpc_error_num then
+        self.gate_service_states[service_key] = {
+            client_connect_ip = ret.client_connect_ip,
+            client_connect_port = ret.client_connect_port,
+        }
+    else
+        if Rpc_Error.Wait_Expired == rpc_error_num or Rpc_Error.Unknown == rpc_error_num then
+            self.gate_service_states[service_key] = nil
+        end
+    end
+end
+
 function LoginGameMgr:_on_tick()
-    self:CheckQueryGateStates()
+    self:_check_query_gate_service_states()
 end
 
 function LoginGameMgr:process_req_login_game(netid, pid, msg)
@@ -146,8 +148,8 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             user_id = db_ret.val["0"].user_id
         end
 
-        local gk, gv = random.pick_one(self.gate_states)
-        log_debug("random.pick_one(self.gate_states) %s %s", gk, gv)
+        local gk, gv = random.pick_one(self.gate_service_states)
+        log_debug("random.pick_one(self.gate_service_states) %s %s", gk, gv)
         if not gv then
             return Error.Login_Game.no_gate_available
         end
