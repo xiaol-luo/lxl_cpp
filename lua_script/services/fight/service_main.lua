@@ -18,7 +18,6 @@ function LoginService:ctor()
 end
 
 function LoginService:setup_modules()
-    self:_init_client_cnn_mgr()
     LoginService.super.setup_modules(self)
 end
 
