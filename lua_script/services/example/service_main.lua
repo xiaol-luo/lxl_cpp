@@ -1,22 +1,24 @@
 
-ExampleService = ExampleService or class("ExampleService", GameServiceBase)
+LoginService = LoginService or class("LoginService", GameServiceBase)
 
 for _, v in ipairs(require("services.login.service_require_files")) do
     require(v)
 end
 
 function create_service_main()
-    return ExampleService:new()
+    return LoginService:new()
 end
 
-function ExampleService:ctor()
-    ExampleService.super.ctor(self)
+function LoginService:ctor()
+    LoginService.super.ctor(self)
     self.db_client = nil
     self.query_db = nil
+    self.client_cnn_mgr = nil
+    self.db_uuid = nil
 end
 
-function ExampleService:setup_modules()
-    ExampleService.super.setup_modules(self)
-    self:_init_db_client()
+function LoginService:setup_modules()
+    self:_init_client_cnn_mgr()
+    LoginService.super.setup_modules(self)
 end
 
