@@ -30,7 +30,7 @@ world_service_count = 2
 game_service_count = 2
 match_service_count = 2
 fight_service_count = 2
-robot_service_count = 2
+robot_service_count = 0
 
 access_ip = "127.0.0.1"
 
@@ -217,8 +217,10 @@ def get_service_setting(zone_name):
             "service_idx": service_id,
             "ip": access_ip,
             "port": fight_next_port,
+            "client_ip": access_ip,
+            "client_port": gate_next_port + 1,
         })
-        fight_next_port += 1
+        fight_next_port += 2
 
     # robot service
     robots = []

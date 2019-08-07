@@ -1,7 +1,6 @@
 
 function WorldService:_init_db_uuid()
-    self.db_uuid = DatabaseUuidModule:new(self.module_mgr, "db_uuid")
-    self.module_mgr:add_module(self.db_uuid)
+    self.module_mgr:add_module(DatabaseUuidModule:new(self.module_mgr, "db_uuid"))
 
     -- log_debug("_init_db_client %s", self.service_cfg)
 

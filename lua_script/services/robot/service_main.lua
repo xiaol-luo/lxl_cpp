@@ -28,12 +28,12 @@ function RobotService:setup_modules()
     self:_init_zone_net_rpc_mgr()
 
     -- service logic mgr
-    self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
-    self.module_mgr:add_module(self.logic_mgr)
-    self.hotfit_module = HotfixModule:new(self.module_mgr, "hotfix_module")
-    self.module_mgr:add_module(self.hotfit_module)
+    local logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
+    self.module_mgr:add_module(logic_mgr)
+    local hotfix_module = HotfixModule:new(self.module_mgr, "hotfix_module")
+    self.module_mgr:add_module(hotfix_module)
     local hotifx_dir_path = path.combine(lfs.currentdir(), "hotifx_dir")
-    self.hotfit_module:init(hotifx_dir_path)
+    self.hotfix_module:init(hotifx_dir_path)
     lfs.mkdir(hotifx_dir_path)
 end
 

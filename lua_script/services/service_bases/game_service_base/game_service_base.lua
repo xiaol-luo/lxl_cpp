@@ -15,7 +15,7 @@ function GameServiceBase:ctor()
     self.service_cfg = nil
     self.etcd_cfg = nil
     self.logic_mgr = nil
-    self.hotfit_module = nil
+    self.hotfix_module = nil
 end
 
 function GameServiceBase:init()
@@ -54,9 +54,9 @@ function GameServiceBase:setup_modules()
     -- zone net module
     local SC = Service_Const
     self.etcd_cfg = self.all_service_cfg:get_third_party_service(SC.Etcd_Service, self.zone_name)
-    self.zone_net = ZoneNetModule:new(self.module_mgr, "zone_net")
-    self.module_mgr:add_module(self.zone_net)
-    self.zone_net:init(
+    local zone_net = ZoneNetModule:new(self.module_mgr, "zone_net")
+    self.module_mgr:add_module(zone_net)
+    zone_net:init(
             self.etcd_cfg[SC.Etcd_Host],
             self.etcd_cfg[SC.Etcd_User],
             self.etcd_cfg[SC.Etcd_Pwd],
@@ -70,14 +70,14 @@ function GameServiceBase:setup_modules()
     self:_init_zone_net_msg_handler()
     self:_init_zone_net_rpc_mgr()
     self.rpc_mgr:init(self.msg_handler)
-    self.zone_net:add_msg_handler(self.msg_handler)
+    zone_net:add_msg_handler(self.msg_handler)
     -- service logic mgr
-    self.logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
-    self.module_mgr:add_module(self.logic_mgr)
-    self.hotfit_module = HotfixModule:new(self.module_mgr, "hotfix_module")
-    self.module_mgr:add_module(self.hotfit_module)
+    local logic_mgr = ServiceLogicMgr:new(self.module_mgr, "logic_mgr")
+    self.module_mgr:add_module(logic_mgr)
+    local hotfix_module = HotfixModule:new(self.module_mgr, "hotfix_module")
+    self.module_mgr:add_module(hotfix_module)
     local hotifx_dir_path = path.combine(lfs.currentdir(), "hotifx_dir")
-    self.hotfit_module:init(hotifx_dir_path)
+    self.hotfix_module:init(hotifx_dir_path)
 	lfs.mkdir(hotifx_dir_path)
 end
 

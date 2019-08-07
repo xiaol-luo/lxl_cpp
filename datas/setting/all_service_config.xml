@@ -127,6 +127,8 @@
 			<service_id>6000</service_id>
 			<ip>127.0.0.1</ip>
 			<port>36000</port>
+			<client_ip>127.0.0.1</client_ip>
+			<client_port>36001</client_port>
 		</element>
 	</fight>
 

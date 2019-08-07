@@ -18,8 +18,10 @@ function ServiceModuleMgr:add_module(module)
     local name = module:get_module_name()
     assert(self.curr_state < ServiceModuleState.Starting)
     assert(not self.modules[name])
-    log_debug("ServiceModuleMgr:add_module %s", name)
+    assert(not self.service[name])
     self.modules[name] = module
+    self.service[name] = module
+    log_debug("ServiceModuleMgr:add_module %s", name)
 end
 
 function ServiceModuleMgr:start()

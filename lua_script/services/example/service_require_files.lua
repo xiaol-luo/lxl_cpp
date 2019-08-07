@@ -1,10 +1,11 @@
 local files = {
-    "services.login.service_main__msg_handler",
-    "services.login.service_main__rpc_mgr",
-    "services.login.service_main__client_cnn_mgr",
-    "services.login.service_main__setup_logics",
-    "services.login.client_cnn.client_cnn_mgr",
-    "services.login.login_game.login_game_mgr",
+    "services.example.service_main__msg_handler",
+    "services.example.service_main__rpc_mgr",
+    "services.example.service_main__setup_modules",
+    "services.example.service_main__setup_logics",
+    "services.example.service_modules.client_cnn_mgr.client_cnn_mgr",
+    "services.example.service_logics.fight_mgr.fight_mgr",
+
 }
 
 return files

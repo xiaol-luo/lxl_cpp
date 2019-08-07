@@ -1,4 +1,3 @@
-Client_Cnn_Tolerate_No_Recv_Sec = 15
 
 ClientCnnMgr = ClientCnnMgr or class("ClientCnnMgr", ServiceListenModule)
 
@@ -8,12 +7,4 @@ end
 
 function ClientCnnMgr:init(listen_port)
     ClientCnnMgr.super.init(self, listen_port)
-end
-
-
-function ClientCnnMgr:start()
-end
-
-function ClientCnnMgr:stop()
-    ClientCnnMgr.super.stop(self)
 end

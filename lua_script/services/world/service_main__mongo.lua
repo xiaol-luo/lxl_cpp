@@ -1,7 +1,6 @@
 
 function WorldService:_init_db_client()
-    self.db_client = MongoClientModule:new(self.module_mgr, "db_client")
-    self.module_mgr:add_module(self.db_client)
+    self.module_mgr:add_module(MongoClientModule:new(self.module_mgr, "db_client"))
 
     -- log_debug("_init_db_client %s", self.service_cfg)
     local mongo_cfg = self.all_service_cfg:get_third_party_service(Service_Const.Mongo_Service, self.service_cfg[Service_Const.Mongo_Service])

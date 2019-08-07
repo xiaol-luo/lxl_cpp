@@ -149,6 +149,8 @@
 			<service_id>{{ elem.service_idx }}</service_id>
 			<ip>{{ elem.ip }}</ip>
 			<port>{{ elem.port }}</port>
+			<client_ip>{{ elem.client_ip }}</client_ip>
+			<client_port>{{ elem.client_port }}</client_port>
 		</element>
 	{%- endfor %}
 	</fight>

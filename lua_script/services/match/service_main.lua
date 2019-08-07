@@ -1,19 +1,14 @@
 
-LoginService = LoginService or class("LoginService", GameServiceBase)
+MatchService = MatchService or class("MatchService", GameServiceBase)
 
 for _, v in ipairs(require("services.match.service_require_files")) do
     require(v)
 end
 
 function create_service_main()
-    return LoginService:new()
+    return MatchService:new()
 end
 
-function LoginService:ctor()
-    LoginService.super.ctor(self)
+function MatchService:ctor()
+    MatchService.super.ctor(self)
 end
-
-function LoginService:setup_modules()
-    LoginService.super.setup_modules(self)
-end
-
