@@ -25,4 +25,7 @@ ProtoId = {
     rsp_reconnect = 20011,
 
     req_client_forward_game = 20012,
+
+    req_join_match = 20013,
+    rsp_join_match = 20014,
 }

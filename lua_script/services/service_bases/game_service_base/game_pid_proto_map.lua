@@ -83,6 +83,17 @@ local pid_proto_map =
         [Proto_Const.Proto_Id]=ProtoId.req_client_forward_game,
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="ReqForwardMsg"
+
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_join_match,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqJoinMatch"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_join_match,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspJoinMatch"
     },
 }
 

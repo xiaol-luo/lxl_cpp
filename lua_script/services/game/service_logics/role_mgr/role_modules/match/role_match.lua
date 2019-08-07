@@ -8,6 +8,11 @@ function RoleMatch:ctor(role)
     self.match_times = 0
 end
 
+function RoleMatch:init()
+    RoleMatch.super.init(self)
+    self.role:set_client_msg_process_fn(ProtoId.req_join_match, Functional.make_closure(self._on_msg_req_join_match, self))
+end
+
 function RoleMatch:init_from_db(db_ret)
     local db_info = db_ret[self.module_name] or {}
     local data_struct_version = db_info.data_struct_version or Data_Struct_Version_Match_Info
@@ -32,3 +37,10 @@ function RoleMatch:pack_for_db(out_ret)
     return self.module_name, db_info
 end
 
+function RoleMatch:_on_msg_req_join_match(pid, msg)
+    log_debug("RoleMatch:_on_msg_req_join_match")
+    self.role:send_to_client(ProtoId.rsp_join_match, {
+        match_type = msg.match_type,
+        error_num = Error_None,
+    })
+end

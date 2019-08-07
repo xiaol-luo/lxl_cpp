@@ -287,9 +287,9 @@ function LoginAction:robot_main_logic(co)
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
 
-    local proto_id = ProtoId.req_pull_role_digest
+    local proto_id = ProtoId.req_join_match
     local is_ok, proto_bytes = PROTO_PARSER:encode(proto_id, {
-        role_id = 1024,
+        match_type = 1024,
     })
     send_msg(cnn, ProtoId.req_client_forward_game, {
         proto_id = proto_id,

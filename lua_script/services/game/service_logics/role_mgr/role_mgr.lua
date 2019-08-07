@@ -94,6 +94,7 @@ function RoleMgr:luanch_role(rpc_rsp, role_id, world_role_session_id)
     local role = self:get_role(role_id)
     if not role then
         role = GameRole:new(role_id)
+        role:init()
         role.world_client = self.service:create_rpc_client(rpc_rsp.from_host)
         self.id_to_role[role_id] = role
     end

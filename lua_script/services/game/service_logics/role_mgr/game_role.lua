@@ -21,12 +21,17 @@ function GameRole:ctor(role_id)
     self.world_client = nil
     self.gate_client = nil
     self.gate_client_netid = nil
+    self._process_client_msg_fns = {}
 
     self._modules = {}
     self:_setup_module(RoleBaseInfo, RoleBaseInfo.Module_Name)
     self:_setup_module(RoleMatch, RoleMatch.Module_Name)
+end
 
-    self._process_client_msg_fns = {}
+function GameRole:init()
+    for _, m in pairs(self._modules) do
+        m:init()
+    end
 end
 
 function GameRole:_setup_module(t_class, module_name)

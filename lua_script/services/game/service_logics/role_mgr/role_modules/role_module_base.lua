@@ -6,6 +6,10 @@ function RoleModuleBase:ctor(role, module_name)
     self.module_name = module_name
 end
 
+function RoleModuleBase:init()
+
+end
+
 function RoleModuleBase:init_from_db(db_ret)
 
 end
