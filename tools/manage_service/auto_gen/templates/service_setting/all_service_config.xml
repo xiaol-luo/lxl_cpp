@@ -125,6 +125,34 @@
 	{%- endfor %}
 	</game>
 
+	<match>
+		<element>for_make_array</element>
+		<element>for_make_array</element>
+	{%- for elem in match_service  %}
+		<element>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
+		</element>
+	{%- endfor %}
+	</match>
+
+	<fight>
+		<element>for_make_array</element>
+		<element>for_make_array</element>
+	{%- for elem in fight_service  %}
+		<element>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
+		</element>
+	{%- endfor %}
+	</fight>
+
 	<robot>
 		<element>for_make_array</element>
 		<element>for_make_array</element>

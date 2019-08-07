@@ -11,6 +11,8 @@ class Service_Type(IntEnum):
     game = 5
     robot = 6
     gate = 7
+    match = 8
+    fight = 9
 
 
 

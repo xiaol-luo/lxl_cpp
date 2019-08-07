@@ -21,6 +21,8 @@ function GameAllServiceConfig:ctor()
         Service_Const.World,
         Service_Const.Game,
         Service_Const.Robot,
+        Service_Const.match,
+        Service_Const.fight,
     }
 end
 

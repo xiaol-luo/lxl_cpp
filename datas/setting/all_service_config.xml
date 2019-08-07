@@ -108,6 +108,28 @@
 		</element>
 	</game>
 
+	<match>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>5000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>35000</port>
+		</element>
+	</match>
+
+	<fight>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>6000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>36000</port>
+		</element>
+	</fight>
+
 	<robot>
 		<element>for_make_array</element>
 		<element>

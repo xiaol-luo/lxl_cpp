@@ -70,6 +70,8 @@ local files = {
     "common.rpc.zone_service.zone_service_rpc_mgr",
     "services.common.service_def",
     "services.service_base",
+    "services.common.rpc.match_rpc_def",
+    "services.common.rpc.fight_rpc_def",
     "services.common.rpc.game_rpc_def",
     "services.common.rpc.gate_rpc_def",
     "services.common.rpc.world_rpc_def",

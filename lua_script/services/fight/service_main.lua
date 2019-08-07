@@ -1,7 +1,7 @@
 
 LoginService = LoginService or class("LoginService", GameServiceBase)
 
-for _, v in ipairs(require("services.login.service_require_files")) do
+for _, v in ipairs(require("services.fight.service_require_files")) do
     require(v)
 end
 
@@ -11,11 +11,9 @@ end
 
 function LoginService:ctor()
     LoginService.super.ctor(self)
-    self.client_cnn_mgr = nil
 end
 
 function LoginService:setup_modules()
-    self:_init_client_cnn_mgr()
     LoginService.super.setup_modules(self)
 end
 

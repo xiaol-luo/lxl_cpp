@@ -28,6 +28,8 @@ login_service_count = 2
 gate_service_count = 2
 world_service_count = 2
 game_service_count = 2
+match_service_count = 2
+fight_service_count = 2
 robot_service_count = 2
 
 access_ip = "127.0.0.1"
@@ -187,6 +189,37 @@ def get_service_setting(zone_name):
             "db_name": game_service_db_name,
         })
         game_next_port += 1
+    # match service
+    matchs = []
+    setting["match_service"] = matchs
+    match_next_port = cal_service_begin_port(zone_id, Service_Type.match)
+    for i in range(0, match_service_count):
+        service_id = match_next_port
+        matchs.append({
+            "role": "match",
+            "zone": zone_name,
+            "idx": i,
+            "service_idx": service_id,
+            "ip": access_ip,
+            "port": match_next_port,
+        })
+        match_next_port += 1
+    # fight service
+    fights = []
+    setting["fight_service"] = fights
+    fight_next_port = cal_service_begin_port(zone_id, Service_Type.fight)
+    for i in range(0, fight_service_count):
+        service_id = fight_next_port
+        fights.append({
+            "role": "fight",
+            "zone": zone_name,
+            "idx": i,
+            "service_idx": service_id,
+            "ip": access_ip,
+            "port": fight_next_port,
+        })
+        fight_next_port += 1
+
     # robot service
     robots = []
     setting["robot_service"] = robots
