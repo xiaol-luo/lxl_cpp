@@ -4,6 +4,8 @@ NetForward = NetForward or class("NetForward", ServiceLogic)
 function NetForward:ctor(logic_mgr, logic_name)
     NetForward.super.ctor(self, logic_mgr, logic_name)
     self.rpc_mgr = self.service.rpc_mgr
+
+    self._process_client_msg_fns = {}
 end
 
 function NetForward:init()
@@ -24,10 +26,16 @@ function NetForward:init()
     end
 end
 
-function NetForward:_on_client_forward_msg(rpc_rsp, role_id, pid, msg_bytes)
+function NetForward:_on_client_forward_msg(rpc_rsp, client_netid, role_id, pid, msg_bytes)
     rpc_rsp:respone()
     local role = self.service.role_mgr:get_role(role_id)
-    if not role then
+    if not role or Game_Role_State.in_game ~= role.state then
+        return
+    end
+    if not role.gate_client or not role.gate_client_netid then
+        return
+    end
+    if role.gate_client.remote_host ~= rpc_rsp.from_host or client_netid ~= role.gate_client_netid then
         return
     end
     local is_ok, msg = true, nil
@@ -37,8 +45,7 @@ function NetForward:_on_client_forward_msg(rpc_rsp, role_id, pid, msg_bytes)
     if not is_ok then
         return
     end
-    -- for test
-    self:to_client(role_id, pid, msg)
+    self:_on_client_msg(role, pid, msg)
 end
 
 function NetForward:to_client(role_id, pid, msg)
@@ -69,3 +76,26 @@ function NetForward:to_client_bytes(role_id, pid, msg_bytes)
             role.gate_client_netid, pid, msg_bytes)
     return true
 end
+
+function NetForward:set_client_msg_process_fn(pid, fn)
+    assert(IsNumber(pid))
+    assert(nil == fn or IsFunction(fn))
+    if not fn then
+        assert(not self._process_client_msg_fns[pid])
+    end
+    self._process_client_msg_fns[pid] = fn
+end
+
+function NetForward:_on_client_msg(role, pid, msg)
+    local fn = self._process_client_msg_fns[pid]
+    if not fn then
+        if not role:has_client_msg_process_fn(pid) then
+            log_warn("NetForward:on_client_msg can not find process fn to process pid %s", pid)
+            return
+        end
+        role:on_client_msg(pid, msg)
+    else
+        fn(role, pid, msg)
+    end
+end
+

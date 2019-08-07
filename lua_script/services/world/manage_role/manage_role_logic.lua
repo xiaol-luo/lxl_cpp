@@ -1,8 +1,8 @@
 
-ManageRoleLogic = ManageRoleLogic or class("ManageRoleLogic", ServiceLogic)
+RoleMgr = RoleMgr or class("RoleMgr", ServiceLogic)
 
-function ManageRoleLogic:ctor(logic_mgr, logic_name)
-    ManageRoleLogic.super.ctor(self, logic_mgr, logic_name)
+function RoleMgr:ctor(logic_mgr, logic_name)
+    RoleMgr.super.ctor(self, logic_mgr, logic_name)
     self.rpc_mgr = self.service.rpc_mgr
     self.db_client = self.service.db_client
     self.query_db = self.service.query_db
@@ -14,8 +14,8 @@ function ManageRoleLogic:ctor(logic_mgr, logic_name)
     self.timer_proxy = nil
 end
 
-function ManageRoleLogic:init()
-    ManageRoleLogic.super.init(self)
+function RoleMgr:init()
+    RoleMgr.super.init(self)
     self.timer_proxy = TimerProxy:new()
 
     local rpc_process_fns_map = {
@@ -38,27 +38,27 @@ function ManageRoleLogic:init()
     end
 end
 
-function ManageRoleLogic:next_session_id()
+function RoleMgr:next_session_id()
     self.last_session_id = self.last_session_id + 1
     return self.last_session_id
 end
 
-function ManageRoleLogic:next_opera_id()
+function RoleMgr:next_opera_id()
     self.last_opera_id = self.last_opera_id + 1
     return self.last_opera_id
 end
 
-function ManageRoleLogic:start()
-    ManageRoleLogic.super.start(self)
-    self.timer_proxy:firm(Functional.make_closure(ManageRoleLogic.on_frame, self), 1 * 1000, -1)
+function RoleMgr:start()
+    RoleMgr.super.start(self)
+    self.timer_proxy:firm(Functional.make_closure(RoleMgr.on_frame, self), 1 * 1000, -1)
 end
 
-function ManageRoleLogic:stop()
-    ManageRoleLogic.super.stop(self)
+function RoleMgr:stop()
+    RoleMgr.super.stop(self)
     self.timer_proxy:release_all()
 end
 
-function ManageRoleLogic:get_role_digest(rpc_rsp, user_id, role_id)
+function RoleMgr:get_role_digest(rpc_rsp, user_id, role_id)
     log_debug("process_fns.get_role_digest %s %s", user_id, role_id)
 
     local find_opt = MongoOptFind:new()
@@ -82,8 +82,8 @@ function ManageRoleLogic:get_role_digest(rpc_rsp, user_id, role_id)
     end, find_opt)
 end
 
-function ManageRoleLogic:create_role(rpc_rsp, user_id)
-    log_debug("ManageRoleLogic:create_role %s", user_id)
+function RoleMgr:create_role(rpc_rsp, user_id)
+    log_debug("RoleMgr:create_role %s", user_id)
     if not user_id then
         rpc_rsp:report_error("user_id is nil")
         return
@@ -116,8 +116,8 @@ function ManageRoleLogic:create_role(rpc_rsp, user_id)
     end)
 end
 
-function ManageRoleLogic:launch_role(rpc_rsp, role_id, gate_client_netid, auth_token)
-    log_debug("world ManageRoleLogic:launch_role %s %s", role_id, auth_token)
+function RoleMgr:launch_role(rpc_rsp, role_id, gate_client_netid, auth_token)
+    log_debug("world RoleMgr:launch_role %s %s", role_id, auth_token)
     local role = self.role_id_to_role[role_id]
     if role then
         if Role_State.released == role.state or Role_State.inited == role.state then
@@ -193,7 +193,7 @@ function ManageRoleLogic:launch_role(rpc_rsp, role_id, gate_client_netid, auth_t
     end
 end
 
-function ManageRoleLogic:_rpc_rsp_launch_role(session_id, role_id, rpc_error_num, launch_error_num)
+function RoleMgr:_rpc_rsp_launch_role(session_id, role_id, rpc_error_num, launch_error_num)
     local role = self.role_id_to_role[role_id]
     if not role or not role.session_id then
         return -- 可能客户端掉线执行了client_quit,直接返回就好
@@ -237,7 +237,7 @@ function ManageRoleLogic:_rpc_rsp_launch_role(session_id, role_id, rpc_error_num
     end
 end
 
-function ManageRoleLogic:client_quit(rpc_rsp, session_id)
+function RoleMgr:client_quit(rpc_rsp, session_id)
     rpc_rsp:respone()
     local role = self.session_id_to_role[session_id]
     if role then
@@ -256,11 +256,11 @@ function ManageRoleLogic:client_quit(rpc_rsp, session_id)
             self.role_id_to_role[role.role_id] = nil
             assert(false, string.format("should not reach here %s", role))
         end
-        log_debug("ManageRoleLogic:client_quit %s", role.role_id)
+        log_debug("RoleMgr:client_quit %s", role.role_id)
     end
 end
 
-function ManageRoleLogic:on_frame()
+function RoleMgr:on_frame()
     local now_sec = logic_sec()
     local released_roles= {}
     for role_id, role in pairs(self.role_id_to_role) do
@@ -285,8 +285,8 @@ function ManageRoleLogic:on_frame()
     end
 end
 
-function ManageRoleLogic:try_release_role(role_id)
-    log_debug("ManageRoleLogic:try_release_role")
+function RoleMgr:try_release_role(role_id)
+    log_debug("RoleMgr:try_release_role")
     local role = self.role_id_to_role[role_id]
     if not role then
         return
@@ -298,13 +298,13 @@ function ManageRoleLogic:try_release_role(role_id)
     role.release_opera_ids = role.release_opera_ids or {}
     local opera_id = self:next_opera_id()
     role.release_opera_ids[opera_id] = true
-    role.game_client:call(Functional.make_closure(ManageRoleLogic._rpc_rsp_try_release_role, self, role.role_id, opera_id),
+    role.game_client:call(Functional.make_closure(RoleMgr._rpc_rsp_try_release_role, self, role.role_id, opera_id),
             GameRpcFn.release_role, role.role_id)
 end
 
-function ManageRoleLogic:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num, logic_error_num)
+function RoleMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num, logic_error_num)
     local role = self.role_id_to_role[role_id]
-    log_debug("ManageRoleLogic:_rpc_rsp_try_release_role %s %s", rpc_error_num, logic_error_num)
+    log_debug("RoleMgr:_rpc_rsp_try_release_role %s %s", rpc_error_num, logic_error_num)
     if not role.release_opera_ids then
         return
     end
@@ -325,8 +325,8 @@ function ManageRoleLogic:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_
     self.role_id_to_role[role.role_id] = nil
 end
 
-function ManageRoleLogic:logout_role(rpc_rsp, session_id, role_id)
-    log_debug("ManageRoleLogic:logout_role 1")
+function RoleMgr:logout_role(rpc_rsp, session_id, role_id)
+    log_debug("RoleMgr:logout_role 1")
     local error_num = Error_None
     repeat
         local role = self.session_id_to_role[session_id]
@@ -343,12 +343,12 @@ function ManageRoleLogic:logout_role(rpc_rsp, session_id, role_id)
         role.gate_client_netid = nil
         self:try_release_role(role_id)
     until true
-    log_debug("ManageRoleLogic:logout_role 2 %s", error_num)
+    log_debug("RoleMgr:logout_role 2 %s", error_num)
     rpc_rsp:respone(error_num)
 end
 
-function ManageRoleLogic:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
-    log_debug("ManageRoleLogic:reconnect_role 1 auth_token:%s", auth_token)
+function RoleMgr:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
+    log_debug("RoleMgr:reconnect_role 1 auth_token:%s", auth_token)
     local error_num = Error_None
     local session_id = -1
     repeat
@@ -357,7 +357,7 @@ function ManageRoleLogic:reconnect_role(rpc_rsp, auth_token, role_id, gate_clien
             error_num = Error.Reconnect_Game.world_no_role
             break
         end
-        log_debug("ManageRoleLogic:reconnect_role 2 role_token:%s", role.auth_token)
+        log_debug("RoleMgr:reconnect_role 2 role_token:%s", role.auth_token)
         if role.auth_token ~= auth_token then
             error_num = Error.Reconnect_Game.token_not_fit
             break
@@ -382,9 +382,9 @@ function ManageRoleLogic:reconnect_role(rpc_rsp, auth_token, role_id, gate_clien
     until true
 end
 
-function ManageRoleLogic:_reconnect_role_game_change_client_cb(rpc_rsp, record_session_id, role, rpc_error_num, error_num)
+function RoleMgr:_reconnect_role_game_change_client_cb(rpc_rsp, record_session_id, role, rpc_error_num, error_num)
     -- 这里证明回调回来的时候，这个role对象被改变过,这里失去了控制权，不后续处理了
-    log_debug("ManageRoleLogic:_reconnect_role_game_change_client_cb 1")
+    log_debug("RoleMgr:_reconnect_role_game_change_client_cb 1")
     if not role.session_id or record_session_id ~= role.session_id then
         rpc_rsp:respone(Error_Unknown)
         return
@@ -399,10 +399,10 @@ function ManageRoleLogic:_reconnect_role_game_change_client_cb(rpc_rsp, record_s
     if Error_None ~= rpc_error_num or Error_None ~= error_num then
         is_ok = false
     end
-    log_debug("ManageRoleLogic:_reconnect_role_game_change_client_cb 2 %s %s %s",  is_ok, rpc_error_num, error_num)
+    log_debug("RoleMgr:_reconnect_role_game_change_client_cb 2 %s %s %s",  is_ok, rpc_error_num, error_num)
     if is_ok then
         rpc_rsp:respone(Error_None, role.game_client.remote_host, role.session_id)
-        log_debug("ManageRoleLogic:_reconnect_role_game_change_client_cb 3 %s %s %s",
+        log_debug("RoleMgr:_reconnect_role_game_change_client_cb 3 %s %s %s",
                 Error_None, role.game_client.remote_host, role.session_id)
     else
         rpc_rsp:respone(Error_Unknown)

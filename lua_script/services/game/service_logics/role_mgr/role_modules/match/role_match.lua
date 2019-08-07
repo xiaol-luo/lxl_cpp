@@ -31,3 +31,4 @@ function RoleMatch:pack_for_db(out_ret)
     db_info.match_times = self.match_times
     return self.module_name, db_info
 end
+

@@ -11,11 +11,4 @@ end
 
 function GameService:ctor()
     GameService.super.ctor(self)
-    self.db_client = nil
-    self.query_db = nil
-end
-
-function GameService:setup_modules()
-    GameService.super.setup_modules(self)
-    self:_init_db_client()
 end

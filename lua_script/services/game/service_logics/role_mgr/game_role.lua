@@ -25,6 +25,8 @@ function GameRole:ctor(role_id)
     self._modules = {}
     self:_setup_module(RoleBaseInfo, RoleBaseInfo.Module_Name)
     self:_setup_module(RoleMatch, RoleMatch.Module_Name)
+
+    self._process_client_msg_fns = {}
 end
 
 function GameRole:_setup_module(t_class, module_name)
@@ -161,6 +163,33 @@ function GameRole:save(db_client, db_name, coll_name)
         -- log_debug("GameRole:save: db_ret:%s", db_ret)
     end)
 end
+
+function GameRole:set_client_msg_process_fn(pid, fn)
+    assert(IsNumber(pid))
+    assert(nil == fn or IsFunction(fn))
+    if not fn then
+        assert(not self._process_client_msg_fns[pid])
+    end
+    self._process_client_msg_fns[pid] = fn
+end
+
+function GameRole:has_client_msg_process_fn(pid)
+    return nil ~= self._process_client_msg_fns[pid]
+end
+
+function GameRole:on_client_msg(pid, msg)
+    local fn = self._process_client_msg_fns[pid]
+    if not fn then
+        log_warn("GameRole:on_client_msg can not find process fn to process pid %s", pid)
+        return
+    end
+    fn(pid, msg)
+end
+
+function GameRole:send_to_client(pid, msg)
+    return SERVICE_MAIN.net_forward:to_client(self.role_id, pid, msg)
+end
+
 
 
 

@@ -20,7 +20,7 @@ function NetForward:_on_client_forward_game(netid, pid, msg)
     if not client.game_client or not client.launch_role_id then
         return
     end
-    client.game_client:call(nil, GameRpcFn.client_forward_msg, client.launch_role_id, msg.proto_id, msg.proto_bytes)
+    client.game_client:call(nil, GameRpcFn.client_forward_msg, netid, client.launch_role_id, msg.proto_id, msg.proto_bytes)
 end
 
 

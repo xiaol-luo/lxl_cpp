@@ -1,8 +1,8 @@
 
-ManageRoleLogic = ManageRoleLogic or class("ManageRoleLogic", ServiceLogic)
+RoleMgr = RoleMgr or class("RoleMgr", ServiceLogic)
 
-function ManageRoleLogic:ctor(logic_mgr, logic_name)
-    ManageRoleLogic.super.ctor(self, logic_mgr, logic_name)
+function RoleMgr:ctor(logic_mgr, logic_name)
+    RoleMgr.super.ctor(self, logic_mgr, logic_name)
     self.rpc_mgr = self.service.rpc_mgr
     self.db_client = self.service.db_client
     self.query_db = self.service.query_db
@@ -13,8 +13,8 @@ function ManageRoleLogic:ctor(logic_mgr, logic_name)
     self.next_save_role_id = nil
 end
 
-function ManageRoleLogic:init()
-    ManageRoleLogic.super.init(self)
+function RoleMgr:init()
+    RoleMgr.super.init(self)
     self.timer_proxy = TimerProxy:new()
 
     local rpc_process_fns_map = {
@@ -32,20 +32,22 @@ function ManageRoleLogic:init()
     for fn_name, fn in pairs(rpc_co_process_fns_map) do
         self.rpc_mgr:set_req_msg_coroutine_process_fn(fn_name, Functional.make_closure(fn, self))
     end
+
+    self:_setup_client_mgs_process_fn()
 end
 
-function ManageRoleLogic:start()
-    ManageRoleLogic.super.start(self)
+function RoleMgr:start()
+    RoleMgr.super.start(self)
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), 100, -1)
-    log_debug("ManageRoleLogic:start")
+    log_debug("RoleMgr:start")
 end
 
-function ManageRoleLogic:stop()
-    ManageRoleLogic.super.stop(self)
+function RoleMgr:stop()
+    RoleMgr.super.stop(self)
     self.timer_proxy:release_all()
 end
 
-function ManageRoleLogic:_on_tick()
+function RoleMgr:_on_tick()
     local Save_Role_Max_Count_Per_Tick = 100
     local to_save_roles = {}
     if self.next_save_role_id then
@@ -74,11 +76,11 @@ function ManageRoleLogic:_on_tick()
     end
 end
 
-function ManageRoleLogic:get_role(role_id)
+function RoleMgr:get_role(role_id)
     return self.id_to_role[role_id]
 end
 
-function ManageRoleLogic:remove_role(role_id)
+function RoleMgr:remove_role(role_id)
     if not self.next_save_role_id then
         if self.next_save_role_id == role_id then
             self.next_save_role_id = next(self.id_to_role, self.next_save_role_id)
@@ -87,8 +89,8 @@ function ManageRoleLogic:remove_role(role_id)
     self.id_to_role[role_id] = nil
 end
 
-function ManageRoleLogic:luanch_role(rpc_rsp, role_id, world_role_session_id)
-    log_debug("ManageRoleLogic:luanch_role %s %s", role_id, type(role_id))
+function RoleMgr:luanch_role(rpc_rsp, role_id, world_role_session_id)
+    log_debug("RoleMgr:luanch_role %s %s", role_id, type(role_id))
     local role = self:get_role(role_id)
     if not role then
         role = GameRole:new(role_id)
@@ -118,8 +120,8 @@ function ManageRoleLogic:luanch_role(rpc_rsp, role_id, world_role_session_id)
     end
 end
 
-function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
-    log_debug("ManageRoleLogic:_db_rsp_launch_role %s", role_id)
+function RoleMgr:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
+    log_debug("RoleMgr:_db_rsp_launch_role %s", role_id)
     local role = self:get_role(role_id)
     if not role or Game_Role_State.load_from_db ~= role.state then
         rpc_rsp:respone(Enum_Error.Launch_Role.unknown)
@@ -133,7 +135,7 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     local db_data = db_ret.val["0"]
     if db_data.role_id ~= role.role_id then
         rpc_rsp:respone(Enum_Error.Launch_Role.unknown)
-        log_error("ManageRoleLogic:_db_rsp_launch_role role_id not match %s != %s", db_data.role_id, role.role_id)
+        log_error("RoleMgr:_db_rsp_launch_role role_id not match %s != %s", db_data.role_id, role.role_id)
         return
     end
     role:init_from_db(db_data)
@@ -145,8 +147,8 @@ function ManageRoleLogic:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
 end
 
 
-function ManageRoleLogic:client_change(rpc_rsp, role_id, is_disconnect, gate_service_key, gate_client_netid)
-    log_debug("ManageRoleLogic:client_change %s %s %s %s", role_id, is_disconnect, gate_service_key, gate_client_netid)
+function RoleMgr:client_change(rpc_rsp, role_id, is_disconnect, gate_service_key, gate_client_netid)
+    log_debug("RoleMgr:client_change %s %s %s %s", role_id, is_disconnect, gate_service_key, gate_client_netid)
     rpc_rsp:respone(Error_None)
     local role = self:get_role(role_id)
     if role then
@@ -161,8 +163,8 @@ function ManageRoleLogic:client_change(rpc_rsp, role_id, is_disconnect, gate_ser
 end
 
 
-function ManageRoleLogic:release_role(rpc_rsp, role_id)
-    log_debug("ManageRoleLogic:release_role %s", role_id)
+function RoleMgr:release_role(rpc_rsp, role_id)
+    log_debug("RoleMgr:release_role %s", role_id)
     rpc_rsp:respone(Error_None)
     local role = self:get_role(role_id)
     if role then
