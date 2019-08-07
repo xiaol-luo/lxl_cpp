@@ -10,6 +10,7 @@ local files = {
     "services.game.manage_role.role_modules.role_module_base",
     "services.game.manage_role.role_modules.base_info.role_base_info",
     "services.game.net.net_forward",
+    "services.game.manage_role.role_modules.match.role_match",
 }
 
 return files

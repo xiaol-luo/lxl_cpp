@@ -15,15 +15,25 @@ function GameRole:ctor(role_id)
     self.db_hash = math.random(1, 99999999)
     self.last_launch_sec = nil
     self.data_struct_version = nil
-    self._modules = {}
-    self.base_info = RoleBaseInfo:new(self)
-    self._modules[self.base_info.module_name] = self.base_info
     self.last_save_sec = 0
     self._is_dirty = false
     self._is_module_dirty = {}
     self.world_client = nil
     self.gate_client = nil
     self.gate_client_netid = nil
+
+    self._modules = {}
+    self:_setup_module(RoleBaseInfo, RoleBaseInfo.Module_Name)
+    self:_setup_module(RoleMatch, RoleMatch.Module_Name)
+end
+
+function GameRole:_setup_module(t_class, module_name)
+    assert(t_class)
+    assert(module_name)
+    assert(not self[module_name])
+    assert(not self._modules[module_name])
+    self._modules[module_name] = t_class:new(self)
+    self[module_name] = self._modules[module_name]
 end
 
 function GameRole.is_first_launch(db_ret)
@@ -75,6 +85,7 @@ function GameRole:init_from_db(db_ret)
 
     local module_init_order = {
         self.base_info,
+        self.match,
     }
     -- check module_init_order
     for _, v in pairs(self._modules) do

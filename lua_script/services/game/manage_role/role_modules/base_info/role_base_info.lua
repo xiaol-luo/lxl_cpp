@@ -11,15 +11,16 @@ end
 function RoleBaseInfo:init_from_db(db_ret)
     local db_info = db_ret[self.module_name] or {}
     local data_struct_version = db_info.data_struct_version or Data_Struct_Version_Role_Base_Info
-    if self.data_struct_version ~= data_struct_version then
+    if nil == db_info.data_struct_version or db_info.data_struct_version ~= Data_Struct_Version_Role_Base_Info then
         self:set_dirty()
     end
+    self.data_struct_version = data_struct_version
+
     if GameRole.is_first_launch(db_ret) then
         self.name = string.format("role_name_%s", self.role.role_id)
     else
         self.name = db_info.name
     end
-    self.data_struct_version = data_struct_version
 end
 
 function RoleBaseInfo:pack_for_db(out_ret)
