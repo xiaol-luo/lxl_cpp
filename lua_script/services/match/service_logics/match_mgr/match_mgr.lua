@@ -16,3 +16,4 @@ end
 function MatchMgr:stop()
     MatchMgr.super.stop(self)
 end
+
