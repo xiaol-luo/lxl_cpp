@@ -7,15 +7,17 @@ function RoleMgr:ctor(logic_mgr, logic_name)
     self.db_client = self.service.db_client
     self.query_db = self.service.query_db
     self.query_coll = "role"
-    self.timer_proxy = nil
+    self._timer_proxy = nil
 
-    self.id_to_role = {}
-    self.next_save_role_id = nil
+    self._id_to_role = {}
+    self._next_save_role_id = nil
+    self._event_proxy = nil
 end
 
 function RoleMgr:init()
     RoleMgr.super.init(self)
-    self.timer_proxy = TimerProxy:new()
+    self._timer_proxy = TimerProxy:new()
+    self.event_proxy = self.service:create_event_proxy()
 
     local rpc_process_fns_map = {
         [GameRpcFn.launch_role] = self.luanch_role,
@@ -34,26 +36,28 @@ function RoleMgr:init()
     end
 
     self:_setup_client_mgs_process_fn()
+    self:_setup_event_handler()
 end
 
 function RoleMgr:start()
     RoleMgr.super.start(self)
-    self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), 100, -1)
+    self._timer_proxy:firm(Functional.make_closure(self._on_tick, self), 100, -1)
     log_debug("RoleMgr:start")
 end
 
 function RoleMgr:stop()
     RoleMgr.super.stop(self)
-    self.timer_proxy:release_all()
+    self._timer_proxy:release_all()
+    self.event_proxy:release_all()
 end
 
 function RoleMgr:_on_tick()
     local Save_Role_Max_Count_Per_Tick = 100
     local to_save_roles = {}
-    if self.next_save_role_id then
-        local role = self.id_to_role[self.next_save_role_id]
+    if self._next_save_role_id then
+        local role = self._id_to_role[self._next_save_role_id]
         if not role then
-            self.next_save_role_id = nil
+            self._next_save_role_id = nil
         else
             if role:is_need_save() then
                 table.insert(to_save_roles, role)
@@ -64,29 +68,29 @@ function RoleMgr:_on_tick()
     repeat
         try_times = try_times + 1
         local role = nil
-        self.next_save_role_id, role = next(self.id_to_role, self.next_save_role_id)
+        self._next_save_role_id, role = next(self._id_to_role, self._next_save_role_id)
         if role then
             if role:is_need_save() then
                 table.insert(to_save_roles, role)
             end
         end
-    until nil == self.next_save_role_id or #to_save_roles >= Save_Role_Max_Count_Per_Tick
+    until nil == self._next_save_role_id or #to_save_roles >= Save_Role_Max_Count_Per_Tick
     for _, role in ipairs(to_save_roles) do
         role:save(self.db_client, self.query_db, self.query_coll)
     end
 end
 
 function RoleMgr:get_role(role_id)
-    return self.id_to_role[role_id]
+    return self._id_to_role[role_id]
 end
 
 function RoleMgr:remove_role(role_id)
-    if not self.next_save_role_id then
-        if self.next_save_role_id == role_id then
-            self.next_save_role_id = next(self.id_to_role, self.next_save_role_id)
+    if not self._next_save_role_id then
+        if self._next_save_role_id == role_id then
+            self._next_save_role_id = next(self._id_to_role, self._next_save_role_id)
         end
     end
-    self.id_to_role[role_id] = nil
+    self._id_to_role[role_id] = nil
 end
 
 function RoleMgr:luanch_role(rpc_rsp, role_id, world_role_session_id)
@@ -96,7 +100,7 @@ function RoleMgr:luanch_role(rpc_rsp, role_id, world_role_session_id)
         role = GameRole:new(role_id)
         role:init()
         role.world_client = self.service:create_rpc_client(rpc_rsp.from_host)
-        self.id_to_role[role_id] = role
+        self._id_to_role[role_id] = role
     end
     if Game_Role_State.load_from_db == role.state then
         rpc_rsp:respone(Error.Launch_Role.loading_from_db)
@@ -125,7 +129,7 @@ function RoleMgr:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     log_debug("RoleMgr:_db_rsp_launch_role %s", role_id)
     local role = self:get_role(role_id)
     if not role or Game_Role_State.load_from_db ~= role.state then
-        rpc_rsp:respone(Enum_Error.Launch_Role.unknown)
+        rpc_rsp:respone(Error.Launch_Role.unknown)
     end
     if 0 ~= db_ret.error_num or db_ret.matched_count <= 0 then
         role.state = Game_Role_State.in_error
@@ -135,7 +139,7 @@ function RoleMgr:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     end
     local db_data = db_ret.val["0"]
     if db_data.role_id ~= role.role_id then
-        rpc_rsp:respone(Enum_Error.Launch_Role.unknown)
+        rpc_rsp:respone(Error.Launch_Role.unknown)
         log_error("RoleMgr:_db_rsp_launch_role role_id not match %s != %s", db_data.role_id, role.role_id)
         return
     end

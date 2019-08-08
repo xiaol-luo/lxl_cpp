@@ -17,3 +17,7 @@ pb_protoc = require "libs.lua_protobuf.protoc"
 
 -- base64
 Base64 = require("libs.base64")
+
+-- global sequence
+
+gen_next_seq = make_sequence()

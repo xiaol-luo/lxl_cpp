@@ -28,4 +28,14 @@ ProtoId = {
 
     req_join_match = 20013,
     rsp_join_match = 20014,
+    pull_match_state = 20015,
+    sync_match_state = 20016,
+    req_cancel_match = 20017,
+    rsp_cancel_match = 20018,
+    notify_confirm_match = 20019,
+    req_confirm_match = 20020,
+    rsp_confirm_match = 20021,
+    pull_room_state = 20022,
+    sync_room_state = 20023,
+
 }

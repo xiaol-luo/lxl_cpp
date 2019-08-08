@@ -6,6 +6,10 @@ RoleMatch.Module_Name = "match"
 function RoleMatch:ctor(role)
     RoleMatch.super.ctor(self, role, RoleMatch.Module_Name)
     self.match_times = 0
+    self.join_match_type = Match_Type.none
+    self.state = Role_Match_State.free
+    self.match_client = nil
+    self.match_token = nil
 end
 
 function RoleMatch:init()
@@ -29,7 +33,6 @@ function RoleMatch:init_from_db(db_ret)
 end
 
 function RoleMatch:pack_for_db(out_ret)
-    log_debug("RoleMatch:pack_for_db")
     local db_info = {}
     out_ret[self.module_name] = db_info
     db_info.data_struct_version = self.data_struct_version
@@ -38,9 +41,54 @@ function RoleMatch:pack_for_db(out_ret)
 end
 
 function RoleMatch:_on_msg_req_join_match(pid, msg)
-    log_debug("RoleMatch:_on_msg_req_join_match")
-    self.role:send_to_client(ProtoId.rsp_join_match, {
-        match_type = msg.match_type,
+    local error_num = Error_None
+    repeat
+        if msg.match_type <= Match_Type.none or msg.match_type >= Match_Type.max then
+            error_num = Error.Join_Match.invalid_match_type
+            break
+        end
+        if Role_Match_State.free ~= self.state then
+            error_num = Error.Join_Match.role_match_state_not_fit
+            break
+        end
+        local match_service_key = SERVICE_MAIN.match_agent_mgr:pick_agent(msg.match_type, self.role)
+        if not match_service_key then
+            error_num = Error.Join_Match.no_valid_match_service
+            break
+        end
+        self.match_client = SERVICE_MAIN:create_rpc_client(match_service_key)
+        self.match_client:call(Functional.make_closure(self._on_rpc_cb_join_match, self, msg.match_type),
+        MatchRpcFn.join_match, self.role.role_id, msg.match_type)
+    until true
+    if Error_None ~= error_num then
+        self.role:send_to_client(ProtoId.rsp_join_match, {
+            match_type = msg.match_type,
+            error_num = error_num,
+        })
+    end
+end
+
+function RoleMatch:_on_rpc_cb_join_match(match_type, rpc_error_num, error_num, ret)
+    local out_msg = {
+        match_type = match_type,
         error_num = Error_None,
-    })
+    }
+    repeat
+        if Error_None ~= rpc_error_num then
+            out_msg.error_num = rpc_error_num
+            break
+        end
+        if Error_None ~= error_num then
+            out_msg.error_num = error_num
+            break
+        end
+        if Role_Match_State.free ~= self.state then
+            out_ms.error_num = Error.Join_Match.role_match_state_not_fit
+            break
+        end
+        self.join_match_type = match_type
+        self.match_token = ret.token
+        self.state = Role_Match_State.matching
+    until true
+    self.role:send_to_client(ProtoId.rsp_join_match, out_msg)
 end

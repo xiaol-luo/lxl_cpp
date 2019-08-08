@@ -27,6 +27,12 @@ function MatchAgentMgr:stop()
     self._timer_proxy:release_all()
 end
 
+function MatchAgentMgr:pick_agent(match_type, role)
+    log_debug("MatchAgentMgr:pick_agent %s", self._match_service_state_map)
+    local service_key, _ = random.pick_one(self._match_service_state_map)
+    return service_key
+end
+
 function MatchAgentMgr:_on_tick()
     local now_sec = logic_sec()
     if now_sec >= self._last_query_match_service_sec + MatchAgentMgr.Query_Match_Service_Span_Sec then
@@ -48,7 +54,7 @@ function MatchAgentMgr:query_match_service_state(service_key)
         end
     end
     for sk, _ in pairs(service_key_set) do
-        self.service.rpc_mgr:call(Functional.make_closure(self._on_cb_query_match_service_state, self), sk, MatchRpcFn.query_service_state)
+        self.service.rpc_mgr:call(Functional.make_closure(self._on_cb_query_match_service_state, self, sk), sk, MatchRpcFn.query_service_state)
     end
 end
 
@@ -65,7 +71,7 @@ end
 function MatchAgentMgr:_on_event_service_disconnect(service_info)
     if self._match_service_state_map[service_info.key] then
         self._match_service_state_map[service_info.key] = nil
-        -- todo fire event
+        self._event_proxy:fire(Event.match_agent_disconnect, service_info.key)
     end
 end
 

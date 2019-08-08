@@ -289,7 +289,7 @@ function LoginAction:robot_main_logic(co)
 
     local proto_id = ProtoId.req_join_match
     local is_ok, proto_bytes = PROTO_PARSER:encode(proto_id, {
-        match_type = 1024,
+        match_type = Match_Type.balance,
     })
     send_msg(cnn, ProtoId.req_client_forward_game, {
         proto_id = proto_id,

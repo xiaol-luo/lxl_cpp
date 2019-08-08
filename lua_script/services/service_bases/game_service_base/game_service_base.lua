@@ -38,7 +38,7 @@ function GameServiceBase:idendify_whoami()
     self.all_service_cfg = GameAllServiceConfig.parse_file(all_service_cfg_file)
     self.service_cfg = self.all_service_cfg:get_game_service(self.zone_name, self.service_name, self.service_idx)
     assert(self.service_cfg)
-    self.service_identify = self.service_cfg[SC.Id]
+    self.service_identify = self.service_cfg[SC.Service_Id]
 end
 
 function GameServiceBase:init_proto_parser()

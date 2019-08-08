@@ -33,5 +33,5 @@ function NetForward:_on_game_forward_client(rpc_rsp, netid, pid, msg_bytes)
     if not client.cnn then
         return
     end
-    client.cnn:send_msg_bytes(pid,msg_bytes)
+    client.cnn:send_msg_bytes(pid, msg_bytes)
 end
