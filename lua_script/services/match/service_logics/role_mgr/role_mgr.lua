@@ -35,4 +35,12 @@ function RoleMgr:get_role(role_id)
     return self._id_to_role[role_id]
 end
 
-function RoleMgr:add_role(role_id, extra_data) end
+function RoleMgr:add_role(role_id)
+    assert(IsNumber(role_id))
+    local role = self:get_role(role_id)
+    if not role then
+        role = Role:new(role_id)
+        self.role_id_to_role[role.role_id] = role
+    end
+    return role
+end

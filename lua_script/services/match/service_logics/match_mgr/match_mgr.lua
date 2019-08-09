@@ -3,6 +3,7 @@ MatchMgr = MatchMgr or class("MatchMgr", ServiceLogic)
 
 function MatchMgr:ctor(logic_mgr, logic_name)
     MatchMgr.super.ctor(self, logic_mgr, logic_name)
+    self._match_logic_map = {}
 end
 
 function MatchMgr:init()
@@ -21,6 +22,11 @@ function MatchMgr:init()
     for fn_name, fn in pairs(rpc_co_process_fns_map) do
         self.service.rpc_mgr:set_req_msg_coroutine_process_fn(fn_name, Functional.make_closure(fn, self))
     end
+
+    local match_logic = nil
+    match_logic = MatchLogicBalance:new(self, Match_Type.balance)
+    self._match_logic_map[match_logic.match_type] = match_logic
+
 end
 
 function MatchMgr:start()
