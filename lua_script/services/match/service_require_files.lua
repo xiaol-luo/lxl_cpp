@@ -3,9 +3,14 @@ local files = {
     "services.match.service_main__rpc_mgr",
 	"services.match.service_main__setup_modules",
     "services.match.service_main__setup_logics",
+    "services.match.service_logics.match_mgr.match_mgr_define",
+    "services.match.service_logics.match_mgr.match_cell",
     "services.match.service_logics.match_mgr.match_mgr",
     "services.match.service_logics.room_mgr.room_mgr",
     "services.match.service_logics.mess_logic.mess_logic",
+    "services.match.service_logics.role_mgr.role_mgr_define",
+    "services.match.service_logics.role_mgr.role",
+    "services.match.service_logics.role_mgr.role_mgr",
 }
 
 return files
