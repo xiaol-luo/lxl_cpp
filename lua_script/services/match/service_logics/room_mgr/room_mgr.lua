@@ -9,7 +9,7 @@ end
 function RoomMgr:init()
     RoomMgr.super.init(self)
 
-    self.service.rpc_mgr:set_req_msg_process_fn(fn_name, Functional.make_closure(fn, self))
+    -- self.service.rpc_mgr:set_req_msg_process_fn(fn_name, Functional.make_closure(fn, self))
 end
 
 function RoomMgr:start()

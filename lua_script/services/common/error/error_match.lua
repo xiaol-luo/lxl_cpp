@@ -7,6 +7,8 @@ Error.Join_Match = {
     match_role_already_in_match = 5,
     match_cell_not_exist = 6,
     join_match_role_count_illegal = 7,
+    is_matching = 8,
+    remote_is_matching = 9,
 }
 
 Error.Quit_Match = {

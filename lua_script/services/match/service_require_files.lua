@@ -7,6 +7,7 @@ local files = {
     "services.match.service_logics.match_mgr.match_cell",
     "services.match.service_logics.match_mgr.match_logic",
     "services.match.service_logics.match_mgr.match_mgr",
+    "services.match.service_logics.match_mgr.match_mgr__process_rpc",
     "services.match.service_logics.match_mgr.match_logic_luandou.match_logic_luandou",
     "services.match.service_logics.match_mgr.match_logic_luandou.match_cell_luandou",
     "services.match.service_logics.match_mgr.match_logic_balance.match_logic_balance",

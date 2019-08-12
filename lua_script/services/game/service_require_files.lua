@@ -11,13 +11,14 @@ local files = {
     "services.game.service_logics.role_mgr.game_role",
     "services.game.service_logics.role_mgr.role_mgr_client_msg_handler.role_mgr_client_msg_handler",
     "services.game.service_logics.role_mgr.role_mgr_event_handler.role_mgr_event_handler",
+    "services.game.service_logics.role_mgr.role_mgr_rpc_handler.role_mgr_rpc_handler",
     "services.game.service_logics.role_mgr.role_modules.role_module_base",
     "services.game.service_logics.role_mgr.role_modules.base_info.role_base_info",
     "services.game.service_logics.role_mgr.role_modules.match.role_match_define",
     "services.game.service_logics.role_mgr.role_modules.match.role_match",
+    "services.game.service_logics.role_mgr.role_modules.match.role_match__process_client_msg",
     "services.game.service_logics.role_mgr.role_modules.match.role_mgr_rpc_handler__match",
     "services.game.service_logics.role_mgr.role_modules.match.role_mgr_event_handler__match",
-
     "services.game.service_logics.net_forward.net_forward",
     "services.game.service_logics.match_agent_mgr.match_agent_mgr",
 }
