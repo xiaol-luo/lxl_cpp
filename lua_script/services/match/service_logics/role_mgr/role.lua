@@ -5,6 +5,8 @@ function Role:ctor(role_id)
     self.role_id = role_id
     self.match_logic = nil
     self.match_cell_id = nil
+    self.game_client = nil
+    self.game_token = nil
 end
 
 function Role:set_match_cell(match_logic, match_cell_id)

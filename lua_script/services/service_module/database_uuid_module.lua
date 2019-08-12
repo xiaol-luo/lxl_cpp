@@ -40,7 +40,6 @@ function DatabaseUuidModule:init(hosts, auth_db, user_name, pwd, query_db, query
     self.query_coll = query_coll
     self.uuid_names = uuid_names
     self.db_client = MongoClient:new(self.Thread_Num, hosts, auth_db, user_name, pwd)
-    self.timer_proxy = TimerProxy:new()
     self.uuid_pools = {}
     for k, _ in pairs(self.uuid_names) do
         local v = {}

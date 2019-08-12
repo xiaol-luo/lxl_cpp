@@ -8,6 +8,7 @@ function ServiceLogic:ctor(logic_mgr, logic_name)
     self.service = self.logic_mgr.service
     self.curr_state = ServiceLogicState.Free
     self.event_proxy = nil
+    self.timer_proxy = nil
 end
 
 function ServiceLogic:get_logic_name()
@@ -20,6 +21,7 @@ end
 
 function ServiceLogic:init(...)
     self.event_proxy = self.service:create_event_proxy()
+    self.timer_proxy = TimerProxy:new()
     self.curr_state = ServiceLogicState.Inited
 end
 

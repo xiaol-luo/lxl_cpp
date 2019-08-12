@@ -18,7 +18,6 @@ end
 
 function LoginAction:init()
     LoginAction.super.init(self)
-    self.timer_proxy = TimerProxy:new()
 end
 
 function LoginAction:start()

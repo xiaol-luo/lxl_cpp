@@ -16,7 +16,6 @@ end
 
 function RoleMgr:init()
     RoleMgr.super.init(self)
-    self.timer_proxy = TimerProxy:new()
 
     local rpc_process_fns_map = {
         [WorldRpcFn.get_role_digest] = self.get_role_digest,

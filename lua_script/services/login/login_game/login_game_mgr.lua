@@ -13,7 +13,6 @@ end
 
 function LoginGameMgr:init()
     LoginGameMgr.super.init(self)
-    self.timer_proxy = TimerProxy:new()
     self.client_cnn_mgr:set_process_fn(ProtoId.req_login_game, Functional.make_closure(self.process_req_login_game, self))
 end
 

@@ -10,7 +10,6 @@ end
 
 function ClientMgr:init()
     ClientMgr.super.init(self)
-    self.timer_proxy = TimerProxy:new()
     self:setup_proto_handler()
 end
 

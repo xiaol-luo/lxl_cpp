@@ -37,6 +37,7 @@ function RoleMgr:init()
 
     self:_setup_client_mgs_process_fn()
     self:_setup_event_handler()
+    self:_setup_rpc_handler()
 end
 
 function RoleMgr:start()

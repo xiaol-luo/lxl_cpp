@@ -9,7 +9,8 @@ function RoleMatch:ctor(role)
     self.join_match_type = Match_Type.none
     self.state = Role_Match_State.free
     self.match_client = nil
-    self.match_token = nil
+    self.match_session_id = nil
+    self.match_cell_id = nil
 end
 
 function RoleMatch:init()
@@ -57,7 +58,7 @@ function RoleMatch:_on_msg_req_join_match(pid, msg)
             break
         end
         self.match_client = SERVICE_MAIN:create_rpc_client(match_service_key)
-        self.match_client:call(Functional.make_closure(self._on_rpc_cb_join_match, self, msg.match_type),
+        self.match_client:call(Functional.make_closure(self._on_rpc_cb_join_match, self),
         MatchRpcFn.join_match, self.role.role_id, msg.match_type)
     until true
     if Error_None ~= error_num then
@@ -68,7 +69,11 @@ function RoleMatch:_on_msg_req_join_match(pid, msg)
     end
 end
 
-function RoleMatch:_on_rpc_cb_join_match(match_type, rpc_error_num, error_num, ret)
+function RoleMatch:_on_rpc_cb_join_match(rpc_error_num, error_num, match_session_id, match_type, match_cell_id)
+    if Game_Role_State.in_game ~= self.role.state then
+        return
+    end
+    
     local out_msg = {
         match_type = match_type,
         error_num = Error_None,
@@ -87,7 +92,8 @@ function RoleMatch:_on_rpc_cb_join_match(match_type, rpc_error_num, error_num, r
             break
         end
         self.join_match_type = match_type
-        self.match_token = ret.token
+        self.match_session_id = match_session_id
+        self.match_cell_id = match_cell_id
         self.state = Role_Match_State.matching
     until true
     self.role:send_to_client(ProtoId.rsp_join_match, out_msg)

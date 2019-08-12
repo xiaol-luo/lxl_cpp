@@ -26,8 +26,8 @@ function MatchMgr:init()
     local match_logic = nil
     match_logic = MatchLogicBalance:new(self, Match_Type.balance)
     self._match_logic_map[match_logic.match_type] = match_logic
-
 end
+
 
 function MatchMgr:start()
     MatchMgr.super.start(self)
@@ -36,6 +36,7 @@ end
 function MatchMgr:stop()
     MatchMgr.super.stop(self)
 end
+
 
 function MatchMgr:_on_rpc_join_match(rpc_rsp, role_id, join_match_type)
     rpc_rsp:respone(Error_None, {

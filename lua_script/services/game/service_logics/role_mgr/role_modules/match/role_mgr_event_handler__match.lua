@@ -1,6 +1,6 @@
 
 
-function RoleMgr:_setup_event_handler_match()
+function RoleMgr:_setup_event_handler__match()
     self.event_proxy:subscribe(Event.match_agent_disconnect, Functional.make_closure(self._on_event_match_service_disconnect, self))
 end
 

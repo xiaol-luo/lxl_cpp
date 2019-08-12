@@ -10,7 +10,6 @@ end
 
 function ExampleAction:init()
     ExampleAction.super.init(self)
-    self.timer_proxy = TimerProxy:new()
 end
 
 function ExampleAction:start()

@@ -7,6 +7,7 @@ function ServiceModule:ctor(module_mgr, module_name)
     self.service = self.module_mgr.service
     self.curr_state = ServiceModuleState.Free
     self.event_proxy = nil
+    self.timer_proxy = nil
     self.error_num = nil
     self.error_msg = ""
 end
@@ -31,6 +32,7 @@ end
 
 function ServiceModule:init(...)
     self.event_proxy = self.module_mgr:create_event_proxy()
+    self.timer_proxy = TimerProxy:new()
     self.curr_state = ServiceModuleState.Inited
 end
 

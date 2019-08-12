@@ -9,7 +9,6 @@ function ZoneNetModule:ctor(module_mgr, module_name)
     ZoneNetModule.super.ctor(self, module_mgr, module_name)
     self.zone_net = nil
     self.zone_name = nil
-    self.timer_proxy = TimerProxy:new()
     self.check_zone_net_ready_tid = nil
     self.Wait_Start_Max_Sec = 60
 end

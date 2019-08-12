@@ -40,6 +40,7 @@ function RoleMgr:add_role(role_id)
     local role = self:get_role(role_id)
     if not role then
         role = Role:new(role_id)
+        role.token = gen_next_seq()
         self.role_id_to_role[role.role_id] = role
     end
     return role
