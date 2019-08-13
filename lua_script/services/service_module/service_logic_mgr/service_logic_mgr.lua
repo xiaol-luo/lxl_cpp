@@ -49,3 +49,9 @@ function ServiceLogicMgr:release()
     self.logics = {}
 end
 
+function ServiceLogicMgr:on_update()
+    for _, v in ipairs(self.logics) do
+        v:on_update()
+    end
+end
+

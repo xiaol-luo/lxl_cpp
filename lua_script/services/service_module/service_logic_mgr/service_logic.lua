@@ -37,4 +37,8 @@ function ServiceLogic:release()
     self.curr_state = ServiceLogicState.Released
 end
 
+function ServiceLogic:on_update()
+    -- log_debug("ServiceLogic:on_update %s", self.logic_name)
+end
+
 
