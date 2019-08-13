@@ -28,3 +28,7 @@ function MatchLogic:update_logic()
     assert(false, "should not reach here")
 end
 
+function MatchLogic:get_cell(cell_id)
+    return self.id_to_cell[cell_id]
+end
+

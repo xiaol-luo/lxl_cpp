@@ -7,6 +7,7 @@ function MatchCell:ctor(match_logic, id)
     self.leader_role_id = nil
     self.role_ids = {}
     self.extra_data = nil
+    self.room_id = nil
 end
 
 function MatchCell:set_leader_role_id(role_id)

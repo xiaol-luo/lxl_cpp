@@ -45,3 +45,7 @@ function RoleMgr:add_role(role_id)
     end
     return role
 end
+
+function RoleMgr:remove_role(role_id)
+    self._id_to_role[role_id] = nil
+end

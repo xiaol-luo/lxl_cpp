@@ -48,7 +48,7 @@ function MatchLogicBalance:join(leader_role_id, role_ids, extra_data)
     local match_cell = self:_create_match_cell()
     for role_id, role in pairs(role_map) do
         match_cell:add_role(role_id)
-        role:set_match_cell(self, match_cell.cell_id)
+        role:set_match_cell(self.match_type, match_cell.cell_id)
     end
     match_cell:set_leader_role_id(leader_role_id)
     match_cell.extra_data = extra_data
@@ -78,14 +78,7 @@ function MatchLogicBalance:update_logic()
     local now_sec = logic_sec()
     if now_sec - self._last_do_match_sec >= self._do_match_span_sec then
         self._last_do_match_sec = now_sec
-        local ready_room_map = {}
-        local fn_make_room = function(...)
-            local room_id = gen_next_seq()
-            ready_room_map[room_id] = {
-                room_id = room_id,
-                cells = {...}
-            }
-        end
+        local ready_room_cells = {}
         local to_remove_cell = {}
         local one_role_cell = nil
         for _, cell in pairs(self.id_to_cell) do
@@ -93,13 +86,13 @@ function MatchLogicBalance:update_logic()
             if role_count <= 0 then
                 table.insert(to_remove_cell, cell)
             elseif role_count >= self.room_role_count then
-                fn_make_room(cell)
+                table.insert(ready_room_cells, { cell })
                 table.insert(to_remove_cell, cell)
             else
                 if not one_role_cell then
                     one_role_cell = cell
                 else
-                    fn_make_room(one_role_cell, cell)
+                    table.insert(ready_room_cells,  { one_role_cell, cell })
                     table.insert(to_remove_cell, one_role_cell)
                     table.insert(to_remove_cell, cell)
                     one_role_cell = nil
@@ -108,10 +101,9 @@ function MatchLogicBalance:update_logic()
         end
         for _, cell in pairs(to_remove_cell) do
             self.id_to_cell[cell.cell_id] = nil
-            -- todo:
         end
-        for room_id, room in pairs(ready_room_map) do
-            -- todo:
+        for _, room_list in pairs(ready_room_cells) do
+            self.service.room_mgr:add_wait_confirm_join_room(self.match_type, room_list)
         end
     end
 end
