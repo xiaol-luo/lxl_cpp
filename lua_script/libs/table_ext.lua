@@ -136,7 +136,7 @@ function table.GetSortedKey(tSrcTable, fSortFun)
     return tKey
 end
 
-function table.etValues(t)
+function table.values(t)
     local tValue = {}
     for _, v in pairs(t) do
         table.insert(tValue, v)

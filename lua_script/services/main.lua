@@ -37,7 +37,7 @@ end
 
 -- callback from native
 function CheckCanQuitGame()
-    log_debug("lua CheckCanQuitGame")
+    -- log_debug("lua CheckCanQuitGame")
     if SERVICE_MAIN then
         return SERVICE_MAIN:CheckCanQuitGame()
     end

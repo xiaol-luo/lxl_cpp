@@ -1,10 +1,12 @@
 
 RoomMgr = RoomMgr or class("RoomMgr", ServiceLogic)
+RoomMgr.Check_Wait_Confirm_Join_Room_Span_Sec = 1
 
 function RoomMgr:ctor(logic_mgr, logic_name)
     RoomMgr.super.ctor(self, logic_mgr, logic_name)
     self._wait_confirm_join_rooms = {}
     self._all_confirm_join_rooms = {}
+    self._last_check_wait_confirm_join_room_sec = 0
 end
 
 function RoomMgr:init()
@@ -15,15 +17,20 @@ end
 
 function RoomMgr:start()
     RoomMgr.super.start(self)
-    self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), 1 * 1000, -1)
 end
 
 function RoomMgr:stop()
     RoomMgr.super.stop(self)
 end
 
-function RoomMgr:_on_tick()
-
+function RoomMgr:on_update()
+    local now_sec = logic_sec()
+    if now_sec - self._last_check_wait_confirm_join_room_sec >= self._last_check_wait_confirm_join_room_sec then
+        self._last_check_wait_confirm_join_room_sec = now_sec
+        for _, room in ipairs(table.values(self._wait_confirm_join_rooms)) do
+            self:_check_process_finish_confirm_join_room(room)
+        end
+    end
 end
 
 function RoomMgr:add_wait_confirm_join_room(match_type, match_cell_list)
@@ -44,15 +51,12 @@ function RoomMgr:get_wait_confirm_join_room(room_id)
     return self._wait_confirm_join_rooms[room_id]
 end
 
-function RoomMgr:_on_rpc_cb_notify_confirm_join_match(call_role_id, call_game_session_id, rpc_error_num, error_num, session_id, is_accept)
-    if call_game_session_id ~= session_id then
-        return
-    end
+function RoomMgr:_on_rpc_cb_notify_confirm_join_match(call_role_id, call_game_session_id, rpc_error_num, error_num, is_accept)
     local role = self.service.role_mgr:get_role(call_role_id)
     if not role or not role.match_room_id then
         return
     end
-    if role.game_session_id ~= session_id then
+    if call_game_session_id ~= role.game_session_id then
         return
     end
     local room = self._wait_confirm_join_rooms[role.match_room_id]
@@ -60,7 +64,17 @@ function RoomMgr:_on_rpc_cb_notify_confirm_join_match(call_role_id, call_game_se
         -- todo: log error
         return
     end
-    room:set_confirm_join_result(role.role_id, is_accept)
+    local set_is_accept = true
+    if Error_None ~= rpc_error_num then
+        set_is_accept = false
+    end
+    if Error_None ~= error_num then
+        set_is_accept = false
+    end
+    if not is_accept then
+        set_is_accept = false
+    end
+    room:set_confirm_join_result(role.role_id, set_is_accept)
     self:_check_process_finish_confirm_join_room(room)
 end
 
@@ -86,9 +100,10 @@ function RoomMgr:_check_process_finish_confirm_join_room(room)
         room:foreach_role(function(role_id)
             local role = self.service.role_mgr:get_role(role_id)
             if role then
-                self.service.role_mgr:remove_role(role_id)
                 role.game_client:call(nil, GameRpcFn.notify_terminate_match, role.role_id, role.game_session_id, Reason.Terminate_Match.room_mate_reject_join)
+                self.service.role_mgr:remove_role(role_id)
                 role:clear_match_cell()
+                role.match_room_id = nil
             end
         end)
     end
