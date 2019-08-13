@@ -155,6 +155,20 @@
 	{%- endfor %}
 	</fight>
 
+	<room>
+		<element>for_make_array</element>
+		<element>for_make_array</element>
+	{%- for elem in room_service  %}
+		<element>
+			<zone>{{ elem.zone }}</zone>
+			<idx>{{ elem.idx }}</idx>
+			<service_id>{{ elem.service_idx }}</service_id>
+			<ip>{{ elem.ip }}</ip>
+			<port>{{ elem.port }}</port>
+		</element>
+	{%- endfor %}
+	</room>
+
 	<robot>
 		<element>for_make_array</element>
 		<element>for_make_array</element>

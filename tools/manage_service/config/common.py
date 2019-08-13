@@ -13,6 +13,7 @@ class Service_Type(IntEnum):
     gate = 7
     match = 8
     fight = 9
+    room = 10
 
 
 

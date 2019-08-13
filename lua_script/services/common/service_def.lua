@@ -48,6 +48,7 @@ Service_Const =
     role_id = "role_id",
     match = "match",
     fight = "fight",
+    room = "room",
 }
 
 MAIN_ARGS_SERVICE = "service"

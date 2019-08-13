@@ -30,13 +30,14 @@ world_service_count = 2
 game_service_count = 2
 match_service_count = 2
 fight_service_count = 2
+room_service_count = 2
 robot_service_count = 0
 
 access_ip = "127.0.0.1"
 
 All_Begin_Port = 40000
 Zone_Port_Span = 1000
-Service_Port_Span = 100
+Service_Port_Span = 50
 
 
 def cal_service_begin_port(zone_id, service_type):
@@ -83,7 +84,7 @@ def get_service_setting(zone_name):
     # platform service
     platforms = []
     setting["platform_service"] = platforms
-    platform_next_port = cal_service_begin_port(zone_id, Service_Type.platform)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.platform)
     for i in range(0, platform_service_count):
         mongo_setting = copy.deepcopy(mongo_service)
         mongo_service["db"] = platform_service_db_name
@@ -92,15 +93,15 @@ def get_service_setting(zone_name):
             "role": "platform",
             "name": zone_name,
             "ip": access_ip,
-            "port": platform_next_port,
+            "port": service_next_port,
             "mongo": mongo_setting,
             "db": platform_service_db_name,
         })
-        platform_next_port += 1
+        service_next_port += 1
     # auth service
     auths = []
     setting["auth_service"] = auths
-    auth_next_port = cal_service_begin_port(zone_id, Service_Type.auth)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.auth)
     platform_hosts = []
     for v in platforms:
         platform_hosts.append("{0}:{1}".format(v["ip"], v["port"]))
@@ -109,134 +110,148 @@ def get_service_setting(zone_name):
             "role": "auth",
             "ip": access_ip,
             "name": zone_name,
-            "port": auth_next_port,
+            "port": service_next_port,
             "auth_method": "app_auth",
             "platform": {
                 "auth_method": "app_auth",
                 "host": platform_hosts,
             }
         })
-        auth_next_port += 1
+        service_next_port += 1
     # login service
     logins = []
     setting["login_service"] = logins
-    login_next_port = cal_service_begin_port(zone_id, Service_Type.login)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.login)
     for i in range(0, login_service_count):
-        service_id = login_next_port
+        service_id = service_next_port
         logins.append({
             "role": "login",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
             "ip": access_ip,
-            "port": login_next_port,
-            "client_port": login_next_port + 1,
+            "port": service_next_port,
+            "client_port": service_next_port + 1,
             "mongo_service": mongo_service_name,
             "db_name": "{0}_login".format(zone_name),
             "uuid_mongo_service": uuid_mongo_service_name,
         })
-        login_next_port += 2
+        service_next_port += 2
     # gate service
     gates = []
     setting["gate_service"] = gates
-    gate_next_port = cal_service_begin_port(zone_id, Service_Type.gate)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.gate)
     for i in range(0, gate_service_count):
-        service_id = gate_next_port
+        service_id = service_next_port
         gates.append({
             "role": "gate",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
             "ip": access_ip,
-            "port": gate_next_port,
+            "port": service_next_port,
             "client_ip": access_ip,
-            "client_port": gate_next_port + 1,
+            "client_port": service_next_port + 1,
         })
-        gate_next_port += 2
+        service_next_port += 2
     # world service
     game_service_db_name = "{0}_game".format(zone_name)
     worlds = []
     setting["world_service"] = worlds
-    world_next_port = cal_service_begin_port(zone_id, Service_Type.world)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.world)
     for i in range(0, world_service_count):
-        service_id = world_next_port
+        service_id = service_next_port
         worlds.append({
             "role": "world",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
             "ip": access_ip,
-            "port": world_next_port,
+            "port": service_next_port,
             "mongo_service": mongo_service_name,
             "db_name": game_service_db_name,
             "uuid_mongo_service": uuid_mongo_service_name,
         })
-        world_next_port += 1
+        service_next_port += 1
     # game service
     games = []
     setting["game_service"] = games
-    game_next_port = cal_service_begin_port(zone_id, Service_Type.game)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.game)
     for i in range(0, game_service_count):
-        service_id = game_next_port
+        service_id = service_next_port
         games.append({
             "role": "game",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
             "ip": access_ip,
-            "port": game_next_port,
+            "port": service_next_port,
             "mongo_service": mongo_service_name,
             "db_name": game_service_db_name,
         })
-        game_next_port += 1
+        service_next_port += 1
     # match service
     matchs = []
     setting["match_service"] = matchs
-    match_next_port = cal_service_begin_port(zone_id, Service_Type.match)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.match)
     for i in range(0, match_service_count):
-        service_id = match_next_port
+        service_id = service_next_port
         matchs.append({
             "role": "match",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
             "ip": access_ip,
-            "port": match_next_port,
+            "port": service_next_port,
         })
-        match_next_port += 1
+        service_next_port += 1
     # fight service
     fights = []
     setting["fight_service"] = fights
-    fight_next_port = cal_service_begin_port(zone_id, Service_Type.fight)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.fight)
     for i in range(0, fight_service_count):
-        service_id = fight_next_port
+        service_id = service_next_port
         fights.append({
             "role": "fight",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
             "ip": access_ip,
-            "port": fight_next_port,
+            "port": service_next_port,
             "client_ip": access_ip,
-            "client_port": gate_next_port + 1,
+            "client_port": service_next_port + 1,
         })
-        fight_next_port += 2
-
+        service_next_port += 2
+    # room service
+    rooms = []
+    setting["room_service"] = rooms
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.room)
+    for i in range(0, room_service_count):
+        service_id = service_next_port
+        rooms.append({
+            "role": "room",
+            "zone": zone_name,
+            "idx": i,
+            "service_idx": service_id,
+            "ip": access_ip,
+            "port": service_next_port,
+        })
+        service_next_port += 1
     # robot service
     robots = []
     setting["robot_service"] = robots
-    robot_next_port = cal_service_begin_port(zone_id, Service_Type.robot)
+    service_next_port = cal_service_begin_port(zone_id, Service_Type.robot)
     for i in range(0, robot_service_count):
-        service_id = robot_next_port
+        service_id = service_next_port
         robots.append({
             "role": "robot",
             "zone": zone_name,
             "idx": i,
             "service_idx": service_id,
             "ip": access_ip,
-            "port": robot_next_port,
+            "port": service_next_port,
         })
-        robot_next_port += 1
+        service_next_port += 1
     return setting
 
 

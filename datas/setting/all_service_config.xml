@@ -132,12 +132,23 @@
 		</element>
 	</fight>
 
+	<room>
+		<element>for_make_array</element>
+		<element>
+			<zone>zone_0</zone>
+			<idx>0</idx>
+			<service_id>7000</service_id>
+			<ip>127.0.0.1</ip>
+			<port>37000</port>
+		</element>
+	</room>
+
 	<robot>
 		<element>for_make_array</element>
 		<element>
 			<zone>zone_0</zone>
 			<idx>0</idx>
-			<service_id>5000</service_id>
+			<service_id>8000</service_id>
 			<ip>127.0.0.1</ip>
 			<port>35000</port>
 		</element>
