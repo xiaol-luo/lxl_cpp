@@ -48,9 +48,7 @@ function MatchAgentMgr:query_match_service_state(service_key)
         service_key_set[service_key] = true
     else
         for _, service_info in pairs(self.service.zone_net:get_service_group(Service_Const.match)) do
-            if service_info.net_connected then
-                service_key_set[service_info.key] = true
-            end
+            service_key_set[service_info.key] = true
         end
     end
     for sk, _ in pairs(service_key_set) do

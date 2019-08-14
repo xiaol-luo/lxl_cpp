@@ -10,6 +10,8 @@ function Room:ctor(room_id, match_type, match_cell_list)
     self.confirm_join_start_sec = nil
     self.confirm_join_results = {}
     self._is_confirm_join_finished = false
+    self.room_client = nil
+    self.remote_room_id = nil
 end
 
 function Room:set_confirm_join_result(role_id, is_accept)

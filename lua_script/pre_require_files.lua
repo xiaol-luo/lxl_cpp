@@ -76,6 +76,7 @@ local files = {
     "services.common.rpc.game_rpc_def",
     "services.common.rpc.gate_rpc_def",
     "services.common.rpc.world_rpc_def",
+    "services.common.rpc.room_rpc_def",
     "services.common.error.error_def",
     "services.common.error.error_login_process",
     "services.common.error.error_match",

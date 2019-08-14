@@ -54,9 +54,7 @@ function LoginGameMgr:_check_query_gate_service_states()
         self.last_query_gate_state_sec = now_sec
         for _, gate_info in pairs(self.service.zone_net:get_service_group(Service_Const.Gate)) do
             local service_key = gate_info.key
-            if gate_info.net_connected then
-                self.service.rpc_mgr:call(Functional.make_closure(self._rpc_cb_gate_query_state, self, service_key), service_key, GateRpcFn.query_state)
-            end
+            self.service.rpc_mgr:call(Functional.make_closure(self._rpc_cb_gate_query_state, self, service_key), service_key, GateRpcFn.query_state)
         end
     end
 end

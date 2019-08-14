@@ -16,12 +16,12 @@ message RspJoinMatch
     int32 error_num = 2;
 }
 
-message ReqCancelMatch
+message ReqQuitMatch
 {
 	
 }
 
-message RspCancelMatch
+message RspQuitMatch
 {
 
 }

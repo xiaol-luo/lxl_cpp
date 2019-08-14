@@ -222,7 +222,7 @@ function ClientMgr:process_req_pull_role_digest(netid, pid, msg)
             break
         end
         local world_service = self.service.zone_net:rand_service(Service_Const.World)
-        if not world_service or not world_service.net_connected then
+        if not world_service then
             error_num = Error.Pull_Role_Digest.no_valid_world_service
             break
         end

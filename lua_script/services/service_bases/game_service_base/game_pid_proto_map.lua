@@ -101,14 +101,14 @@ local pid_proto_map =
         [Proto_Const.Proto_Name]="SyncMatchState"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_cancel_match,
+        [Proto_Const.Proto_Id]=ProtoId.req_quit_match,
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqCancelMatch"
+        [Proto_Const.Proto_Name]="ReqQuitMatch"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_cancel_match,
+        [Proto_Const.Proto_Id]=ProtoId.rsp_quit_match,
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspCancelMatch"
+        [Proto_Const.Proto_Name]="RspQuitMatch"
     },
     {
         [Proto_Const.Proto_Id]=ProtoId.notify_confirm_match,

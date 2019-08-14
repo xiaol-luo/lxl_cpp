@@ -260,9 +260,13 @@ function ZoneServiceMgr:send(service_name, pid, bin)
 end
 
 function ZoneServiceMgr:get_peer_service(service_role, service_idx)
+    local ret = nil
     service_idx = service_idx or 0
     local service_key = path.combine(self.etcd_root_dir, service_role, service_idx)
-    local ret = make_peer_service_query_result(self.service_state_list[service_key])
+    local st = self.service_state_list[service_key]
+    if st and st.net and st.net.connected then
+        ret = make_peer_service_query_result()
+    end
     return ret
 end
 
@@ -286,9 +290,11 @@ function ZoneServiceMgr:get_peer_service_group(service_role)
     end
     local ret = {}
     for k, v in pairs(self.service_state_list) do
-        local start_idx = string.find(k, service_key_prefix)
-        if 1 == start_idx then
-            ret[k] = make_peer_service_query_result(v)
+        if v.net and v.net.connected then
+            local start_idx = string.find(k, service_key_prefix)
+            if 1 == start_idx then
+                ret[k] = make_peer_service_query_result(v)
+            end
         end
     end
     return ret

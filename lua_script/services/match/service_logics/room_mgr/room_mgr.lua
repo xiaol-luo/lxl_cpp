@@ -11,8 +11,6 @@ end
 
 function RoomMgr:init()
     RoomMgr.super.init(self)
-
-    -- self.service.rpc_mgr:set_req_msg_process_fn(fn_name, Functional.make_closure(fn, self))
 end
 
 function RoomMgr:start()
@@ -84,23 +82,78 @@ function RoomMgr:_check_process_finish_confirm_join_room(room)
     end
     local reject_role_ids = room:get_reject_confirm_join_role_ids()
     local match_succ = (nil == next(reject_role_ids))
+    local terminate_match_reason = nil
     if match_succ then
         self._wait_confirm_join_rooms[room.room_id] = nil
-        self._all_confirm_join_rooms[room.room_id] = room
-        -- todo 去申请战斗资源等等
-        -- for test
+        local service_info = self.service.zone_net:rand_service(Service_Const.room)
+        if not service_info then
+            terminate_match_reason = Reason.Terminate_Match.no_available_room_service
+        else
+            self._all_confirm_join_rooms[room.room_id] = room
+            room.room_client = self.service:create_rpc_client(service_info.key)
+            local rpc_match_cells = {}
+            for _, match_cell in pairs(room.match_cell_list) do
+                local cell_roles = {}
+                for role_id, _ in pairs(match_cell.role_ids) do
+                    local role = self.service.role_mgr:get_role(role_id)
+                    assert(role)
+                    cell_roles[role.role_id] = {
+                        role_id = role.role_id,
+                        game_service_key = role.game_client.remote_host,
+                        game_session_id = role.game_session_id
+                    }
+                end
+                table.insert(rpc_match_cells, {
+                    leader_role_id = match_cell.leader_role_id,
+                    extra_data = match_cell.extra_data,
+                    roles = cell_roles,
+                })
+            end
+            room.room_client:call(Functional.make_closure(self._on_rpc_cb_apply_room, self, room.room_id),
+                    RoomRpcFn.apply_room, room.match_type, rpc_match_cells)
+        end
+    else
+        self._wait_confirm_join_rooms[room.room_id] = nil
+        terminate_match_reason = Reason.Terminate_Match.room_mate_reject_join
+    end
+    if terminate_match_reason then
         room:foreach_role(function(role_id)
             local role = self.service.role_mgr:get_role(role_id)
+            if role and role.game_client then
+                role.game_client:call(nil, GameRpcFn.notify_terminate_match, role.role_id, role.game_session_id, terminate_match_reason)
+                self.service.role_mgr:remove_role(role_id)
+                role:clear_match_cell()
+                role.match_room_id = nil
+            end
+        end)
+    end
+end
+
+function RoomMgr:_on_rpc_cb_apply_room(room_id, rpc_error_num, error_num, remote_room_id)
+    local room = self._all_confirm_join_rooms[room_id]
+    if not room then
+        return
+    end
+    self._all_confirm_join_rooms[room_id] = nil
+    if Error_None == rpc_error_num and Error_None == error_num then
+        room:foreach_role(function(role_id)
+            local role = self.service.role_mgr:get_role(role_id)
+            if role and role.game_client then
+                role.game_client:call(nil, GameRpcFn.notify_match_succ, role.role_id, role.game_session_id, role.room_client.remote_host, remote_room_id)
+            end
             if role then
-                role.game_client:call(nil, GameRpcFn.notify_match_succ, role.role_id, role.game_session_id, room.room_id)
+                self.service.role_mgr:remove_role(role_id)
+                role:clear_match_cell()
+                role.match_room_id = nil
             end
         end)
     else
-        self._wait_confirm_join_rooms[room.room_id] = nil
         room:foreach_role(function(role_id)
             local role = self.service.role_mgr:get_role(role_id)
+            if role and role.game_client then
+                role.game_client:call(nil, GameRpcFn.notify_terminate_match, role.role_id, role.game_session_id, Reason.Terminate_Match.apply_room_fail)
+            end
             if role then
-                role.game_client:call(nil, GameRpcFn.notify_terminate_match, role.role_id, role.game_session_id, Reason.Terminate_Match.room_mate_reject_join)
                 self.service.role_mgr:remove_role(role_id)
                 role:clear_match_cell()
                 role.match_room_id = nil
