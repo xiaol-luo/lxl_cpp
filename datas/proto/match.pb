@@ -2,7 +2,7 @@ syntax="proto3"
 
 message SyncMatchState
 {	
-	
+	int32 state = 1;
 }
 
 message ReqJoinMatch
@@ -23,7 +23,7 @@ message ReqQuitMatch
 
 message RspQuitMatch
 {
-
+	int32 error_num = 1;
 }
 
 message NotifyConfirmMatch

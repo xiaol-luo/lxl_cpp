@@ -5,6 +5,6 @@ function RoomMgr:_init_process_rpc_handler()
 end
 
 function RoomMgr:_on_rpc_apply_room(rpc_rsp, match_type, match_cells)
-    rpc_rsp:respone(gen_next_seq())
+    rpc_rsp:respone(Error_None, gen_next_seq())
 end
 

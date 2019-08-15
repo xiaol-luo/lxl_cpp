@@ -17,7 +17,7 @@ function MatchLogicLuandou:join(leader_role_id, role_ids, extra_data)
     assert(false, "should not reach here")
 end
 
-function MatchLogicLuandou:quit(role_id, match_cell_id)
+function MatchLogicLuandou:quit(quit_role)
     assert(false, "should not reach here")
 end
 

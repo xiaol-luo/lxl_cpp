@@ -85,6 +85,15 @@ function RoleMgr:get_role(role_id)
     return self._id_to_role[role_id]
 end
 
+function RoleMgr:get_in_game_role(role_id)
+    local ret = nil
+    local role = self._id_to_role[role_id]
+    if role and Role_State.in_game == role.state then
+        ret = role
+    end
+    return ret
+end
+
 function RoleMgr:remove_role(role_id)
     if not self._next_save_role_id then
         if self._next_save_role_id == role_id then

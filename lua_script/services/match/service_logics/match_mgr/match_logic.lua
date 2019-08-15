@@ -20,7 +20,7 @@ function MatchLogic:join(leader_role_id, role_ids, extra_data)
     assert(false, "should not reach here")
 end
 
-function MatchLogic:quit(role_id, match_cell_id)
+function MatchLogic:quit(quit_role)
     assert(false, "should not reach here")
 end
 

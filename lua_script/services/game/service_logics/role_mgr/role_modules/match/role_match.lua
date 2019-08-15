@@ -47,3 +47,9 @@ function RoleMatch:clear_match_state()
     self.match_session_id = nil
     self.match_cell_id = nil
 end
+
+function RoleMatch:sync_match_state()
+    self.role.send_to_client(ProtoId.sync_match_state, {
+        state = self.state
+    })
+end

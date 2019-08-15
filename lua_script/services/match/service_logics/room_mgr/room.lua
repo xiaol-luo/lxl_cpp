@@ -19,7 +19,7 @@ function Room:set_confirm_join_result(role_id, is_accept)
         return
     end
     if self.confirm_join_results[role_id] then
-        return
+        -- return
     end
     self.confirm_join_results[role_id] = is_accept
     self:check_confirm_join_result()

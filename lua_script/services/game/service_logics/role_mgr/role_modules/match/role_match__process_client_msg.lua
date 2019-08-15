@@ -27,6 +27,7 @@ function RoleMatch:_on_msg_req_join_match(pid, msg)
         self.match_session_id = native.gen_uuid()
         self.match_client:call(Functional.make_closure(self._on_rpc_cb_join_match, self, self.match_session_id),
                 MatchRpcFn.join_match, self.match_session_id, self.role.role_id, msg.match_type, {})
+        self:sync_match_state()
     until true
     if Error_None ~= error_num then
         self.role:send_to_client(ProtoId.rsp_join_match, {
@@ -64,14 +65,44 @@ function RoleMatch:_on_rpc_cb_join_match(call_match_session_id, rpc_error_num, e
     if Error_None ~= out_ms.error_num then
         self:clear_match_state()
     end
+    self:sync_match_state()
     self.role:send_to_client(ProtoId.rsp_join_match, out_msg)
 end
 
 function RoleMatch:_on_msg_req_quit_match(pid, msg)
-
+    local error_num = Error_None
+    if Role_Match_State.free == self.state then
+        error_num = Error.Quit_Match.not_matching
+    end
+    if Role_Match_State.wait_enter_room == self.state then
+        error_num = Error.Quit_Match.waiting_enter_room
+    end
+    if Role_Match_State.finish == self.state then
+        error_num = Error.Quit_Match.match_finished
+    end
+    if Error_None == error_num then
+        self.match_client:call(Functional.make_closure(self._on_rpc_cb_quit_match, self), MatchRpcFn.quit_match, self.role.role_id)
+    end
+    if Error_None ~= error_num then
+        self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = error_num })
+    end
 end
 
-function RoleMatch:_on_rpc_cb_quit_match()
-
+function RoleMatch:_on_rpc_cb_quit_match(rpc_error_num, error_num, session_id)
+    if not self.match_session_id then
+        return
+    end
+    if Error_None ~= rpc_error_num then
+        self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = Error_None.Quit_Match.need_try_again })
+        return
+    end
+    if self.match_session_id ~= session_id then
+        return
+    end
+    if Error_None == error_num then
+        self:clear_match_state()
+    end
+    self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = error_num })
+    self:sync_match_state()
 end
 

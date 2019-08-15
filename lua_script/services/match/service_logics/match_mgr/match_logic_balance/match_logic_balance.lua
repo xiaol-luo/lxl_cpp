@@ -55,23 +55,29 @@ function MatchLogicBalance:join(leader_role_id, role_ids, extra_data)
     return Error_None, match_cell
 end
 
-function MatchLogicBalance:quit(role_id, match_cell_id)
-    local match_cell = self.id_to_cell[match_cell_id]
-    if not match_cell then
-        return Error.Quit_Match.match_cell_not_exist, match_cell_id
+function MatchLogicBalance:quit(quit_role)
+    if not quit_role.match_cell_id then
+        return Error.Quit_Match.match_cell_not_exist, role.match_cell_id
     end
-    if not role_id or role_id ~= match_cell.leader_role_id then
+    local match_cell = self.id_to_cell[role.match_cell_id]
+    if not match_cell then
+        return Error.Quit_Match.match_cell_not_exist
+    end
+    if not quit_role.role_id or quit_role.role_id ~= match_cell.leader_role_id then
         return Error.Quit_Match.role_has_no_right_to_quit
     end
     self.id_to_cell[match_cell_id] = nil
     for role_id, _ in pairs(match_cell.role_ids) do
         local role = self.service.role_mgr:get_role(role_id)
-        if role and role.match_logic == self and role.match_cell_id == match_cell_id then
+        if role and role.match_logic == self and role.match_cell_id == quit_role.match_cell_id then
+            if quit_role.role_id == role_id then
+                role.game_client:call(nil, GameRpcFn.notify_terminate_match, role.role_id, role.game_session_id, Reason.Terminate_Match.leader_quit)
+            end
             role:clear_match_cell()
             self.service.role_mgr:remove_role(role_id)
         end
     end
-    return Error_None, match_cell
+    return Error_None
 end
 
 function MatchLogicBalance:update_logic()

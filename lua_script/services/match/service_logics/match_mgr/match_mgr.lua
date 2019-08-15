@@ -34,8 +34,16 @@ function MatchMgr:solo_join(match_type, role_id, extra_data)
     return match_logic:solo_join(role_id, extra_data)
 end
 
-function MatchMgr:quit(role_id, match_cell_id)
-    
+function MatchMgr:quit(role_id)
+    local role = self.service.role_mgr:get_role(role_id)
+    if not role then
+        return Error.Quit_Match.not_matching
+    end
+    local match_logic = self._match_logic_map[role.match_type]
+    if not match_logic then
+        return Error_Unknown
+    end
+    match_logic:quit(role)
 end
 
 function MatchMgr:_update_logic()

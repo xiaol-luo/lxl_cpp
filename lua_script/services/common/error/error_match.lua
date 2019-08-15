@@ -15,4 +15,7 @@ Error.Quit_Match = {
     match_cell_not_exist = 1,
     role_has_no_right_to_quit = 2,
     not_matching = 3,
+    waiting_enter_room = 4,
+    match_finished = 5,
+    need_try_again = 6,
 }
