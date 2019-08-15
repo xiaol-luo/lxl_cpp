@@ -14,4 +14,5 @@ Error.Join_Match = {
 Error.Quit_Match = {
     match_cell_not_exist = 1,
     role_has_no_right_to_quit = 2,
+    not_matching = 3,
 }
