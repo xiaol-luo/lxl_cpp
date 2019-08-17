@@ -26,6 +26,7 @@ function GameRole:ctor(role_id)
     self._modules = {}
     self:_setup_module(RoleBaseInfo, RoleBaseInfo.Module_Name)
     self:_setup_module(RoleMatch, RoleMatch.Module_Name)
+    self:_setup_module(RoleRoom, RoleRoom.Module_Name)
 end
 
 function GameRole:init()

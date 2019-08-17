@@ -130,6 +130,16 @@ local pid_proto_map =
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="SyncRoomState"
     },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.notify_bind_room,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="NotifyBindRoom"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.notify_unbind_room,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="NotifyUnbindRoom"
+    },
 }
 
 

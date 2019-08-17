@@ -38,4 +38,7 @@ ProtoId = {
     pull_room_state = 20022,
     sync_room_state = 20023,
 
+    notify_bind_room = 20024,
+    notify_unbind_room = 20025,
+    notify_terminate_room = 20026,
 }
