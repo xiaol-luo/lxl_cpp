@@ -31,19 +31,15 @@ function RoleRoom:pack_for_db(out_ret)
     return self.module_name, db_info
 end
 
-
-function RoleRoom:on_update()
-    self:_check_try_bind_room()
-end
-
 function RoleRoom:bind_room(join_match_type, room_service_key, session_id, room_id)
     self:unbind_room(self.room_session_id)
     self.join_match_type = join_match_type
     self.state = Role_Room_State.try_enter_room
     self.room_session_id = session_id
     self.room_id = room_id
-    self.room_client = self.service:create_rpc_client(room_service_key)
+    self.room_client = SERVICE_MAIN:create_rpc_client(room_service_key)
     self._last_check_bind_sec = 0
+    self:_check_try_bind_room()
 end
 
 function RoleRoom:unbind_room(session_id)
@@ -74,7 +70,7 @@ function RoleRoom:reset_room()
 end
 
 function RoleRoom:_check_try_bind_room()
-    if Role_Room_State.try_enter_room == self.state then
+    if Role_Room_State.try_enter_room ~= self.state then
         return
     end
     local now_sec = logic_sec()
@@ -88,6 +84,11 @@ end
 function RoleRoom:_on_rpc_cb_bind_room(rpc_error_num, error_num, session_id, fight_service_ip, fight_service_port, fight_battle_id, is_fight_started)
     if Error_None ~= rpc_error_num then
         -- self:unbind_room(self.room_session_id)
+        if Error_Rpc_Expired == rpc_error_num then
+            self:_check_try_bind_room()
+        else
+            self:unbind_room(self.room_session_id)
+        end
         return
     end
     if session_id ~= self.room_session_id then

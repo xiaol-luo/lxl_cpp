@@ -21,3 +21,7 @@ Base64 = require("libs.base64")
 -- global sequence
 
 gen_next_seq = make_sequence()
+
+-- https://github.com/rxi/json.lua
+-- A lightweight JSON library for Lua
+lua_json = require("libs.json")

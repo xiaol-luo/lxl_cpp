@@ -265,7 +265,7 @@ function ZoneServiceMgr:get_peer_service(service_role, service_idx)
     local service_key = path.combine(self.etcd_root_dir, service_role, service_idx)
     local st = self.service_state_list[service_key]
     if st and st.net and st.net.connected then
-        ret = make_peer_service_query_result()
+        ret = make_peer_service_query_result(st)
     end
     return ret
 end

@@ -6,6 +6,7 @@ function MatchLogic:ctor(match_mgr, match_type)
     self.match_mgr = match_mgr
     self.match_type = match_type
     self.id_to_cell = {}
+    self.service = match_mgr.service
 end
 
 function MatchLogic:_create_match_cell()

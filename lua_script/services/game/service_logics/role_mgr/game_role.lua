@@ -94,6 +94,7 @@ function GameRole:init_from_db(db_ret)
     local module_init_order = {
         self.base_info,
         self.match,
+        self.room,
     }
     -- check module_init_order
     for _, v in pairs(self._modules) do

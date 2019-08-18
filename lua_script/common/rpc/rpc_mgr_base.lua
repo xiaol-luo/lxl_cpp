@@ -74,6 +74,7 @@ function RpcMgrBase:set_req_msg_coroutine_process_fn(fn_name, fn)
 end
 
 function RpcMgrBase:call(cb_fn, remote_host, remote_fn, ...)
+    assert(nil == cb_fn or IsFunction(cb_fn))
     assert(remote_host)
     assert(remote_fn)
     local req_id = NextRpcUniqueId()

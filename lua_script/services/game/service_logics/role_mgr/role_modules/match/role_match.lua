@@ -49,7 +49,7 @@ function RoleMatch:clear_match_state()
 end
 
 function RoleMatch:sync_match_state()
-    self.role.send_to_client(ProtoId.sync_match_state, {
+    self.role:send_to_client(ProtoId.sync_match_state, {
         state = self.state
     })
 end

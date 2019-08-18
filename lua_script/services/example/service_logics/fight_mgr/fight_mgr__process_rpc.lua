@@ -13,16 +13,16 @@ function FightMgr:_on_rpc_apply_fight(rpc_rsp, room_id, match_type, match_cells)
         start_fight_sec = nil,
         room_client = self.service:create_rpc_client(rpc_rsp.from_host),
     }
-    rpc:respone(Error_None, fight_id, self.service_cfg[Service_Const.Client_Ip], self.service_cfg[Service_Const.Client_Port])
+    rpc_rsp:respone(Error_None, fight_id, self.service_cfg[Service_Const.Client_Ip], self.service_cfg[Service_Const.Client_Port])
 end
 
 function FightMgr:_on_rpc_start_fight(rpc_rsp, fight_battle_id)
     local fight = self._id_to_fight[fight_battle_id]
     if fight then
-        rpc:respone(Error_None)
+        rpc_rsp:respone(Error_None)
         fight.start_fight_sec = logic_sec()
     else
-        rpc:respone(Error.Start_Fight.no_fight_battle)
+        rpc_rsp:respone(Error.Start_Fight.no_fight_battle)
     end
 end
 

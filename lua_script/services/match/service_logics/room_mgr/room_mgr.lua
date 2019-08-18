@@ -31,22 +31,23 @@ function RoomMgr:on_update()
     end
 end
 
+function RoomMgr:get_wait_confirm_join_room(room_id)
+    return self._wait_confirm_join_rooms[room_id]
+end
+
 function RoomMgr:add_wait_confirm_join_room(match_type, match_cell_list)
+    log_debug("RoomMgr:add_wait_confirm_join_room")
     local room = Room:new(gen_next_seq(), match_type, match_cell_list)
     self._wait_confirm_join_rooms[room.room_id] = room
     room.confirm_join_start_sec = logic_sec()
     room:foreach_role(function(role_id)
         local role = self.service.role_mgr:get_role(role_id)
         if role then
-            role.room_id = room.room_id
+            role.match_room_id = room.room_id
             role.game_client:call(Functional.make_closure(self._on_rpc_cb_notify_confirm_join_match, self, role.role_id, role.game_session_id),
                     GameRpcFn.notify_confirm_join_match, role.role_id, role.game_session_id, role.room_id)
         end
     end)
-end
-
-function RoomMgr:get_wait_confirm_join_room(room_id)
-    return self._wait_confirm_join_rooms[room_id]
 end
 
 function RoomMgr:_on_rpc_cb_notify_confirm_join_match(call_role_id, call_game_session_id, rpc_error_num, is_accept)
@@ -94,16 +95,16 @@ function RoomMgr:_check_process_finish_confirm_join_room(room)
                 for role_id, _ in pairs(match_cell.role_ids) do
                     local role = self.service.role_mgr:get_role(role_id)
                     assert(role)
-                    cell_roles[role.role_id] = {
+                    table.insert(cell_roles, {
                         role_id = role.role_id,
                         game_service_key = role.game_client.remote_host,
                         game_session_id = role.game_session_id
-                    }
+                    })
                 end
                 table.insert(rpc_match_cells, {
                     leader_role_id = match_cell.leader_role_id,
-                    extra_data = match_cell.extra_data,
                     roles = cell_roles,
+                    extra_data = match_cell.extra_data,
                 })
             end
             room.room_client:call(Functional.make_closure(self._on_rpc_cb_apply_room, self, room.room_id),
@@ -136,7 +137,7 @@ function RoomMgr:_on_rpc_cb_apply_room(room_id, rpc_error_num, error_num, remote
         room:foreach_role(function(role_id)
             local role = self.service.role_mgr:get_role(role_id)
             if role and role.game_client then
-                role.game_client:call(nil, GameRpcFn.notify_match_succ, role.role_id, role.game_session_id, role.room_client.remote_host, remote_room_id)
+                role.game_client:call(nil, GameRpcFn.notify_match_succ, role.role_id, role.game_session_id, room.match_type, room.room_client.remote_host, remote_room_id)
             end
             if role then
                 self.service.role_mgr:remove_role(role_id)

@@ -88,7 +88,7 @@ end
 function RoleMgr:get_in_game_role(role_id)
     local ret = nil
     local role = self._id_to_role[role_id]
-    if role and Role_State.in_game == role.state then
+    if role and Game_Role_State.in_game == role.state then
         ret = role
     end
     return ret

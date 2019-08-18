@@ -36,11 +36,15 @@ function Room:check_confirm_join_result()
     if now_sec - self.confirm_join_start_sec >= Room.Confirm_Join_Timeout_Sec then
         self._is_confirm_join_finished = true
     else
-        for _, is_accept in pairs(self.confirm_join_results) do
-            if not is_accept then
-                self._is_confirm_join_finished = true
+        local all_accept = true
+        for role_id, _ in pairs(self:get_role_ids()) do
+            if not self.confirm_join_results[role_id] then
+                all_accept = false
                 break
             end
+        end
+        if all_accept then
+            self._is_confirm_join_finished = true
         end
     end
 end

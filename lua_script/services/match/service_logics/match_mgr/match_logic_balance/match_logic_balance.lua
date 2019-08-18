@@ -13,6 +13,7 @@ end
 function MatchLogicBalance:_create_match_cell()
     local cell = MatchCellBalance:new(self, gen_next_seq())
     self.id_to_cell[cell.cell_id] = cell
+    return cell
 end
 
 function MatchLogicBalance:solo_join(role_id)

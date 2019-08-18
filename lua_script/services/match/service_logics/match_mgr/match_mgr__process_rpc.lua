@@ -22,7 +22,7 @@ end
 function MatchMgr:_on_rpc_join_match(rpc_rsp, match_session_id, role_id, join_match_type, extra_data)
     local role_mgr = self.service.role_mgr
     local role = role_mgr:get_role(role_id)
-    if not role then
+    if role then
         rpc_rsp:respone(Error.Join_Match.remote_is_matching)
         return
     end

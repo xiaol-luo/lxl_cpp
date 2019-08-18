@@ -18,13 +18,13 @@ function RoomMgr:_on_rpc_apply_room(rpc_rsp, match_type, match_cells)
     room.state = Room_State.wait_fight_service_ready
     room.match_type = match_type
     room.match_cells = match_cells
-    for _, cell in pairs(self.match_cells) do
-        for role_id, _ in pairs(cell.roles) do
-            room.all_role_ids[role_id] = true
+    for _, cell in pairs(room.match_cells) do
+        for _, role in pairs(cell.roles) do
+            room.all_role_ids[role.role_id] = true
         end
     end
     room.fight_client = self.service:create_rpc_client(fight_service_info.key)
-    self.fight_client:call(function(rpc_error_num, error_num, fight_battle_id, fight_service_ip, fight_service_port)
+    room.fight_client:call(function(rpc_error_num, error_num, fight_battle_id, fight_service_ip, fight_service_port)
         if Error_None == rpc_error_num and Error_None == error_num then
             room.fight_battle_id = fight_battle_id
             room.state = Room_State.wait_roles_ready
@@ -50,7 +50,7 @@ function RoomMgr:_on_rpc_bind_room(rpc_rsp, room_id, role_id, session_id)
         rpc_rsp:respone(Error.Bind_Room.no_exist_role, session_id)
         return
     end
-    if role.session_id ~= session_id then
+    if role.game_session_id ~= session_id then
         rpc_rsp:respone(Error.Bind_Room.session_id_not_equal, session_id)
         return
     end
@@ -65,7 +65,7 @@ function RoomMgr:_on_rpc_bind_room(rpc_rsp, room_id, role_id, session_id)
     if not room.is_fight_started then
         if room:is_all_bind() then
             room.state = Room_State.roles_ready
-            room.fight_client:call(Functional.make_closure(self._on_rpc_cb_start_fight, self, room), FightRpcFn.start_fight, self.fight_battle_id)
+            room.fight_client:call(Functional.make_closure(self._on_rpc_cb_start_fight, self, room), FightRpcFn.start_fight, room.fight_battle_id)
         end
     end
 end
@@ -79,14 +79,14 @@ function RoomMgr:_on_rpc_cb_start_fight(room, rpc_error_num, error_num)
         self._id_to_room[room.room_id] = nil
         room:foreach_role(function(role)
             if role.game_client then
-                role.game_client:call(GameRpcFn.notify_terminate_room, room.room_id, role.role_id, role.session_id)
+                role.game_client:call(nil, GameRpcFn.notify_terminate_room, room.room_id, role.role_id, role.session_id)
             end
         end)
     else
         room.state = Room_State.fighting
         room:foreach_role(function(role)
             if role.game_client then
-                role.game_client:call(GameRpcFn.notify_fight_start, room.room_id, role.role_id, role.session_id)
+                role.game_client:call(nil, GameRpcFn.notify_fight_start, room.room_id, role.role_id, role.session_id)
             end
         end)
     end
@@ -118,7 +118,7 @@ function RoomMgr:_on_rpc_notify_fight_battle_over(rpc_rsp, room_id, fight_battle
     room.state = Room_State.released
     room:foreach_role(function(role)
         if role.game_client then
-            role.game_client:call(GameRpcFn.notify_end_room, room.room_id, role.role_id, role.session_id)
+            role.game_client:call(nil, GameRpcFn.notify_end_room, room.room_id, role.role_id, role.session_id)
         end
     end)
 end

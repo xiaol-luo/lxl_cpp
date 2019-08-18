@@ -74,13 +74,13 @@ function ZoneServiceRpcMgr:pack_params(...)
     for i=1, tb.len do
         tb.params[tostring(i)] = params[i]
     end
-    local ret = rapidjson.encode(tb)
+    local ret = lua_json.encode(tb)
     -- log_debug("-- ZoneServiceRpcMgr:pack_params ret=%s, tb=%s", ret, tb)
     return ret
 end
 
 function ZoneServiceRpcMgr:unpack_params(param_block)
-    local tb = rapidjson.decode(param_block or "{}") or {}
+    local tb = lua_json.decode(param_block or "{}") or {}
     tb.len = tb.len or 0
     tb.params = tb.params or {}
     local params = {}

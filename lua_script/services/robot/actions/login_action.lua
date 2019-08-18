@@ -29,6 +29,7 @@ function LoginAction:start()
             Functional.make_closure(self.robot_main_logic, self),
             Functional.make_closure(self.robot_over_logic, self)
     )
+    ex_coroutine_expired(self.co, 60 * 1000)
     local is_ok, msg = ex_coroutine_start(self.co, self.co)
     log_debug("start robot main logic ret:%s", is_ok)
     if not is_ok then
@@ -296,6 +297,11 @@ function LoginAction:robot_main_logic(co)
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
     log_debug("req_client_forward_game result is pid:%s, msg:%s", pid, msg)
+
+    repeat
+        co_ok, pid, msg = ex_coroutine_yield(co)
+        log_debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! loop -------- pid:%s, msg:%s", pid, msg)
+    until false
 
     send_msg(cnn, ProtoId.req_logout_role, {
         role_id = role_ids[1]

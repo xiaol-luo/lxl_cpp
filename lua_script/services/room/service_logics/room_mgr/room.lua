@@ -18,13 +18,14 @@ end
 
 function Room:get_role(role_id)
     local ret = nil
-    for _, cell in self.match_cells do
-        local cell_role = cell.roles[role_id]
-        if cell_role then
-            ret = {
-                role_id = cell_role.role_id,
-                game_session_id = cell_role.game_session_id,
-            }
+    for _, cell in pairs(self.match_cells) do
+        for _, cell_role in pairs(cell.roles) do
+            if cell_role.role_id == role_id then
+                ret = {
+                    role_id = cell_role.role_id,
+                    game_session_id = cell_role.game_session_id,
+                }
+            end
         end
     end
     if ret then
@@ -37,6 +38,7 @@ function Room:get_role(role_id)
             ret.is_bind = false
         end
     end
+    return ret
 end
 
 function Room:foreach_role(fn, ...)
