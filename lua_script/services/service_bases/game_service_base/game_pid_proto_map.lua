@@ -140,6 +140,11 @@ local pid_proto_map =
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="NotifyUnbindRoom"
     },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.notify_terminate_room,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="NotifyTerminateRoom"
+    },
 }
 
 

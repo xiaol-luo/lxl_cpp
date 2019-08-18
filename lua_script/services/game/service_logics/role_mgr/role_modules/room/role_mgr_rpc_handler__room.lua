@@ -21,8 +21,8 @@ function _RpcRoleRoom._on_rpc_notify_terminate_room(role_mgr, rpc_rsp, room_id, 
         return
     end
     role.send_to_client(ProtoId.notify_terminate_room, {
-        session_id = self.session_id,
-        room_id = self.room_id
+        session_id = role.room.room_session_id,
+        room_id = role.room.room_id,
     })
     role.room:reset_room()
     role.room:sync_room_state()
@@ -40,16 +40,16 @@ function _RpcRoleRoom._on_rpc_notify_end_room(role_mgr, rpc_rsp, room_id, role_i
     if role.room.room_id ~= room_id then
         return
     end
-    role.send_to_client(ProtoId.notify_terminate_room, {
-        session_id = self.session_id,
-        room_id = self.room_id
+    role:send_to_client(ProtoId.notify_terminate_room, {
+        session_id = role.room.room_session_id,
+        room_id = role.room.room_id
     })
     role.room:reset_room()
     -- todo: give reward
     role.room:sync_room_state()
 end
 
-function _RpcRoleRoom._on_rpc_notify_fight_start(role_mgr, rpc_rsp, room_id, session_id)
+function _RpcRoleRoom._on_rpc_notify_fight_start(role_mgr, rpc_rsp, room_id, role_id, session_id)
     rpc_rsp:respone()
     local role = role_mgr:get_in_game_role(role_id)
     if not role then
@@ -58,8 +58,10 @@ function _RpcRoleRoom._on_rpc_notify_fight_start(role_mgr, rpc_rsp, room_id, ses
     if role.room.room_session_id ~= session_id then
         return
     end
+    if role.room.room_id ~= room_id then
+        return
+    end
     role.room.is_fight_started = true
     role.room:sync_room_state()
-    -- todo: give reward
 end
 

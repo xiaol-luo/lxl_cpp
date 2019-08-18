@@ -36,7 +36,6 @@ function RoomMgr:get_wait_confirm_join_room(room_id)
 end
 
 function RoomMgr:add_wait_confirm_join_room(match_type, match_cell_list)
-    log_debug("RoomMgr:add_wait_confirm_join_room")
     local room = Room:new(gen_next_seq(), match_type, match_cell_list)
     self._wait_confirm_join_rooms[room.room_id] = room
     room.confirm_join_start_sec = logic_sec()

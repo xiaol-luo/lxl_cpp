@@ -22,7 +22,7 @@ end
 
 function LoginAction:start()
     self.timer_proxy:release_all()
-    local Tick_Span_Ms = 1 * 1000
+    local Tick_Span_Ms = 5 * 1000
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
 
     self.co = ex_coroutine_create(
@@ -300,7 +300,9 @@ function LoginAction:robot_main_logic(co)
 
     repeat
         co_ok, pid, msg = ex_coroutine_yield(co)
-        log_debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! loop -------- pid:%s, msg:%s", pid, msg)
+        if pid == ProtoId.notify_terminate_room then
+            break
+        end
     until false
 
     send_msg(cnn, ProtoId.req_logout_role, {

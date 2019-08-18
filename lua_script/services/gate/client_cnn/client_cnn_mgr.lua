@@ -1,4 +1,4 @@
-Client_Cnn_Tolerate_No_Recv_Sec = 15
+Client_Cnn_Tolerate_No_Recv_Sec = 30
 
 ClientCnnMgr = ClientCnnMgr or class("ClientCnnMgr", ServiceListenModule)
 

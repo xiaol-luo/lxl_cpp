@@ -5,14 +5,27 @@ RoleRoom.Module_Name = "room"
 
 function RoleRoom:ctor(role)
     RoleRoom.super.ctor(self, role, RoleRoom.Module_Name)
-    self.join_match_type = Match_Type.none
     self.state = Role_Room_State.free
-
+    self.join_match_type = Match_Type.none
     self.room_client = nil
     self.room_session_id = nil
     self.room_id = nil
     self._last_check_bind_sec = 0
-    self.fight_service_key = nil
+    self.fight_service_ip = nil
+    self.fight_service_port = nil
+    self.fight_battle_id = nil
+    self.is_fight_started = false
+end
+
+function RoleRoom:reset_room()
+    self.state = Role_Room_State.free
+    self.join_match_type = nil
+    self.room_session_id = nil
+    self.room_id = nil
+    self.room_client = nil
+    self._last_check_bind_sec = 0
+    self.fight_service_ip = nil
+    self.fight_service_port = nil
     self.fight_battle_id = nil
     self.is_fight_started = false
 end
@@ -54,19 +67,6 @@ function RoleRoom:unbind_room(session_id)
         room_id = self.room_id
     })
     self:reset_room()
-end
-
-function RoleRoom:reset_room()
-    self.state = Role_Room_State.free
-    self.room_session_id = nil
-    self.room_id = nil
-    self.join_match_type = nil
-    self.room_client = nil
-    self._last_check_bind_sec = 0
-    self.fight_service_host = nil
-    self.fight_service_ip = nil
-    self.fight_id = nil
-    self.is_fight_started = nil
 end
 
 function RoleRoom:_check_try_bind_room()

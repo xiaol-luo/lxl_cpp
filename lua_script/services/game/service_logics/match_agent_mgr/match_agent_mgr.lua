@@ -28,7 +28,6 @@ function MatchAgentMgr:stop()
 end
 
 function MatchAgentMgr:pick_agent(match_type, role)
-    log_debug("MatchAgentMgr:pick_agent %s", self._match_service_state_map)
     local service_key, _ = random.pick_one(self._match_service_state_map)
     return service_key
 end

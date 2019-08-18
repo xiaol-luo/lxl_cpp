@@ -1,6 +1,6 @@
 
 FightMgr = FightMgr or class("FightMgr", ServiceLogic)
-FightMgr.Fight_Last_Sec = 10
+FightMgr.Fight_Last_Sec = 5
 FightMgr.Check_Fight_Over_Span_Sec = 1
 
 function FightMgr:ctor(logic_mgr, logic_name)
