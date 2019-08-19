@@ -197,6 +197,10 @@ function GameRole:send_to_client(pid, msg)
     return SERVICE_MAIN.net_forward:to_client(self.role_id, pid, msg)
 end
 
+function GameRole:send_to_client_bytes(pid, msg_bytes)
+    return SERVICE_MAIN.net_forward:to_client_bytes(self.role_id, pid, msg_bytes)
+end
+
 
 
 

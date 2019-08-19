@@ -48,6 +48,8 @@ function RoleMgr:_on_rpc_notify_match_succ(rpc_rsp, role_id, session_id, join_ma
             role.match.state = Role_Match_State.finish
             role.match:sync_match_state()
             role.room:bind_room(join_match_type, room_service_key, role.match.match_session_id, room_id)
+            role.match:clear_match_state()
+            role.match:sync_match_state()
         end
     end
 end

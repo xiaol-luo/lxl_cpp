@@ -9,6 +9,7 @@ local files =
         "gate_game.pb",
         "world_game.pb",
         "match.pb",
+        "room.pb",
     },
     [Proto_Const.Sproto] =
     {

@@ -74,13 +74,14 @@ function ZoneServiceRpcMgr:pack_params(...)
     for i=1, tb.len do
         tb.params[tostring(i)] = params[i]
     end
-    local ret = lua_json.encode(tb)
-    -- log_debug("-- ZoneServiceRpcMgr:pack_params ret=%s, tb=%s", ret, tb)
+    local ret, error_msg = msgpack.encode_one(tb)
+    assert(nil ~= ret, string.format("ZoneServiceRpcMgr:unpack_params fail error_msg:%s", error_msg))
     return ret
 end
 
 function ZoneServiceRpcMgr:unpack_params(param_block)
-    local tb = lua_json.decode(param_block or "{}") or {}
+    local tb, error_msg = msgpack.decode_one(param_block or "{}")
+    assert(nil ~= tb, string.format("ZoneServiceRpcMgr:unpack_params fail error_msg:%s", error_msg))
     tb.len = tb.len or 0
     tb.params = tb.params or {}
     local params = {}

@@ -5,6 +5,7 @@ function RoomMgr:_init_process_rpc_handler()
     self.service.rpc_mgr:set_req_msg_process_fn(RoomRpcFn.bind_room, Functional.make_closure(self._on_rpc_bind_room, self))
     self.service.rpc_mgr:set_req_msg_process_fn(RoomRpcFn.unbind_room, Functional.make_closure(self._on_rpc_unbind_room, self))
     self.service.rpc_mgr:set_req_msg_process_fn(RoomRpcFn.notify_fight_battle_over, Functional.make_closure(self._on_rpc_notify_fight_battle_over, self))
+    self.service.rpc_mgr:set_req_msg_process_fn(RoomRpcFn.pull_room_state, Functional.make_closure(self._on_rpc_pull_room_state, self))
 end
 
 function RoomMgr:_on_rpc_apply_room(rpc_rsp, match_type, match_cells)
@@ -121,4 +122,17 @@ function RoomMgr:_on_rpc_notify_fight_battle_over(rpc_rsp, room_id, fight_battle
             role.game_client:call(nil, GameRpcFn.notify_end_room, room.room_id, role.role_id, role.game_session_id)
         end
     end)
+end
+
+function RoomMgr:_on_rpc_pull_room_state(rpc_rsp, room_id)
+    local room = self._id_to_room[room_id]
+    if not room then
+        rpc_rsp:respone(Error.Pull_Remote_Room_State.not_found_remote_room)
+        return
+    end
+    rpc_rsp:respone(Error_None, ProtoId.sync_remote_room_state, {
+        room_id = room.room_id,
+        state = room.state,
+        match_type = room.match_type,
+    })
 end

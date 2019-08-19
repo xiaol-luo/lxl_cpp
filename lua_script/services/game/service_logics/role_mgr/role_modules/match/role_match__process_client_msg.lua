@@ -3,6 +3,7 @@
 function RoleMatch:init_process_client_msg()
     self.role:set_client_msg_process_fn(ProtoId.req_join_match, Functional.make_closure(self._on_msg_req_join_match, self))
     self.role:set_client_msg_process_fn(ProtoId.req_quit_match, Functional.make_closure(self._on_msg_req_quit_match, self))
+    self.role:set_client_msg_process_fn(ProtoId.pull_match_state, Functional.make_closure(self._on_msg_pull_match_state, self))
 end
 
 function RoleMatch:_on_msg_req_join_match(pid, msg)
@@ -103,6 +104,10 @@ function RoleMatch:_on_rpc_cb_quit_match(rpc_error_num, error_num, session_id)
         self:clear_match_state()
     end
     self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = error_num })
+    self:sync_match_state()
+end
+
+function RoleMatch:_on_msg_pull_match_state(pid, msg)
     self:sync_match_state()
 end
 

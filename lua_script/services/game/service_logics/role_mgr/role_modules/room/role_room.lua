@@ -10,7 +10,6 @@ function RoleRoom:ctor(role)
     self.room_client = nil
     self.room_session_id = nil
     self.room_id = nil
-    self._last_check_bind_sec = 0
     self.fight_service_ip = nil
     self.fight_service_port = nil
     self.fight_battle_id = nil
@@ -23,7 +22,6 @@ function RoleRoom:reset_room()
     self.room_session_id = nil
     self.room_id = nil
     self.room_client = nil
-    self._last_check_bind_sec = 0
     self.fight_service_ip = nil
     self.fight_service_port = nil
     self.fight_battle_id = nil
@@ -51,7 +49,6 @@ function RoleRoom:bind_room(join_match_type, room_service_key, session_id, room_
     self.room_session_id = session_id
     self.room_id = room_id
     self.room_client = SERVICE_MAIN:create_rpc_client(room_service_key)
-    self._last_check_bind_sec = 0
     self:_check_try_bind_room()
 end
 
@@ -70,20 +67,14 @@ function RoleRoom:unbind_room(session_id)
 end
 
 function RoleRoom:_check_try_bind_room()
-    if Role_Room_State.try_enter_room ~= self.state then
-        return
+    if Role_Room_State.try_enter_room == self.state then
+        self.room_client:call(Functional.make_closure(self._on_rpc_cb_bind_room, self),
+                RoomRpcFn.bind_room, self.room_id, self.role.role_id, self.room_session_id)
     end
-    local now_sec = logic_sec()
-    if now_sec - self._last_check_bind_sec < Role_Room_Try_Bind_Span_Sec then
-        return
-    end
-    self.room_client:call(Functional.make_closure(self._on_rpc_cb_bind_room, self),
-            RoomRpcFn.bind_room, self.room_id, self.role.role_id, self.room_session_id)
 end
 
 function RoleRoom:_on_rpc_cb_bind_room(rpc_error_num, error_num, session_id, fight_service_ip, fight_service_port, fight_battle_id, is_fight_started)
     if Error_None ~= rpc_error_num then
-        -- self:unbind_room(self.room_session_id)
         if Error_Rpc_Expired == rpc_error_num then
             self:_check_try_bind_room()
         else

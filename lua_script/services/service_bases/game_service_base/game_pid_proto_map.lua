@@ -111,21 +111,6 @@ local pid_proto_map =
         [Proto_Const.Proto_Name]="RspQuitMatch"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.notify_confirm_match,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="NotifyConfirmMatch"
-    },
-    {
-        [Proto_Const.Proto_Id]=ProtoId.req_confirm_match,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqConfirmMatch"
-    },
-    {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_confirm_match,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspConfirmMatch"
-    },
-    {
         [Proto_Const.Proto_Id]=ProtoId.sync_room_state,
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="SyncRoomState"
@@ -144,6 +129,11 @@ local pid_proto_map =
         [Proto_Const.Proto_Id]=ProtoId.notify_terminate_room,
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="NotifyTerminateRoom"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.sync_remote_room_state,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="SyncRemoteRoomState"
     },
 }
 

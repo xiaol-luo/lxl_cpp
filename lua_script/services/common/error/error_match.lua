@@ -20,12 +20,3 @@ Error.Quit_Match = {
     need_try_again = 6,
 }
 
-Error.Bind_Room = {
-    no_exist_room = 1,
-    no_exist_role = 2,
-    session_id_not_equal = 3,
-}
-
-Error.Start_Fight = {
-    no_fight_battle = 1,
-}

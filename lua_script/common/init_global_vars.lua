@@ -25,3 +25,5 @@ gen_next_seq = make_sequence()
 -- https://github.com/rxi/json.lua
 -- A lightweight JSON library for Lua
 lua_json = require("libs.json")
+
+msgpack = require("libs.msgpack")

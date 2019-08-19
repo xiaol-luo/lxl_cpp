@@ -32,13 +32,15 @@ ProtoId = {
     sync_match_state = 20016,
     req_quit_match = 20017,
     rsp_quit_match = 20018,
-    notify_confirm_match = 20019,
-    req_confirm_match = 20020,
-    rsp_confirm_match = 20021,
+
     pull_room_state = 20022,
     sync_room_state = 20023,
-
     notify_bind_room = 20024,
     notify_unbind_room = 20025,
     notify_terminate_room = 20026,
+
+    room_service_min_pid = 30000,
+    pull_remote_room_state = 30001,
+    sync_remote_room_state = 30002,
+    room_service_max_pid = 39999,
 }

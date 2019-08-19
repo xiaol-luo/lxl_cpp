@@ -80,6 +80,7 @@ local files = {
     "services.common.error.error_def",
     "services.common.error.error_login_process",
     "services.common.error.error_match",
+    "services.common.error.error_room",
     "services.common.reason.reason_define",
     "services.common.match.match_define",
     "services.common.match.match_reason_define",
