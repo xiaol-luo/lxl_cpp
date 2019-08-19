@@ -22,7 +22,7 @@ end
 
 function LoginAction:start()
     self.timer_proxy:release_all()
-    local Tick_Span_Ms = 1 * 1000
+    local Tick_Span_Ms = 5 * 1000
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
 
     self.co = ex_coroutine_create(
@@ -97,9 +97,6 @@ function LoginAction:_on_close_cnn(cnn, error_code)
 end
 
 function LoginAction:robot_over_logic(co)
-    if true then
-        return
-    end
     log_debug("LoginAction:robot_over_logic reach")
     self.co = nil
     if self.cnn then
