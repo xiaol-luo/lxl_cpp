@@ -347,7 +347,6 @@ function RoleMgr:logout_role(rpc_rsp, session_id, role_id)
 end
 
 function RoleMgr:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
-    log_debug("RoleMgr:reconnect_role 1 auth_token:%s", auth_token)
     local error_num = Error_None
     local session_id = -1
     repeat
@@ -356,7 +355,6 @@ function RoleMgr:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
             error_num = Error.Reconnect_Game.world_no_role
             break
         end
-        log_debug("RoleMgr:reconnect_role 2 role_token:%s", role.auth_token)
         if role.auth_token ~= auth_token then
             error_num = Error.Reconnect_Game.token_not_fit
             break
@@ -379,6 +377,10 @@ function RoleMgr:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
         role.game_client:call(Functional.make_closure(self._reconnect_role_game_change_client_cb, self, rpc_rsp, role.session_id, role),
                 GameRpcFn.client_change, role_id, false, role.gate_client.remote_host, role.gate_client_netid)
     until true
+    if Error_None ~= error_num then
+        rpc_rsp:respone(error_num)
+        log_debug("RoleMgr:reconnect_role role_id:%s, role_token:%s, raise error:%s", role_id, auth_token, error_num)
+    end
 end
 
 function RoleMgr:_reconnect_role_game_change_client_cb(rpc_rsp, record_session_id, role, rpc_error_num, error_num)

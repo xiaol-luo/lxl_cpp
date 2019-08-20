@@ -1,8 +1,11 @@
 
 function send_msg(cnn, pid, tb)
-    local is_ok, block = PROTO_PARSER:encode(pid, tb)
-    if not is_ok then
-        return false
+    local is_ok, block = true, nil
+    if PROTO_PARSER:exist(pid) then
+        is_ok, block = PROTO_PARSER:encode(pid, tb)
+        if not is_ok then
+            return false
+        end
     end
     return cnn:send(pid, block)
 end
@@ -299,6 +302,16 @@ function LoginAction:robot_main_logic(co)
         co_ok, pid, msg = ex_coroutine_yield(co)
         if pid == ProtoId.notify_terminate_room then
             break
+        end
+        if pid == ProtoId.sync_room_state then
+            if msg.state == 3 then
+                send_msg(cnn, ProtoId.req_client_forward_game, {
+                    proto_id = ProtoId.pull_remote_room_state,
+                    proto_bytes = nil,
+                })
+                co_ok, pid, msg = ex_coroutine_yield(co)
+                log_debug("in loop for match ! %s %s", pid, msg)
+            end
         end
     until false
 

@@ -14,6 +14,7 @@ function RoleRoom:_on_msg_pull_remote_room_state(pid, msg)
         self.role:send_to_client(ProtoId.sync_remote_room_state, {
             head = { error_num = Error.Pull_Remote_Room_State.game_role_not_in_room, }
         })
+        return
     end
     self.room_client:call(function(rpc_error_num, error_num, pid, msg)
         if Error_None == rpc_error_num and Error_None == error_num then

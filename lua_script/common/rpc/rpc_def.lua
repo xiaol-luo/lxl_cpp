@@ -18,6 +18,6 @@ Rpc_Error =
 {
     None = 0,
     Unknown = -301,
-    Wait_Expired = -301,
-    Remote_Host_Error = -302,
+    Wait_Expired = -302,
+    Remote_Host_Error = -303,
 }
