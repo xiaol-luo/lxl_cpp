@@ -9,6 +9,7 @@ ADD_SUBDIRECTORY(data_struct)
 ADD_SUBDIRECTORY(http_parser)
 ADD_SUBDIRECTORY(crossguid)
 ADD_SUBDIRECTORY(coro)
+ADD_SUBDIRECTORY(cpp_redis)
 #ADD_SUBDIRECTORY(curl)
 
 
