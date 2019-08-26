@@ -20,7 +20,7 @@ function _RpcRoleRoom._on_rpc_notify_terminate_room(role_mgr, rpc_rsp, room_id, 
     if role.room.room_id ~= room_id then
         return
     end
-    role.send_to_client(ProtoId.notify_terminate_room, {
+    role:send_to_client(ProtoId.notify_terminate_room, {
         session_id = role.room.room_session_id,
         room_id = role.room.room_id,
     })
