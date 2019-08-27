@@ -20,6 +20,7 @@ function ZoneServiceRpcMgr:destory()
     ZoneServiceRpcMgr.super.destory(self)
     if self.msg_handler then
         self.msg_handler:set_handler_msg_fn(System_Pid.Zone_Service_Rpc_Rsp, nil)
+        self.msg_handler:set_handler_msg_fn(System_Pid.Zone_Service_Rpc_Req, nil)
     end
 end
 

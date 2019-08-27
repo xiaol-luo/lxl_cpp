@@ -18,6 +18,7 @@ LINK_LIBRARIES(http_parser)
 LINK_LIBRARIES(crossguid)
 LINK_LIBRARIES(coro)
 LINK_LIBRARIES(cpp_redis)
+LINK_LIBRARIES(hiredis)
 
 IF (WIN32)
 	LINK_LIBRARIES(mongocxx-static)

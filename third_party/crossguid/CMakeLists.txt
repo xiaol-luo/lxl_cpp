@@ -3,7 +3,7 @@ project(CrossGuid)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-message(status "xxxxxxxxxxxxxxxxxxxxxxx ${PROJECT_SOURCE_DIR}/cmake")
+# message(status "xxxxxxxxxxxxxxxxxxxxxxx ${PROJECT_SOURCE_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
