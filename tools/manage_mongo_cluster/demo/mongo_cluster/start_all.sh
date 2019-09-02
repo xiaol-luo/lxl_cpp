@@ -25,7 +25,11 @@ do
         node_id=`expr ${rs_from} + ${i}`
         mkdir -p "${run_dir}/db_${node_id}"
         cfg_file="${root_dir}/${rs_name}_${node_id}.conf"
-        mongod -f ${cfg_file}
+		if [ ${is_init} = true ]; then
+			mongod -f ${cfg_file}
+		else
+			mongod  --keyFile /shared/mongo_cluster/mongodb-keyfile -f ${cfg_file}
+		fi
     done
 done
 
@@ -36,7 +40,17 @@ if [ ${is_init} = true ];then
 	mongo -port 9300 -eval 'rs.initiate({ _id:"rs_3", members:[ {_id:0, host:"127.0.0.1:9300"}, {_id:1, host:"127.0.0.1:9301"}, {_id:2, host:"127.0.0.1:9302"} ] }); rs.slaveOk()'
 fi
 
-mongos -f "mongos_${mongos_from}.conf"
+echo "setup mongs begin"
+mongodb_keyfile=/shared/mongo_cluster/mongodb-keyfile
+if [ ${is_init} = true ]; then
+	rm -f ${mongodb_keyfile}
+	openssl rand -base64 741 > ${mongodb_keyfile}
+	chmod 400 ${mongodb_keyfile}
+	mongos -f "mongos_${mongos_from}.conf"
+else
+	mongos --keyFile ${mongodb_keyfile} -f "mongos_${mongos_from}.conf"
+fi
+echo "setup mongs end"
 
 if [ ${is_init} = true ];then
 	mongo -port 9400 -eval 'sh.addShard("rs_1/127.0.0.1:9100,127.0.0.1:9101,127.0.0.1:9102")'
@@ -44,9 +58,18 @@ if [ ${is_init} = true ];then
 	mongo -port 9400 -eval 'sh.addShard("rs_3/127.0.0.1:9300,127.0.0.1:9301,127.0.0.1:9302")'
 	#make collection shard
 	mongo -port 9400 admin -eval 'db.runCommand({"enablesharding":"testsh"}); db.runCommand({"shardcollection":"testsh.role","key":{_id:"hashed"}})'
-fi
+	# create users
+	mongo -port 9400 admin -eval 'db.createUser({ "user":"root", "pwd":"xiaolzz", "roles":["root"] })'
+	mongo -port 9400 admin -eval 'db.createUser({ "user":"admin", "pwd":"xiaolzz", "roles":[ { role: "userAdminAnyDatabase", db: "admin" } ] })'
+	mongo -port 9400 admin -eval 'db.createUser({ "user":"lxl", "pwd":"xiaolzz", "roles":[ { role: "readWrite", db: "testsh" } ] })'
 
-sh ps.sh
+	sleep 5
+	sh start_all.sh
+else
+	echo "execute cmd on database testsh db.role.count({}), retsult is:"
+	mongo -port 9400 -u lxl -p xiaolzz --authenticationDatabase admin testsh --eval 'db.role.count({})'
+	sh ps.sh
+fi
 
 cd ${pre_dir}
 
