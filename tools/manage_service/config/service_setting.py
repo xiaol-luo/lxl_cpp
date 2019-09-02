@@ -31,7 +31,7 @@ game_service_count = 2
 match_service_count = 2
 fight_service_count = 2
 room_service_count = 2
-robot_service_count = 0
+robot_service_count = 2
 
 access_ip = "127.0.0.1"
 

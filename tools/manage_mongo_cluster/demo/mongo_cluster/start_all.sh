@@ -4,7 +4,7 @@ source /shared/mongo_cluster/config.sh
 
 typeset -l low_case_str
 is_init=false
-if [ $# > 1 ];then
+if [ $# -ge 1 ];then
 	low_case_str=$1
 	if [ ${low_case_str} = "init" ];then
 		is_init=true
