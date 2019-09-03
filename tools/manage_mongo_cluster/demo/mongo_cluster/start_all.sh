@@ -57,7 +57,16 @@ if [ ${is_init} = true ];then
 	mongo -port 9400 -eval 'sh.addShard("rs_2/127.0.0.1:9200,127.0.0.1:9201,127.0.0.1:9202")'
 	mongo -port 9400 -eval 'sh.addShard("rs_3/127.0.0.1:9300,127.0.0.1:9301,127.0.0.1:9302")'
 	#make collection shard
-	mongo -port 9400 admin -eval 'db.runCommand({"enablesharding":"testsh"}); db.runCommand({"shardcollection":"testsh.role","key":{_id:"hashed"}})'
+	# mongo -port 9400 admin -eval 'db.runCommand({"enablesharding":"testsh"}); db.runCommand({"shardcollection":"testsh.role","key":{_id:"hashed"}})'
+	mongo -port 9400 admin -eval 'db.runCommand({enablesharding:"game_zone_0"}); db.runCommand({shardcollection:"game_zone_0.role",key:{role_id:1}, unique:true})'
+	mongo -port 9400 admin -eval 'db.runCommand({enablesharding:"login_zone_0"}); db.runCommand({"shardcollection":"login_zone_0.account",key:{account_id:1}, unique:true})'
+	mongo -port 9400 admin -eval 'db.runCommand({enablesharding:"platform_account"})'
+	mongo -port 9400 admin -eval 'db.runCommand({shardcollection:"platform_account.account",key:{username:1}, unique:true})'
+	mongo -port 9400 admin -eval 'db.runCommand({shardcollection:"platform_account.token",key:{token:1}, unique:true})'
+	
+	#创建索引
+	# mongo -port 9400 game_zone_0 -eval 'db.role.ensureIndex({user_id:1}, {unique:true}); db.role.getIndexes()'
+
 	# create users
 	mongo -port 9400 admin -eval 'db.createUser({ "user":"root", "pwd":"xiaolzz", "roles":["root"] })'
 	mongo -port 9400 admin -eval 'db.createUser({ "user":"admin", "pwd":"xiaolzz", "roles":[ { role: "userAdminAnyDatabase", db: "admin" } ] })'
