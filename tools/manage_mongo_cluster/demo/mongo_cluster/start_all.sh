@@ -61,7 +61,8 @@ if [ ${is_init} = true ];then
 	# create users
 	mongo -port 9400 admin -eval 'db.createUser({ "user":"root", "pwd":"xiaolzz", "roles":["root"] })'
 	mongo -port 9400 admin -eval 'db.createUser({ "user":"admin", "pwd":"xiaolzz", "roles":[ { role: "userAdminAnyDatabase", db: "admin" } ] })'
-	mongo -port 9400 admin -eval 'db.createUser({ "user":"lxl", "pwd":"xiaolzz", "roles":[ { role: "readWrite", db: "testsh" } ] })'
+	# mongo -port 9400 admin -eval 'db.createUser({ "user":"lxl", "pwd":"xiaolzz", "roles":[ { role: "readWrite", db: "testsh" } ] })'
+	mongo -port 9400 admin -eval 'db.createUser({ "user":"lxl", "pwd":"xiaolzz", "roles":[ { role: "readWriteAnyDatabase", db: "admin" } ] })'
 
 	sleep 5
 	sh start_all.sh
