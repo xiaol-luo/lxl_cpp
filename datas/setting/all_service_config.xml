@@ -24,7 +24,7 @@
 		<element>
 			<name>for_test</name>
 			<!-- <host>119.28.224.75:27017</host> -->
-			<host>127.0.0.1:27017</host>
+			<host>127.0.0.1:9400</host>
 			<auth_db>admin</auth_db>
 			<user>lxl</user>
 			<pwd>xiaolzz</pwd>
@@ -32,7 +32,7 @@
 		<element>
 			<name>for_uuid</name>
 			<!-- <host>119.28.224.75:27017</host> -->
-			<host>127.0.0.1:27017</host>
+			<host>127.0.0.1:9400</host>
 			<auth_db>admin</auth_db>
 			<user>lxl</user>
 			<pwd>xiaolzz</pwd>
@@ -46,10 +46,10 @@
 		<element>
 			<name>zone_0</name>
 			<!-- <host>http://119.28.224.75:2379</host>-->
-			<host>http://127.0.0.1:2379</host>
+			<host>http://127.0.0.1:8100</host>
 			<user>root</user>
 			<pwd>xiaolzz</pwd>
-			<ttl>10</ttl>
+			<ttl>30</ttl>
 		</element>
 	</etcd_service>
 
