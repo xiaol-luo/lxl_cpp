@@ -180,7 +180,7 @@ def create_zone(parse_ret):
         config.Service_Type.robot: ServiceHelper("robot", parse_ret, setting),
         config.Service_Type.match: ServiceHelper("match", parse_ret, setting),
         config.Service_Type.fight: ServiceHelper("fight", parse_ret, setting),
-        config.Service_Type.fight: ServiceHelper("room", parse_ret, setting),
+        config.Service_Type.room: ServiceHelper("room", parse_ret, setting),
     }
     service_Infos = []
     for service_type, service_data in service_helps.items():
