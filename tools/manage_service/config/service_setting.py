@@ -2,14 +2,14 @@ from .common import *
 import copy
 
 mongo_service = {
-    "host": "127.0.0.1:27017",
+    "host": "127.0.0.1:9400",
     "auth_db": "admin",
     "user": "lxl",
     "pwd": "xiaolzz",
 }
 
 etcd_service = {
-    "host": "http://127.0.0.1:2379",
+    "host": "http://127.0.0.1:8100",
     "user": "root",
     "pwd": "xiaolzz",
     "ttl": 10,
@@ -35,7 +35,7 @@ robot_service_count = 2
 
 access_ip = "127.0.0.1"
 
-All_Begin_Port = 40000
+All_Begin_Port = 30000
 Zone_Port_Span = 1000
 Service_Port_Span = 50
 
