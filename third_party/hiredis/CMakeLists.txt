@@ -17,7 +17,7 @@ getVersionBit(HIREDIS_MINOR)
 getVersionBit(HIREDIS_PATCH)
 getVersionBit(HIREDIS_SONAME)
 SET(VERSION "${HIREDIS_MAJOR}.${HIREDIS_MINOR}.${HIREDIS_PATCH}")
-MESSAGE("Detected version: ${VERSION}")
+# MESSAGE("Detected version: ${VERSION}")
 
 PROJECT(hiredis VERSION "${VERSION}")
 
@@ -34,6 +34,7 @@ SET(all_files
     sslio.c)
 
 IF (WIN32)
+    ADD_COMPILE_OPTIONS(/wd4244 /wd4146 /wd4267 /wd4996)
     MakeLib(hiredis "${all_files}" false)
 ELSE()
     MakeLib(hiredis "${all_files}" true)
@@ -72,4 +73,3 @@ IF(HIREDIS_SSL)
     TARGET_INCLUDE_DIRECTORIES(hiredis PRIVATE "${OPENSSL_INCLUDE_DIR}")
     TARGET_LINK_LIBRARIES(hiredis PRIVATE ${OPENSSL_LIBRARIES})
 ENDIF()
-

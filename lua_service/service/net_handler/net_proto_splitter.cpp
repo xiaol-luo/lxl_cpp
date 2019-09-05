@@ -34,7 +34,7 @@ bool NetContentSplitter::ParseNext()
 	if (m_is_fail)
 		return false;
 
-	int buff_size = m_buff->Size();
+	uint32_t buff_size = m_buff->Size();
 	if (buff_size < LEN_BYTES)
 		return false;
 	char *p = m_buff->HeadPtr();

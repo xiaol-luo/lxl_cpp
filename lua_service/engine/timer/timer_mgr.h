@@ -30,7 +30,7 @@ private:
 		TimerCallback cb_fn = nullptr;
 	};
 
-	uint64_t m_now_ms;
+	int64_t m_now_ms;
 
 	srv_rbtree_node_t *m_rbtree_sentinel_node = nullptr;
 	srv_rbtree_t *m_rbtree_timer_items = nullptr;

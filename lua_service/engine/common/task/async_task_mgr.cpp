@@ -20,7 +20,7 @@ bool AsyncTaskMgr::Start(int thread_num)
 		m_is_running = true;
 		m_thread_num = thread_num;
 		m_thread_envs = new ThreadEnv[thread_num];
-		for (int i = 0; i < m_thread_num; ++i)
+		for (uint32_t i = 0; i < m_thread_num; ++i)
 		{
 			ThreadEnv &td = m_thread_envs[i];
 			td.is_exit = false;
@@ -46,13 +46,13 @@ void AsyncTaskMgr::Stop()
 			m_tasks.pop();
 		}
 		m_tasks_mtx.unlock();
-		for (int i = 0; i < m_thread_num; ++i)
+		for (uint32_t i = 0; i < m_thread_num; ++i)
 		{
 			ThreadEnv &td = m_thread_envs[i];
 			td.is_exit = true;
 			m_tasks_cv.notify_all();
 		}
-		for (int i = 0; i < m_thread_num; ++i)
+		for (uint32_t i = 0; i < m_thread_num; ++i)
 		{
 			m_tasks_cv.notify_all();
 			ThreadEnv &td = m_thread_envs[i];

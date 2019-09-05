@@ -46,7 +46,7 @@ bool MongoTaskMgr::Start(int thread_num, const std::string &hosts, const std::st
 		m_last_id = 0;
 		m_thread_num = thread_num;
 		m_thread_envs = new ThreadEnv[thread_num];
-		for (int i = 0; i < m_thread_num; ++i)
+		for (uint32_t i = 0; i < m_thread_num; ++i)
 		{
 			ThreadEnv &td = m_thread_envs[i];
 			td.is_exit = false;
@@ -63,12 +63,12 @@ void MongoTaskMgr::Stop()
 	if (m_is_running)
 	{
 		m_is_running = false;
-		for (int i = 0; i < m_thread_num; ++i)
+		for (uint32_t i = 0; i < m_thread_num; ++i)
 		{
 			ThreadEnv &td = m_thread_envs[i];
 			td.is_exit = true;
 		}
-		for (int i = 0; i < m_thread_num; ++i)
+		for (uint32_t i = 0; i < m_thread_num; ++i)
 		{
 			ThreadEnv &td = m_thread_envs[i];
 			td.cv.notify_one();

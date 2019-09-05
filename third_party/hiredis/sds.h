@@ -98,7 +98,7 @@ static inline size_t sdslen(const sds s) {
         case SDS_TYPE_32:
             return SDS_HDR(32,s)->len;
         case SDS_TYPE_64:
-            return SDS_HDR(64,s)->len;
+            return (size_t)SDS_HDR(64,s)->len;
     }
     return 0;
 }
@@ -123,7 +123,7 @@ static inline size_t sdsavail(const sds s) {
         }
         case SDS_TYPE_64: {
             SDS_HDR_VAR(64,s);
-            return sh->alloc - sh->len;
+            return (size_t)(sh->alloc - sh->len);
         }
     }
     return 0;
@@ -191,7 +191,7 @@ static inline size_t sdsalloc(const sds s) {
         case SDS_TYPE_32:
             return SDS_HDR(32,s)->alloc;
         case SDS_TYPE_64:
-            return SDS_HDR(64,s)->alloc;
+            return (size_t)SDS_HDR(64,s)->alloc;
     }
     return 0;
 }
