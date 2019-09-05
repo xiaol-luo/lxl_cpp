@@ -18,7 +18,6 @@ LINK_LIBRARIES(data_struct)
 LINK_LIBRARIES(http_parser)
 LINK_LIBRARIES(crossguid)
 LINK_LIBRARIES(coro)
-LINK_LIBRARIES(cpp_redis)
 LINK_LIBRARIES(hiredis)
 LINK_LIBRARIES(r3c)
 
