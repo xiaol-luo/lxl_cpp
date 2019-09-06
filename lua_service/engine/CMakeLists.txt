@@ -20,6 +20,7 @@ LINK_LIBRARIES(crossguid)
 LINK_LIBRARIES(coro)
 LINK_LIBRARIES(hiredis)
 LINK_LIBRARIES(r3c)
+LINK_LIBRARIES(hiredis_vip)
 
 IF (WIN32)
 	LINK_LIBRARIES(mongocxx-static)

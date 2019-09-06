@@ -25,6 +25,9 @@ extern "C"
 #include "service_impl/pure_lua_service/pure_lua_service.h"
 #include "service_impl/sidecar_service/sidecar_service.h"
 
+#include "r3c.h"
+#include "hiredis_vip/hircluster.h"
+
 void QuitGame(int signal)
 {
 	try_quit_game();
@@ -32,10 +35,26 @@ void QuitGame(int signal)
 
 int main (int argc, char **argv) 
 {
+	srand((unsigned int)time(NULL));
+
 #ifdef WIN32
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
 #endif
+
+	{
+		// r3c::CRedisClient rc("127.0.0.1:7000,127.0.0.1:7001,127.0.0.1:7002,127.0.0.1:7003,127.0.0.1:7004,127.0.0.1:7005");
+		r3c::CRedisClient rc("127.0.0.1:7000,127.0.0.1:7000");
+		bool is_cluster = rc.cluster_mode();
+		rc.set("foo", "hello"); 
+		std::string xx;
+		rc.get("foo", &xx);
+		printf("redis foo is %s\n", xx.c_str());
+	}
+
+	{
+		auto xxx = redisClusterConnect("127.0.0.1:7000", REDIS_BLOCK);
+	}
 
 	// argv: exe_name work_dir lua_file lua_file_params...
 	if (argc <= Args_Index_Min_Value)
