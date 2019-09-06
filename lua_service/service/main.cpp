@@ -44,6 +44,7 @@ int main (int argc, char **argv)
 	WSAStartup(0x0201, &wsa_data);
 #endif
 
+	if (false)
 	{
 		redisClusterContext *rcc = redisClusterConnect("127.0.0.1:7000", REDIS_BLOCK);
 		redisReply *reply = (redisReply *)redisClusterCommand(rcc, "set foo 100");
@@ -63,6 +64,7 @@ int main (int argc, char **argv)
 		redisClusterFree(rcc);
 	}
 
+	if (false)
 	{
 		RedisTaskMgr mgr;
 		if (mgr.Start(true, "127.0.0.1:7000", "", "", 1, 2000, 9000))
