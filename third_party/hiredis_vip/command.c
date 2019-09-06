@@ -4,6 +4,7 @@
 #include "command.h"
 #include "hiutil.h"
 #include "hiarray.h"
+#include <stdlib.h>
 
 
 static uint64_t cmd_id = 0;          /* command id counter */
