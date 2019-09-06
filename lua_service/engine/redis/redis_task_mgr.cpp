@@ -1,5 +1,285 @@
 #include "redis_task_mgr.h"
+#include <assert.h>
+#include "hiredis_vip/define.h"
 
-RedisTaskMgr::RedisTaskMgr() :redis_client("", "")
+RedisTaskMgr::RedisTaskMgr()
 {
+}
+
+RedisTaskMgr::~RedisTaskMgr()
+{
+	this->Stop();
+}
+
+bool RedisTaskMgr::Start(bool is_cluster, const std::string & hosts, const std::string usr, const std::string & pwd,
+	uint32_t thread_num, uint32_t connect_timeout_ms, uint32_t cmd_timeout_ms)
+{
+	if (m_is_running)
+		return false;
+
+	m_is_cluster = is_cluster;
+	m_hosts = hosts; 
+	assert(m_hosts.size() > 0);
+	m_usr = usr;
+	m_pwd = pwd;
+	m_thread_num = thread_num;
+	assert(m_thread_num > 0);
+	m_connect_timeout_ms = connect_timeout_ms;
+	m_cmd_timeout_ms = cmd_timeout_ms;
+
+	bool all_ok = true;
+	m_thread_envs = new ThreadEnv[m_thread_num];
+	for (uint32_t i = 0; i < m_thread_num; ++i)
+	{
+		ThreadEnv &td = m_thread_envs[i];
+		td.is_exit = false;
+		td.owner = this;
+		if (!td.SetupCtx())
+		{
+			all_ok = false;
+			break;
+		}
+	}
+	if (!all_ok)
+	{
+		this->Stop();
+	}
+	else
+	{
+		for (uint32_t i = 0; i < m_thread_num; ++i)
+		{
+			ThreadEnv &td = m_thread_envs[i];
+			td.thread_fd = std::thread(ThreadLoop, &td);
+		}
+	}
+	if (all_ok)
+	{
+		m_is_running = true;
+	}
+	return all_ok;
+}
+
+void RedisTaskMgr::Stop()
+{
+	if (m_is_running)
+	{
+		m_is_running = false;
+		for (uint32_t i = 0; i < m_thread_num; ++i)
+		{
+			ThreadEnv &td = m_thread_envs[i];
+			td.is_exit = true;
+		}
+		for (uint32_t i = 0; i < m_thread_num; ++i)
+		{
+			ThreadEnv &td = m_thread_envs[i];
+			td.cv.notify_one();
+			td.thread_fd.join();
+		}
+		m_thread_num = 0;
+		delete[] m_thread_envs; m_thread_envs = nullptr;
+
+		while (!m_done_tasks.empty())
+		{
+			delete m_done_tasks.front();
+			m_done_tasks.pop();
+		}
+	}
+}
+
+void RedisTaskMgr::OnFrame()
+{
+	m_done_tasks_mtx.lock();
+	std::queue<RedisTask *> tmp_done_task; tmp_done_task.swap(m_done_tasks);
+	m_done_tasks_mtx.unlock();
+	while (!tmp_done_task.empty())
+	{
+		RedisTask *task = tmp_done_task.front();
+		tmp_done_task.pop();
+
+		if (task->cb)
+		{
+			task->cb(task);
+		}
+		delete task; task = nullptr;
+	}
+}
+
+uint64_t RedisTaskMgr::ExecuteCmd(uint32_t hash_code, std::string cmd, RedisTaskCallback cb)
+{
+	if (cmd.size() <= 0)
+		return 0;
+	
+	uint64_t task_id = this->NextId();
+	RedisTask *task = new RedisTask();
+	task->task_id = task_id;
+	task->cmd = cmd;
+	task->cb = cb;
+	this->AddTaskToThread(hash_code, task);
+	return task_id;
+}
+
+bool RedisTaskMgr::AddTaskToThread(uint32_t hash_code, RedisTask * task)
+{
+	if (!m_is_running || m_thread_num <= 0)
+		return false;
+
+	uint32_t worker_id = hash_code % m_thread_num;
+	ThreadEnv &worker = m_thread_envs[worker_id];
+	worker.mtx.lock();
+	worker.tasks.push(task);
+	worker.mtx.unlock();
+	worker.cv.notify_one();
+	return true;
+}
+
+uint64_t RedisTaskMgr::NextId()
+{
+	++ m_last_id;
+	return m_last_id;
+}
+
+void RedisTaskMgr::ThreadLoop(ThreadEnv * env)
+{
+	RedisTaskMgr *self = env->owner;
+	bool is_cluster = self->m_is_cluster;
+	bool is_ctx_error = true;
+
+	while (!env->is_exit)
+	{
+		while (!env->is_exit && !env->tasks.empty())
+		{
+			if (is_ctx_error)
+			{
+				if (!env->SetupCtx())
+				{
+					continue;
+				}
+				is_ctx_error = false;
+			}
+
+			if (!env->mtx.try_lock())
+			{
+				std::this_thread::yield();
+				continue;
+			}
+
+			RedisTask *task = nullptr;
+			if (!env->tasks.empty())
+			{
+				task = env->tasks.front();
+				env->tasks.pop();
+			}
+			env->mtx.unlock();
+			if (nullptr == task)
+				break;
+
+			if (is_cluster)
+			{
+				redisReply *reply = (redisReply *)redisClusterCommand(env->redis_cluster_ctx, task->cmd.c_str());
+				task->reply = reply;
+				if (nullptr == reply || 0 != env->redis_cluster_ctx->err) // ??
+				{
+					is_ctx_error = true;
+				}
+			}
+			else
+			{
+				redisReply *reply = (redisReply *)redisCommand(env->redis_ctx, task->cmd.c_str());
+				task->reply = reply;
+				if (nullptr == reply || 0 == env->redis_ctx->err)
+				{
+					is_ctx_error = true;
+				}
+			}
+
+			self->m_done_tasks_mtx.lock();
+			self->m_done_tasks.push(task);
+			self->m_done_tasks_mtx.unlock();
+		}
+		if (!env->is_exit)
+		{
+			std::unique_lock<std::mutex> cv_lock(env->mtx);
+			env->cv.wait(cv_lock);
+		}
+	}
+}
+
+bool RedisTaskMgr::ThreadEnv::SetupCtx()
+{
+	if (redis_cluster_ctx)
+	{
+		redisClusterFree(redis_cluster_ctx);
+		redis_cluster_ctx = nullptr;
+	}
+	if (redis_ctx)
+	{
+		redisFree(redis_ctx);
+		redis_ctx = nullptr;
+	}
+
+	timeval cnn_tv;
+	cnn_tv.tv_sec = this->owner->m_connect_timeout_ms / 1000;
+	cnn_tv.tv_usec = this->owner->m_connect_timeout_ms % 1000 * 1000;
+	timeval cmd_tv;
+	cmd_tv.tv_sec = this->owner->m_cmd_timeout_ms / 1000;
+	cmd_tv.tv_usec = this->owner->m_cmd_timeout_ms % 1000;
+	if (this->owner->m_is_cluster)
+	{
+		this->redis_cluster_ctx = redisClusterConnectWithTimeout(this->owner->m_hosts.c_str(), cnn_tv, 0);
+		if (0 == this->redis_cluster_ctx->err)
+		{
+			redisClusterSetOptionTimeout(this->redis_cluster_ctx, cmd_tv);
+			return true;
+		}
+		return false;
+	}
+	else
+	{
+		std::string match_pattern_str = R"raw(([\S]+):([0-9]+)))raw";
+		std::regex match_pattern(match_pattern_str, std::regex::icase);
+		std::smatch match_ret;
+		bool is_match = regex_match(this->owner->m_hosts, match_ret, match_pattern);
+		if (!is_match)
+			return false;
+
+		int port = 0;
+		std::string port_str = match_ret[2].str();
+		if (port_str.size() <= 0)
+			return false;
+		try { port = std::stoi(port_str); }
+		catch (std::exception)
+		{
+			return false;
+		}
+
+		std::string ip = match_ret[1].str();
+		if (ip.size() <= 0)
+			return false;
+		this->redis_ctx = redisConnectWithTimeout(ip.c_str(), port, cnn_tv);
+		if (0 == this->redis_ctx->err)
+		{
+			redisSetTimeout(this->redis_ctx, cmd_tv);
+			return true;
+		}
+		return false;
+	}
+}
+
+RedisTaskMgr::ThreadEnv::~ThreadEnv()
+{
+	while (!tasks.empty())
+	{
+		delete tasks.front();
+		tasks.pop();
+	}
+	if (redis_cluster_ctx)
+	{
+		redisClusterFree(redis_cluster_ctx);
+		redis_cluster_ctx = nullptr;
+	}
+	if (redis_ctx)
+	{
+		redisFree(redis_ctx);
+		redis_ctx = nullptr;
+	}
 }

@@ -91,7 +91,6 @@ void MongoTaskMgr::OnFrame()
 	m_done_tasks_mtx.lock();
 	std::queue<MongoTask *> tmp_done_task; tmp_done_task.swap(m_done_tasks);
 	m_done_tasks_mtx.unlock();
-	std::vector<MongoTask *> record_tos_task;
 	while (!tmp_done_task.empty())
 	{
 		MongoTask *task = tmp_done_task.front();
@@ -186,7 +185,7 @@ void MongoTaskMgr::ThreadLoop(ThreadEnv * env)
 	MongoTaskMgr *self = env->owner;
 	while (!env->is_exit)
 	{
-		while (!env->is_exit)
+		while (!env->is_exit && !env->tasks.empty())
 		{
 			mongocxx::stdx::optional<mongocxx::pool::entry> opt_client = env->owner->m_client_pool->try_acquire();
 			if (!opt_client)

@@ -28,6 +28,8 @@ extern "C"
 #include "r3c.h"
 #include "hiredis_vip/hircluster.h"
 
+#include "redis/redis_task_mgr.h"
+
 void QuitGame(int signal)
 {
 	try_quit_game();
@@ -43,17 +45,46 @@ int main (int argc, char **argv)
 #endif
 
 	{
-		// r3c::CRedisClient rc("127.0.0.1:7000,127.0.0.1:7001,127.0.0.1:7002,127.0.0.1:7003,127.0.0.1:7004,127.0.0.1:7005");
-		r3c::CRedisClient rc("127.0.0.1:7000,127.0.0.1:7000");
-		bool is_cluster = rc.cluster_mode();
-		rc.set("foo", "hello"); 
-		std::string xx;
-		rc.get("foo", &xx);
-		printf("redis foo is %s\n", xx.c_str());
+		redisClusterContext *rcc = redisClusterConnect("127.0.0.1:7000", REDIS_BLOCK);
+		redisReply *reply = (redisReply *)redisClusterCommand(rcc, "set foo 100");
+		if (nullptr == reply)
+		{
+			printf("set foo fail\n");
+			return -1;
+		}
+		freeReplyObject(reply);
+		reply = (redisReply *)redisClusterCommand(rcc, "get foo");
+		if (nullptr == reply)
+		{
+			printf("get foo fail\n");
+			return -1;
+		}
+		freeReplyObject(reply);
+		redisClusterFree(rcc);
 	}
 
 	{
-		auto xxx = redisClusterConnect("127.0.0.1:7000", REDIS_BLOCK);
+		RedisTaskMgr mgr;
+		if (mgr.Start(true, "127.0.0.1:7000", "", "", 1, 2000, 9000))
+		{
+			while (true)
+			{
+				mgr.ExecuteCmd(1, "set foo 100", [](RedisTask *task) {
+					if (nullptr != task->reply)
+					{
+						printf("reply 1 %d \n", task->reply->type);
+					}
+				});
+				mgr.ExecuteCmd(1, "get foo", [](RedisTask *task) {
+					printf("reply 2 %d \n", task->reply->type);
+				});
+				mgr.OnFrame();
+				static const int SLEEP_SPAN = 25;
+				std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_SPAN));
+			}
+		}
+		mgr.Stop();
+
 	}
 
 	// argv: exe_name work_dir lua_file lua_file_params...
