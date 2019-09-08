@@ -2,6 +2,8 @@
 #include <assert.h>
 #include "hiredis_vip/define.h"
 
+extern "C" int __redisAppendCommand(redisContext *c, const char *cmd, size_t len);
+
 RedisTaskMgr::RedisTaskMgr()
 {
 }
@@ -104,21 +106,92 @@ void RedisTaskMgr::OnFrame()
 	}
 }
 
-uint64_t RedisTaskMgr::ExecuteCmd(uint32_t hash_code, std::string cmd, RedisTaskCallback cb)
+uint64_t RedisTaskMgr::ExecuteCmd(uint64_t hash_code, RedisTaskCallback cb, std::string cmd)
 {
-	if (cmd.size() <= 0)
+	return this->ExecuteCmd(hash_code, cb, cmd.c_str());
+}
+
+uint64_t RedisTaskMgr::ExecuteCmd(uint64_t hash_code, RedisTaskCallback cb, const char * format, ...)
+{
+	if (nullptr == format)
 		return 0;
-	
+
 	uint64_t task_id = this->NextId();
 	RedisTask *task = new RedisTask();
 	task->task_id = task_id;
-	task->cmd = cmd;
 	task->cb = cb;
+
+	va_list ap;
+	va_start(ap, format);
+	task->cmd_len = redisvFormatCommand(&task->cmd, format, ap);
+	va_end(ap);
+	
+	if (task->cmd_len == -1)
+	{
+		task->error_num = REDIS_ERR_OOM;
+		task->error_msg = "Out of memory";
+	}
+	else if (task->cmd_len == -2)
+	{
+		task->error_num = REDIS_ERR_OTHER;
+		task->error_msg = "Invalid format string";
+	}
 	this->AddTaskToThread(hash_code, task);
 	return task_id;
 }
 
-bool RedisTaskMgr::AddTaskToThread(uint32_t hash_code, RedisTask * task)
+uint64_t RedisTaskMgr::ExecuteCmdArgv(uint64_t hash_code, RedisTaskCallback cb, std::vector<std::string> strs)
+{
+	if (strs.size() <= 0)
+		return 0;
+
+	size_t str_size = strs.size();
+	const char **argv = (const char **)malloc(sizeof(char *) * str_size);
+	size_t *argv_len = (size_t *)malloc(sizeof(size_t *) * str_size);
+	for (size_t i = 0; i < str_size; ++i)
+	{
+		argv[i] = strs[i].data();
+		argv_len[i] = strs[i].size();
+	}
+	uint64_t task_id = this->ExecuteCmdArgv(hash_code, cb, str_size, argv, argv_len);
+	free(argv); argv = nullptr;
+	free(argv_len); argv_len = nullptr;
+	return task_id;
+}
+
+uint64_t RedisTaskMgr::ExecuteCmdArgv(uint64_t hash_code, RedisTaskCallback cb, int argc, const char ** argv, const size_t * argv_len)
+{
+	if (argc <= 0 || nullptr == argv || nullptr == argv_len)
+		return 0;
+
+	uint64_t task_id = this->NextId();
+	RedisTask *task = new RedisTask();
+	task->task_id = task_id;
+	task->cb = cb;
+	task->cmd_len = redisFormatSdsCommandArgv(&task->cmd, argc, argv, argv_len);
+	if (task->cmd_len == -1)
+	{
+		task->error_num = REDIS_ERR_OOM;
+		task->error_msg = "Out of memory";
+	}
+	this->AddTaskToThread(hash_code, task);
+	return task_id;
+}
+
+uint64_t RedisTaskMgr::ExecuteCmdBinFormat(uint64_t hash_code, RedisTaskCallback cb, std::string format, std::vector<std::string> strs)
+{
+	// format 只支持%b
+	switch (strs.size())
+	{
+	case 0: return this->ExecuteCmd(hash_code, cb, format.c_str());
+	case 1: return this->ExecuteCmd(hash_code, cb, format.c_str(), strs[0].data(), strs[0].size());
+	case 2: return this->ExecuteCmd(hash_code, cb, format.c_str(), strs[0].data(), strs[0].size(), strs[1].data(), strs[1].size());
+	case 3: return this->ExecuteCmd(hash_code, cb, format.c_str(), strs[0].data(), strs[0].size(), strs[1].data(), strs[1].size(), strs[2].data(), strs[2].size());
+	}
+	return 0;
+}
+
+bool RedisTaskMgr::AddTaskToThread(uint64_t hash_code, RedisTask * task)
 {
 	if (!m_is_running || m_thread_num <= 0)
 		return false;
@@ -173,23 +246,49 @@ void RedisTaskMgr::ThreadLoop(ThreadEnv * env)
 			if (nullptr == task)
 				break;
 
-			if (is_cluster)
+			if (REDIS_OK == task->error_num)
 			{
-				redisReply *reply = (redisReply *)redisClusterCommand(env->redis_cluster_ctx, task->cmd.c_str());
-				task->reply = reply;
-				if (nullptr == reply || 0 != env->redis_cluster_ctx->err) // ??
+				redisReply *reply = nullptr;
+				if (is_cluster)
 				{
-					is_ctx_error = true;
+					reply = (redisReply *)redisClusterFormattedCommand(env->redis_cluster_ctx, task->cmd, task->cmd_len);
+					// reply = (redisReply *)redisClusterCommandArgv(env->redis_cluster_ctx, task->argc, (const char **)task->argv, task->argv_len);
+					task->reply = reply;
+					if (nullptr == reply || 0 != env->redis_cluster_ctx->err) // ??
+					{
+						task->error_num = env->redis_cluster_ctx->err;
+						task->error_msg = env->redis_cluster_ctx->errstr;
+						is_ctx_error = true;
+					}
+				}
+				else
+				{
+					if (REDIS_OK == __redisAppendCommand(env->redis_ctx, task->cmd, task->cmd_len))
+					{
+						redisGetReply(env->redis_ctx, (void **)&reply);
+					}
+
+					// reply = (redisReply *)redisCommandArgv(env->redis_ctx, task->argc, (const char **)task->argv, task->argv_len);
+					task->reply = reply;
+					if (nullptr == reply || 0 == env->redis_ctx->err)
+					{
+						task->error_num = env->redis_ctx->err;
+						task->error_msg = env->redis_ctx->errstr;
+						is_ctx_error = true;
+					}
+				}
+				if (nullptr != reply)
+				{
+					if (REDIS_REPLY_ERROR == reply->type)
+					{
+						task->error_num = REDIS_ERR_OTHER;
+						task->error_msg = reply->str;
+					}
 				}
 			}
 			else
 			{
-				redisReply *reply = (redisReply *)redisCommand(env->redis_ctx, task->cmd.c_str());
-				task->reply = reply;
-				if (nullptr == reply || 0 == env->redis_ctx->err)
-				{
-					is_ctx_error = true;
-				}
+				// 在执行ExecuteCmd的时候已经侦测到错误，为了保持异步行为，把错误放到这里来回调
 			}
 
 			self->m_done_tasks_mtx.lock();

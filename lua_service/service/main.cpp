@@ -71,15 +71,61 @@ int main (int argc, char **argv)
 		{
 			while (true)
 			{
-				mgr.ExecuteCmd(1, "set foo 100", [](RedisTask *task) {
-					if (nullptr != task->reply)
-					{
-						printf("reply 1 %d \n", task->reply->type);
-					}
-				});
-				mgr.ExecuteCmd(1, "get foo", [](RedisTask *task) {
-					printf("reply 2 %d \n", task->reply->type);
-				});
+				if (true)
+				{
+					mgr.ExecuteCmd(1, [](RedisTask *task) {
+						if (nullptr != task->reply)
+						{
+							printf("reply 1 %d \n", task->reply->type);
+						}
+					}, "set foo %d", 100);
+				}
+				
+				if (true)
+				{
+					std::string cmd = "get foo";
+					mgr.ExecuteCmd(1, [](RedisTask *task) {
+						if (task->reply)
+						{
+							printf("reply 2 %d \n", task->reply->type);
+						}
+					}, cmd);
+				}
+
+				if (true)
+				{
+					std::vector<std::string> cmds = { "foo", "100" };
+					mgr.ExecuteCmdBinFormat(1, [](RedisTask *task) {
+						if (task->reply)
+						{
+							printf("reply 3 %d \n", task->reply->type);
+						}
+					},  "set %b %b", cmds);
+				}
+
+				if (true)
+				{
+					std::vector<std::string> cmds = { "get", "foo" };
+					mgr.ExecuteCmdArgv(1, [](RedisTask *task) {
+						if (task->reply)
+						{
+							printf("reply 4 %d \n", task->reply->type);
+						}
+					}, cmds);
+				}
+
+				if (false)
+				{
+					const char *argv[2] = { "get", "foo" };
+					size_t argv_len[2] = { 3, 3 };
+					mgr.ExecuteCmdArgv(1, [](RedisTask *task) {
+						if (task->reply)
+						{
+							printf("reply 5 %d \n", task->reply->type);
+						}
+					}, sizeof(argv)/ sizeof(argv[0]), argv, argv_len);
+				}
+
 				mgr.OnFrame();
 				static const int SLEEP_SPAN = 25;
 				std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_SPAN));

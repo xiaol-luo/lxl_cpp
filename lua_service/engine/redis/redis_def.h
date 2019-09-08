@@ -9,20 +9,20 @@ using RedisTaskCallback = std::function<void(RedisTask *redis_task)>;
 
 struct RedisTask
 {
-	~RedisTask()
-	{
-		if (nullptr != reply)
-		{
-			freeReplyObject(reply);
-			reply = nullptr;
-		}
-		cb = nullptr;
-	}
+	RedisTask() {}
+	~RedisTask();
+
 	uint64_t task_id = 0;
-	std::string cmd;
+	int argc = 0;
+	char **argv = nullptr;
+	size_t * argv_len = nullptr;
 	RedisTaskCallback cb = nullptr;
+
+	char *cmd = nullptr;
+	size_t cmd_len = 0;
+
 	int error_num = 0;
-	// std::string error_msg;
+	std::string error_msg;
 	redisReply *reply = nullptr;
 };
 

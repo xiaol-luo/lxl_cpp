@@ -18,7 +18,12 @@ public:
 	void Stop();
 	void OnFrame();
 
-	uint64_t ExecuteCmd(uint32_t hash_code, std::string cmd, RedisTaskCallback cb);
+
+	uint64_t ExecuteCmd(uint64_t hash_code, RedisTaskCallback cb, std::string cmd);
+	uint64_t ExecuteCmd(uint64_t hash_code, RedisTaskCallback cb, const char *format, ...);
+	uint64_t ExecuteCmdArgv(uint64_t hash_code, RedisTaskCallback cb, std::vector<std::string> strs);
+	uint64_t ExecuteCmdArgv(uint64_t hash_code, RedisTaskCallback cb, int argc, const char **argv, const size_t *argv_len);
+	uint64_t ExecuteCmdBinFormat(uint64_t hash_code, RedisTaskCallback cb, std::string format, std::vector<std::string> strs);
 
 private:
 	bool m_is_running = false;
@@ -52,7 +57,7 @@ private:
 	uint32_t m_thread_num = 0;
 	ThreadEnv *m_thread_envs = nullptr;
 	static void ThreadLoop(ThreadEnv *env);
-	bool AddTaskToThread(uint32_t hash_code, RedisTask *task);
+	bool AddTaskToThread(uint64_t hash_code, RedisTask *task);
 	uint64_t NextId();
 };
 
