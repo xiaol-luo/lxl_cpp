@@ -4,11 +4,6 @@
 #ifdef _WIN32
 #define strerror_r(errno,buf,len) strerror_s(buf,len,errno)
 
-struct timeval {
-	long    tv_sec;         /* seconds */
-	long    tv_usec;        /* and microseconds */
-};
-
 #endif /* _WIN32 */
 
  /* strerror_r has two completely different prototypes and behaviors

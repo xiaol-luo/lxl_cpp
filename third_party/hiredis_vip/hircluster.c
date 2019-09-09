@@ -18,6 +18,11 @@
 #ifndef _WIN32
 #include <unistd.h>
 #include <sys/time.h>
+#else
+struct timeval {
+	long    tv_sec;         /* seconds */
+	long    tv_usec;        /* and microseconds */
+};
 #endif
 
 #define REDIS_COMMAND_CLUSTER_NODES "CLUSTER NODES"

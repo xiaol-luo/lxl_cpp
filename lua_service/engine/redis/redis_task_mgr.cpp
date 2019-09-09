@@ -1,6 +1,6 @@
 #include "redis_task_mgr.h"
 #include <assert.h>
-#include "hiredis_vip/define.h"
+#include "iengine.h"
 
 extern "C" int __redisAppendCommand(redisContext *c, const char *cmd, size_t len);
 
@@ -178,17 +178,28 @@ uint64_t RedisTaskMgr::ExecuteCmdArgv(uint64_t hash_code, RedisTaskCallback cb, 
 	return task_id;
 }
 
-uint64_t RedisTaskMgr::ExecuteCmdBinFormat(uint64_t hash_code, RedisTaskCallback cb, std::string format, std::vector<std::string> strs)
+uint64_t RedisTaskMgr::ExecuteCmdBinFormat(uint64_t hc, RedisTaskCallback cb, std::string fm, std::vector<std::string> s)
 {
+#define p_l(str) str.data(), str.size()
 	// format Ö»Ö§³Ö%b
-	switch (strs.size())
+	switch (s.size())
 	{
-	case 0: return this->ExecuteCmd(hash_code, cb, format.c_str());
-	case 1: return this->ExecuteCmd(hash_code, cb, format.c_str(), strs[0].data(), strs[0].size());
-	case 2: return this->ExecuteCmd(hash_code, cb, format.c_str(), strs[0].data(), strs[0].size(), strs[1].data(), strs[1].size());
-	case 3: return this->ExecuteCmd(hash_code, cb, format.c_str(), strs[0].data(), strs[0].size(), strs[1].data(), strs[1].size(), strs[2].data(), strs[2].size());
+	case 0: return this->ExecuteCmd(hc, cb, fm.c_str());
+	case 1: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]));
+	case 2: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]));
+	case 3: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]));
+	case 4: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]), p_l(s[3]));
+	case 5: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]), p_l(s[3]), p_l(s[4]));
+	case 6: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]), p_l(s[3]), p_l(s[4]), p_l(s[5]));
+	case 7: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]), p_l(s[3]), p_l(s[4]), p_l(s[5]), p_l(s[6]));
+	case 8: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]), p_l(s[3]), p_l(s[4]), p_l(s[5]), p_l(s[6]), p_l(s[7]));
+	case 9: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]), p_l(s[3]), p_l(s[4]), p_l(s[5]), p_l(s[6]), p_l(s[7]), p_l(s[8]));
+	case 10: return this->ExecuteCmd(hc, cb, fm.c_str(), p_l(s[0]), p_l(s[1]), p_l(s[2]), p_l(s[3]), p_l(s[4]), p_l(s[5]), p_l(s[6]), p_l(s[7]), p_l(s[8]), p_l(s[9]));
 	}
+
+	log_error("RedisTaskMgr::ExecuteCmdBinFormat too many params, max=10, count={}", s.size());
 	return 0;
+#undef p_l
 }
 
 bool RedisTaskMgr::AddTaskToThread(uint64_t hash_code, RedisTask * task)

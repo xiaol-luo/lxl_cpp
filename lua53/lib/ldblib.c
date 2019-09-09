@@ -429,10 +429,12 @@ static int db_traceback (lua_State *L) {
 
 static int db_replace_proto(lua_State *L) {
 	lua_replace_proto(L);
+	return 0;
 }
 
 static int db_copy_upvalues(lua_State *L)
 {
+
 	lua_copy_upvalues(L);
 	return 0;
 }
