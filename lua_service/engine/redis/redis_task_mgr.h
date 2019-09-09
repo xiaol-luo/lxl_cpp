@@ -13,7 +13,7 @@ public:
 	RedisTaskMgr();
 	~RedisTaskMgr();
 	
-	bool Start(bool is_cluster, const std::string &hosts, const std::string usr, const std::string &pwd, uint32_t thread_num,
+	bool Start(bool is_cluster, const std::string &hosts, const std::string &usr, const std::string &pwd, uint32_t thread_num,
 		uint32_t connect_timeout_ms, uint32_t cmd_timeout_ms);
 	void Stop();
 	void OnFrame();

@@ -13,7 +13,7 @@ RedisTaskMgr::~RedisTaskMgr()
 	this->Stop();
 }
 
-bool RedisTaskMgr::Start(bool is_cluster, const std::string & hosts, const std::string usr, const std::string & pwd,
+bool RedisTaskMgr::Start(bool is_cluster, const std::string & hosts, const std::string &usr, const std::string & pwd,
 	uint32_t thread_num, uint32_t connect_timeout_ms, uint32_t cmd_timeout_ms)
 {
 	if (m_is_running)

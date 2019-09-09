@@ -64,7 +64,7 @@ int main (int argc, char **argv)
 		redisClusterFree(rcc);
 	}
 
-	if (true)
+	if (false)
 	{
 		RedisTaskMgr mgr;
 		if (mgr.Start(true, "127.0.0.1:7000", "", "", 1, 2000, 9000))
