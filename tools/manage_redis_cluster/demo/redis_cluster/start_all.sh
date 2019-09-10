@@ -18,14 +18,23 @@ mkdir -p ${run_dir}
 sh stop_all.sh
 
 echo "execute start_all.sh"
-for ((node_id=${redis_node_from}; node_id<=${redis_node_to}; node_id++  ))
+for (( node_id=${redis_node_from}; node_id<=${redis_node_to}; node_id++ ))
 do
     redis-server redis_${node_id}.conf
 done 
 
 if [ ${is_init} = true ]; then
-    redis-trib create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
+    echo "yes" | redis-trib create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
 fi
+
+for (( node_id=${redis_node_from}; node_id<=${redis_node_to}; node_id++ ))
+do
+    echo "p1"
+    redis-cli -p ${node_id} -c -a xiaolzz config set requirepass xiaolzz
+    echo "p2"
+    redis-cli -p ${node_id} -c -a xiaolzz config set masterauth xiaolzz
+    echo "p3"
+done 
 
 sh ps.sh
 
