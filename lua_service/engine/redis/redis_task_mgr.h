@@ -6,6 +6,8 @@
 #include <regex>
 #include <mutex>
 #include <queue>
+#include <thread>
+#include <condition_variable>
 
 class RedisTaskMgr
 {
