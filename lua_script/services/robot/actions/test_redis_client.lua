@@ -10,7 +10,7 @@ end
 
 function TestRedisClient:init()
     TestRedisClient.super.init(self)
-    self.redis_client = RedisClient:new(true, "127.0.0.1:7000", "", "", 1, 3000, 3000)
+    self.redis_client = RedisClient:new(true, "127.0.0.1:7000", "xiaolzz", 1, 3000, 3000)
 end
 
 function TestRedisClient:start()

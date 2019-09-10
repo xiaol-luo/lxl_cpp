@@ -1,10 +1,9 @@
 
 RedisClient = RedisClient or class("RedisClient")
 
-function RedisClient:ctor(is_cluster, hosts, usr, pwd, thread_num, cnn_timeout_ms, cmd_timeout_ms)
+function RedisClient:ctor(is_cluster, hosts, pwd, thread_num, cnn_timeout_ms, cmd_timeout_ms)
     self.is_cluster = is_cluster
     self.hosts = hosts
-    self.usr = usr
     self.pwd = pwd
     self.thread_num = thread_num
     self.cnn_timeout_ms = cnn_timeout_ms
@@ -14,7 +13,7 @@ end
 
 function RedisClient:start()
     self:stop()
-    local ret = self.redis_task_mgr:start(self.is_cluster, self.hosts, self.usr, self.pwd,
+    local ret = self.redis_task_mgr:start(self.is_cluster, self.hosts, self.pwd,
             self.thread_num, self.cnn_timeout_ms, self.cmd_timeout_ms)
     return ret
 end

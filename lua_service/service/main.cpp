@@ -67,7 +67,7 @@ int main (int argc, char **argv)
 	if (false)
 	{
 		RedisTaskMgr mgr;
-		if (mgr.Start(true, "127.0.0.1:7000", "", "", 1, 2000, 9000))
+		if (mgr.Start(true, "127.0.0.1:7000", "xiaolzz", 1, 2000, 9000))
 		{
 			while (true)
 			{
