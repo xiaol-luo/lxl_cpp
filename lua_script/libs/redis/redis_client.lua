@@ -28,15 +28,45 @@ function RedisClient:on_tick()
 end
 
 function RedisClient:command(hash_code, cb_fn, fmt_str, ...)
+    -- 如果命令前边有空格，hiredis_vip会分析命令失败
     local cmd_str = string.format(fmt_str, ...)
-    self.redis_task_mgr:command(hash_code, cb_fn, cmd_str)
+    return self.redis_task_mgr:command(hash_code, cb_fn, string.ltrim(cmd_str, " "))
 end
 
-function RedisClient:array_command()
-
+function RedisClient:array_command(hash_code, cb_fn, cmd_list)
+    if not cmd_list or #cmd_list <= 0 then
+        return 0
+    end
+    local input_cmds = {}
+    for i, cmd in ipairs(cmd_list) do
+        if not IsString(cmd) then
+            table.insert(input_cmds, tostring(cmd))
+        else
+            if 1 == i then -- 如果命令前边有空格，hiredis_vip会分析命令失败
+                table.insert(input_cmds, string.ltrim(cmd, " "))
+            else
+                table.insert(input_cmds, cmd)
+            end
+        end
+    end
+    self.redis_task_mgr:array_command(hash_code, cb_fn, input_cmds)
 end
 
-function RedisClient:binary_command()
-
+function RedisClient:binary_command(hash_code, cb_fn, fmt_str, ...)
+    local t_len, t = Functional.varlen_param_info(...)
+    if t_len <= 0 then
+        return self:command(hash_code, cb_fn, fmt_str)
+    else
+        local input_cmds = {}
+        for _, cmd in ipairs(t) do
+            if not IsString(cmd) then
+                table.insert(input_cmds, tostring(cmd))
+            else
+                table.insert(input_cmds, cmd)
+            end
+        end
+        -- 如果命令前边有空格，hiredis_vip会分析命令失败
+        return self.redis_task_mgr:binary_command(hash_code, cb_fn, string.ltrim(fmt_str, " "), input_cmds)
+    end
 end
 

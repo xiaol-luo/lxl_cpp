@@ -31,9 +31,30 @@ function TestRedisClient:_on_tick()
     self.redis_client:command(1, function(ret)
         log_debug("set foo result %s", ret)
     end, "set foo %d", 100)
+
     self.redis_client:command(1, function(ret)
         log_debug("get foo result %s", ret)
     end, "get foo")
+
+    local is_ok, p_buf = PROTO_PARSER:encode(ProtoId.req_login_game, {
+        token = "token_1",
+        timestamp = 1,
+        platform = "platform_1",
+    })
+    log_debug("p_buf is %s %s", type(p_buf), p_buf)
+    self.redis_client:binary_command(1, function(ret)
+        log_debug("binary command result %s", ret)
+    end,"set %b %b ", "hello", p_buf)
+
+    self.redis_client:array_command(1, function(ret)
+        if ret.reply then
+            local is_ok, tb = PROTO_PARSER:decode(ProtoId.req_login_game, ret.reply.value)
+            log_debug("array command result %s \n decode tb is %s", ret, tb)
+        else
+            log_debug("array command result %s", ret)
+        end
+    end, { "  get", "hello" })
+
     self.redis_client:on_tick()
 end
 
