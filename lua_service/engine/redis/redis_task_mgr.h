@@ -15,7 +15,7 @@ public:
 	RedisTaskMgr();
 	~RedisTaskMgr();
 	
-	bool Start(bool is_cluster, const std::string &hosts, const std::string &usr, const std::string &pwd, uint32_t thread_num,
+	bool Start(bool is_cluster, const std::string &hosts, const std::string &pwd, uint32_t thread_num,
 		uint32_t connect_timeout_ms, uint32_t cmd_timeout_ms);
 	void Stop();
 	void OnFrame();
@@ -32,7 +32,6 @@ private:
 	uint64_t m_last_id = 0;
 	bool m_is_cluster = false;
 	std::string m_hosts;
-	std::string m_usr;
 	std::string m_pwd;
 	uint32_t m_connect_timeout_ms = 5000;
 	uint32_t m_cmd_timeout_ms = 10000;

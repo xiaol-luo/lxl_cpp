@@ -13,7 +13,7 @@ RedisTaskMgr::~RedisTaskMgr()
 	this->Stop();
 }
 
-bool RedisTaskMgr::Start(bool is_cluster, const std::string & hosts, const std::string &usr, const std::string & pwd,
+bool RedisTaskMgr::Start(bool is_cluster, const std::string & hosts, const std::string & pwd,
 	uint32_t thread_num, uint32_t connect_timeout_ms, uint32_t cmd_timeout_ms)
 {
 	if (m_is_running)
@@ -22,7 +22,6 @@ bool RedisTaskMgr::Start(bool is_cluster, const std::string & hosts, const std::
 	m_is_cluster = is_cluster;
 	m_hosts = hosts; 
 	assert(m_hosts.size() > 0);
-	m_usr = usr;
 	m_pwd = pwd;
 	m_thread_num = thread_num;
 	assert(m_thread_num > 0);
@@ -263,7 +262,6 @@ void RedisTaskMgr::ThreadLoop(ThreadEnv * env)
 				if (is_cluster)
 				{
 					reply = (redisReply *)redisClusterFormattedCommand(env->redis_cluster_ctx, task->cmd, task->cmd_len);
-					// reply = (redisReply *)redisClusterCommandArgv(env->redis_cluster_ctx, task->argc, (const char **)task->argv, task->argv_len);
 					task->reply = reply;
 					if (nullptr == reply || 0 != env->redis_cluster_ctx->err) // ??
 					{
@@ -335,10 +333,32 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 	cmd_tv.tv_usec = this->owner->m_cmd_timeout_ms % 1000;
 	if (this->owner->m_is_cluster)
 	{
-		this->redis_cluster_ctx = redisClusterConnectWithTimeout(this->owner->m_hosts.c_str(), cnn_tv, 0);
-		if (0 == this->redis_cluster_ctx->err)
+
+		this->redis_cluster_ctx = redisClusterContextInit();
+		{
+			if (strlen(this->owner->m_pwd.c_str()) > 0)
+			{
+				redisClusterSetOptionAuth(this->redis_cluster_ctx, this->owner->m_pwd.c_str());
+			}
+			redisClusterSetOptionConnectBlock(this->redis_cluster_ctx);
+			redisClusterSetOptionConnectTimeout(this->redis_cluster_ctx, cnn_tv);
+			redisClusterSetOptionTimeout(this->redis_cluster_ctx, cmd_tv);
+			if (REDIS_OK != redisClusterSetOptionAddNodes(this->redis_cluster_ctx, this->owner->m_hosts.c_str()))
+				return false;
+			if (REDIS_OK != redisClusterConnect2(this->redis_cluster_ctx))
+				return false;
+		}
+		if (REDIS_OK == this->redis_cluster_ctx->err)
 		{
 			redisClusterSetOptionTimeout(this->redis_cluster_ctx, cmd_tv);
+			if (this->owner->m_pwd.size() > 0)
+			{
+				redisReply *reply = (redisReply *)redisClusterCommand(this->redis_cluster_ctx, "auth %s", this->owner->m_pwd.c_str());
+				if (nullptr == reply || 0 != strcmp(reply->str, "OK"))
+				{
+					return false;
+				}
+			}
 			return true;
 		}
 		return false;
@@ -369,6 +389,14 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 		if (0 == this->redis_ctx->err)
 		{
 			redisSetTimeout(this->redis_ctx, cmd_tv);
+			if (strlen(this->owner->m_pwd.c_str()) > 0)
+			{
+				redisReply *reply = (redisReply *)redisCommand(this->redis_ctx, "auth %s", this->owner->m_pwd.c_str());
+				if (nullptr == reply || 0 != strcmp(reply->str, "OK"))
+				{
+					return false;
+				}
+			}
 			return true;
 		}
 		return false;

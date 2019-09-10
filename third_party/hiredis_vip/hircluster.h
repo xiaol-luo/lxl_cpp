@@ -76,7 +76,7 @@ typedef struct redisClusterContext {
     char errstr[128]; /* String representation of error when applicable */
     sds ip;
     int port;
-
+	char *auth;
     int flags;
 
     enum redisConnectionType connection_type;
@@ -108,6 +108,7 @@ redisClusterContext *redisClusterConnectNonBlock(const char *addrs, int flags);
 redisClusterContext *redisClusterContextInit(void);
 void redisClusterFree(redisClusterContext *cc);
 
+int redisClusterSetOptionAuth(redisClusterContext *cc, const char *auth);
 int redisClusterSetOptionAddNode(redisClusterContext *cc, const char *addr);
 int redisClusterSetOptionAddNodes(redisClusterContext *cc, const char *addrs);
 int redisClusterSetOptionConnectBlock(redisClusterContext *cc);
