@@ -11,4 +11,6 @@ end
 
 function GameService:ctor()
     GameService.super.ctor(self)
+    self.cb_client = nil
+    self.redis_client = nil
 end

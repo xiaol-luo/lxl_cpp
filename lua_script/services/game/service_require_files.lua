@@ -3,6 +3,7 @@ local files = {
     "services.game.common.const_value",
     "services.game.common.event_define",
     "services.game.service_main__mongo",
+    "services.game.service_main__redis",
     "services.game.service_main__msg_handler",
     "services.game.service_main__rpc_mgr",
     "services.game.service_main__setup_modules",

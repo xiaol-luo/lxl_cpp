@@ -53,6 +53,19 @@
 		</element>
 	</etcd_service>
 
+	<redis_service>
+		<element>for_make_array</element>
+		<element>
+			<name>for_test</name>
+			<is_cluster>1</is_cluster>
+			<host>http://127.0.0.1:7000</host>
+			<pwd>xiaolzz</pwd>
+			<thread_num>3</thread_num>
+			<cnn_timeout_ms>3000</cnn_timeout_ms>
+			<cmd_timeout_ms>3000</cmd_timeout_ms>
+		</element>
+	</redis_service>
+
 	<login>
 		<element>for_make_array</element>
 		<element>
@@ -105,6 +118,7 @@
 			<port>34000</port>
 			<mongo_service>for_test</mongo_service>
 			<db_name>game_zone_0</db_name>
+			<redis_service>for_test</redis_service>
 		</element>
 	</game>
 

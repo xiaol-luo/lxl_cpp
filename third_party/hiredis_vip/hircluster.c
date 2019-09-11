@@ -3379,7 +3379,7 @@ static int command_pre_fragment(redisClusterContext *cc,
                 kp = hiarray_get(sub_command->keys, j);
                 key_len = (uint32_t)(kp->end - kp->start);
                 hi_itoa(num_str, key_len);
-                num_str_len = strlen(num_str);
+                num_str_len = (uint8_t)strlen(num_str);
 
                 sub_command->cmd[idx++] = '$';
                 memcpy(sub_command->cmd + idx, num_str, num_str_len);
@@ -3422,7 +3422,7 @@ static int command_pre_fragment(redisClusterContext *cc,
                 kp = hiarray_get(sub_command->keys, j);
                 key_len = (uint32_t)(kp->end - kp->start);
                 hi_itoa(num_str, key_len);
-                num_str_len = strlen(num_str);
+                num_str_len = (uint8_t)strlen(num_str);
 
                 sub_command->cmd[idx++] = '$';
                 memcpy(sub_command->cmd + idx, num_str, num_str_len);
@@ -3467,7 +3467,7 @@ static int command_pre_fragment(redisClusterContext *cc,
                 kp = hiarray_get(sub_command->keys, j);
                 key_len = (uint32_t)(kp->end - kp->start);
                 hi_itoa(num_str, key_len);
-                num_str_len = strlen(num_str);
+                num_str_len = (uint8_t)strlen(num_str);
 
                 sub_command->cmd[idx++] = '$';
                 memcpy(sub_command->cmd + idx, num_str, num_str_len);

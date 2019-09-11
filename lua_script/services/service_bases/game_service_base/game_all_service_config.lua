@@ -24,6 +24,7 @@ function GameAllServiceConfig:ctor()
         Service_Const.match,
         Service_Const.fight,
         Service_Const.room,
+        Service_Const.redis_service,
     }
 end
 

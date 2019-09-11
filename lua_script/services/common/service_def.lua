@@ -49,6 +49,7 @@ Service_Const =
     match = "match",
     fight = "fight",
     room = "room",
+    redis_service = "redis_service",
 }
 
 MAIN_ARGS_SERVICE = "service"

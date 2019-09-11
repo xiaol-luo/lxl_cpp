@@ -95,6 +95,7 @@ local files = {
     "services.service_module.hotfix_module",
     "services.service_module.http_net_module",
     "services.service_module.mongo_client_module",
+    "services.service_module.redis_client_module",
     "services.service_module.database_uuid_module",
     "services.service_module.service_logic_mgr.service_logic_def",
     "services.service_module.service_logic_mgr.service_logic_mgr",
