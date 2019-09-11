@@ -10,7 +10,7 @@ end
 
 function TestRedisClient:init()
     TestRedisClient.super.init(self)
-    self.redis_client = RedisClient:new(true, "127.0.0.1:7000", "xiaolzz", 1, 3000, 3000)
+    self.redis_client = RedisClient:new(true, "127.0.0.1:7000", "xiaolzz", 12, 3000, 3000)
 end
 
 function TestRedisClient:start()
@@ -54,6 +54,15 @@ function TestRedisClient:_on_tick()
             log_debug("array command result %s", ret)
         end
     end, { "  get", "hello" })
+
+    for i=1, 999999 do
+        local key_num = math.random()
+        self.redis_client:command(i, nil, "set xxx_%s %s", key_num, key_num);
+        self.redis_client:command(i, function(ret)
+            -- log_debug("get xxx_%s result %s", key_num, ret)
+        end, "get xxx_%s", key_num)
+    end
+
 
     self.redis_client:on_tick()
 end

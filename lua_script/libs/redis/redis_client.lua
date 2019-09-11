@@ -13,8 +13,8 @@ end
 
 function RedisClient:start()
     self:stop()
-    local ret = self.redis_task_mgr:start(self.is_cluster, self.hosts, self.pwd,
-            self.thread_num, self.cnn_timeout_ms, self.cmd_timeout_ms)
+    -- local ret = self.redis_task_mgr:start(self.is_cluster, self.hosts, self.pwd, self.thread_num, self.cnn_timeout_ms, self.cmd_timeout_ms)
+    local ret = self.redis_task_mgr:start(self.is_cluster, self.hosts, self.pwd, self.thread_num, self.cnn_timeout_ms, self.cmd_timeout_ms)
     return ret
 end
 

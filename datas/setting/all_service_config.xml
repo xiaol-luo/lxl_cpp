@@ -58,7 +58,7 @@
 		<element>
 			<name>for_test</name>
 			<is_cluster>1</is_cluster>
-			<host>http://127.0.0.1:7000</host>
+			<host>127.0.0.1:7000</host>
 			<pwd>xiaolzz</pwd>
 			<thread_num>3</thread_num>
 			<cnn_timeout_ms>3000</cnn_timeout_ms>
