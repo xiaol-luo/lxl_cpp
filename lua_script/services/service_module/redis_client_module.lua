@@ -33,7 +33,7 @@ end
 
 
 function RedisClientModule:command(hash_code, cb_fn, fmt_str, ...)
-    return self.redis_client:command(hash_code, cb_fn, fmt_str)
+    return self.redis_client:command(hash_code, cb_fn, fmt_str, ...)
 end
 
 function RedisClientModule:array_command(hash_code, cb_fn, cmd_list)
