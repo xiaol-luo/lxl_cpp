@@ -34,8 +34,6 @@ private:
 
 	srv_rbtree_node_t *m_rbtree_sentinel_node = nullptr;
 	srv_rbtree_t *m_rbtree_timer_items = nullptr;
-
-	std::vector<srv_rbtree_node_t *> m_nodes_execute_now;
 	void TryExecuteNode(srv_rbtree_node_t *node);
 
 	std::unordered_map<TimerID, srv_rbtree_node_t *> m_id_to_timer_node;

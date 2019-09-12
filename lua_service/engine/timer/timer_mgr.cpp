@@ -42,10 +42,7 @@ TimerID TimerMgr::Add(TimerCallback cb_fn, int64_t start_ts_ms, int64_t execute_
 	node->key = timer_item->execute_ms;
 	node->data = timer_item;
 	m_id_to_timer_node[timer_item->id] = node;
-	if (timer_item->execute_ms <= m_now_ms)
-		m_nodes_execute_now.push_back(node);
-	else
-		srv_rbtree_insert(m_rbtree_timer_items, node);
+	srv_rbtree_insert(m_rbtree_timer_items, node);
 	return timer_item->id;
 }
 
@@ -69,14 +66,6 @@ void TimerMgr::UpdateTime(int64_t now_ms)
 {
 	m_now_ms = now_ms;
 	this->ChekRemoveNodes();
-	if (!m_nodes_execute_now.empty())
-	{
-		for (srv_rbtree_node_t *node : m_nodes_execute_now)
-		{
-			this->TryExecuteNode(node);
-		}
-		m_nodes_execute_now.clear();
-	}
 	int loop = 0;
 	while (loop++ < 10000000 && m_rbtree_timer_items->root != m_rbtree_timer_items->sentinel)
 	{
