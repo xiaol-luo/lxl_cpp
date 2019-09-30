@@ -15,6 +15,15 @@ etcd_service = {
     "ttl": 10,
 }
 
+redis_service = {
+    "is_cluster": 1,
+    "host": "127.0.0.1:7000",
+    "pwd": "xiaolzz",
+    "thread_num": 3,
+    "cnn_timeout_ms": 3000,
+    "cmd_timeout_ms": 3000,
+}
+
 platform_service_count = 1
 platform_service_db_name = "platform_account"
 
@@ -50,6 +59,7 @@ def cal_service_begin_port(zone_id, service_type):
 def get_service_setting(zone_name):
     global mongo_service, \
         etcd_service, \
+        redis_service, \
         platform_service_count, \
         platform_service_db_name, \
         auth_service_count, \
@@ -81,6 +91,10 @@ def get_service_setting(zone_name):
     etcd_service_name = zone_name
     setting["etcd_service"] = copy.deepcopy(etcd_service)
     setting["etcd_service"]["name"] = etcd_service_name
+    #redis service 
+    redis_service_name = zone_name
+    setting["redis_service"] = copy.deepcopy(redis_service)
+    setting["redis_service"]["name"] = redis_service_name
     # platform service
     platforms = []
     setting["platform_service"] = platforms
