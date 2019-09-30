@@ -57,6 +57,20 @@
 			<ttl>{{ etcd_service.ttl }}</ttl>
 		</element>
 	</etcd_service>
+	
+	<redis_service>
+		<element>for_make_array</element>
+		<element>for_make_array</element>
+		<element>
+			<name>{{ redis_service.name }}</name>
+			<is_cluster>{{ redis_service.is_cluster }}</is_cluster>
+			<host>{{ redis_service.host }}</host>
+			<pwd>{{ redis_service.pwd }}</pwd>
+			<thread_num>{{ redis_service.thread_num}}</thread_num>
+			<cnn_timeout_ms>{{redis_service.cnn_timeout_ms}}</cnn_timeout_ms>
+			<cmd_timeout_ms>{{redis_service.cmd_timeout_ms}}</cmd_timeout_ms>
+		</element>
+	</redis_service>
 
 	<login>
 		<element>for_make_array</element>
@@ -121,6 +135,7 @@
 			<port>{{ elem.port }}</port>
 			<mongo_service>{{ elem.mongo_service }}</mongo_service>
 			<db_name>{{ elem.db_name }}</db_name>
+			<redis_service>{{ redis_service.name }}</redis_service>
 		</element>
 	{%- endfor %}
 	</game>

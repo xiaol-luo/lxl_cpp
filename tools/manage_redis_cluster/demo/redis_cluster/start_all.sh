@@ -29,11 +29,8 @@ fi
 
 for (( node_id=${redis_node_from}; node_id<=${redis_node_to}; node_id++ ))
 do
-    echo "p1"
     redis-cli -p ${node_id} -c -a xiaolzz config set requirepass xiaolzz
-    echo "p2"
     redis-cli -p ${node_id} -c -a xiaolzz config set masterauth xiaolzz
-    echo "p3"
 done 
 
 sh ps.sh
