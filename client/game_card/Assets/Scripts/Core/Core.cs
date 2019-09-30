@@ -35,6 +35,8 @@ namespace Utopia
 
             m_modules[CoreModule.EModule.TimerModule] = new TimerModule(this);
             m_modules[CoreModule.EModule.NetModule] = new NetModule(this);
+            // m_modules[CoreModule.EModule.TestModule] = new EmptyTestModule(this);
+            m_modules[CoreModule.EModule.TestModule] = new CoreTestModule(this);
 
             currStage = CoreModule.EStage.Free;
             ForeachModule((CoreModule module) => {
@@ -62,6 +64,21 @@ namespace Utopia
             {
                 return m_modules[CoreModule.EModule.NetModule] as NetModule;
             }
+        }
+
+        public Coroutine StartCoroutine(IEnumerator ie)
+        {
+            return root.StartCoroutine(ie);
+        }
+
+        public void StopCoroutine(Coroutine co)
+        {
+            root.StopCoroutine(co);
+        }
+
+        public void StopAllCoroutines()
+        {
+            root.StopAllCoroutines();
         }
     }
 

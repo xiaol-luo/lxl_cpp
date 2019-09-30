@@ -28,7 +28,8 @@ namespace Utopia
         {
             public const int TimerModule = 0;
             public const int NetModule = 1;
-            public const int Count = 2;
+            public const int TestModule = 2;
+            public const int Count = 3;
         }
 
         public Core core { get; }
