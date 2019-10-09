@@ -1,5 +1,10 @@
 #!/bin/bash
 
-sh stop_all.sh
+script_root=`dirname "$0"`
+pre_dir=`pwd`
+cd ${script_root}
 
-rm -rf /shared/etcd_cluster/run/*
+sh stop_all.sh
+rm -rf run/*
+
+cd ${pre_dir}
