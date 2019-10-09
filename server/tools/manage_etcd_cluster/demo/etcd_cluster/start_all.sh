@@ -1,6 +1,10 @@
 #!/bin/bash
 
 
+script_root=`dirname "$0"`
+pre_dir=`pwd`
+cd ${script_root}
+
 typeset -l low_case_str
 is_init=false
 if [ $# -ge 1 ];then
@@ -38,3 +42,4 @@ fi
 
 
 
+cd ${pre_dir}
