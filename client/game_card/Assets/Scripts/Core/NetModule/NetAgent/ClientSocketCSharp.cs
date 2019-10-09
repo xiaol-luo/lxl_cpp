@@ -140,7 +140,7 @@ namespace Utopia
                 param[1] = socket;
                 socket.BeginConnect(host, port, ConnectResult, param);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 m_threadParam.state = ClientSocketState.Free;
                 socket = null;

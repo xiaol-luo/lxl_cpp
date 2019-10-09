@@ -44,6 +44,7 @@ namespace Utopia
             host = _host;
             port = _port;
             m_socket = this.NewSocket();
+            m_socket.Reset(host, port);
             m_state = NetAgentState.Connecting;
             return m_socket.ConnectAsync(OnSocketOpen, OnSocketRecvData, OnSocketClose);
         }

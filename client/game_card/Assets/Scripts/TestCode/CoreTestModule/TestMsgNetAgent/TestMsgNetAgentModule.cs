@@ -33,7 +33,8 @@ namespace Utopia
             if (m_firstUpdate)
             {
                 m_firstUpdate = false;
-                m_msgNetAgent.Connect("127.0.0.1", 2379);
+                m_msgNetAgent.Connect("127.0.0.1", 31000);
+                Core.ins.net.AddNetAgent(m_msgNetAgent);
             }
         }
     }
