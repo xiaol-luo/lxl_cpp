@@ -28,7 +28,7 @@ end_points=//127.0.0.1:8100,//127.0.0.1:8200,//127.0.0.1:8300
 etcdctl  --endpoints ${end_points} member list
 
 if [ ${is_init} = true ]; then
-    echo "xiaolzz" | etcdctl --endpoints ${end_points} user add root 
+    echo "xiaolzz" | etcdctl --endpoints ${end_points} user add root
     etcdctl --endpoints ${end_points} auth enable
     echo "xiaolzz" | etcdctl --endpoints ${end_points} -username root:xiaolzz user add lxl
     etcdctl --endpoints ${end_points} -username root:xiaolzz role add rw_all
