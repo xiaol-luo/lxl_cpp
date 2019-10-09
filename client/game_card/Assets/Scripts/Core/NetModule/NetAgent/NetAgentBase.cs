@@ -30,12 +30,13 @@ namespace Utopia
         {
             throw new NotImplementedException();
         }
-        protected virtual void OnSocketRecvData(List<byte[]> bytesList)
-        {
-            throw new NotImplementedException();
-        }
 
-        public void SetHandler(INetAgentHandler handler) { m_handler = handler; }
+        public void SetHandler(INetAgentHandler handler)
+        {
+            UnityEngine.Debug.Assert(null == m_handler && null != handler);
+            m_handler = handler;
+            m_handler.SetNetAgent(this);
+        }
 
         public bool Connect(string _host, int _port)
         {
@@ -104,6 +105,17 @@ namespace Utopia
             m_state = NetAgentState.Closed;
 
             AppLog.Info("OnSocketClose");
+        }
+
+        protected virtual void OnSocketRecvData(List<byte[]> bytesList)
+        {
+            foreach (byte[] bytes in bytesList)
+            {
+                if (null != m_handler)
+                {
+                    m_handler.OnRecvData(bytes, 0, bytes.Length);
+                }
+            }
         }
 
         public NetAgentState GetState()

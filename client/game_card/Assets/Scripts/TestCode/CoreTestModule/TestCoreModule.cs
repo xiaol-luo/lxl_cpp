@@ -6,10 +6,10 @@ namespace Utopia
 {
     using TimerId = System.UInt64;
 
-    public class CoreTestModule : CoreModule
+    public class TestCoreModule : CoreModule
     {
         TimerMgr m_timerMgr;
-        public CoreTestModule(Core _app) : base(_app, EModule.TestModule)
+        public TestCoreModule(Core _app) : base(_app, EModule.TestModule)
         {
             AppLog.Debug("CoreTestModule new");
         }

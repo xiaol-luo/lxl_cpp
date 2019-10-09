@@ -36,7 +36,8 @@ namespace Utopia
             m_modules[CoreModule.EModule.TimerModule] = new TimerModule(this);
             m_modules[CoreModule.EModule.NetModule] = new NetModule(this);
             // m_modules[CoreModule.EModule.TestModule] = new EmptyTestModule(this);
-            m_modules[CoreModule.EModule.TestModule] = new CoreTestModule(this);
+            // m_modules[CoreModule.EModule.TestModule] = new TestCoreModule(this);
+            m_modules[CoreModule.EModule.TestModule] = new TestMsgNetAgentModule(this);
 
             currStage = CoreModule.EStage.Free;
             ForeachModule((CoreModule module) => {

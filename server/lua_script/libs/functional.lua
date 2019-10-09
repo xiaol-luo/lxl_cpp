@@ -46,7 +46,7 @@ end
 
 help_fns[2] = function(call_fn, fn, t)
     return function(...)
-        return call_fn(fn, table.unpack(t), ...)
+        return call_fn(fn, t[1], t[2], ...)
     end
 end
 
@@ -72,6 +72,18 @@ end
 help_fns[6] = function(call_fn, fn, t)
     return function(...)
         return call_fn(fn, t[1], t[2], t[3], t[4], t[5], t[6], ...)
+    end
+end
+
+help_fns[7] = function(call_fn, fn, t)
+    return function(...)
+        return call_fn(fn, t[1], t[2], t[3], t[4], t[5], t[6], t[7], ...)
+    end
+end
+
+help_fns[8] = function(call_fn, fn, t)
+    return function(...)
+        return call_fn(fn, t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], ...)
     end
 end
 
