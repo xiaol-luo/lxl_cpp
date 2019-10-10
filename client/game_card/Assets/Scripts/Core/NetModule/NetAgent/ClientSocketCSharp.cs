@@ -117,7 +117,14 @@ namespace Utopia
                     }
                 }
 
-                socket.EndConnect(ar);
+                try
+                {
+                    socket.EndConnect(ar);
+                }
+                catch (System.Exception ex)
+                {
+                    AppLog.Debug("socket connect fail, exception message is {0}", ex.Message);
+                }
             }
         }
         Socket m_tmpSocket = null;
