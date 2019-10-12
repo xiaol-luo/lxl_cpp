@@ -1296,4 +1296,81 @@ LUA_API void lua_upvaluejoin (lua_State *L, int fidx1, int n1,
   luaC_upvalbarrier(L, *up1);
 }
 
+extern void (luaL_checktype)(lua_State *L, int arg, int t);
 
+LUA_API int lua_replace_proto(lua_State *L)
+{
+	StkId stkid_dest;
+	StkId stkid_src;
+	LClosure *cl_dest;
+	LClosure *cl_src;
+
+	luaL_checktype(L, 1, LUA_TFUNCTION);
+	luaL_checktype(L, 2, LUA_TFUNCTION);
+	if (lua_iscfunction(L, 1))
+		return 0;
+	if (lua_iscfunction(L, 2))
+		return 0;
+
+	stkid_dest = index2addr(L, 1);
+	stkid_src = index2addr(L, 2);
+	cl_dest = clLvalue(stkid_dest);
+	cl_src = clLvalue(stkid_src);
+	if (cl_dest->p->cache == cl_dest)
+		cl_dest->p->cache = NULL;
+	cl_dest->p = cl_src->p;
+	luaC_objbarrier(L, cl_dest, cl_dest->p);
+	return 0;
+}
+
+LUA_API int lua_copy_upvalues(lua_State *L)
+{
+	StkId stkid_dest;
+	StkId stkid_src;
+	LClosure *cl_dest;
+	LClosure *cl_src;
+	int i;
+
+	luaL_checktype(L, 1, LUA_TFUNCTION);
+	luaL_checktype(L, 2, LUA_TFUNCTION);
+	if (lua_iscfunction(L, 1))
+		return 0;
+	if (lua_iscfunction(L, 2))
+		return 0;
+
+	stkid_dest = index2addr(L, 1);
+	stkid_src = index2addr(L, 2);
+	cl_dest = clLvalue(stkid_dest);
+	cl_src = clLvalue(stkid_src);
+
+	for (i = 0; i < cl_dest->nupvalues; ++ i)
+	{
+		luaC_upvdeccount(L, cl_dest->upvals[i]);
+		cl_dest->upvals[i] = NULL;
+	}
+
+	if (cl_dest->nupvalues != cl_src->nupvalues)
+	{
+		if (cl_dest->nupvalues > 0)
+		{
+			luaM_freemem(L, cl_dest->upvals, sizeof(UpVal *) * cl_dest->nupvalues);
+			cl_dest->nupvalues = 0;
+			cl_dest->upvals = NULL;
+		}
+		if (cl_src->nupvalues > 0)
+		{
+			cl_dest->nupvalues = cl_src->nupvalues;
+			cl_dest->upvals = luaM_malloc(L, sizeof(UpVal *) * cl_dest->nupvalues);
+		}
+	}
+	for (i = 0; i < cl_dest->nupvalues; ++i)
+	{
+		UpVal *up_val = cl_src->upvals[i];
+		cl_dest->upvals[i] = up_val;
+		up_val->refcount++;
+		if (upisopen(up_val))
+			up_val->u.open.touched = 1;
+		luaC_upvalbarrier(L, up_val);
+	}
+	return 0;
+}

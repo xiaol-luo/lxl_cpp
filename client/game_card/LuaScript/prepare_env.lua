@@ -4,7 +4,8 @@ ParseArgs.Opt_Require_Files = "require_files"
 ParseArgs.Opt_Execute_Fns = "execute_fns"
 
 function ParseArgs.append_lua_search_path(v)
-	CS.Lua.LuaHelp.AddLuaSearchPath(v)
+	CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?.lua", v))
+	CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?/init.lua", v))
 end
 
 function ParseArgs.make_cmd_prefix(opt_name)
@@ -116,7 +117,7 @@ end
 --]]
 
 if arg_tb[ParseArgs.Opt_Require_Files] then
-    for _, v in ipairs(arg_tb[ParseArgs.Opt_Require_Files]) do
+	for _, v in ipairs(arg_tb[ParseArgs.Opt_Require_Files]) do
         require(v)
     end
 end

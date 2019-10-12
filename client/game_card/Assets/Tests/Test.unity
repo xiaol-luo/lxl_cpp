@@ -354,9 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lua_search_paths: []
-  lua_main_fn: do_test
-  lua_main_args: -require_files for_test/test_prepare_env -execute_fns do_test_prepare_env
-    do_test_prepare_env_xxxx
+  lua_main_args: -require_files try_hotfix/main -execute_fns main
 --- !u!4 &1867920588
 Transform:
   m_ObjectHideFlags: 0

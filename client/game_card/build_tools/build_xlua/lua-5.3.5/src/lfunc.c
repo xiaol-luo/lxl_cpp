@@ -23,19 +23,31 @@
 
 
 CClosure *luaF_newCclosure (lua_State *L, int n) {
-  GCObject *o = luaC_newobj(L, LUA_TCCL, sizeCclosure(n));
+  GCObject *o = luaC_newobj(L, LUA_TCCL, cast(int, sizeof(CClosure)));
   CClosure *c = gco2ccl(o);
   c->nupvalues = cast_byte(n);
+  c->upvalue = NULL;
+  if (c->nupvalues > 0)
+  {
+	  int malloc_size = cast(int, sizeof(TValue) * c->nupvalues);
+	  c->upvalue = cast(TValue *, luaM_malloc(L, malloc_size));
+  }
   return c;
 }
 
 
 LClosure *luaF_newLclosure (lua_State *L, int n) {
-  GCObject *o = luaC_newobj(L, LUA_TLCL, sizeLclosure(n));
+  GCObject *o = luaC_newobj(L, LUA_TLCL, cast(int, sizeof(LClosure)));
   LClosure *c = gco2lcl(o);
   c->p = NULL;
   c->nupvalues = cast_byte(n);
-  while (n--) c->upvals[n] = NULL;
+  c->upvals = NULL;
+  if (c->nupvalues > 0)
+  {
+	  int malloc_size = cast(int, sizeof(UpVal *) * c->nupvalues);
+	  c->upvals = cast(UpVal **, luaM_malloc(L, malloc_size));
+	  while (n--) c->upvals[n] = NULL;
+  }
   return c;
 }
 

@@ -690,9 +690,24 @@ static void freeLclosure (lua_State *L, LClosure *cl) {
     if (uv)
       luaC_upvdeccount(L, uv);
   }
-  luaM_freemem(L, cl, sizeLclosure(cl->nupvalues));
+  if (cl->nupvalues > 0)
+  {
+	  int malloc_size = cast(int, sizeof(UpVal*) * cl->nupvalues);
+	  luaM_freemem(L, cl->upvals, malloc_size);
+  }
+  luaM_freemem(L, cl, sizeof(LClosure));
 }
 
+static void freeCclosure(lua_State *L, CClosure *cl)
+{
+	// luaM_freemem(L, o, sizeCclosure(gco2ccl(o)->nupvalues));
+	if (cl->nupvalues > 0)
+	{
+		int malloc_size = cast(int, sizeof(TValue) * cl->nupvalues);
+		luaM_freemem(L, cl->upvalue, malloc_size);
+	}
+	luaM_freemem(L, cl, cast(int, sizeof(CClosure)));
+}
 
 static void freeobj (lua_State *L, GCObject *o) {
   switch (o->tt) {
@@ -702,7 +717,7 @@ static void freeobj (lua_State *L, GCObject *o) {
       break;
     }
     case LUA_TCCL: {
-      luaM_freemem(L, o, sizeCclosure(gco2ccl(o)->nupvalues));
+		freeCclosure(L, gco2ccl(o));
       break;
     }
     case LUA_TTABLE: luaH_free(L, gco2t(o)); break;

@@ -1,3 +1,4 @@
+-- -require_files for_test/test_prepare_env -execute_fns do_test_prepare_env do_test_prepare_env_xxxx
 
 print("reach test_prepare_env.lua start")
 

@@ -46,12 +46,13 @@ namespace Utopia
 
             byte[] bins = null;
 
-            string luaRootDir =Path.Combine(Path.Combine(UnityEngine.Application.dataPath, ".."), "LuaScript");
+            string luaRootDir = Path.Combine(Path.Combine(UnityEngine.Application.dataPath, ".."), "LuaScript");
 
-            foreach (string subDir in App.ins.root.lua_search_paths)
+            foreach (string subDir in Lua.LuaHelp.ScriptSearchDirs())
             {
-                string absSubDir = Path.Combine(luaRootDir, subDir);
-                string absLuaFile = Path.Combine(absSubDir, string.Format("{0}.lua", filePath.Replace('.', '/'))).Replace('\\', '/');
+                // string absSubDir = Path.Combine(luaRootDir, subDir);
+                string realFilePath = filePath.Replace('.', '/').Replace('\\', '/');
+                string absLuaFile = subDir.Replace("?", realFilePath);
                 if (File.Exists(absLuaFile))
                 {
                     filePath = absLuaFile;

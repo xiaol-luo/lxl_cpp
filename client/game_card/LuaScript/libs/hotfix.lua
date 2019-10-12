@@ -216,12 +216,13 @@ function hotfix_read_file(file_path)
     local file_content = nil
     local tmp_paths = string.split(file_path, "%.")
     local real_file_path = table.concat(tmp_paths, "/")
-    local search_paths = string.split(package.path, ";")
-    for _, v in ipairs(search_paths) do
+    local search_paths = CS.Lua.LuaHelp.ScriptSearchDirs()
+    for i=0, search_paths.Length - 1 do
+        local v = search_paths[i]
         local full_path = string.gsub(v, "%?", real_file_path)
-        local file_attr = lfs.attributes(full_path)
-        -- print("hotfix_file", full_path, file_attr or "nil")
-        if file_attr and "file" == file_attr.mode then
+        local is_file = CS.Lua.LuaHelp.IsFile(full_path)
+        print("hotfix_read_file", is_file, full_path)
+        if is_file then
             local fd = io.open(full_path, "r")
             if fd then
                 file_content = fd:read("a")

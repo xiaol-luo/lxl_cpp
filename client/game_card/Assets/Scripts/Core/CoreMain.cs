@@ -20,7 +20,9 @@ namespace Utopia
 
         void Start()
         {
-            lua_search_paths.Add(".");
+            lua_search_paths.Add("?.lua");
+            lua_search_paths.Add("?/init.lua");
+
             AppLog.Init(new ConsoleLogImpl(), null);
             DontDestroyOnLoad(gameObject);
             Core.MakeInstance(this);
