@@ -1,6 +1,7 @@
 
 namespace Utopia
 {
+    [XLua.LuaCallCSharp]
     public enum LogLevel
     {
         Debug,

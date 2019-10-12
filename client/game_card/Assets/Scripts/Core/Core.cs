@@ -4,24 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using UnityEngine;
-using AppEventMgr = Utopia.EventMgr<string>;
-using AppEventSubscriber = Utopia.EventSubscriber<string>;
 
 namespace Utopia
 {
     public partial class Core
     {
-        public static Core ins { get { return m_ins; } }
-        protected static Core m_ins = null;
-
-        public static void MakeInstance(CoreMain _owner)
-        {
-            if (null == m_ins)
-                m_ins = new Core(_owner);
-            else
-                AppLog.Error("NewApp is single instance, can only make one instance");
-        }
-
         public CoreMain root { get; protected set; }
         public CoreModule.EStage currStage { get; protected set; }
         const int EModuleCount = (int)CoreModule.EModule.Count;
@@ -31,13 +18,13 @@ namespace Utopia
         protected Core(CoreMain _root)
         {
             root = _root;
-            m_eventMgr = new EventMgr<string>();
+            m_eventMgr = new AppEventMgr();
 
             m_modules[CoreModule.EModule.TimerModule] = new TimerModule(this);
             m_modules[CoreModule.EModule.NetModule] = new NetModule(this);
-            // m_modules[CoreModule.EModule.TestModule] = new EmptyTestModule(this);
+            m_modules[CoreModule.EModule.TestModule] = new EmptyTestModule(this);
             // m_modules[CoreModule.EModule.TestModule] = new TestCoreModule(this);
-            m_modules[CoreModule.EModule.TestModule] = new TestMsgNetAgentModule(this);
+            // m_modules[CoreModule.EModule.TestModule] = new TestMsgNetAgentModule(this);
 
             currStage = CoreModule.EStage.Free;
             ForeachModule((CoreModule module) => {
@@ -81,6 +68,15 @@ namespace Utopia
         {
             root.StopAllCoroutines();
         }
-    }
 
+        public static Core ins { get { return m_ins; } }
+        protected static Core m_ins = null;
+        public static void MakeInstance(CoreMain _owner)
+        {
+            if (null == m_ins)
+                m_ins = new Core(_owner);
+            else
+                AppLog.Error("NewApp is single instance, can only make one instance");
+        }
+    }
 }

@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using UnityEngine;
-using AppEventMgr = Utopia.EventMgr<string>;
-using AppEventSubscriber = Utopia.EventSubscriber<string>;
 
 namespace Utopia
 {

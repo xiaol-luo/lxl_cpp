@@ -27,17 +27,6 @@ namespace Utopia
         {
             base.OnUpdate();
             AppLog.Debug("CoreTestModule OnUpdate");
-
-            // m_luaEnv.DoString("CS.UnityEngine.Debug.Log('hello world')"); 
-            
-            m_luaEnv.DoString(@"
-print('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-json = require('rapidjson')
-t = json.decode('{'a':123}')
-print(t.a)
-                ");
-            int a = 0;
-            a++;
         }
     }
 }

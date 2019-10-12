@@ -1,8 +1,7 @@
 fileFormatVersion: 2
 guid: 4898604144dd928468ddca1af81d58ae
-timeCreated: 1501232546
-licenseType: Pro
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
   defaultReferences:
   - LuaClassWrap: {fileID: 4900000, guid: 8503038eabbabe44dac0f5f749d4411a, type: 3}
