@@ -26,22 +26,22 @@ end
 
 function log_debug(fmt_str, ...)
     local log_str = string_format(fmt_str, ...)
-    CS.Utopia.AppLog.Debug(log_str)
+    CS.Utopia.AppLog.DoLogContent(CS.Utopia.LogLevel.Debug, log_str)
 end
 
 function log_info(fmt_str, ...)
     local log_str = string_format(fmt_str, ...)
-    CS.Utopia.AppLog.Info(log_str)
+    CS.Utopia.AppLog.DoLogContent(CS.Utopia.LogLevel.Info, log_str)
 end
 
 function log_warn(fmt_str, ...)
     local log_str = string_format(fmt_str, ...)
-    CS.Utopia.AppLog.Warning(log_str)
+    CS.Utopia.AppLog.DoLogContent(CS.Utopia.LogLevel.Waring, log_str)
 end
 
 function log_error(fmt_str, ...)
     local log_str = string_format(fmt_str, ...)
-    CS.Utopia.AppLog.Error(log_str)
+    CS.Utopia.AppLog.DoLogContent(CS.Utopia.LogLevel.Error, log_str)
 end
 
 function log_assert(is_ok, fmt_str, ...)
@@ -58,7 +58,6 @@ function print(...)
     for _, arg in pairs({...}) do
         if "table" ~= type(arg) then
             table.insert(str_list, tostring(arg))
-
         else
             table.insert(str_list, string.toprint(arg))
         end

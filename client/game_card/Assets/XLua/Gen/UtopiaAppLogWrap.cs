@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 11, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 12, 0, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "Init", _m_Init_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "SetLogLvl", _m_SetLogLvl_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "Release", _m_Release_xlua_st_);
@@ -42,6 +42,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "Exception", _m_Exception_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "Assert", _m_Assert_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "DoLog", _m_DoLog_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "DoLogContent", _m_DoLogContent_xlua_st_);
             
 			
             
@@ -319,6 +320,33 @@ namespace XLua.CSObjectWrap
                     object[] _args = translator.GetParams<object>(L, 3);
                     
                     Utopia.AppLog.DoLog( _lvl, _format, _args );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_DoLogContent_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    Utopia.LogLevel _lvl;translator.Get(L, 1, out _lvl);
+                    string _content = LuaAPI.lua_tostring(L, 2);
+                    
+                    Utopia.AppLog.DoLogContent( _lvl, _content );
                     
                     
                     

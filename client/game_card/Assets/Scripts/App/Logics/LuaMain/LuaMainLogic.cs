@@ -14,18 +14,17 @@ namespace Utopia
         }
         protected override void OnInit()
         {
+
+        }
+
+        protected override void OnStart()
+        {
             m_lua = m_owner.app.lua;
             m_lua.AddLoader(LuaFileLoader);
             object[] ret = null;
             ret = m_lua.DoString(string.Format("entrance_arg_str = '{0}' ", m_owner.app.root.lua_main_args));
             ret = m_lua.DoString(" require  'prepare_env' ");
             // ret = m_lua.DoString(string.Format(" {0}('{1}') ", m_owner.app.root.lua_main_fn, m_owner.app.root.lua_main_args));
-
-        }
-
-        protected override void OnStart()
-        {
-            
         }
 
         protected override void OnRelease()
@@ -35,7 +34,11 @@ namespace Utopia
 
         protected override void OnUpdate()
         {
-
+            XLua.LuaFunction lua_fn = m_lua.Global.Get<XLua.LuaFunction>("on_native_drive_update");
+            if (null != lua_fn)
+            {
+                lua_fn.Call();
+            }
         }
 
 #if UNITY_EDITOR

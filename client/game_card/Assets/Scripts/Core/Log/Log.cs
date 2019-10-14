@@ -66,7 +66,15 @@ namespace Utopia
             if (lvl < m_logLvl)
                 return;
 
-            m_logImpl.DoLog(lvl, format, args);
+            m_logImpl.DoLog(lvl, string.Format(format, args));
+        }
+
+        public void DoLogContent(LogLevel lvl, string content)
+        {
+            if (lvl < m_logLvl)
+                return;
+
+            m_logImpl.DoLog(lvl, content);
         }
     }
 }

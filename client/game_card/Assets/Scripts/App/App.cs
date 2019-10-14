@@ -17,8 +17,8 @@ namespace Utopia
         public XLua.LuaEnv lua { get; protected set; }
         public TimerModule timer { get { return Core.ins.timer; } }
         public NetModule net { get { return Core.ins.net; } }
-
         public LogicMgr logicMgr { get; protected set; }
+        public AppStateMgr stateMgr { get; protected set; }
 
         protected App(CoreMain _mono)
         {
@@ -26,16 +26,19 @@ namespace Utopia
             uiRoot = root.transform.Find("UIRoot").transform;
             lua = Lua.LuaUtil.NewLuaEnv();
             logicMgr = new LogicMgr(this);
+            stateMgr = new AppStateMgr(this);
         }
 
         public void Awake()
         {
-            logicMgr.Init();
+            stateMgr.ChangeState(EAppState.Init);
+            // logicMgr.Init();
         }
 
         public void Start()
         {
-            logicMgr.Start();
+            stateMgr.ChangeState(EAppState.MainLogic);
+            // logicMgr.Start();
         }
 
         public void Update()
@@ -43,7 +46,8 @@ namespace Utopia
             if (m_isQuited)
                 return;
 
-            logicMgr.Update();
+            stateMgr.UpdateState();
+            // logicMgr.Update();
         }
 
         public void Quit()
@@ -52,7 +56,8 @@ namespace Utopia
                 return;
 
             m_isQuited = true;
-            logicMgr.Release();
+            stateMgr.ChangeState(EAppState.Quit);
+            // logicMgr.Release();
         }
 
         public static App ins { get { return m_ins; } }

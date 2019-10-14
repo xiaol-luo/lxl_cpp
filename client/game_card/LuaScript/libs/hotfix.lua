@@ -88,43 +88,44 @@ function hotfix_record_module_upvalues(mod)
     -- print("hotfix_record_module_upvalues upvalues:\n", Functional.varlen_param_info(out_fn()))
 end
 
-function hotfix_function(old_fn, new_fn, mod)
-    -- print("hotfix_function 1", tostring(old_fn), tostring(new_fn), mod)
-    local idx = 0
-    while true do
-        idx = idx + 1
-        local name = debug.getupvalue(new_fn, idx)
-        if not name then
-            break
-        end
-        local old_idx = 0
-        local joined = false
+function hotfix_function(old_fn, new_fn, mod, opt)
+    if not opt.replace_upvalue then -- 新函数使用旧函数的upvalue
+        local idx = 0
         while true do
-            old_idx = old_idx + 1
-            local old_name = debug.getupvalue(old_fn, old_idx)
-            if not old_name then
+            idx = idx + 1
+            local name = debug.getupvalue(new_fn, idx)
+            if not name then
                 break
             end
-            if name == old_name then
-                debug.upvaluejoin(new_fn, idx, old_fn, old_idx)
-                -- print("hotfix_function upvalue 1", name)
-                joined = true
-                break
-            end
-        end
-        if not joined and mod and "function" == type(mod.__ups) then
-            old_idx = 0
+            local old_idx = 0
+            local joined = false
             while true do
                 old_idx = old_idx + 1
-                local old_name = debug.getupvalue(mod.__ups, old_idx)
+                local old_name = debug.getupvalue(old_fn, old_idx)
                 if not old_name then
                     break
                 end
                 if name == old_name then
-                    -- print("hotfix_function upvalue 2", name)
-                    debug.upvaluejoin(new_fn, idx, mod.__ups, old_idx)
+                    debug.upvaluejoin(new_fn, idx, old_fn, old_idx)
+                    -- print("hotfix_function upvalue 1", name)
                     joined = true
                     break
+                end
+            end
+            if not joined and mod and "function" == type(mod.__ups) then
+                old_idx = 0
+                while true do
+                    old_idx = old_idx + 1
+                    local old_name = debug.getupvalue(mod.__ups, old_idx)
+                    if not old_name then
+                        break
+                    end
+                    if name == old_name then
+                        -- print("hotfix_function upvalue 2", name)
+                        debug.upvaluejoin(new_fn, idx, mod.__ups, old_idx)
+                        joined = true
+                        break
+                    end
                 end
             end
         end
@@ -142,7 +143,8 @@ end
 function hotfix_module(old_mod, new_mod)
     local opt = {
         replace_fn = true,
-        replace_var = false,
+        replace_var = true,
+        replace_upvalue = true,
     }
     hotfix_table(old_mod, new_mod, opt, {})
 end
@@ -160,6 +162,7 @@ function hotfix_table(old_tb, new_tb, opt, visited_record)
     -- replace的行为是：遵循第一原则的情况下，若旧表和新表都有，则用新表的值替换旧表的值
     -- opt.replace_var
     -- opt.replace_fn
+    -- opt.replace_upvalue
 
     --对某些关键函数不进行比对
     if protection[old_tb] or protection[new_tb] then
@@ -181,7 +184,7 @@ function hotfix_table(old_tb, new_tb, opt, visited_record)
         if nil == old_val then
             if "function" == new_val_type then
                 old_tb[k] = function() end
-                hotfix_function(old_tb[k], new_val, old_tb)
+                hotfix_function(old_tb[k], new_val, old_tb, opt)
             else
                 old_tb[k] = new_val
             end
@@ -192,7 +195,7 @@ function hotfix_table(old_tb, new_tb, opt, visited_record)
             end
             if "function" == old_value_type then
                 if opt.replace_fn then
-                    hotfix_function(old_val, new_val, old_tb)
+                    hotfix_function(old_val, new_val, old_tb, opt)
                 end
             else
                 if "table" == old_value_type then
@@ -221,7 +224,7 @@ function hotfix_read_file(file_path)
         local v = search_paths[i]
         local full_path = string.gsub(v, "%?", real_file_path)
         local is_file = CS.Lua.LuaHelp.IsFile(full_path)
-        print("hotfix_read_file", is_file, full_path)
+        -- print("hotfix_read_file", is_file, full_path)
         if is_file then
             local fd = io.open(full_path, "r")
             if fd then
@@ -267,16 +270,18 @@ function hotfix_build_env(old_env_tb, chunk, chunk_name)
     })
     local lf, error_msg = load(chunk, chunk_name)
     if not lf then
-        print("hotfix_build_env load fail:", error_msg)
+        print("Mtfix_build_env load fail:", error_msg)
         return nil
     end
     debug.setupvalue(lf, 1, env)
-    local ok, error_msg = pcall(lf)
+    local n, rets = Functional.varlen_param_info(pcall(lf))
+    local ok = rets[1]
     if not ok then
+        local error_msg = rets[2]
         print("hotfix_build_env pcall fail:", error_msg)
         return nil
     end
-    return env
+    return env, table.unpack(rets, 2)
 end
 
 function hotfix_chunk(old_env_tb, chunk, chunk_name)
@@ -286,7 +291,8 @@ function hotfix_chunk(old_env_tb, chunk, chunk_name)
     end
     local opt = {
         replace_fn = true,
-        replace_var = false,
+        replace_var = true,
+        replace_upvalue = true,
     }
     hotfix_table(old_env_tb, env, opt, {})
 end
@@ -301,5 +307,42 @@ function hotfix_file(file_path, old_env_tb)
         return
     end
     hotfix_chunk(old_env_tb, file_content, file_path)
+end
+
+function batch_hotfix_files(file_paths, old_env_tb)
+    for _, v in pairs(file_paths) do
+        hotfix_file(v, old_env_tb)
+    end
+end
+
+
+-- 下面的是为了处理用local定义类的情况
+function hotfix_require(file_path)
+    local file_content = hotfix_read_file(file_path)
+    if not file_content then
+        print("hotfix_file fail, can not read file", file_path)
+        return
+    end
+    local old_env = _G
+    local old_n, old_ret = Functional.varlen_param_info(require(file_path))
+    local new_n, new_ret = Functional.varlen_param_info(hotfix_build_env(_G, file_content, file_path))
+    local new_env = new_ret[1]
+    if not new_env then
+        return
+    end    
+    table.remove(new_ret, 1)
+
+    local opt = {
+        replace_fn = true,
+        replace_var = true,
+        replace_upvalue = true,
+    }
+    hotfix_table(old_env, new_env, opt, {})
+    for i=1, new_n do
+        if i > old_n then
+            break
+        end
+        hotfix_table(old_ret[i], new_ret[i], opt, {})
+    end
 end
 

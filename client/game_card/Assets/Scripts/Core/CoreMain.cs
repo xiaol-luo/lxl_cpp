@@ -6,7 +6,7 @@ namespace Utopia
 {
     public class CoreMain : MonoBehaviour
     {
-        bool m_fistUpdate = false;
+        bool m_fistUpdate = true;
 
         [SerializeField]
         public List<string> lua_search_paths;

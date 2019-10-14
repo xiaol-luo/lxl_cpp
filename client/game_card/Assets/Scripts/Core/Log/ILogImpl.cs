@@ -15,7 +15,7 @@ namespace Utopia
     public interface ILogImpl
     {
         bool Init(object param);
-        void DoLog(LogLevel lvl, string format, params object[] args);
+        void DoLog(LogLevel lvl, string content);
         void Release();
     }
 }

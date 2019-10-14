@@ -13,34 +13,34 @@ namespace Utopia
 
         }
 
-        public void DoLog(LogLevel lvl, string format, params object[] args)
+        public void DoLog(LogLevel lvl, string content)
         {
             switch (lvl)
             {
                 case LogLevel.Debug:
                 case LogLevel.Info:
                     {
-                        UnityEngine.Debug.LogFormat(format, args);
+                        UnityEngine.Debug.Log(content);
                     }
                     break;
                 case LogLevel.Waring:
                     {
-                        UnityEngine.Debug.LogWarningFormat(format, args);
+                        UnityEngine.Debug.LogWarning(content);
                     }
                     break;
                 case LogLevel.Error:
                     {
-                        UnityEngine.Debug.LogErrorFormat(format, args);
+                        UnityEngine.Debug.LogError(content);
                     }
                     break;
                 case LogLevel.Assert:
                     {
-                        UnityEngine.Debug.LogAssertionFormat(format, args);
+                        UnityEngine.Debug.LogAssertion(content);
                     }
                     break;
                 case LogLevel.Exception:
                     {
-                        UnityEngine.Debug.LogErrorFormat(format, args);
+                        UnityEngine.Debug.LogError(content);
                     }
                     break;
             }

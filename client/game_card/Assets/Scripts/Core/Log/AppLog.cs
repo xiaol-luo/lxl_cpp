@@ -64,5 +64,10 @@ namespace Utopia
         {
             s_log.DoLog(lvl, format, args);
         }
+
+        public static void DoLogContent(LogLevel lvl, string content)
+        {
+            s_log.DoLogContent(lvl, content);
+        }
     }
 }

@@ -354,7 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lua_search_paths: []
-  lua_main_args: -require_files try_hotfix/main -execute_fns main
+  lua_main_args: -require_files main_logic/main_entrance -execute_fns setup_lua_logics
 --- !u!4 &1867920588
 Transform:
   m_ObjectHideFlags: 0
