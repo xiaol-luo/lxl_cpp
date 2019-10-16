@@ -14,12 +14,11 @@ namespace Utopia
         }
         protected override void OnInit()
         {
-
+            m_lua = m_owner.app.lua;
         }
 
         protected override void OnStart()
         {
-            m_lua = m_owner.app.lua;
             m_lua.AddLoader(LuaFileLoader);
             object[] ret = null;
             ret = m_lua.DoString(string.Format("entrance_arg_str = '{0}' ", m_owner.app.root.lua_main_args));

@@ -338,11 +338,12 @@ function hotfix_require(file_path)
         replace_upvalue = true,
     }
     hotfix_table(old_env, new_env, opt, {})
-    for i=1, new_n do
-        if i > old_n then
-            break
-        end
-        hotfix_table(old_ret[i], new_ret[i], opt, {})
+    hotfix_table(old_ret, new_ret, opt, {})
+end
+
+function batch_hotfix_require(file_paths)
+    for _, v in pairs(file_paths) do
+        hotfix_require(v)
     end
 end
 

@@ -32,13 +32,11 @@ namespace Utopia
         public void Awake()
         {
             stateMgr.ChangeState(EAppState.Init);
-            // logicMgr.Init();
         }
 
         public void Start()
         {
             stateMgr.ChangeState(EAppState.MainLogic);
-            // logicMgr.Start();
         }
 
         public void Update()
@@ -47,7 +45,6 @@ namespace Utopia
                 return;
 
             stateMgr.UpdateState();
-            // logicMgr.Update();
         }
 
         public void Quit()
@@ -57,7 +54,6 @@ namespace Utopia
 
             m_isQuited = true;
             stateMgr.ChangeState(EAppState.Quit);
-            // logicMgr.Release();
         }
 
         public static App ins { get { return m_ins; } }

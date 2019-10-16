@@ -1,7 +1,7 @@
 
 namespace Utopia
 {
-    public class TestMsgNetAgentHandler : MsgNetAgentHandler
+    public class TestMsgNetAgentHandler : IMsgNetAgentHandler
     {
         public TestMsgNetAgentModule m_owner = null;
 

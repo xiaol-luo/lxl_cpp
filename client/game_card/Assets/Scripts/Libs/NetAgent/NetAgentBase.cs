@@ -96,14 +96,13 @@ namespace Utopia
 
         void OnSocketClose()
         {
+            m_state = NetAgentState.Closed;
             m_error_num = m_socket.GetErrorNum();
             m_error_msg = m_socket.GetErrorMsg();
             if (null != m_handler)
             {
                 m_handler.OnClose(m_error_num, m_error_msg);
             }
-
-            m_state = NetAgentState.Closed;
 
             AppLog.Info("OnSocketClose");
         }

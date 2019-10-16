@@ -14,7 +14,7 @@ namespace Utopia
 
         public override void Enter(object param)
         {
-            if (!m_isFirstEnter)
+            if (m_isFirstEnter)
             {
                 m_isFirstEnter = false;
                 stateMgr.app.logicMgr.Start();

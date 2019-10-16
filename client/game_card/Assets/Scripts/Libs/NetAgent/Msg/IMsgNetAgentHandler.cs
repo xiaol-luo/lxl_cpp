@@ -5,7 +5,7 @@ using System.Net;
 
 namespace Utopia
 {
-    public abstract class MsgNetAgentHandler : INetAgentHandler
+    public abstract class IMsgNetAgentHandler : INetAgentHandler
     {
         abstract protected void OnRecvMsg(int protocolId, byte[] data, int dataBegin, int dataLen);
 

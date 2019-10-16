@@ -270,12 +270,14 @@ function hotfix_build_env(old_env_tb, chunk, chunk_name)
         return nil
     end
     debug.setupvalue(lf, 1, env)
-    local ok, error_msg = pcall(lf)
+    local n, rets = Functional.varlen_param_info(pcall(lf))
+    local ok = rets[1]
     if not ok then
+        local error_msg = rets[2]
         print("hotfix_build_env pcall fail:", error_msg)
         return nil
     end
-    return env
+    return env, table.unpack(rets, 2)
 end
 
 function hotfix_chunk(old_env_tb, chunk, chunk_name)
@@ -300,5 +302,43 @@ function hotfix_file(file_path, old_env_tb)
         return
     end
     hotfix_chunk(old_env_tb, file_content, file_path)
+end
+
+function batch_hotfix_files(file_paths, old_env_tb)
+    for _, v in pairs(file_paths) do
+        hotfix_file(v, old_env_tb)
+    end
+end
+
+
+-- 下面的是为了处理用local定义类的情况
+function hotfix_require(file_path)
+    local file_content = hotfix_read_file(file_path)
+    if not file_content then
+        print("hotfix_file fail, can not read file", file_path)
+        return
+    end
+    local old_env = _G
+    local old_n, old_ret = Functional.varlen_param_info(require(file_path))
+    local new_n, new_ret = Functional.varlen_param_info(hotfix_build_env(_G, file_content, file_path))
+    local new_env = new_ret[1]
+    if not new_env then
+        return
+    end    
+    table.remove(new_ret, 1)
+
+    local opt = {
+        replace_fn = true,
+        replace_var = true,
+        replace_upvalue = true,
+    }
+    hotfix_table(old_env, new_env, opt, {})
+    hotfix_table(old_ret, new_ret, opt, {})
+end
+
+function batch_hotfix_require(file_paths)
+    for _, v in pairs(file_paths) do
+        hotfix_require(v)
+    end
 end
 
