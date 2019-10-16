@@ -9,6 +9,7 @@
 		<type fullname="Tutorial.ICalc" preserve="all"/>
 		<type fullname="Tutorial.DerivedClassExtensions" preserve="all"/>
 		<type fullname="Lua.LuaHelp" preserve="all"/>
+		<type fullname="Utopia.GameNet" preserve="all"/>
 		<type fullname="Utopia.AppLog" preserve="all"/>
 		<type fullname="Utopia.LogLevel" preserve="all"/>
 		<type fullname="Tutorial.DerivedClass+TestEnumInner" preserve="all"/>

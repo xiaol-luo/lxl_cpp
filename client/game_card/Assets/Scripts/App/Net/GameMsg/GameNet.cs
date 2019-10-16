@@ -2,6 +2,7 @@
 
 namespace Utopia
 {
+    [XLua.LuaCallCSharp]
     public class GameNet
     {
         GameMsgNetAgentHandler m_msgHandler = null;
@@ -10,6 +11,7 @@ namespace Utopia
         Action<bool> m_openCb = null;
         Action<int, string> m_closeCb = null;
         Action<int, byte[], int, int> m_onRecvMsgCb = null;
+        AppEventSubscriber m_netModuleSubcriber = null;
 
         public GameNet(Action<bool> openCb, Action<int, string> closeCb, Action<int, byte[], int, int> onRecvMsgCb)
         {
@@ -20,6 +22,8 @@ namespace Utopia
             m_netAgent = new MsgNetAgent();
             m_msgHandler = new GameMsgNetAgentHandler(this);
             m_netAgent.SetHandler(m_msgHandler);
+            m_netModuleSubcriber = App.ins.net.CreateEventSubcriber();
+            m_netModuleSubcriber.Subscribe<NetAgentBase>(NetModuleEventDef.Remove_NetAgent, this.OnRemoveNetAgent);
         }
 
         public void OnClose(int errno, string errMsg)
@@ -67,6 +71,26 @@ namespace Utopia
         public void Close()
         {
             m_netAgent.Close();
+        }
+
+        public NetAgentState GetState()
+        {
+            return m_netAgent.GetState();
+        }
+
+        public bool Send(int protocolId)
+        {
+            return m_netAgent.Send(protocolId);
+        }
+
+        public bool Send(int protocolId, byte[] data, int offset = 0, int len = -1)
+        {
+            return m_netAgent.Send(protocolId, data, offset, len);
+        }
+
+        public void OnRemoveNetAgent(string evString, NetAgentBase netAgent)
+        {
+            AppLog.Debug("OnRemoveNetAgent {0}", netAgent.id);
         }
     }
 }
