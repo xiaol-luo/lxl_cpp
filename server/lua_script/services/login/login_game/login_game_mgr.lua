@@ -88,29 +88,37 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
     end
 
     login_item.state = LoginGameState.Auth
-
     local main_logic = function(co, msg)
-        local auth_params = {
-            token = msg.token,
-            timestamp = msg.timestamp,
-        }
-        local auth_param_strs = {}
-        for k, v in pairs(auth_params) do
-            table.insert(auth_param_strs, string.format("%s=%s", k, v))
-        end
         local auth_cfg_group = self.service.all_service_cfg:get_third_party_service_group(Service_Const.Auth_Service, self.logic_mgr.service.zone_name)
         local _, auth_cfg = random.pick_one(auth_cfg_group)
-        local host = string.format("%s:%s", auth_cfg[Service_Const.Ip], auth_cfg[Service_Const.Port])
-        local url = string.format("%s/%s?%s", host, "login_auth", table.concat(auth_param_strs, "&"))
-        local co_ok, http_ret = HttpClient.co_get(url, {})
-        local rsp_state, body_str = http_ret.state, http_ret.body
-        if not co_ok or "OK" ~= rsp_state then
-            return Error.Login_Game.auth_login_fail
-        end
-        local auth_login_ret = rapidjson.decode(body_str)
-        log_debug("LoginGameMgr:process_req_login_game auth success %s", auth_login_ret)
-        if auth_login_ret.error and #auth_login_ret.error > 0 then
-            return Error.Login_Game.auth_login_fail
+        local auth_login_ret = {}
+        if not msg.ignore_auth then
+            local auth_params = {
+                token = msg.token,
+                timestamp = msg.timestamp,
+            }
+            local auth_param_strs = {}
+            for k, v in pairs(auth_params) do
+                table.insert(auth_param_strs, string.format("%s=%s", k, v))
+            end
+            local host = string.format("%s:%s", auth_cfg[Service_Const.Ip], auth_cfg[Service_Const.Port])
+            local url = string.format("%s/%s?%s", host, "login_auth", table.concat(auth_param_strs, "&"))
+            local co_ok, http_ret = HttpClient.co_get(url, {})
+            local rsp_state, body_str = http_ret.state, http_ret.body
+            if not co_ok or "OK" ~= rsp_state then
+                return Error.Login_Game.auth_login_fail
+            end
+            auth_login_ret = rapidjson.decode(body_str)
+            log_debug("LoginGameMgr:process_req_login_game auth success %s", auth_login_ret)
+            if auth_login_ret.error and #auth_login_ret.error > 0 then
+                return Error.Login_Game.auth_login_fail
+            end
+        else
+            auth_login_ret.error = ""
+            auth_login_ret.account_id = msg.force_account_id
+            auth_login_ret.app_id = "for_test_app_id"
+            auth_login_ret.token = "for_test_token"
+            auth_login_ret.timestamp = os.time()
         end
         local account_id = auth_login_ret.uid
         local app_id = auth_login_ret.appid
@@ -162,6 +170,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             gate_port = gate_port,
             auth_ip = auth_cfg[Service_Const.Ip],
             auth_port = tonumber(auth_cfg[Service_Const.Port]),
+            ignore_auth = msg.ignore_auth,
         }
         return 0, return_val
     end
@@ -188,6 +197,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             gate_port = ret.gate_port,
             auth_ip = ret.auth_ip,
             auth_port = ret.auth_port,
+            ignore_auth = ret.ignore_auth,
         })
     end
 

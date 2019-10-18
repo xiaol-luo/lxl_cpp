@@ -8,6 +8,7 @@ message ReqUserLogin
 	string auth_ip = 4;
 	int32 auth_port = 5;
 	string account_id = 6;
+	bool ignore_auth = 7;
 }
 
 message RspUserLogin

@@ -74,6 +74,16 @@ list(APPEND THIRDPART_SRC ${RapidJson_Src})
 list(APPEND THIRDPART_INC 3rd_libs/lua_rapidjson/src)
 # end lua_rapidjson
 
+#begin lua_protobuf
+set(
+    LuaProtobuf_Src
+    3rd_libs/lua_protobuf/pb.c
+)
+list(APPEND THIRDPART_SRC ${LuaProtobuf_Src})
+list(APPEND THIRDPART_INC 3rd_libs/lua_protobuf)
+
+#end lua_protobuf
+
 
 
 ###### 3rd libs setting end ######

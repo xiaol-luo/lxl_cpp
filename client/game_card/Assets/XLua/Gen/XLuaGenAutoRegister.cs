@@ -43,6 +43,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Utopia.GameNet), UtopiaGameNetWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Utopia.LuaGameNet), UtopiaLuaGameNetWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Utopia.AppLog), UtopiaAppLogWrap.__Register);
         
         

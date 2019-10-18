@@ -5,6 +5,8 @@ message ReqLoginGame
 	string token = 1;
 	int64 timestamp = 2;
 	string platform = 3;
+	bool ignore_auth = 4;
+	string force_account_id = 5;
 }
 
 message RspLoginGame
@@ -19,5 +21,6 @@ message RspLoginGame
 	int32 gate_port = 8;
 	string auth_ip = 9;
 	int32 auth_port = 10;
+	bool ignore_auth = 11;
 }
 

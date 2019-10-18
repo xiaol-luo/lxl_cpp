@@ -21,8 +21,9 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Utopia.GameNet);
-			Utils.BeginObjectRegister(type, L, translator, 0, 9, 0, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 10, 0, 0);
 			
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetCallbacks", _m_SetCallbacks);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnClose", _m_OnClose);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnOpen", _m_OnOpen);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnRecvMsg", _m_OnRecvMsg);
@@ -56,13 +57,10 @@ namespace XLua.CSObjectWrap
             
 			try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				if(LuaAPI.lua_gettop(L) == 4 && translator.Assignable<System.Action<bool>>(L, 2) && translator.Assignable<System.Action<int, string>>(L, 3) && translator.Assignable<System.Action<int, byte[], int, int>>(L, 4))
+				if(LuaAPI.lua_gettop(L) == 1)
 				{
-					System.Action<bool> _openCb = translator.GetDelegate<System.Action<bool>>(L, 2);
-					System.Action<int, string> _closeCb = translator.GetDelegate<System.Action<int, string>>(L, 3);
-					System.Action<int, byte[], int, int> _onRecvMsgCb = translator.GetDelegate<System.Action<int, byte[], int, int>>(L, 4);
 					
-					Utopia.GameNet gen_ret = new Utopia.GameNet(_openCb, _closeCb, _onRecvMsgCb);
+					Utopia.GameNet gen_ret = new Utopia.GameNet();
 					translator.Push(L, gen_ret);
                     
 					return 1;
@@ -82,6 +80,36 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetCallbacks(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Utopia.GameNet gen_to_be_invoked = (Utopia.GameNet)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    System.Action<bool> _openCb = translator.GetDelegate<System.Action<bool>>(L, 2);
+                    System.Action<int, string> _closeCb = translator.GetDelegate<System.Action<int, string>>(L, 3);
+                    System.Action<int, byte[], int, int> _onRecvMsgCb = translator.GetDelegate<System.Action<int, byte[], int, int>>(L, 4);
+                    
+                    gen_to_be_invoked.SetCallbacks( _openCb, _closeCb, _onRecvMsgCb );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_OnClose(RealStatePtr L)

@@ -8,3 +8,8 @@ rapidjson = require('rapidjson')
 gen_next_seq = make_sequence()
 
 -- print("reach init global_vars", gen_next_seq())
+
+--lua下谷歌的pb
+pb = require("pb")
+pb.option("use_default_metatable")
+pb_protoc = require "libs.lua_protobuf.protoc"

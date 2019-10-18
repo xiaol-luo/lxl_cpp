@@ -1,8 +1,9 @@
 ﻿using System;
+using XLua;
 
 namespace Utopia
 {
-    [XLua.LuaCallCSharp]
+    [LuaCallCSharp]
     public class GameNet
     {
         GameMsgNetAgentHandler m_msgHandler = null;
@@ -10,20 +11,23 @@ namespace Utopia
         MsgNetAgent m_netAgent = null;
         Action<bool> m_openCb = null;
         Action<int, string> m_closeCb = null;
-        Action<int, byte[], int, int> m_onRecvMsgCb = null;
+        Action<int, byte[], int, int> m_recvMsgCb = null;
         AppEventSubscriber m_netModuleSubcriber = null;
 
-        public GameNet(Action<bool> openCb, Action<int, string> closeCb, Action<int, byte[], int, int> onRecvMsgCb)
+        public GameNet()
         {
-            m_openCb = openCb;
-            m_closeCb = closeCb;
-            m_onRecvMsgCb = onRecvMsgCb;
-
             m_netAgent = new MsgNetAgent();
             m_msgHandler = new GameMsgNetAgentHandler(this);
             m_netAgent.SetHandler(m_msgHandler);
             m_netModuleSubcriber = App.ins.net.CreateEventSubcriber();
             m_netModuleSubcriber.Subscribe<NetAgentBase>(NetModuleEventDef.Remove_NetAgent, this.OnRemoveNetAgent);
+        }
+
+        public void SetCallbacks(Action<bool> openCb, Action<int, string> closeCb, Action<int, byte[], int, int> onRecvMsgCb)
+        {
+            m_openCb = openCb;
+            m_closeCb = closeCb;
+            m_recvMsgCb = onRecvMsgCb;
         }
 
         public void OnClose(int errno, string errMsg)
@@ -44,9 +48,9 @@ namespace Utopia
 
         public void OnRecvMsg(int protocolId, byte[] data, int dataBegin, int dataLen)
         {
-            if (null != m_onRecvMsgCb)
+            if (null != m_recvMsgCb)
             {
-                m_onRecvMsgCb(protocolId, data, dataBegin, dataLen);
+                m_recvMsgCb(protocolId, data, dataBegin, dataLen);
             }
         }
 

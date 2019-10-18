@@ -54,7 +54,12 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
     end
 
     local main_logic = function(co, msg)
-        return self:_coro_auth_user_login(msg.auth_ip, msg.auth_port, msg.auth_sn, msg.user_id, msg.app_id, msg.account_id)
+        log_debug("xxxxxxxxxxx %s", string.toprint(msg))
+        if msg.ignore_auth then
+            return Error_None
+        else
+            return self:_coro_auth_user_login(msg.auth_ip, msg.auth_port, msg.auth_sn, msg.user_id, msg.app_id, msg.account_id)
+        end
     end
 
     local over_cb = function(co)
