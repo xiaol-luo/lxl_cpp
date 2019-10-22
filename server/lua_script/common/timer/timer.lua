@@ -1,11 +1,4 @@
 
-timer = timer or {}
-
-function timer_next(fn, start_ms)
-    start_ms = math.floor(start_ms)
-    return native.timer_next(fn, start_ms)
-end
-
 function timer_firm(fn, execute_span_ms, execute_times)
     execute_span_ms = math.floor(execute_span_ms)
     execute_times = math.floor(execute_times)
@@ -16,11 +9,11 @@ function timer_delay(fn, delay_ms)
     return timer_firm(fn, delay_ms, 1)
 end
 
-function timer_add(fn, start_ms, execute_span_ms, execute_times)
+function timer_add(fn, delay_ms, execute_span_ms, execute_times)
     start_ms = math.floor(start_ms)
     execute_span_ms = math.floor(execute_span_ms)
     execute_times = math.floor(execute_times)
-    return native.timer_add(fn, start_ms, execute_span_ms, execute_times)
+    return native.timer_add(fn, delay_ms, execute_span_ms, execute_times)
 end
 
 function timer_remove(timer_id)

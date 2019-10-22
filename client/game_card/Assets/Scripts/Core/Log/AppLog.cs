@@ -1,7 +1,6 @@
 namespace Utopia
 {
     // AppLog的生命周期要全包围Core.ins
-    [XLua.LuaCallCSharp]
     public static class AppLog
     {
         private static Log s_log = null;

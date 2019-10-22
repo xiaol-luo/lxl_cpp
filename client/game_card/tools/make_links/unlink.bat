@@ -1,2 +1,2 @@
-python MakeLinks.py link_cfg.ini unlink
+python make_links.py link_cfg.ini unlink
 pause

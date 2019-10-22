@@ -7,9 +7,29 @@ using XLua;
 
 namespace Lua
 {
-    [LuaCallCSharp]
     public partial class LuaHelp
     {
+        public static ulong TimerAdd(LuaFunction luaFn, float delaySec, int callTimes, float callSpanSec)
+        {
+            ulong tid = 0;
+            if (null != luaFn && null != App.ins)
+            {
+                System.Action cb = () => {
+                    luaFn.Call();
+                };
+                tid = App.ins.timer.Add(cb, delaySec, callTimes, callSpanSec);
+            }
+            return tid;
+        }
+
+        public static void TimerRemove(ulong id)
+        {
+            if (null != App.ins)
+            {
+                App.ins.timer.Remove(id);
+            }
+        }
+
         public static void ReloadScripts(string scriptTable)
         {
             LuaFunction loadFiles = App.ins.lua.Global.Get<LuaFunction>("reload_files");

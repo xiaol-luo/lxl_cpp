@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace Utopia
 {
+    [XLua.LuaCallCSharp]
     public class ResourceScene : CustomYieldInstruction
     {
         ResourceLoader m_resLoader;

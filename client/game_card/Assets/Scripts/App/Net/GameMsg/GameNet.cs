@@ -3,7 +3,6 @@ using XLua;
 
 namespace Utopia
 {
-    [LuaCallCSharp]
     public class GameNet
     {
         GameMsgNetAgentHandler m_msgHandler = null;

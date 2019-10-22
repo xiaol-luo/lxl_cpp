@@ -31,8 +31,10 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 6, 0, 0);
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "ReloadScripts", _m_ReloadScripts_xlua_st_);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 8, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerAdd", _m_TimerAdd_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerRemove", _m_TimerRemove_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "ReloadScripts", _m_ReloadScripts_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "AddLuaSearchPath", _m_AddLuaSearchPath_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "ScriptRootDir", _m_ScriptRootDir_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "ScriptSearchDirs", _m_ScriptSearchDirs_xlua_st_);
@@ -75,6 +77,60 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_TimerAdd_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    XLua.LuaFunction _luaFn = (XLua.LuaFunction)translator.GetObject(L, 1, typeof(XLua.LuaFunction));
+                    float _delaySec = (float)LuaAPI.lua_tonumber(L, 2);
+                    int _callTimes = LuaAPI.xlua_tointeger(L, 3);
+                    float _callSpanSec = (float)LuaAPI.lua_tonumber(L, 4);
+                    
+                        ulong gen_ret = Lua.LuaHelp.TimerAdd( _luaFn, _delaySec, _callTimes, _callSpanSec );
+                        LuaAPI.lua_pushuint64(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_TimerRemove_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    ulong _id = LuaAPI.lua_touint64(L, 1);
+                    
+                    Lua.LuaHelp.TimerRemove( _id );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_ReloadScripts_xlua_st_(RealStatePtr L)

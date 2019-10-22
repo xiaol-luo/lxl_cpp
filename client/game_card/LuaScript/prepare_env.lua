@@ -94,7 +94,7 @@ for _, v in ipairs(require("pre_require_files")) do
     require(v)
 end
 
-require("common.init_global_vars")
+require("libs.init_global_vars")
 
 local opt_op_fn_map = {
     [ParseArgs.Opt_Require_Files] = make_simple_closure(ParseArgs.fill_args, ParseArgs.Opt_Require_Files),

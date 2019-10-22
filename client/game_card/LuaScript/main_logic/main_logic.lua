@@ -59,6 +59,9 @@ function MainLogic:on_frame()
     end
     self.role_mgr:tick_role()
     self.item_mgr:tick_item()
+
+    local xx = CS.Lua.LuaResLoaderProxy.Create()
+    local ee = xx:GetLoadedResState("1234")
 end
 
 function MainLogic:on_game_net_open(is_succ)

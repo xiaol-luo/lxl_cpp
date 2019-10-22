@@ -151,7 +151,7 @@ function ZoneServiceMgr:_etcd_watch_service_states_cb(op_id, op, ret)
     if not ret:is_ok() then
         self:_etcd_pull_service_states()
     else
-        self.etcd_watch_timerid = native.timer_next(Functional.make_closure(ZoneServiceMgr._etcd_watch_service_states, self), 0)
+        self.etcd_watch_timerid = timer_delay(Functional.make_closure(ZoneServiceMgr._etcd_watch_service_states, self), 0)
         self.etcd_watch_wait_index = 0 -- 即使下一句赋值失败，etcd还能通过self:_etcd_pull_service_states()回复正常
         self.etcd_watch_wait_index = tonumber(ret.op_result[EtcdConst.Node][EtcdConst.ModifiedIndex]) + 1
         self:_etcd_service_state_process_watch(ret)

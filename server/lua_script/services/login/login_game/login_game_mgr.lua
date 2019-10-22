@@ -114,8 +114,8 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
                 return Error.Login_Game.auth_login_fail
             end
         else
+            auth_login_ret.uid = msg.force_account_id
             auth_login_ret.error = ""
-            auth_login_ret.account_id = msg.force_account_id
             auth_login_ret.app_id = "for_test_app_id"
             auth_login_ret.token = "for_test_token"
             auth_login_ret.timestamp = os.time()
