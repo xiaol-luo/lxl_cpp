@@ -11,7 +11,7 @@ namespace UtopiaEditor
         public static void OpenWindow()
         {
             var window = EditorWindow.GetWindow<HotFixWindow>("HotFixWindow");
-            window.minSize = new Vector2(480.0f, 168.0f);
+            window.minSize = new Vector2(64.0f, 32.0f);
             window.autoRepaintOnSceneChange = true;
             window.wantsMouseEnterLeaveWindow = true;
             window.wantsMouseMove = true;
@@ -74,9 +74,9 @@ namespace UtopiaEditor
         void DrawUI()
         {
 
-            m_hotfixFile = EditorGUILayout.TextField(m_hotfixFile, GUILayout.Width(480.0f), GUILayout.Height(64));
+            m_hotfixFile = EditorGUILayout.TextField(m_hotfixFile, GUILayout.Height(16));
 
-            if (GUILayout.Button("hotfix lua", GUILayout.Height(64)))
+            if (GUILayout.Button("hotfix lua", GUILayout.Height(16)))
             {
                 if (!Application.isPlaying)
                     return;
