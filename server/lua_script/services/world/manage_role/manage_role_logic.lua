@@ -349,6 +349,7 @@ end
 function RoleMgr:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
     local error_num = Error_None
     local session_id = -1
+
     repeat
         local role = self.role_id_to_role[role_id]
         if not role then
@@ -377,6 +378,48 @@ function RoleMgr:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
         role.game_client:call(Functional.make_closure(self._reconnect_role_game_change_client_cb, self, rpc_rsp, role.session_id, role),
                 GameRpcFn.client_change, role_id, false, role.gate_client.remote_host, role.gate_client_netid)
     until true
+
+
+
+    error_num = 0
+    if xxx then
+        error_num = 1
+    end
+    local a
+    if 0 == error_num and yyy then
+        error_num = 2
+    end
+    local b
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    local c
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    local d
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+    if 0 == error_num and zzz then
+        error_num = 3
+    end
+
     if Error_None ~= error_num then
         rpc_rsp:respone(error_num)
         log_debug("RoleMgr:reconnect_role role_id:%s, role_token:%s, raise error:%s", role_id, auth_token, error_num)

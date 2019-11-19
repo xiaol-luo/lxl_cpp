@@ -1,10 +1,9 @@
 
 UIPanelWrapper = UIPanelWrapper or class("UIPanelWrapper", UIPanelInterface)
 
-function UIPanelWrapper:ctor(panel_mgr, panel_name)
+function UIPanelWrapper:ctor(panel_mgr, panel_setting)
     self.panel_mgr = panel_mgr
-    self.panel_name = panel_name
-    self.panel_setting = UI_Panel_Setting[panel_name]
+    self.panel_setting = panel_setting
     assert(self.panel_setting)
     self.panel_state = UI_Panel_State.free
     self.want_panel_state = UI_Panel_State.free
