@@ -126,7 +126,7 @@ end
 
 if arg_tb[ParseArgs.Opt_Execute_Fns] then
     for _, fn_name in ipairs(arg_tb[ParseArgs.Opt_Execute_Fns]) do
-        _G[fn_name](arg)
+        _G[fn_name](entrance_arg_str)
     end
 end
 

@@ -12,7 +12,7 @@ namespace Utopia
     {        
         bool m_isQuited = false;
         public CoreMain root { get; protected set; }
-        public Transform uiRoot { get; protected set; }
+        public UIRoot uiRoot { get; protected set; }
 
         public XLua.LuaEnv lua { get; protected set; }
         public TimerModule timer { get { return Core.ins.timer; } }
@@ -23,7 +23,7 @@ namespace Utopia
         protected App(CoreMain _mono)
         {
             root = _mono;
-            uiRoot = root.transform.Find("UIRoot").transform;
+            uiRoot = GameObject.FindObjectOfType<UIRoot>();
             lua = Lua.LuaUtil.NewLuaEnv();
             logicMgr = new LogicMgr(this);
             stateMgr = new AppStateMgr(this);

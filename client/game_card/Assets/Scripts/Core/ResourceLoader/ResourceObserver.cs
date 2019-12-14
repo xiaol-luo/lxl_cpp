@@ -122,49 +122,19 @@ namespace Utopia
                 return ret;
             }
         }
-        public T Instantiate<T>(UnityEngine.Vector3 position, UnityEngine.Quaternion rotation) where T : UnityEngine.Object
+        public T InstantiateAs<T>() where T : UnityEngine.Object
         {
             T ret = default(T);
             if (null != resState)
-                ret = resState.Instantiate<T>(position, rotation);
+            {
+                ret = resState.InstantiateAs<T>();
+            }
             return ret;
         }
 
-        public T Instantiate<T>(UnityEngine.Transform parent, bool worldPositionStays) where T : UnityEngine.Object
+        public UnityEngine.GameObject Instantiate()
         {
-            T ret = default(T);
-            if (null != resState)
-            {
-                ret =  resState.Instantiate<T>(parent, worldPositionStays);
-            }
-            return ret;
-        }
-        public T Instantiate<T>(UnityEngine.Transform parent) where T : UnityEngine.Object
-        {
-            T ret = default(T);
-            if (null != resState)
-            {
-                ret = resState.Instantiate<T>(parent);
-            }
-            return ret;
-        }
-        public T Instantiate<T>(UnityEngine.Vector3 position, UnityEngine.Quaternion rotation, UnityEngine.Transform parent) where T : UnityEngine.Object
-        {
-            T ret = default(T);
-            if (null != resState)
-            {
-                ret = resState.Instantiate<T>(position, rotation, parent);
-            }
-            return ret;
-        }
-        public T Instantiate<T>() where T : UnityEngine.Object
-        {
-            T ret = default(T);
-            if (null != resState)
-            {
-                ret = resState.Instantiate<T>();
-            }
-            return ret;
+            return resState.Instantiate();
         }
     }
 }

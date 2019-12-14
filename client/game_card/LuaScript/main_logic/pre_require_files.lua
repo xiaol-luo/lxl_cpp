@@ -1,6 +1,9 @@
 
 return {
     "common.game_net.game_net",
+    "common.csharp.csharp_help",
+    "common.csharp.csharp_type",
+    "common.ui.ui_help",
     "common.ui.ui_panel_mgr.ui_panel.ui_panel_def",
     "common.ui.ui_panel_mgr.ui_panel.ui_panel_setting",
     "common.ui.ui_panel_mgr.ui_panel_interface",

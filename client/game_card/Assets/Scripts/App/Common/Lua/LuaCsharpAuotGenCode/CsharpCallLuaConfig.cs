@@ -7,7 +7,7 @@ namespace Lua
 {
     public static class CsharpCallLuaConfig
     {
-        [LuaCallCSharp]
+        [CSharpCallLua]
         public static List<Type> items = new List<Type>()
         {
 

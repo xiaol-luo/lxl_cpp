@@ -37,6 +37,12 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Tutorial.DerivedClassExtensions), TutorialDerivedClassExtensionsWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(UnityEngine.GameObject), UnityEngineGameObjectWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(UnityEngine.Transform), UnityEngineTransformWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Lua.LuaHelp), LuaLuaHelpWrap.__Register);
         
         
@@ -49,16 +55,19 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Utopia.ResourceScene), UtopiaResourceSceneWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Utopia.GameNet), UtopiaGameNetWrap.__Register);
-        
-        
             translator.DelayWrapLoader(typeof(Utopia.AppLog), UtopiaAppLogWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Utopia.LogLevel), UtopiaLogLevelWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Utopia.GameNet), UtopiaGameNetWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Utopia.LuaGameNet), UtopiaLuaGameNetWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Utopia.UIRoot), UtopiaUIRootWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Tutorial.DerivedClass.TestEnumInner), TutorialDerivedClassTestEnumInnerWrap.__Register);

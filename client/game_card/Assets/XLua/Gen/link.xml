@@ -12,11 +12,18 @@
 		<type fullname="Lua.LuaResLoaderProxy" preserve="all"/>
 		<type fullname="Utopia.ResourceObserver" preserve="all"/>
 		<type fullname="Utopia.ResourceScene" preserve="all"/>
-		<type fullname="Utopia.GameNet" preserve="all"/>
 		<type fullname="Utopia.AppLog" preserve="all"/>
 		<type fullname="Utopia.LogLevel" preserve="all"/>
+		<type fullname="Utopia.GameNet" preserve="all"/>
 		<type fullname="Utopia.LuaGameNet" preserve="all"/>
+		<type fullname="Utopia.UIRoot" preserve="all"/>
 		<type fullname="Tutorial.DerivedClass+TestEnumInner" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.CoreModule">
+	    <type fullname="UnityEngine.GameObject" preserve="all"/>
+		<type fullname="UnityEngine.Transform" preserve="all"/>
 		
 	</assembly>
 

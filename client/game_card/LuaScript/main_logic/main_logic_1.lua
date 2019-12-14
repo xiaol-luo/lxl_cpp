@@ -11,14 +11,15 @@ function MainLogic:ctor()
     self.role_mgr = nil
     self.item_mgr = nil
     self.game_net = nil
+    self.is_first_update = true
     self.pb_loader = pb_protoc:new()
     self.pb_parser = pb
     self.login_net = nil
     self.login_rsp_msg = nil
-    self.ui_panel_mgr = nil
 end
 
-function MainLogic:init(arg)
+function MainLogic:init()
+
     local pre_require_files = require("main_logic.pre_require_files")
     for _, v in pairs(pre_require_files) do
         require(v)
@@ -51,23 +52,16 @@ function MainLogic:init(arg)
     end
 end
 
-function MainLogic:on_start()
-    self.login_net:connect("127.0.0.1", 31001)
-    local xx = CS.Lua.LuaResLoaderProxy.Create()
-    local ee = xx:GetLoadedResState("1234")
-
-    local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
-    UIHelp.get_component(typeof(CS.Utopia.UIRoot), ui_root)
-    local ui_root_go = ui_root.gameObject
-    self.ui_panel_mgr = UIPanelMgr:new()
-    self.ui_panel_mgr:init(ui_root_go)
-    self.ui_panel_mgr:prepare_assets()
-    self.ui_panel_mgr:show_panel(1,2)
-end
-
-function MainLogic:on_update()
+function MainLogic:on_frame()
+    if self.is_first_update then
+        self.is_first_update = false
+        self.login_net:connect("127.0.0.1", 31001)
+    end
     self.role_mgr:tick_role()
     self.item_mgr:tick_item()
+
+    local xx = CS.Lua.LuaResLoaderProxy.Create()
+    local ee = xx:GetLoadedResState("1234")
 end
 
 function MainLogic:on_game_net_open(is_succ)

@@ -6,8 +6,6 @@ using XLua;
 
 namespace Utopia
 {
-
-    [LuaCallCSharp]
     public class LuaGameNet : GameNet
     {
         protected LuaFunction m_openCb = null;

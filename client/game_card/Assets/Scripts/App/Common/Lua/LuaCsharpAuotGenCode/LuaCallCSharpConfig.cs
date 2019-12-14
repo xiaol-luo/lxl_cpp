@@ -8,15 +8,30 @@ namespace Lua
     public static class LuaCallCSharpConfig
     {
         [LuaCallCSharp]
-        public static List<Type> items = new List<Type>()
+        public static List<Type> unity_classes = new List<Type>()
+        {
+            typeof(GameObject),
+            typeof(Transform),
+        };
+
+        [LuaCallCSharp]
+        public static List<Type> utopia_classes = new List<Type>()
         {
             typeof(Lua.LuaHelp),
+
             typeof(Lua.LuaResLoaderProxy),
             typeof(Utopia.ResourceObserver),
             typeof(Utopia.ResourceScene),
-            typeof(Utopia.GameNet),
+
             typeof(Utopia.AppLog),
             typeof(Utopia.LogLevel),
+
+            typeof(Utopia.GameNet),
+            typeof(Utopia.LuaGameNet),
+
+            typeof(Utopia.UIRoot),
+
+            typeof(Utopia.ResourceObserver),
         };
     }
 }

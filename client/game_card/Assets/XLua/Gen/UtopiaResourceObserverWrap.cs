@@ -21,13 +21,14 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Utopia.ResourceObserver);
-			Utils.BeginObjectRegister(type, L, translator, 0, 5, 11, 2);
+			Utils.BeginObjectRegister(type, L, translator, 0, 6, 11, 2);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetCb", _m_ResetCb);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ResetAll", _m_ResetAll);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Release", _m_Release);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddRef", _m_AddRef);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SubRef", _m_SubRef);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Instantiate", _m_Instantiate);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "cb", _g_get_cb);
@@ -217,6 +218,34 @@ namespace XLua.CSObjectWrap
                     
                     
                     return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Instantiate(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Utopia.ResourceObserver gen_to_be_invoked = (Utopia.ResourceObserver)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        UnityEngine.GameObject gen_ret = gen_to_be_invoked.Instantiate(  );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
                 }
                 
             } catch(System.Exception gen_e) {

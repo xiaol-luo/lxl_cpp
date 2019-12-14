@@ -17,12 +17,12 @@ function UIPanelMgr:ctor()
     self.panel_wrapper_res_obs = nil
 end
 
-function UIPanelMgr:init(root_go_path)
+function UIPanelMgr:init(root_go)
+    self.root_go = root_go
+    assert(self.root_go)
     self.res_loader = CS.Lua.LuaResLoaderProxy.Create()
     self.event_mgr = EventMgr:new()
     self.timer_proxy = TimerProxy:new()
-    self.root_go = CS.UnityEngine.GameObject.Find(root_go_path)
-    assert(root_go)
 end
 
 function UIPanelMgr:prepare_assets()
@@ -34,12 +34,14 @@ function UIPanelMgr:prepare_assets()
         local res_obs = self.res_loader:LoadAsset(v)
         if v == UIPanelMgr.Const.Preload_Res_List.Panel_Wrapper_Prefab_Path then
             self.panel_wrapper_res_obs = res_obs
+            assert(self.panel_wrapper_res_obs.isDone)
         end
     end
 end
 
 function UIPanelMgr:show_panel(panel_name, panel_data)
-
+    local go = self.panel_wrapper_res_obs:Instantiate()
+    go.transform:SetParent(self.root_go.transform)
 end
 
 function UIPanelMgr:reshow_panel(panel_name)
