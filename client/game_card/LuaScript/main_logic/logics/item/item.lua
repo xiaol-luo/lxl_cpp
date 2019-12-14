@@ -1,5 +1,5 @@
 
-local Item = Item or class("Item")
+Item = Item or class("Item")
 
 function Item:ctor()
     self.item_id = gen_next_seq()

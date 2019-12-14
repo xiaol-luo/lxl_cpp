@@ -45,10 +45,12 @@ function UI_Panel_Setting_Help.cal_belong_layer_by_show_mode(show_mode, belong_l
                 ret_belong_layer = belong_layer
             end
         end
-    else
-        if ret_belong_layer == nil or ret_belong_layer ~= belong_layer then
-            need_warn = true
-        end
+    end
+    if nil == ret_belong_layer then
+        need_warn = true
+    end
+    if nil ~= belong_layer and ret_belong_layer ~= belong_layer then
+        need_warn = true
     end
     return ret_belong_layer, belong_layer, need_warn
 end
@@ -66,16 +68,18 @@ UI_Panel_Setting = {
         show_mode = UI_Panel_Show_Mode.coexist,
         res_path = "Assets/Res/UI/PanelMgr/MainPanel/MainPanel.prefab",
     },
-    [UI_Panel_Name.loading]= {
+
+    [UI_Panel_Name.loading_panel]= {
         belong_layer = UI_Panel_Layer.loading,
         show_mode = UI_Panel_Show_Mode.loading,
         res_path = "Assets/Res/UI/PanelMgr/MainPanel/MainPanel.prefab",
     },
     [UI_Panel_Name.confirm_panel]= {
-        belong_layer = UI_Panel_Layer.mask,
-        show_mode = UI_Panel_Show_Mode.mask,
-        res_path = "Assets/Res/UI/PanelMgr/MainPanel/MainPanel.prefab",
-    },
+    belong_layer = UI_Panel_Layer.mask,
+    show_mode = UI_Panel_Show_Mode.mask,
+    res_path = "Assets/Res/UI/PanelMgr/MainPanel/MainPanel.prefab",
+},
 }
+
 
 

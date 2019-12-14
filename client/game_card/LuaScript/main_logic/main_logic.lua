@@ -1,10 +1,4 @@
 
-require("role.role")
-require("role.role_mgr")
-require("game_net.game_net")
-
-local ItemMgr = require("item.item_mgr")
-local Item = require("item.item")
 
 local ACCOUNT_ID = "LXL_1"
 local APPID_ID = "FOR_TEST_APP_ID"
@@ -25,6 +19,12 @@ function MainLogic:ctor()
 end
 
 function MainLogic:init()
+
+    local pre_require_files = require("main_logic.pre_require_files")
+    for _, v in pairs(pre_require_files) do
+        require(v)
+    end
+
     self.role_mgr = RoleMgr:new()
     self.role_mgr:add_role(Role:new())
 

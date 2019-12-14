@@ -1,5 +1,5 @@
 
-local ItemMgr = ItemMgr or class("ItemMgr")
+ItemMgr = ItemMgr or class("ItemMgr")
 
 function ItemMgr:ctor()
     self._items = {}
@@ -19,6 +19,3 @@ function ItemMgr:tick_item()
     end
     -- print("ItemMgr:tick_item")
 end
-
-print("reach item mgr")
-return ItemMgr

@@ -63,7 +63,7 @@ for sig_num in [signal.SIGINT, signal.SIGTERM]:
 
 kill_alive_services()
 
-in_home = True
+in_home = False
 
 if in_home:
 	code_dir = r"F:\github\lxl_cpp\server"

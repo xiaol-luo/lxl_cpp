@@ -7,8 +7,6 @@ UIPanelMgr.Const = UIPanelMgr.Const or {
     }
 }
 
-
-
 function UIPanelMgr:ctor()
     self.res_loader = nil
     self.event_mgr = nil
