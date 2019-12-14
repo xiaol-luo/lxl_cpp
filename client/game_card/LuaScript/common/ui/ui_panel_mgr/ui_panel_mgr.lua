@@ -15,6 +15,7 @@ function UIPanelMgr:ctor()
     self.already_prepare_assets = false
     self.panel_wrapper_map = {}
     self.panel_wrapper_res_obs = nil
+    self.layers = {}
 end
 
 function UIPanelMgr:init(root_go)
@@ -23,6 +24,11 @@ function UIPanelMgr:init(root_go)
     self.res_loader = CS.Lua.LuaResLoaderProxy.Create()
     self.event_mgr = EventMgr:new()
     self.timer_proxy = TimerProxy:new()
+
+    for layer_name, layer_setting in pairs(UI_Panel_Layer_Setting) do
+        self.layers[layer_name] = UIHelp.find_transform(self.root_go, layer_setting.relative_path)
+    end
+    print("layers ", self.layers)
 end
 
 function UIPanelMgr:prepare_assets()

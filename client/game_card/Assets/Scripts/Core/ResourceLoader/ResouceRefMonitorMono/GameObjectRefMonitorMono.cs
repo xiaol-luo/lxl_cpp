@@ -10,9 +10,17 @@ namespace Utopia.Resource
 
         public static void Add(GameObject go, ResourceState resState)
         {
-            var cmp = go.AddComponent<GameObjectRefMonitorMono>();
+            resState.AddRef();
+            GameObjectRefMonitorMono cmp = go.GetComponent<GameObjectRefMonitorMono>();
+            if (null == cmp)
+            {
+                cmp = go.AddComponent<GameObjectRefMonitorMono>();
+            }
+            if (null != cmp.resState)
+            {
+                cmp.resState.SubRef();
+            }
             cmp.resState = resState;
-            cmp.resState.AddRef();
         }
         private void OnDestroy()
         {
