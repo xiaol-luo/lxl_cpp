@@ -13,7 +13,7 @@ function UIPanelMgr:ctor()
     self.timer_proxy = nil
     self.root_go = nil
     self.already_prepare_assets = false
-    self.panel_wrapper_map = {}
+    self.cached_panels = {}
     self.panel_wrapper_res_obs = nil
     self.layers = {}
 end
@@ -46,6 +46,14 @@ function UIPanelMgr:prepare_assets()
 end
 
 function UIPanelMgr:show_panel(panel_name, panel_data)
+    local panel_wrapper = self:_get_cached_panel(panel_name)
+    if not panel then
+        local panel_setting = UI_Panel_Settingp[panel_name]
+        assert(panel_setting)
+        panel_wrapper = UIPanelWrapper:new(self, panel_setting)
+        self.cached_panels[panel_name] = panel_wrapper
+        panel_wrapper:init()
+    end
     local go = self.panel_wrapper_res_obs:Instantiate()
     go.transform:SetParent(self.root_go.transform)
 end
@@ -78,6 +86,12 @@ function UIPanelMgr:release_self()
     self.event_mgr:cancel_all()
     self.timer_proxy:release_all()
 end
+
+function UIPanelMgr:_get_cached_panel(panel_name)
+    local ret = self.cached_panels[panel_name]
+    return ret
+end
+
 
 
 
