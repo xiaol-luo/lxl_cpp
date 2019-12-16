@@ -1,11 +1,10 @@
-
 UI_Panel_State = {
     free = "Free",
     loading = "Loading",
     loaded = "Loaded",
     hided = "Hided",
     showed = "Showed",
-    release = "Released",
+    released = "Released",
 }
 
 UI_Panel_Layer = {

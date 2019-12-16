@@ -45,3 +45,9 @@ end
 function EventMgr:cancel_all()
     self.event_map = {}
 end
+
+function EventMgr:create_subscriber()
+    local ret = EventSubscriber:new(self)
+    return ret
+end
+

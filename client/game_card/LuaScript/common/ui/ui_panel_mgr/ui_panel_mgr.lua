@@ -48,40 +48,54 @@ end
 function UIPanelMgr:show_panel(panel_name, panel_data)
     local panel_wrapper = self:_get_cached_panel(panel_name)
     if not panel then
-        local panel_setting = UI_Panel_Settingp[panel_name]
+        local panel_setting = UI_Panel_Setting[panel_name]
         assert(panel_setting)
         panel_wrapper = UIPanelWrapper:new(self, panel_setting)
         self.cached_panels[panel_name] = panel_wrapper
         panel_wrapper:init()
     end
-    local go = self.panel_wrapper_res_obs:Instantiate()
-    go.transform:SetParent(self.root_go.transform)
+    panel_wrapper:show(panel_data)
 end
 
 function UIPanelMgr:reshow_panel(panel_name)
-
+    local panel_wrapper = self:_get_cached_panel(panel_name)
+    if panel_wrapper then
+        panel_wrapper:reshow()
+    end
+    return panel_wrapper
 end
 
 function UIPanelMgr:hide_panel(panel_name)
-
+    local panel_wrapper = self:_get_cached_panel(panel_name)
+    if panel_wrapper then
+        panel_wrapper:hide()
+    end
+    return panel_wrapper
 end
 
-function UIPanelMgr:hide_all_panel(panel_name)
-
+function UIPanelMgr:hide_all_panel()
+    for _, v in pairs(self.cached_panels) do
+        v:hide()
+    end
 end
 
 function UIPanelMgr:release_panel(panel_name)
-
+    local panel_wrapper = self:_get_cached_panel(panel_name)
+    if panel_wrapper then
+        panel_wrapper:release()
+    end
+    return panel_wrapper
 end
 
 function UIPanelMgr:release_all_panel()
-end
-
-function UIPanelMgr:get_topest_active_panel_name()
-
+    for _, v in pairs(self.cached_panels) do
+        v:release()
+    end
+    self.cached_panels = {}
 end
 
 function UIPanelMgr:release_self()
+    self:release_all_panel()
     self.res_loader:Release()
     self.event_mgr:cancel_all()
     self.timer_proxy:release_all()

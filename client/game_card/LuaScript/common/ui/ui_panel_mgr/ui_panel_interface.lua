@@ -21,14 +21,6 @@ function UIPanelInterface:hide()
 
 end
 
-function UIPanelInterface:freeze()
-
-end
-
-function UIPanelInterface:unfreeze()
-
-end
-
 function UIPanelInterface:release()
 
 end
@@ -37,15 +29,11 @@ function UIPanelInterface:get_setting()
 
 end
 
-function UIPanelInterface:get_id()
+function UIPanelInterface:get_panel_name()
 
 end
 
 function UIPanelInterface:get_state()
-
-end
-
-function UIPanelInterface:is_freezed()
 
 end
 
@@ -56,4 +44,13 @@ end
 function UIPanelInterface:is_ready()
 
 end
+
+function UIPanelInterface:is_released()
+
+end
+
+function UIPanelInterface:get_root()
+
+end
+
 

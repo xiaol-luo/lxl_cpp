@@ -39,3 +39,4 @@ function EventSubscriber:release_all()
         end
     end
 end
+

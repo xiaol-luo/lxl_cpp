@@ -49,6 +49,8 @@ function MainLogic:init(arg)
     }) do
         self.pb_loader:loadfile(v)
     end
+
+    UI_Panel_Setting_Help.adjust_setting()
 end
 
 function MainLogic:on_start()
@@ -62,12 +64,14 @@ function MainLogic:on_start()
     self.ui_panel_mgr = UIPanelMgr:new()
     self.ui_panel_mgr:init(ui_root_go)
     self.ui_panel_mgr:prepare_assets()
-    self.ui_panel_mgr:show_panel(1,2)
+    self.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
 end
 
 function MainLogic:on_update()
     self.role_mgr:tick_role()
     self.item_mgr:tick_item()
+    self.ui_panel_mgr:reshow_panel(UI_Panel_Name.main_panel)
+    self.ui_panel_mgr:hide_panel(UI_Panel_Name.main_panel)
 end
 
 function MainLogic:on_game_net_open(is_succ)
