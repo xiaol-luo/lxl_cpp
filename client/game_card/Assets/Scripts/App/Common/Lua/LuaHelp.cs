@@ -9,6 +9,10 @@ namespace Lua
 {
     public partial class LuaHelp
     {
+        public static bool IsNull(Object obj)
+        {
+            return null == obj;
+        }
         public static ulong TimerAdd(LuaFunction luaFn, float delaySec, int callTimes, float callSpanSec)
         {
             ulong tid = 0;

@@ -16,3 +16,17 @@ function CSharpHelp.is_sub_type_of(ins_type, base_type)
     end
     return ret
 end
+
+function CSharpHelp.is_null(obj)
+    if nil == obj then
+        return true
+    end
+    if CS.Lua.LuaHelp.IsNull(obj) then
+        return true
+    end
+    return false
+end
+
+function CSharpHelp.not_null(obj)
+    return not CSharpHelp.is_null(obj)
+end

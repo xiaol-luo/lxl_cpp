@@ -70,8 +70,8 @@ end
 function MainLogic:on_update()
     self.role_mgr:tick_role()
     self.item_mgr:tick_item()
-    self.ui_panel_mgr:reshow_panel(UI_Panel_Name.main_panel)
-    self.ui_panel_mgr:hide_panel(UI_Panel_Name.main_panel)
+    -- self.ui_panel_mgr:reshow_panel(UI_Panel_Name.main_panel)
+    -- self.ui_panel_mgr:hide_panel(UI_Panel_Name.main_panel)
 end
 
 function MainLogic:on_game_net_open(is_succ)
