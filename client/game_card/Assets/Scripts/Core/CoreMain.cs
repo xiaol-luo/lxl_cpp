@@ -13,7 +13,7 @@ namespace Utopia
         [SerializeField]
         public string lua_main_args;
 
-        public CoreMain()
+        private void Awake()
         {
             lua_search_paths = new List<string>();
         }

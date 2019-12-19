@@ -20,6 +20,11 @@ namespace Utopia
 
         public static void Release()
         {
+            if (true)
+            {
+                return; // 还是不释放了，因为有些逻辑比这里还晚执行，比如GameObject.OnDestroy
+            }
+
             if (null != s_log)
             {
                 s_log.Release();

@@ -24,7 +24,20 @@ namespace Utopia.Resource
         }
         private void OnDestroy()
         {
-            resState.SubRef();
+            if (null != gameObject)
+            {
+                AppLog.Info("OnDestroy {0}", this.gameObject.name);
+            }
+            if (null != resState)
+            {
+                resState.SubRef();
+            }
+        }
+
+        ~GameObjectRefMonitorMono()
+        {
+            // UnityEngine.GameObject.Find()
+            AppLog.Info("~GameObjectRefMonitorMono {0}", this.gameObject.name);
         }
     }
 }

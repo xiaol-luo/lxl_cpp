@@ -31,8 +31,10 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 8, 0, 0);
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerAdd", _m_TimerAdd_xlua_st_);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 10, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "InstantiateGameObject", _m_InstantiateGameObject_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "IsNull", _m_IsNull_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerAdd", _m_TimerAdd_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerRemove", _m_TimerRemove_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "ReloadScripts", _m_ReloadScripts_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "AddLuaSearchPath", _m_AddLuaSearchPath_xlua_st_);
@@ -77,6 +79,60 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_InstantiateGameObject_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    UnityEngine.GameObject _go = (UnityEngine.GameObject)translator.GetObject(L, 1, typeof(UnityEngine.GameObject));
+                    
+                        UnityEngine.GameObject gen_ret = Lua.LuaHelp.InstantiateGameObject( _go );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_IsNull_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    UnityEngine.Object _obj = (UnityEngine.Object)translator.GetObject(L, 1, typeof(UnityEngine.Object));
+                    
+                        bool gen_ret = Lua.LuaHelp.IsNull( _obj );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_TimerAdd_xlua_st_(RealStatePtr L)

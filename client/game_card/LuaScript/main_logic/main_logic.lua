@@ -64,7 +64,18 @@ function MainLogic:on_start()
     self.ui_panel_mgr = UIPanelMgr:new()
     self.ui_panel_mgr:init(ui_root_go)
     self.ui_panel_mgr:prepare_assets()
-    self.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
+    -- self.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
+    -- self.ui_panel_mgr:release_panel(UI_Panel_Name.main_panel)
+
+    local panel_proxy_go = CS.UnityEngine.GameObject.Find("UIPanelProxy")
+    local mask_go = UIHelp.find_gameobject(panel_proxy_go, "Root/Mask")
+    local panel_root_go = UIHelp.find_gameobject(panel_proxy_go, "Root/PanelRoot")
+    -- mask_go:SetActive(true)
+    -- mask_go:SetActive(false)
+    local prg2 = CS.Lua.LuaHelp.InstantiateGameObject(panel_proxy_go)
+    -- CS.UnityEngine.GameObject.DestroyImmediate(prg2)
+
+    -- CS.UnityEngine.GameObject.DestroyImmediate(panel_proxy_root)
 end
 
 function MainLogic:on_update()

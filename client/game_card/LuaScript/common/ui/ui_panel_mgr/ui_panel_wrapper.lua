@@ -248,11 +248,12 @@ end
 function UIPanelWrapper:_on_event_panel_released(panel_logic)
     self.panel_state = UI_Panel_State.released
     self.event_mgr:fire(UI_Panel_Event.released, panel_logic)
-    self.wrapper_root_go:SetParent(nil)
+    self.wrapper_root_go.transform:SetParent(nil)
     self.res_loader:Release()
     self.timer_proxy:release_all()
     self.wrapper_event_subcriber:release_all()
     self.wrapper_event_mgr:cancel_all()
     self.event_mgr:cancel_all()
+    CS.UnityEngine.GameObject.Destroy(self.wrapper_root_go)
 end
 

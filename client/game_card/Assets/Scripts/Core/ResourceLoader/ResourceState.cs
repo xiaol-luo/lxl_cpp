@@ -141,8 +141,9 @@ namespace Utopia
 
         public UnityEngine.GameObject Instantiate()
         {
-            UnityEngine.GameObject go = this.InstantiateAs<UnityEngine.GameObject>();
-            return go;
+            UnityEngine.GameObject ret = this.InstantiateAs<UnityEngine.GameObject>();
+            bool isOk = AttachMonitorRefMono(ret);
+            return isOk ? ret : null;
         }
 
         public T InstantiateAs<T>() where T : UnityEngine.Object
@@ -173,6 +174,7 @@ namespace Utopia
             if (null != go)
             {
                 Resource.GameObjectRefMonitorMono.Add(go, this);
+                GameObjectUtils.MakeTravelAwake(go);
             }
             else
             {
