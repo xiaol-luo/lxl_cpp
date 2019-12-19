@@ -70,6 +70,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Utopia.UIRoot), UtopiaUIRootWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(LuaUIComponent), LuaUIComponentWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Tutorial.DerivedClass.TestEnumInner), TutorialDerivedClassTestEnumInnerWrap.__Register);
         
         
@@ -81,6 +84,8 @@ namespace XLua.CSObjectWrap
             
             wrapInit0(luaenv, translator);
             
+            
+            translator.AddInterfaceBridgeCreator(typeof(CL_ILuaUIComponent), CL_ILuaUIComponentBridge.__Create);
             
             translator.AddInterfaceBridgeCreator(typeof(Tutorial.CSCallLua.ItfD), TutorialCSCallLuaItfDBridge.__Create);
             

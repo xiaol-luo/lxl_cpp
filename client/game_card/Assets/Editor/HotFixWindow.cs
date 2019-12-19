@@ -18,17 +18,17 @@ namespace UtopiaEditor
         }
         private void Awake()
         {
-            Debug.Log("HotFixWindow::Awake");
+            // Debug.Log("HotFixWindow::Awake");
         }
 
         private void OnEnable()
         {
-            Debug.Log("HotFixWindow::OnEnable");
+            // Debug.Log("HotFixWindow::OnEnable");
         }
 
         private void OnDisable()
         {
-            Debug.Log("HotFixWindow::OnDisable");
+            // Debug.Log("HotFixWindow::OnDisable");
         }
 
         private void Update()
@@ -47,26 +47,26 @@ namespace UtopiaEditor
 
         private void OnFocus()
         {
-            Debug.Log("HotFixWindow::OnFocus");
+            // Debug.Log("HotFixWindow::OnFocus");
         }
 
         private void OnLostFocus()
         {
-            Debug.Log("HotFixWindow::OnLostFocus");
+            // Debug.Log("HotFixWindow::OnLostFocus");
         }
 
         private void OnDestroy()
         {
-            Debug.Log("HotFixWindow::OnDestroy");
+            // Debug.Log("HotFixWindow::OnDestroy");
         }
 
         private void OnHierarchyChange()
         {
-            Debug.Log("HotFixWindow::OnHierarchyChange");
+            // Debug.Log("HotFixWindow::OnHierarchyChange");
         }
         private void OnProjectChange()
         {
-            Debug.Log("HotFixWindow::OnProjectChange");
+            // Debug.Log("HotFixWindow::OnProjectChange");
         }
 
         string m_hotfixFile = "main_logic/hotfix/hotfix_logic.lua";

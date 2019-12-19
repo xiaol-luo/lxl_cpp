@@ -11,6 +11,9 @@ return {
     "common.ui.ui_panel_mgr.ui_panel_base",
     "common.ui.ui_panel_mgr.ui_panel_mgr",
     "common.ui.ui_panel_mgr.ui_panel_wrapper",
+
+    "common.ui.ui_component.ui_component",
+
     "common.init_common_global_vars",
 
     "main_logic.ui.ui_main_panel",

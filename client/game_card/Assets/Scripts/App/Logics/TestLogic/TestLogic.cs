@@ -6,7 +6,7 @@ namespace Utopia
 {
     public class TestLogic : LogicBase
     {
-        XLua.LuaEnv m_lua = null;
+        // XLua.LuaEnv m_lua = null;
         List<string> m_lua_search_paths = new List<string>();
 
         public override EAppLogicName GetModuleName()

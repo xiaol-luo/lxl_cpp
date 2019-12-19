@@ -32,6 +32,8 @@ namespace Lua
             typeof(Utopia.UIRoot),
 
             typeof(Utopia.ResourceObserver),
+
+            typeof(LuaUIComponent),
         };
     }
 }

@@ -54,9 +54,7 @@ function MainLogic:init(arg)
 end
 
 function MainLogic:on_start()
-    self.login_net:connect("127.0.0.1", 31001)
-    local xx = CS.Lua.LuaResLoaderProxy.Create()
-    local ee = xx:GetLoadedResState("1234")
+    -- self.login_net:connect("127.0.0.1", 31001)
 
     local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
     UIHelp.get_component(typeof(CS.Utopia.UIRoot), ui_root)
@@ -76,11 +74,14 @@ function MainLogic:on_start()
     -- CS.UnityEngine.GameObject.DestroyImmediate(prg2)
 
     -- CS.UnityEngine.GameObject.DestroyImmediate(panel_proxy_root)
+
+    print("local try_comp = UIComponent:new(prg2)")
+    local try_comp = UIComponent:new(prg2)
 end
 
 function MainLogic:on_update()
-    self.role_mgr:tick_role()
-    self.item_mgr:tick_item()
+    -- self.role_mgr:tick_role()
+    -- self.item_mgr:tick_item()
     -- self.ui_panel_mgr:reshow_panel(UI_Panel_Name.main_panel)
     -- self.ui_panel_mgr:hide_panel(UI_Panel_Name.main_panel)
 end

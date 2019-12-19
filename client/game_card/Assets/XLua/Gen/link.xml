@@ -17,6 +17,7 @@
 		<type fullname="Utopia.GameNet" preserve="all"/>
 		<type fullname="Utopia.LuaGameNet" preserve="all"/>
 		<type fullname="Utopia.UIRoot" preserve="all"/>
+		<type fullname="LuaUIComponent" preserve="all"/>
 		<type fullname="Tutorial.DerivedClass+TestEnumInner" preserve="all"/>
 		
 	</assembly>

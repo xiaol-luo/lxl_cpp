@@ -45,7 +45,6 @@ namespace Lua
 
         public void AsyncLoadScene(string path, bool isAddition,  LuaFunction luaFn)
         {
-            System.Action<ResourceScene.LoadResult, string> xx;
             m_loaderProxy.AsyncLoadScene(path, isAddition, (ResourceScene.LoadResult ret, string resPath) => {
                 if (null != luaFn)
                 {

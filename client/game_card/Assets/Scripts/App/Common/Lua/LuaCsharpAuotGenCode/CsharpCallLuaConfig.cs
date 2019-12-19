@@ -10,7 +10,7 @@ namespace Lua
         [CSharpCallLua]
         public static List<Type> items = new List<Type>()
         {
-
+            typeof(CL_ILuaUIComponent),
         };
     }
 }
