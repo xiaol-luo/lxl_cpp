@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using XLua;
 
 public class LuaUIComponent : MonoBehaviour
@@ -14,8 +15,6 @@ public class LuaUIComponent : MonoBehaviour
         {
             m_comps.Add(luaUIComp.unique_id, luaUIComp);
         }
-
-        // this.transform.gameObject.add
     }
 
     public void Unregister(LuaTable tb)
@@ -50,6 +49,11 @@ public class LuaUIComponent : MonoBehaviour
             item._csharp_cb_on_destroy();
         }
         m_comps.Clear();
+    }
+
+    void text()
+    {
+        Text xx;
     }
 }
 

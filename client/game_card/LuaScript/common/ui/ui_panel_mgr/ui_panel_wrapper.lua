@@ -69,6 +69,7 @@ function UIPanelWrapper:_check_load_panel()
         self.panel_root_go.transform.localPosition = CS.UnityEngine.Vector3.zero
         self.panel_root_go.name = self.panel_setting.panel_name
         self.panel_logic = self.panel_setting.panel_logic:new(self, self.panel_setting, self.panel_root_go)
+        self.panel_logic:init()
         if UI_Panel_State.showed == self.want_panel_state then
             self:show(self.want_show_panel_data)
         end

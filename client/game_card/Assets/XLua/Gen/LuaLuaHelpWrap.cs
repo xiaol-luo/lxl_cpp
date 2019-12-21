@@ -118,7 +118,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    UnityEngine.Object _obj = (UnityEngine.Object)translator.GetObject(L, 1, typeof(UnityEngine.Object));
+                    object _obj = translator.GetObject(L, 1, typeof(object));
                     
                         bool gen_ret = Lua.LuaHelp.IsNull( _obj );
                         LuaAPI.lua_pushboolean(L, gen_ret);

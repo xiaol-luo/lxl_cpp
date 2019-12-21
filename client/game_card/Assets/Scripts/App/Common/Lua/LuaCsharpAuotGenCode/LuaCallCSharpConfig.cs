@@ -12,6 +12,10 @@ namespace Lua
         {
             typeof(GameObject),
             typeof(Transform),
+            typeof(UnityEngine.MonoBehaviour),
+            typeof(UnityEngine.Component),
+            typeof(UnityEngine.UI.Text),
+            typeof(Color),
         };
 
         [LuaCallCSharp]

@@ -20,7 +20,7 @@ namespace Lua
             return ret;
         }
 
-        public static bool IsNull(Object obj)
+        public static bool IsNull(object obj)
         {
             return null == obj;
         }

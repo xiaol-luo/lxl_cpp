@@ -13,6 +13,7 @@ return {
     "common.ui.ui_panel_mgr.ui_panel_wrapper",
 
     "common.ui.ui_component.ui_component",
+    "common.ui.ui_component.ui_text",
 
     "common.init_common_global_vars",
 

@@ -62,4 +62,26 @@ function UIHelp.find_gameobject(root_comp_or_go, relative_path)
     return ret
 end
 
+function UIHelp.attach_ui(ui_type, root_comp_or_go, relative_path)
+    local ret = nil
+    local go = UIHelp.find_gameobject(root_comp_or_go, relative_path)
+    if not go then
+        log_error("UIHelp.create_ui %s fail, can not find the game object:[%s:%s]",
+                tostring(ui_type.__cname), tostring(root_comp_or_go), tostring(relative_path))
+    else
+        ret = ui_type:new(go)
+    end
+    return ret
+end
+
+function UIHelp.new_color(r, g, b, a)
+    r = r or 0
+    g = g or 0
+    b = b or 0
+    a = a or 1
+    local ret = CS.UnityEngine.Color(r, g, b, a)
+    log_debug("UIHelp.new_color %s", ret)
+    return ret
+end
+
 

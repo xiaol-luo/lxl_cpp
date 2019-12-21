@@ -25,6 +25,14 @@
 	<assembly fullname="UnityEngine.CoreModule">
 	    <type fullname="UnityEngine.GameObject" preserve="all"/>
 		<type fullname="UnityEngine.Transform" preserve="all"/>
+		<type fullname="UnityEngine.MonoBehaviour" preserve="all"/>
+		<type fullname="UnityEngine.Component" preserve="all"/>
+		<type fullname="UnityEngine.Color" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.UI">
+	    <type fullname="UnityEngine.UI.Text" preserve="all"/>
 		
 	</assembly>
 
