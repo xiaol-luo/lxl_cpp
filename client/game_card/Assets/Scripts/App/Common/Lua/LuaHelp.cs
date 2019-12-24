@@ -2,13 +2,33 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 using Utopia;
 using XLua;
+using Utopia.Resource;
 
 namespace Lua
 {
     public partial class LuaHelp
     {
+        public static int SetImageSprite(Image image, string assetPath, XLua.LuaFunction onEnd, bool isSetSize)
+        {
+            return ImageRefMonitorMono.Set(image, assetPath, (seq, refMono, i, s) => {
+                if (seq == refMono.setOperaSeq)
+                {
+                    i.sprite = s;
+                    if (isSetSize)
+                    {
+                        i.SetNativeSize();
+                    }
+                }
+                if (null != onEnd)
+                {
+                    onEnd.Call(seq, refMono, i, s);
+                }
+            });
+        }
+
         public static GameObject InstantiateGameObject(GameObject go)
         {
             GameObject ret = null;

@@ -33,6 +33,7 @@
 
 	<assembly fullname="UnityEngine.UI">
 	    <type fullname="UnityEngine.UI.Text" preserve="all"/>
+		<type fullname="UnityEngine.UI.Image" preserve="all"/>
 		
 	</assembly>
 

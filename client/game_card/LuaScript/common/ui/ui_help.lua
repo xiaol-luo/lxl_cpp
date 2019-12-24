@@ -84,4 +84,12 @@ function UIHelp.new_color(r, g, b, a)
     return ret
 end
 
+function UIHelp.set_image_sprite(image, asset_path, cb_fn, is_set_size)
+    if nil == image then
+        return false
+    end
+    asset_path = asset_path or ""
+    CS.Lua.LuaHelp.SetImageSprite(image, asset_path, cb_fn, is_set_size)
+end
+
 

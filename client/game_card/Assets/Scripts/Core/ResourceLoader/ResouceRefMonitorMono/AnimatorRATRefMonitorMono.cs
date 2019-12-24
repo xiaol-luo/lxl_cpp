@@ -4,27 +4,32 @@ using System.Collections;
 namespace Utopia.Resource
 {
     class AnimatorRATRefMonitorMono : ResourceRefMonitorMono<Animator, RuntimeAnimatorController>
-
     {
-        public static void Set(Animator animator, string assetPath)
+        public static int Set(Animator animator, string assetPath)
         {
-            Set(animator, assetPath, (a, s) => {
-                a.runtimeAnimatorController = s;
+            return Set(animator, assetPath, (seq, refMono, a, s) => {
+                if (seq == refMono.setOperaSeq)
+                {
+                    a.runtimeAnimatorController = s;
+                }
             });
         }
 
-        public static void Set(Animator animator, string assetPath, System.Action<Animator, RuntimeAnimatorController> onEnd)
+        public static int Set(Animator animator, string assetPath, System.Action<int, ResourceRefMonitorMono, Animator, RuntimeAnimatorController> onEnd)
         {
-            Set<AnimatorRATRefMonitorMono>(animator, assetPath, onEnd);
+            return Set<AnimatorRATRefMonitorMono>(animator, assetPath, onEnd);
         }
 
         public static IEnumerator CoSet(Animator animator, string assetPath)
         {
             bool isDone = false;
-            Set<AnimatorRATRefMonitorMono>(animator, assetPath, (a, r)=> 
+            Set<AnimatorRATRefMonitorMono>(animator, assetPath, (seq, refMono, a, r)=> 
             {
                 isDone = true;
-                a.runtimeAnimatorController = r;
+                if (seq == refMono.setOperaSeq)
+                {
+                    a.runtimeAnimatorController = r;
+                }
             });
             yield return new WaitUntil(() => { return isDone; });
         }

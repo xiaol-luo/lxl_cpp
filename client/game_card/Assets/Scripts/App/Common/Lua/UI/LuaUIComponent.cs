@@ -53,7 +53,9 @@ public class LuaUIComponent : MonoBehaviour
 
     void text()
     {
-        Text xx;
+        Image img;
+        // img.sprite = null;
+        // img.fillAmount
     }
 }
 

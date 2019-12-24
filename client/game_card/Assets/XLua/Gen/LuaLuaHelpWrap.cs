@@ -31,8 +31,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 10, 0, 0);
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "InstantiateGameObject", _m_InstantiateGameObject_xlua_st_);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 11, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "SetImageSprite", _m_SetImageSprite_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "InstantiateGameObject", _m_InstantiateGameObject_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "IsNull", _m_IsNull_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerAdd", _m_TimerAdd_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerRemove", _m_TimerRemove_xlua_st_);
@@ -79,6 +80,36 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetImageSprite_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    UnityEngine.UI.Image _image = (UnityEngine.UI.Image)translator.GetObject(L, 1, typeof(UnityEngine.UI.Image));
+                    string _assetPath = LuaAPI.lua_tostring(L, 2);
+                    XLua.LuaFunction _onEnd = (XLua.LuaFunction)translator.GetObject(L, 3, typeof(XLua.LuaFunction));
+                    bool _isSetSize = LuaAPI.lua_toboolean(L, 4);
+                    
+                        int gen_ret = Lua.LuaHelp.SetImageSprite( _image, _assetPath, _onEnd, _isSetSize );
+                        LuaAPI.xlua_pushinteger(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_InstantiateGameObject_xlua_st_(RealStatePtr L)

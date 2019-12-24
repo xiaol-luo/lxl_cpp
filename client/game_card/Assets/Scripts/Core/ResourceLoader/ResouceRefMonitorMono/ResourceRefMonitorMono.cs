@@ -7,7 +7,19 @@ namespace Utopia.Resource
     class ResourceRefMonitorMono : MonoBehaviour
     {
         protected ResourceState resState;
-        
+        public int setOperaSeq { get; protected set; }
+
+        private void Awake()
+        {
+            setOperaSeq = 0;
+        }
+
+        public int NextSetOperaSeq()
+        {
+            ++ setOperaSeq;
+            return setOperaSeq;
+        }
+
         private void OnDestroy()
         {
             SetResourceState(null);
@@ -28,38 +40,60 @@ namespace Utopia.Resource
     }
     class ResourceRefMonitorMono<T, R> : ResourceRefMonitorMono where T : Component where R : Object
     {
-        protected static void Set<RT>(T component, string assetPath, System.Action<T, R> onEnd) where RT : ResourceRefMonitorMono<T, R>
+        protected static int Set<RT>(T component, string assetPath, 
+            System.Action<int, ResourceRefMonitorMono, T, R> onEnd, 
+            System.Func<UnityEngine.Object, R> convertResToRFun = null) where RT : ResourceRefMonitorMono<T, R>
         {
+            var ai = component.GetComponent<RT>();
+            if (ai == null)
+            {
+                ai = component.gameObject.AddComponent<RT>();
+            }
+            int setOperaSeq = ai.NextSetOperaSeq();
             if (string.IsNullOrEmpty(assetPath))
             {
-                var ai = component.GetComponent<RT>();
                 if (ai != null)
                 {
                     ai.SetResourceState(null);
                 }
-                onEnd(component, null);
+                onEnd(setOperaSeq, ai, component, null);
             }
             else
             {
-                RT ai = component.GetComponent<RT>();
-                if (ai == null)
-                    ai = component.gameObject.AddComponent<RT>();
                 {
                     ResourceLoader.instance.AsyncLoadAsset(assetPath, (string ap, ResourceObserver ob) =>
                     {
-                        if (null != ob && ob.isLoaded && null != ob.res && ob.res is R)
+                        ResourceObserver xxx = ob;
+                        if (ai.setOperaSeq == setOperaSeq)
                         {
-                            ai.SetResourceState(ob.resState);
-                            onEnd(component, ob.res as R);
-                        }
-                        else
-                        {
-                            ai.SetResourceState(null);
+                            R res = null;
+                            if (null != ob && ob.isLoaded && null != ob.res)
+                            {
+                                if (null != convertResToRFun)
+                                {
+                                    res = convertResToRFun(ob.res);
+                                }
+                                else
+                                {
+                                    res = ob.res as R;
+                                }
+                            }
+                            if (null != ob && null != res)
+                            {
+                                ai.SetResourceState(ob.resState);
+                                onEnd(setOperaSeq, ai, component, res);
+                            }
+                            else
+                            {
+                                ai.SetResourceState(null);
+                                onEnd(setOperaSeq, ai, component, null);
+                            }
                         }
                         ob.Release();
                     });
                 }
             }
+            return setOperaSeq;
         }
     }
 }

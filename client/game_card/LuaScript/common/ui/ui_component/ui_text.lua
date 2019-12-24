@@ -47,3 +47,8 @@ function UIText:get_color()
     end
     return self.text_comp.color
 end
+
+function UIText:on_destroy()
+    UIText.super.on_destroy(self)
+    self.text_comp = nil
+end

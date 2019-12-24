@@ -15,6 +15,7 @@ namespace Lua
             typeof(UnityEngine.MonoBehaviour),
             typeof(UnityEngine.Component),
             typeof(UnityEngine.UI.Text),
+            typeof(UnityEngine.UI.Image),
             typeof(Color),
         };
 
@@ -38,6 +39,7 @@ namespace Lua
             typeof(Utopia.ResourceObserver),
 
             typeof(LuaUIComponent),
+            typeof(Utopia.Resource.ResourceRefMonitorMono),
         };
     }
 }
