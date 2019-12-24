@@ -35,6 +35,7 @@
 	    <type fullname="UnityEngine.UI.Text" preserve="all"/>
 		<type fullname="UnityEngine.UI.Image" preserve="all"/>
 		<type fullname="UnityEngine.UI.Button" preserve="all"/>
+		<type fullname="UnityEngine.UI.Button+ButtonClickedEvent" preserve="all"/>
 		
 	</assembly>
 

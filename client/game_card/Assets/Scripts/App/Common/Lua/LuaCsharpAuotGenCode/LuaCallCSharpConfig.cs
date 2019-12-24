@@ -17,6 +17,7 @@ namespace Lua
             typeof(UnityEngine.UI.Text),
             typeof(UnityEngine.UI.Image),
             typeof(UnityEngine.UI.Button),
+            typeof(UnityEngine.UI.Button.ButtonClickedEvent),
             typeof(Color),
         };
 

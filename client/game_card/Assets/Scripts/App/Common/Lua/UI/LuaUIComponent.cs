@@ -53,10 +53,7 @@ public class LuaUIComponent : MonoBehaviour
 
     void text()
     {
-        Button btn;
-        // btn.onClick.AddListener()
-        // img.sprite = null;
-        // img.fillAmount
+
     }
 }
 
