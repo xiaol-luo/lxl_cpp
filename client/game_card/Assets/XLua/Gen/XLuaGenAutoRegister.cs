@@ -55,6 +55,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(UnityEngine.UI.Image), UnityEngineUIImageWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(UnityEngine.UI.Button), UnityEngineUIButtonWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(UnityEngine.Color), UnityEngineColorWrap.__Register);
         
         

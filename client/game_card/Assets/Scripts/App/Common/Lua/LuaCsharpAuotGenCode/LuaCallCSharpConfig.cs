@@ -16,6 +16,7 @@ namespace Lua
             typeof(UnityEngine.Component),
             typeof(UnityEngine.UI.Text),
             typeof(UnityEngine.UI.Image),
+            typeof(UnityEngine.UI.Button),
             typeof(Color),
         };
 
