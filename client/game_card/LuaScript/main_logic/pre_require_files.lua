@@ -15,6 +15,7 @@ return {
     "common.ui.ui_component.ui_component",
     "common.ui.ui_component.ui_text",
     "common.ui.ui_component.ui_image",
+    "common.ui.ui_component.ui_button",
 
     "common.init_common_global_vars",
 
