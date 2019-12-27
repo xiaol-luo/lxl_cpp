@@ -17,9 +17,12 @@ return {
     "common.ui.ui_component.ui_image",
     "common.ui.ui_component.ui_button",
 
+    "common.state_mgr.state_mgr",
+    "common.state_mgr.state_base",
+
     "common.init_common_global_vars",
 
-    "main_logic.ui.ui_main_panel",
+    "main_logic.ui.main_panel.ui_main_panel",
 
     "main_logic.logics.item.item",
     "main_logic.logics.item.item_mgr",

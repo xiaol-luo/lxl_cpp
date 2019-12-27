@@ -4,7 +4,7 @@
 function setup_lua_logics(arg)
     print("setup_lua_logics ", arg)
     ParseArgs.append_lua_search_path("main_logic")
-    require("main_logic")
+    require("main_logic_impl.main_logic")
     g_ins = MainLogic:new()
     g_ins:init(arg)
     g_ins:on_start()

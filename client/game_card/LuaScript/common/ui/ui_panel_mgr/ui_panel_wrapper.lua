@@ -24,6 +24,7 @@ end
 
 function UIPanelWrapper:init()
     self.wrapper_root_go = self.panel_mgr.panel_wrapper_res_obs:Instantiate()
+    self.wrapper_root_go.name = string.format("%s_wrapper", self.panel_setting.panel_name)
     self.ui_root_go = UIHelp.find_gameobject(self.wrapper_root_go, "Root")
     self.panel_parent_go = UIHelp.find_gameobject(self.wrapper_root_go, "Root/PanelRoot")
     assert(self.wrapper_root_go)
