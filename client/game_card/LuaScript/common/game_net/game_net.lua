@@ -28,3 +28,12 @@ function GameNet:send(proto_id, bin)
         self.natvie_game_net:Send(proto_id, bin, 0, #bin)
     end
 end
+
+function GameNet:release()
+    if CSharpHelp.not_null(self.natvie_game_net) then
+        self.natvie_game_net:SetLuaCallbacks(nil, nil, nil)
+    end
+    self.open_cb = nil
+    self.close_cb = nil
+    self.recv_msg_cb = nil
+end
