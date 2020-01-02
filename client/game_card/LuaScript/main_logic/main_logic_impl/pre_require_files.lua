@@ -22,6 +22,14 @@ return {
 
     "common.init_common_global_vars",
 
+    "main_logic.main_logic_impl.state_mgr.main_logic_state_def",
+    "main_logic.main_logic_impl.state_mgr.main_logic_state_mgr",
+    "main_logic.main_logic_impl.state_mgr.main_logic_state_base",
+    "main_logic.main_logic_impl.state_mgr.main_logic_state_exit_game",
+    "main_logic.main_logic_impl.state_mgr.main_logic_state_in_game",
+    "main_logic.main_logic_impl.state_mgr.main_logic_state_init_game",
+    "main_logic.main_logic_impl.state_mgr.main_logic_state_wait_task",
+
     "main_logic.ui.main_panel.ui_main_panel",
 
     "main_logic.logics.item.item",

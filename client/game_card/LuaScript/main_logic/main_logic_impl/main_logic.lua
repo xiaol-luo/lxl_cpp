@@ -16,13 +16,21 @@ function MainLogic:ctor()
     self.login_net = nil
     self.login_rsp_msg = nil
     self.ui_panel_mgr = nil
+    self.state_mgr = nil
 end
 
 function MainLogic:init(arg)
-    local pre_require_files = require("main_logic.pre_require_files")
+    local pre_require_files = require("main_logic.main_logic_impl.pre_require_files")
     for _, v in pairs(pre_require_files) do
         require(v)
     end
+
+    self.state_mgr = MainLogicStateMgr:new(self)
+    self.state_mgr:init()
+
+    self.ui_panel_mgr = UIPanelMgr:new()
+    local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
+    self.ui_panel_mgr:init(ui_root.gameObject)
 
     self.role_mgr = RoleMgr:new()
     self.role_mgr:add_role(Role:new())
@@ -51,18 +59,19 @@ function MainLogic:init(arg)
     end
 
     UI_Panel_Setting_Help.adjust_setting()
+
+    self.state_mgr:change_state(Main_Logic_State_Name.init_game)
 end
 
 function MainLogic:on_start()
     -- self.login_net:connect("127.0.0.1", 31001)
 
-    local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
-    UIHelp.get_component(typeof(CS.Utopia.UIRoot), ui_root)
-    local ui_root_go = ui_root.gameObject
-    self.ui_panel_mgr = UIPanelMgr:new()
-    self.ui_panel_mgr:init(ui_root_go)
-    self.ui_panel_mgr:prepare_assets()
-    self.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
+    -- local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
+    -- UIHelp.get_component(typeof(CS.Utopia.UIRoot), ui_root)
+    -- local ui_root_go = ui_root.gameObject
+    -- self.ui_panel_mgr:init(ui_root_go)
+    -- self.ui_panel_mgr:prepare_assets()
+    -- self.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
     -- self.ui_panel_mgr:release_panel(UI_Panel_Name.main_panel)
 
     -- local panel_proxy_go = CS.UnityEngine.GameObject.Find("UIPanelProxy")
@@ -79,10 +88,7 @@ function MainLogic:on_start()
 end
 
 function MainLogic:on_update()
-    -- self.role_mgr:tick_role()
-    -- self.item_mgr:tick_item()
-    -- self.ui_panel_mgr:reshow_panel(UI_Panel_Name.main_panel)
-    -- self.ui_panel_mgr:hide_panel(UI_Panel_Name.main_panel)
+    self.state_mgr:update_state()
 end
 
 function MainLogic:on_game_net_open(is_succ)
