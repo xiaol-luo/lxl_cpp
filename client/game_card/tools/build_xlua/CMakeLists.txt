@@ -40,7 +40,7 @@ MARK_AS_ADVANCED(XLUA_PROJECT_DIR)
 list(APPEND THIRDPART_INC 3rd_libs)
 
 # begin register_3rd_lualibs
-set (
+set(
 	register_3rd_lualibs_Src 
 	3rd_libs/register_3rd_lualibs.cpp
 )
@@ -56,7 +56,7 @@ list(APPEND THIRDPART_SRC ${register_3rd_lualibs_Src})
 
 
 # begin lua_rapidjson
-set (
+set(
 	RapidJson_Src 
 	3rd_libs/lua_rapidjson/src/rapidjson.cpp
 	3rd_libs/lua_rapidjson/src/Document.cpp
@@ -74,7 +74,7 @@ list(APPEND THIRDPART_SRC ${RapidJson_Src})
 list(APPEND THIRDPART_INC 3rd_libs/lua_rapidjson/src)
 # end lua_rapidjson
 
-#begin lua_protobuf
+# begin lua_protobuf
 set(
     LuaProtobuf_Src
     3rd_libs/lua_protobuf/pb.c
@@ -82,9 +82,33 @@ set(
 list(APPEND THIRDPART_SRC ${LuaProtobuf_Src})
 list(APPEND THIRDPART_INC 3rd_libs/lua_protobuf)
 
-#end lua_protobuf
+# end lua_protobuf
+
+# begin sproto2
+set(
+    Sproto2_Src
+    3rd_libs/sproto2/lsproto.c
+    3rd_libs/sproto2/sproto.c
+)
+list(APPEND THIRDPART_SRC ${Sproto2_Src})
+list(APPEND THIRDPART_INC 3rd_libs/sproto2)
+
+#end sproto2
 
 
+# begin lpeg
+set(
+    Lpeg_Src
+    3rd_libs/lpeg/lpcap.c
+    3rd_libs/lpeg/lpcode.c
+    3rd_libs/lpeg/lpprint.c
+    3rd_libs/lpeg/lptree.c
+    3rd_libs/lpeg/lpvm.c
+)
+list(APPEND THIRDPART_SRC ${Lpeg_Src})
+list(APPEND THIRDPART_INC 3rd_libs/lpeg)
+
+#end lpeg
 
 ###### 3rd libs setting end ######
 

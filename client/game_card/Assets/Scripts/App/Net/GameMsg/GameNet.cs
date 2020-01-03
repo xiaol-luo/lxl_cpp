@@ -81,6 +81,16 @@ namespace Utopia
             return m_netAgent.GetState();
         }
 
+        public int GetErrorNum()
+        {
+            return m_netAgent.GetErrorNum();
+        }
+
+        public string GetErrorMsg()
+        {
+            return m_netAgent.GetErrorMsg();
+        }
+
         public bool Send(int protocolId)
         {
             return m_netAgent.Send(protocolId);

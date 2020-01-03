@@ -1,5 +1,6 @@
 
 return {
+    "common.game_net.game_net_def",
     "common.game_net.game_net",
     "common.csharp.csharp_help",
     "common.csharp.csharp_type",
@@ -19,16 +20,39 @@ return {
 
     "common.state_mgr.state_mgr",
     "common.state_mgr.state_base",
+    "common.state_mgr.composite_state_base",
+
+    "common.proto.proto_def",
+    "common.proto.proto_parser",
+    "common.proto.proto_store_base",
+    "common.proto.protobuf_store",
+    "common.proto.sproto_store",
 
     "common.init_common_global_vars",
+
+
+    "main_logic.game_proto.game_pids",
+    "main_logic.game_proto.game_pid_proto_map",
+    "main_logic.game_proto.game_proto_files",
+
 
     "main_logic.main_logic_impl.state_mgr.main_logic_state_def",
     "main_logic.main_logic_impl.state_mgr.main_logic_state_mgr",
     "main_logic.main_logic_impl.state_mgr.main_logic_state_base",
+    "main_logic.main_logic_impl.state_mgr.main_logic_composite_state_base",
     "main_logic.main_logic_impl.state_mgr.main_logic_state_exit_game",
     "main_logic.main_logic_impl.state_mgr.main_logic_state_in_game",
     "main_logic.main_logic_impl.state_mgr.main_logic_state_init_game",
     "main_logic.main_logic_impl.state_mgr.main_logic_state_wait_task",
+
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_def",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_base",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_mgr",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_enter",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_exit",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_login",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_logout",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_run",
 
     "main_logic.ui.main_panel.ui_main_panel",
 

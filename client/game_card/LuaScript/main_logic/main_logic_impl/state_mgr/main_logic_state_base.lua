@@ -1,7 +1,7 @@
 
 MainLogicStateBase = MainLogicStateBase or class("MainLogicStateBase", StateBase)
 
-function MainLogicStateBase:ctor(state_mgr, state_name)
+function MainLogicStateBase:ctor(state_mgr, state_name, main_logic)
     MainLogicStateBase.super.ctor(self, state_mgr, state_name)
-    self.main_logic = self.state_mgr.main_logic
+    self.main_logic = main_logic
 end

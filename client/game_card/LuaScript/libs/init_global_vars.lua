@@ -13,3 +13,9 @@ gen_next_seq = make_sequence()
 pb = require("pb")
 pb.option("use_default_metatable")
 pb_protoc = require "libs.lua_protobuf.protoc"
+
+--云风的pb
+sproto = require "libs.sproto.sproto"
+sproto_core = require "sproto.core"
+sproto_parser = require("libs.sproto.sprotoparser")
+

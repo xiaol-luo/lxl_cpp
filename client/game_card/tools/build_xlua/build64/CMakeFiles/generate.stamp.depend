@@ -1,0 +1,24 @@
+# CMake generation dependency list for this directory.
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeCInformation.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeCXXInformation.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeCommonLanguageInclude.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeGenericSystem.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeInitializeConfigs.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeLanguageInformation.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeRCInformation.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeSystemSpecificInformation.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/CMakeSystemSpecificInitialize.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Compiler/MSVC-C.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Compiler/MSVC-CXX.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Platform/Windows-MSVC-C.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Platform/Windows-MSVC-CXX.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Platform/Windows-MSVC.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Platform/Windows.cmake
+D:/tools/CMake/share/cmake-3.13/Modules/Platform/WindowsPaths.cmake
+E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/CMakeLists.txt
+E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/build64/CMakeFiles/3.13.0-rc3/CMakeCCompiler.cmake
+E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/build64/CMakeFiles/3.13.0-rc3/CMakeCXXCompiler.cmake
+E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/build64/CMakeFiles/3.13.0-rc3/CMakeRCCompiler.cmake
+E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/build64/CMakeFiles/3.13.0-rc3/CMakeSystem.cmake
+E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/lua-5.3.5/src/luaconf.h.in

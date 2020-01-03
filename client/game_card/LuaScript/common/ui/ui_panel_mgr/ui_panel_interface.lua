@@ -53,4 +53,8 @@ function UIPanelInterface:get_root()
 
 end
 
+function UIPanelInterface:get_event_mgr()
+
+end
+
 

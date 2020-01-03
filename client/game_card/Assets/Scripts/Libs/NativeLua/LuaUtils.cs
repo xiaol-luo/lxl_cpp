@@ -9,6 +9,8 @@ namespace Lua
             XLua.LuaDLL.Lua.register_3rd_lualibs(env.L);
             XLua.LuaDLL.Lua.RapidJsonAddBuildin(env);
             XLua.LuaDLL.Lua.PbAddBuildin(env);
+            XLua.LuaDLL.Lua.SprotoAddBuildin(env);
+            XLua.LuaDLL.Lua.LpegAddBuildin(env);
             return env;
         }
     }

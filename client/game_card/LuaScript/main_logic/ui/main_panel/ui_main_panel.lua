@@ -4,6 +4,7 @@ UIMainPanel = UIMainPanel or class("UIMainPanel", UIPanelBase)
 function UIMainPanel:ctor(panel_mgr, panel_setting, root_go)
     self.super.ctor(self, panel_mgr, panel_setting, root_go)
     self.btn_click_times = 0
+    self.panel_data = nil
 end
 
 function UIMainPanel:init()
@@ -34,6 +35,10 @@ function UIMainPanel:on_click_btn(custom_param)
     else
         self.img:set_sprite("Assets/Res/UI/Images/1.png")
     end
+end
+
+function UIMainPanel:on_show(panel_data)
+    self.panel_data = panel_data
 end
 
 

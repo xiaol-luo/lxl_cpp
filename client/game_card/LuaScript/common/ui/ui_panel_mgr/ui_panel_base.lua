@@ -32,9 +32,9 @@ function UIPanelBase:reshow()
     if self:get_state() == UI_Panel_State.showed then
         return
     end
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_reshow, self, panel_data)
+    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_reshow, self)
     self:on_reshow()
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.reshowed, self, panel_data)
+    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.reshowed, self)
 end
 
 function UIPanelBase:hide()
@@ -44,18 +44,18 @@ function UIPanelBase:hide()
     if self:get_state() == UI_Panel_State.hided then
         return
     end
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_hide, self, panel_data)
+    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_hide, self)
     self:on_hide()
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.hided, self, panel_data)
+    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.hided, self)
 end
 
 function UIPanelBase:release()
     if not self:is_ready() or self:is_released() then
         return
     end
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_release, self, panel_data)
+    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_release, self)
     self:on_release()
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.released, self, panel_data)
+    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.released, self)
 end
 
 function UIPanelBase:get_setting()
@@ -101,3 +101,9 @@ end
 function UIPanelBase:on_release()
     -- log_debug("UIPanelBase:on_release")
 end
+
+function UIPanelBase:get_event_mgr()
+    return self.event_mgr
+end
+
+

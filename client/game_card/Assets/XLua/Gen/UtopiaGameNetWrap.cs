@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Utopia.GameNet);
-			Utils.BeginObjectRegister(type, L, translator, 0, 10, 0, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 12, 0, 0);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetCallbacks", _m_SetCallbacks);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnClose", _m_OnClose);
@@ -31,6 +31,8 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ReConnect", _m_ReConnect);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Close", _m_Close);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetState", _m_GetState);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetErrorNum", _m_GetErrorNum);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetErrorMsg", _m_GetErrorMsg);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Send", _m_Send);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnRemoveNetAgent", _m_OnRemoveNetAgent);
 			
@@ -300,6 +302,62 @@ namespace XLua.CSObjectWrap
                     
                         Utopia.NetAgentState gen_ret = gen_to_be_invoked.GetState(  );
                         translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetErrorNum(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Utopia.GameNet gen_to_be_invoked = (Utopia.GameNet)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        int gen_ret = gen_to_be_invoked.GetErrorNum(  );
+                        LuaAPI.xlua_pushinteger(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetErrorMsg(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Utopia.GameNet gen_to_be_invoked = (Utopia.GameNet)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    
+                        string gen_ret = gen_to_be_invoked.GetErrorMsg(  );
+                        LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
                     

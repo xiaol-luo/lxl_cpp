@@ -1,8 +1,8 @@
 
 MainLogicStateInitGame = MainLogicStateInitGame or class("MainLogicStateInitGame", MainLogicStateBase)
 
-function MainLogicStateInitGame:ctor(state_mgr)
-    MainLogicStateInitGame.super.ctor(self, state_mgr, Main_Logic_State_Name.init_game)
+function MainLogicStateInitGame:ctor(state_mgr, main_logic)
+    MainLogicStateInitGame.super.ctor(self, state_mgr, Main_Logic_State_Name.init_game, main_logic)
 end
 
 function MainLogicStateInitGame:on_enter(params)

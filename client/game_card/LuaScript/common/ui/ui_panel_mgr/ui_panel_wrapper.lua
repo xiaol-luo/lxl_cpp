@@ -259,3 +259,6 @@ function UIPanelWrapper:_on_event_panel_released(panel_logic)
     CS.UnityEngine.GameObject.Destroy(self.wrapper_root_go)
 end
 
+function UIPanelWrapper:get_event_mgr()
+    return self.event_mgr
+end
