@@ -30,7 +30,7 @@ function UIPanelWrapper:init()
     assert(self.wrapper_root_go)
     local parent_layer = self.panel_mgr.layers[self.panel_setting.belong_layer]
     assert(parent_layer)
-    self.wrapper_root_go.transform:SetParent(parent_layer)
+    self.wrapper_root_go.transform:SetParent(parent_layer, false)
     self.wrapper_root_go:SetActive(true)
     self.wrapper_root_go.transform.localScale = CS.UnityEngine.Vector3.one
     self.wrapper_root_go.transform.localPosition = CS.UnityEngine.Vector3.zero
@@ -64,7 +64,7 @@ function UIPanelWrapper:_check_load_panel()
         end
         self.panel_state = UI_Panel_State.loaded
         self.panel_root_go = res_obs:Instantiate()
-        self.panel_root_go.transform:SetParent(self.panel_parent_go.transform)
+        self.panel_root_go.transform:SetParent(self.panel_parent_go.transform, false)
         self.panel_root_go:SetActive(true)
         self.panel_root_go.transform.localScale = CS.UnityEngine.Vector3.one
         self.panel_root_go.transform.localPosition = CS.UnityEngine.Vector3.zero

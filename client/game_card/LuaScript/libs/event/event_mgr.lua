@@ -51,3 +51,20 @@ function EventMgr:create_subscriber()
     return ret
 end
 
+function declare_event_set(event_set_name, event_set_tb)
+    assert(IsString(event_set_name))
+    assert(IsTable(event_set_tb))
+
+    local event_set = _G[event_set_name]
+    if not event_set then
+        event_set = {}
+        _G[event_set_name] = event_set
+    end
+    for _, v in pairs(event_set_tb) do
+        if not event_set[k] then
+            local event_value = string.format("%s.%s", event_set_name, v)
+            event_set[v] = event_value
+        end
+    end
+    return event_set
+end

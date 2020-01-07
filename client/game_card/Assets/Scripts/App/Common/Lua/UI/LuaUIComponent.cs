@@ -53,6 +53,7 @@ public class LuaUIComponent : MonoBehaviour
 
     void text()
     {
+
     }
 }
 

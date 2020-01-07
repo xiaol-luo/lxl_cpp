@@ -37,6 +37,18 @@ function GameNet:send(proto_id, bin)
     end
 end
 
+function GameNet:send_msg(proto_id, msg_tb)
+    local is_ok, bin = true, nil
+    if IsTable(msg_tb) then
+        is_ok, bin = g_ins.proto_parser.proto_parser:encode(proto_id, msg_tb)
+    end
+    if is_ok then
+        self.cnn:send(ProtoId.req_user_login, bin)
+    else
+        log_error("encode proto %s fail", g_ins.main_logic.proto_parser:get_proto_desc(ProtoId.req_user_login))
+    end
+end
+
 function GameNet:release()
     if CSharpHelp.not_null(self.native_game_net) then
         self.native_game_net:SetLuaCallbacks(nil, nil, nil)

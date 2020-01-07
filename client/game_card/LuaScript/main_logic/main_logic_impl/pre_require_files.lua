@@ -35,6 +35,10 @@ return {
     "main_logic.game_proto.game_pid_proto_map",
     "main_logic.game_proto.game_proto_files",
 
+    "main_logic.net.cnn_logic_base",
+    "main_logic.net.gate_cnn_logic",
+    "main_logic.net.login_cnn_logic",
+
 
     "main_logic.main_logic_impl.state_mgr.main_logic_state_def",
     "main_logic.main_logic_impl.state_mgr.main_logic_state_mgr",
@@ -55,6 +59,7 @@ return {
     "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_run",
 
     "main_logic.ui.main_panel.ui_main_panel",
+    "main_logic.ui.login_panel.ui_login_panel",
 
     "main_logic.logics.item.item",
     "main_logic.logics.item.item_mgr",

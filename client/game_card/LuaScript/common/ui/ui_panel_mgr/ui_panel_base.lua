@@ -21,7 +21,7 @@ function UIPanelBase:show(panel_data)
         return
     end
     self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_showed, self, panel_data)
-    self:on_show(panel_data)
+    self:on_show(true, panel_data)
     self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.showed, self, panel_data)
 end
 
@@ -33,7 +33,7 @@ function UIPanelBase:reshow()
         return
     end
     self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_reshow, self)
-    self:on_reshow()
+    self:on_show(false, nil)
     self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.reshowed, self)
 end
 
@@ -53,6 +53,7 @@ function UIPanelBase:release()
     if not self:is_ready() or self:is_released() then
         return
     end
+    self:hide()
     self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_release, self)
     self:on_release()
     self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.released, self)
@@ -86,12 +87,8 @@ function UIPanelBase:get_root()
     return self.root_go
 end
 
-function UIPanelBase:on_show(panel_data)
+function UIPanelBase:on_show(is_new_show, panel_data)
     -- log_debug("UIPanelBase:on_show")
-end
-
-function UIPanelBase:on_reshow()
-    -- log_debug("UIPanelBase:on_reshow")
 end
 
 function UIPanelBase:on_hide()

@@ -19,3 +19,5 @@ sproto = require "libs.sproto.sproto"
 sproto_core = require "sproto.core"
 sproto_parser = require("libs.sproto.sprotoparser")
 
+
+safe_call = Functional.safe_call

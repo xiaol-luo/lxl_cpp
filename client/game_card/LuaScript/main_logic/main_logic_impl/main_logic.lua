@@ -1,10 +1,4 @@
 
-
-local ACCOUNT_ID = "LXL_1"
-local APPID_ID = "FOR_TEST_APP_ID"
-local PLATFORM_NAME = "FOR_TEST_PLATFORM_NAME"
-local TOKEN = "FOR_TEST_TOKEN"
-
 MainLogic = MainLogic or class("MainLogic")
 
 function MainLogic:ctor()
@@ -13,8 +7,11 @@ function MainLogic:ctor()
     self.login_rsp_msg = nil
 
     self.ui_panel_mgr = nil
+    self.event_mgr = nil
     self.state_mgr = nil
     self.proto_parser = nil
+    self.login_cnn_logic = nil
+    self.gate_cnn_logic = nil
 end
 
 function MainLogic:init(arg)
@@ -26,13 +23,18 @@ function MainLogic:init(arg)
     log_assert(self:init_proto_parser(), "init_proto_parser fail")
     UI_Panel_Setting_Help.adjust_setting()
 
-    self.state_mgr = MainLogicStateMgr:new(self)
-    self.state_mgr:init()
+    self.event_mgr = EventMgr:new()
 
     self.ui_panel_mgr = UIPanelMgr:new()
     local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
     log_assert(CSharpHelp.not_null(ui_root), "not found CS.Utopia.UIRoot")
     self.ui_panel_mgr:init(ui_root.gameObject)
+
+    self.login_cnn_logic = LoginCnnLogic:new(self)
+    self.gate_cnn_logic = GateCnnLogic:new(self)
+
+    self.state_mgr = MainLogicStateMgr:new(self)
+    self.state_mgr:init()
     self.state_mgr:change_state(Main_Logic_State_Name.init_game)
 
     self.game_net = GameNet:new(

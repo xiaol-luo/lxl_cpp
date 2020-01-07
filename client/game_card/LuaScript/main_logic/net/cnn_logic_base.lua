@@ -13,6 +13,7 @@ function CnnLogicBase:reset(ip, port)
     self.port = port
     self.error_num = 0
     self.error_msg = ""
+    self:on_reset()
 end
 
 function CnnLogicBase:_release_cnn()
@@ -79,6 +80,10 @@ function CnnLogicBase:update()
     self:on_update()
 end
 
+function CnnLogicBase:on_reset()
+
+end
+
 function CnnLogicBase:on_open(is_succ)
 
 end
@@ -94,6 +99,7 @@ end
 function CnnLogicBase:on_update()
 
 end
+
 
 
 

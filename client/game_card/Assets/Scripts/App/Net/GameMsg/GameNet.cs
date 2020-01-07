@@ -103,7 +103,7 @@ namespace Utopia
 
         public void OnRemoveNetAgent(string evString, NetAgentBase netAgent)
         {
-            AppLog.Debug("OnRemoveNetAgent {0}", netAgent.id);
+            // AppLog.Debug("OnRemoveNetAgent {0}", netAgent.id);
         }
     }
 }

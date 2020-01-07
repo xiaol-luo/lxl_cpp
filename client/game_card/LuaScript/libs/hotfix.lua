@@ -29,7 +29,7 @@ function hotfix_record_module_upvalues(mod)
             end
         end
     end
-    local lua_code = ""
+    local lua_code = "local function fn() return end\n return fn"
     do
         local up_names_array = {}
         for k, _ in pairs(up_names) do
@@ -45,8 +45,10 @@ function hotfix_record_module_upvalues(mod)
             end
         end
         code_variables = idx < 1 and "" or string.sub(code_variables, 1, idx)
-        lua_code = string.format("local %s = nil \n local function fn() return %s end\n return fn",
-                code_variables, code_variables)
+        if #code_variables > 0 then
+            lua_code = string.format("local %s = nil \n local function fn() return %s end\n return fn",
+                    code_variables, code_variables)
+        end
 
     end
     -- print("hotfix_record_module_upvalues lua_code:\n", lua_code)
