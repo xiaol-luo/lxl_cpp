@@ -78,7 +78,7 @@ function GateCnnLogic:on_update()
 end
 
 function GateCnnLogic:on_recv_msg(proto_id, bytes, data_len)
-    log_debug("LoginCnnLogic:on_recv_msg %s %s %s", proto_id, data_len, bytes)
+    -- log_debug("LoginCnnLogic:on_recv_msg %s %s %s", proto_id, data_len, bytes)
     local msg_handler = self.msg_handlers[proto_id]
     if msg_handler then
         local is_ok, msg = self.main_logic.proto_parser:decode(proto_id, bytes)
@@ -117,6 +117,9 @@ function GateCnnLogic:on_msg_rsp_launch_role(proto_id, msg)
         self.is_launched_role = true
     end
     self.main_logic.event_mgr:fire(Event_Set__Gate_Cnn_Logic.rsp_launch_role, self, msg)
+    self:send_msg_to_game(ProtoId.req_join_match, {
+        match_type = 1,
+    })
 end
 
 function GateCnnLogic:on_msg_pong(proto_id, msg)
@@ -129,4 +132,23 @@ end
 
 function GateCnnLogic:launch_role(role_id)
     self.cnn:send_msg(ProtoId.req_launch_role, { role_id = role_id } )
+end
+
+function GateCnnLogic:send_to_game(proto_id, proto_bytes)
+    local ret = send_msg(self.cnn, ProtoId.req_client_forward_game, {
+        proto_id = proto_id,
+        proto_bytes = proto_bytes,
+    })
+    return ret
+end
+
+function GateCnnLogic:send_msg_to_game(proto_id, msg)
+    local is_ok, block = true, nil
+    if self.main_logic.proto_parser:exist(proto_id) then
+        is_ok, block = self.main_logic.proto_parser:encode(proto_id, msg)
+        if not is_ok then
+            return false
+        end
+    end
+    return self:send_to_game(proto_id, block)
 end

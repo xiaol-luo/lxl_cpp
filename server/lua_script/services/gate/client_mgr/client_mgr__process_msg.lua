@@ -201,7 +201,7 @@ function ClientMgr:process_reconnect(netid, pid, msg)
 end
 
 function ClientMgr:process_ping(netid, pid, msg)
-    log_debug("ClientMgr:process_ping %s, %s", netid, msg)
+    -- log_debug("ClientMgr:process_ping %s, %s", netid, msg)
     self.client_cnn_mgr:send(netid, ProtoId.pong)
 end
 

@@ -13,6 +13,7 @@ function NetForward:init()
 end
 
 function NetForward:_on_client_forward_game(netid, pid, msg)
+    -- log_debug("NetForward:_on_client_forward_game")
     local client = self.service.client_mgr:get_client(netid)
     if not client or not client:is_ingame() then
         return
