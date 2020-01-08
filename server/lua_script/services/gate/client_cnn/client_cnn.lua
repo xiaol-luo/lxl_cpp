@@ -8,9 +8,12 @@ function ClientCnn:ctor()
 end
 
 function ClientCnn:send(pid, tb)
-    local is_ok, block = PROTO_PARSER:encode(pid, tb)
-    if not is_ok then
-        return false
+    local is_ok, block = true, nil
+    if PROTO_PARSER:exist(pid) then
+        is_ok, block = PROTO_PARSER:encode(pid, tb)
+        if not is_ok then
+            return false
+        end
     end
     return self.cnn:send(pid, block)
 end

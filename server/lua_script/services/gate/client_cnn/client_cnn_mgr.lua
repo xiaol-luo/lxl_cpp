@@ -98,6 +98,8 @@ function ClientCnnMgr:cnn_on_recv(cnn, pid, bin)
         else
             log_error("ClientCnnMgr:cnn_on_recv decode fail pid:%s", pid)
         end
+    else
+        log_warn("ClientCnnMgr:cnn_on_recv not handle function for pid:%s", pid)
     end
 end
 

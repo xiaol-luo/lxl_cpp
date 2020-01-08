@@ -43,9 +43,9 @@ function GameNet:send_msg(proto_id, msg_tb)
         is_ok, bin = g_ins.proto_parser:encode(proto_id, msg_tb)
     end
     if is_ok then
-        self:send(ProtoId.req_user_login, bin)
+        self:send(proto_id, bin)
     else
-        log_error("encode proto %s fail", g_ins.proto_parser:get_proto_desc(ProtoId.req_user_login))
+        log_error("encode proto %s fail", g_ins.proto_parser:get_proto_desc(proto_id))
     end
 end
 

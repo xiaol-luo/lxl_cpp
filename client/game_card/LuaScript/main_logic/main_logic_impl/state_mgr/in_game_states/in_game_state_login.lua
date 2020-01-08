@@ -25,7 +25,8 @@ end
 
 function InGameStateLogin:on_update()
     InGameStateLogin.super.on_update(self)
-    -- todo:
+    g_ins.login_cnn_logic:update()
+    g_ins.gate_cnn_logic:update()
 end
 
 function InGameStateLogin:on_exit()

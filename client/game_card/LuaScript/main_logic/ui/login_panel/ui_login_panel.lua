@@ -41,6 +41,21 @@ function UILoginPanel:init()
     self.user_name_txt = UIHelp.attach_ui(UIText, self.root_go, "GateView/UserName")
 
     self.notify_txt = UIHelp.attach_ui(UIText, self.root_go, "NotifyTxt")
+
+    self.launch_view = UIHelp.find_gameobject(self.root_go, "LaunchView")
+    self.create_role_btn = UIHelp.attach_ui(UIButton, self.root_go, "LaunchView/CreateRoleBtn")
+    self.create_role_btn:set_onclick(Functional.make_closure(self.on_click_create_role_btn, self))
+    self.role_items = {}
+    for i=1, 3 do
+        local role_name_txt = UIHelp.attach_ui(UIText, self.root_go, string.format("LaunchView/RoleItem_%s/RoleName", i))
+        local launch_btn = UIHelp.attach_ui(UIButton, self.root_go, string.format("LaunchView/RoleItem_%s/LaunchBtn", i))
+        self.role_items[i] = {
+            role_name_txt = role_name_txt,
+            launch_btn = launch_btn,
+            data = nil,
+        }
+        launch_btn:set_onclick(Functional.make_closure(self.on_click_launch_btn, self, i))
+    end
 end
 
 
@@ -48,6 +63,8 @@ function UILoginPanel:on_show(is_new_show, panel_data)
     log_info("UILoginPanel:on_show")
     self.ml_event_subscriber:subscribe(Event_Set__Login_Cnn_Logic.login_done, Functional.make_closure(self.on_event_login_cnn_done, self))
     self.ml_event_subscriber:subscribe(Event_Set__Login_Cnn_Logic.open, Functional.make_closure(self.on_event_login_cnn_open, self))
+    self.ml_event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.rsp_role_digests, Functional.make_closure(self.on_event_rsp_role_digests, self))
+    self.ml_event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.rsp_launch_role, Functional.make_closure(self.on_event_rsp_launch_role, self))
 end
 
 function UILoginPanel:on_hide()
@@ -94,6 +111,20 @@ function UILoginPanel:on_click_cancel_login_btn()
     log_info("UILoginPanel:on_click_cancel_login_btn")
     self.gate_view:SetActive(false)
     self.login_view:SetActive(true)
+    self.launch_view:SetActive(false)
+end
+
+function UILoginPanel:on_click_launch_btn(idx)
+    local role_item = self.role_items[idx]
+    if not role_item or not role_item.data then
+        log_error("no role data to launch")
+        return
+    end
+    g_ins.gate_cnn_logic:launch_role(role_item.data.role_id)
+end
+
+function UILoginPanel:on_click_create_role_btn()
+    g_ins.gate_cnn_logic:create_role(nil)
 end
 
 function UILoginPanel:on_event_login_cnn_done(cnn_logic, error_code, user_info)
@@ -104,6 +135,7 @@ function UILoginPanel:on_event_login_cnn_done(cnn_logic, error_code, user_info)
     else
         self.gate_view:SetActive(true)
         self.login_view:SetActive(false)
+        self.launch_view:SetActive(false)
         self.user_name_txt:set_text(user_info.user_id)
     end
 end
@@ -115,6 +147,24 @@ function UILoginPanel:on_event_login_cnn_open(cnn_logic, is_succ)
     end
 end
 
+function UILoginPanel:on_event_rsp_role_digests(cnn_logic, msg)
+    self.gate_view:SetActive(false)
+    self.login_view:SetActive(false)
+    self.launch_view:SetActive(true)
+
+    local i = 0
+    for k, v in pairs(msg.role_digests or {}) do
+        i = i + 1
+        local role_item = self.role_items[i]
+        role_item.data = v
+        local role_name_txt = role_item.role_name_txt
+        role_name_txt:set_text(v.role_id)
+    end
+end
+
+function UILoginPanel:on_event_rsp_launch_role(cnn_logic, msg)
+    log_debug("UILoginPanel:on_event_rsp_launch_role %s", msg)
+end
 
 
 

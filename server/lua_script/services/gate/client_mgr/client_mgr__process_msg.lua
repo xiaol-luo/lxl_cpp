@@ -6,6 +6,7 @@ function ClientMgr:setup_proto_handler()
     self.client_cnn_mgr:set_process_fn(ProtoId.req_launch_role, Functional.make_closure(self.process_req_launch_role, self))
     self.client_cnn_mgr:set_process_fn(ProtoId.req_logout_role, Functional.make_closure(self.process_logout_role, self))
     self.client_cnn_mgr:set_process_fn(ProtoId.req_reconnect, Functional.make_closure(self.process_reconnect, self))
+    self.client_cnn_mgr:set_process_fn(ProtoId.ping, Functional.make_closure(self.process_ping, self))
 end
 
 function ClientMgr:_coro_auth_user_login(auth_ip, auth_port, auth_sn, user_id, app_id, account_id)
@@ -43,7 +44,7 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
             break
         end
         if not client:is_free() then
-            error_num = Error.Gate_User_Login.no_client.state_not_fit
+            error_num = Error.Gate_User_Login.state_not_fit
             break
         end
         client.state = ClientState.Authing
@@ -199,6 +200,10 @@ function ClientMgr:process_reconnect(netid, pid, msg)
     end
 end
 
+function ClientMgr:process_ping(netid, pid, msg)
+    log_debug("ClientMgr:process_ping %s, %s", netid, msg)
+    self.client_cnn_mgr:send(netid, ProtoId.pong)
+end
 
 local ErrorNum = {
     None = 0,
@@ -406,3 +411,4 @@ function ClientMgr:_rpc_rsp_logout_role(netid, rpc_error_num, logout_error_num)
     log_debug("ClientMgr:process_logout_role 3 %s", error_num)
     self.client_cnn_mgr:send(netid, ProtoId.rsp_logout_role, { error_num = error_num })
 end
+

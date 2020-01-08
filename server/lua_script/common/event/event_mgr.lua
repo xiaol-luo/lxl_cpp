@@ -47,3 +47,10 @@ function EventMgr:cancel(id)
         ev_map[node.id] = nil
     end
 end
+
+function EventMgr:create_proxy()
+    local ret = EventProxy:new(self)
+    return ret
+end
+
+

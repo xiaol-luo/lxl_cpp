@@ -17,3 +17,7 @@ end
 function timer_remove(tid)
     return CS.Lua.LuaHelp.TimerRemove(tid)
 end
+
+function logic_sec()
+    return os.time()
+end

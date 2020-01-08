@@ -30,7 +30,7 @@ function ProtoParser:init(load_files, pid_proto_map)
     local ret = true
     for k, v in pairs(self.stores) do
         assert(System_Proto_Files[k])
-        log_debug("ProtoParser:init system proto files %s", k)
+        -- log_debug("ProtoParser:init system proto files %s", k)
         ret = v:load_files(System_Proto_Files[k])
         if not ret then
             break
@@ -44,7 +44,7 @@ function ProtoParser:init(load_files, pid_proto_map)
 
     for k, v in pairs(self.stores) do
         if load_files[k] then
-            log_debug("ProtoParser:init custom proto files %s", k)
+            -- log_debug("ProtoParser:init custom proto files %s", k)
             ret = v:load_files(load_files[k])
             if not ret then
                 break
