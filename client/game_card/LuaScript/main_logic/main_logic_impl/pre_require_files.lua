@@ -1,5 +1,6 @@
 
 return {
+    "common.error.error_def",
     "common.game_net.game_net_def",
     "common.game_net.game_net",
     "common.csharp.csharp_help",
@@ -57,9 +58,11 @@ return {
     "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_login",
     "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_logout",
     "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_run",
+    "main_logic.main_logic_impl.state_mgr.in_game_states.in_game_state_launch_role",
 
     "main_logic.ui.main_panel.ui_main_panel",
     "main_logic.ui.login_panel.ui_login_panel",
+    "main_logic.ui.launch_role_panel.launch_role_panel",
 
     "main_logic.logics.item.item",
     "main_logic.logics.item.item_mgr",

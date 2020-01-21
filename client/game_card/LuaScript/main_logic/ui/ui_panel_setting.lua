@@ -4,6 +4,7 @@ UI_Panel_Name = {
     loading_panel = "loading_panel",
     confirm_panel = "confirm_panel",
     login_panel = "login_panel",
+    launch_role_panel = "launch_role_panel",
 }
 
 UI_Panel_Setting = {
@@ -32,7 +33,12 @@ UI_Panel_Setting = {
         res_path = "Assets/Res/UI/PanelMgr/LoginPanel/LoginPanel.prefab",
         panel_logic = UILoginPanel,
     },
-
+    [UI_Panel_Name.launch_role_panel] = {
+        belong_layer = UI_Panel_Layer.coexist_0,
+        show_mode = UI_Panel_Show_Mode.coexist,
+        res_path = "Assets/Res/UI/PanelMgr/LaunchRolePanel/LaunchRolePanel.prefab",
+        panel_logic = UILaunchRolePanel,
+    }
 }
 
 

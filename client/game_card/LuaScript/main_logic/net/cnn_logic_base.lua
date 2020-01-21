@@ -100,6 +100,22 @@ function CnnLogicBase:on_update()
 
 end
 
+function CnnLogicBase:send_msg(pid, tb)
+    local ret = false
+    if Net_Agent_State.connected == self:get_state() then
+        self.cnn:send_msg(pid, tb)
+    end
+    return ret
+end
+
+function CnnLogicBase:send(pid, block)
+    local ret = false
+    if Net_Agent_State.connected == self:get_state() then
+        ret = self.cnn:send(pid, block)
+    end
+    return ret
+end
+
 
 
 

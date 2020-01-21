@@ -23,6 +23,7 @@ function GateCnnLogic:ctor(main_logic)
     self.is_launched_role = false
     self.launch_role_error_num = 0
     self.last_ping_sec = 0
+    self.default_msg_handler = Functional.make_closure(self.on_fire_msg, self)
 end
 
 function GateCnnLogic:on_reset()
@@ -79,16 +80,13 @@ end
 
 function GateCnnLogic:on_recv_msg(proto_id, bytes, data_len)
     -- log_debug("LoginCnnLogic:on_recv_msg %s %s %s", proto_id, data_len, bytes)
-    local msg_handler = self.msg_handlers[proto_id]
-    if msg_handler then
-        local is_ok, msg = self.main_logic.proto_parser:decode(proto_id, bytes)
-        if is_ok then
-            msg_handler(proto_id, msg)
-        else
-            log_error("GateCnnLogic:on_recv_msg decode fail. proto id %s", proto_id)
-        end
+    local msg_handler = self.msg_handlers[proto_id] or self.default_msg_handler
+
+    local is_ok, msg = self.main_logic.proto_parser:decode(proto_id, bytes)
+    if is_ok then
+        msg_handler(proto_id, msg)
     else
-        log_error("GateCnnLogic:on_recv_msg no msg handler for proto id %s", proto_id)
+        log_error("GateCnnLogic:on_recv_msg decode fail. proto id %s", proto_id)
     end
 end
 
@@ -117,25 +115,34 @@ function GateCnnLogic:on_msg_rsp_launch_role(proto_id, msg)
         self.is_launched_role = true
     end
     self.main_logic.event_mgr:fire(Event_Set__Gate_Cnn_Logic.rsp_launch_role, self, msg)
-    self:send_msg_to_game(ProtoId.req_join_match, {
-        match_type = 1,
-    })
+    self:send_msg_to_game(ProtoId.pull_match_state)
+    self:send_msg_to_game(ProtoId.pull_room_state)
+    self:send_msg_to_game(ProtoId.pull_remote_room_state)
+end
+
+
+function GateCnnLogic:on_fire_msg(proto_id, msg)
+    self.main_logic.event_mgr:fire(proto_id, msg)
 end
 
 function GateCnnLogic:on_msg_pong(proto_id, msg)
 
 end
 
+function GateCnnLogic:pull_role_digest(role_id)
+    return self:send_msg(ProtoId.req_pull_role_digest, {role_id = role_id })
+end
+
 function GateCnnLogic:create_role(params)
-    self.cnn:send_msg(ProtoId.req_create_role, { params = params })
+    return self:send_msg(ProtoId.req_create_role, { params = params })
 end
 
 function GateCnnLogic:launch_role(role_id)
-    self.cnn:send_msg(ProtoId.req_launch_role, { role_id = role_id } )
+    return self:send_msg(ProtoId.req_launch_role, { role_id = role_id } )
 end
 
 function GateCnnLogic:send_to_game(proto_id, proto_bytes)
-    local ret = send_msg(self.cnn, ProtoId.req_client_forward_game, {
+    local ret = self:send_msg(ProtoId.req_client_forward_game, {
         proto_id = proto_id,
         proto_bytes = proto_bytes,
     })
@@ -152,3 +159,4 @@ function GateCnnLogic:send_msg_to_game(proto_id, msg)
     end
     return self:send_to_game(proto_id, block)
 end
+

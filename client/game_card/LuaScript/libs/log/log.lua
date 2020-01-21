@@ -1,5 +1,5 @@
 
-local is_enable_traceback = true
+local is_enable_traceback = false
 function log_set_enable_traceback(is_enable)
     is_enable_traceback = is_enable
 end
@@ -32,7 +32,11 @@ function log_set_level(log_lvl)
 end
 
 function log_debug(fmt_str, ...)
+    fmt_str = string.format("debug::%s", fmt_str)
     local log_str = string_format(fmt_str, ...)
+
+    -- string.format("debug::%s", log_str)
+
     CS.Utopia.AppLog.DoLogContent(CS.Utopia.LogLevel.Debug, log_str)
 end
 
