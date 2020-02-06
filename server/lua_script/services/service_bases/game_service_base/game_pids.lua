@@ -39,6 +39,9 @@ ProtoId = {
     notify_unbind_room = 20025,
     notify_terminate_room = 20026,
 
+    pull_role_data = 20027,
+    sync_role_data = 20028,
+
     room_service_min_pid = 30000,
     pull_remote_room_state = 30001,
     sync_remote_room_state = 30002,

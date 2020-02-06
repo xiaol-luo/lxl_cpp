@@ -26,7 +26,6 @@ MACRO(MakeLib lib_name src_files is_dyn)
 	ELSE()
 		ADD_LIBRARY(${lib_name} STATIC ${src_files})
 	ENDIF()
-ENDMACRO(
-MakeLib)
+ENDMACRO(MakeLib)
 
 

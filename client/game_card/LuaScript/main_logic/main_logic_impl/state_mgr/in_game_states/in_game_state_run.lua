@@ -7,6 +7,7 @@ end
 
 function InGameStateRun:on_enter(params)
     InGameStateRun.super.on_enter(self, params)
+    g_ins.gate_cnn_logic:send_msg_to_game(ProtoId.pull_role_data, { pull_type = 0 })
     self.in_game_state.main_logic.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
 end
 

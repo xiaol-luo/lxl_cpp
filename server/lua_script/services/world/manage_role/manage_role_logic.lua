@@ -146,6 +146,7 @@ function RoleMgr:launch_role(rpc_rsp, role_id, gate_client_netid, auth_token)
                 role.session_id = self:next_session_id()
                 rpc_rsp:respone(Error_None, role.game_client.remote_host, role.session_id)
             end
+            role.game_client:call(nil, GameRpcFn.client_change, role.role_id, false, rpc_rsp.from_host, gate_client_netid)
         end
         if Role_State.launch == role.state then
             if role.gate_client and role.gate_client.remote_host == rpc_rsp.from_host

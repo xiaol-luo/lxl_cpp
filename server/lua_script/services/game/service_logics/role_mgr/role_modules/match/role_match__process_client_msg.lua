@@ -6,7 +6,7 @@ function RoleMatch:init_process_client_msg()
     self.role:set_client_msg_process_fn(ProtoId.pull_match_state, Functional.make_closure(self._on_msg_pull_match_state, self))
 end
 
-function RoleMatch:_on_msg_req_join_match(pid, msg)
+function RoleMatch:_on_msg_req_join_match(role, pid, msg)
     local error_num = Error_None
     repeat
         if msg.match_type <= Match_Type.none or msg.match_type >= Match_Type.max then
@@ -70,7 +70,7 @@ function RoleMatch:_on_rpc_cb_join_match(call_match_session_id, rpc_error_num, e
     self.role:send_to_client(ProtoId.rsp_join_match, out_msg)
 end
 
-function RoleMatch:_on_msg_req_quit_match(pid, msg)
+function RoleMatch:_on_msg_req_quit_match(role, pid, msg)
     local error_num = Error_None
     if Role_Match_State.free == self.state then
         error_num = Error.Quit_Match.not_matching
@@ -107,7 +107,7 @@ function RoleMatch:_on_rpc_cb_quit_match(rpc_error_num, error_num, session_id)
     self:sync_match_state()
 end
 
-function RoleMatch:_on_msg_pull_match_state(pid, msg)
+function RoleMatch:_on_msg_pull_match_state(role, pid, msg)
     self:sync_match_state()
 end
 

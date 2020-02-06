@@ -64,10 +64,8 @@ return {
     "main_logic.ui.login_panel.ui_login_panel",
     "main_logic.ui.launch_role_panel.launch_role_panel",
 
-    "main_logic.logics.item.item",
-    "main_logic.logics.item.item_mgr",
-
     "main_logic.logics.role.role",
+    "main_logic.logics.role.main_role",
     "main_logic.logics.role.role_mgr",
 
     "main_logic.ui.ui_panel_setting",

@@ -33,6 +33,8 @@ function GameRole:init()
     for _, m in pairs(self._modules) do
         m:init()
     end
+
+    self:set_client_msg_process_fn(ProtoId.pull_role_data, Functional.make_closure(self._on_msg_pull_role_data, self))
 end
 
 function GameRole:_setup_module(t_class, module_name)
@@ -190,7 +192,7 @@ function GameRole:on_client_msg(pid, msg)
         log_warn("GameRole:on_client_msg can not find process fn to process pid %s", pid)
         return
     end
-    fn(pid, msg)
+    fn(self, pid, msg)
 end
 
 function GameRole:send_to_client(pid, msg)
@@ -199,6 +201,18 @@ end
 
 function GameRole:send_to_client_bytes(pid, msg_bytes)
     return SERVICE_MAIN.net_forward:to_client_bytes(self.role_id, pid, msg_bytes)
+end
+
+function GameRole:_on_msg_pull_role_data(role, pid, msg)
+    log_debug("GameRole:_on_msg_pull_role_data %s", msg)
+    self:send_to_client(ProtoId.sync_role_data, {
+        pull_type = msg.pull_type,
+        user_id = self.user_id,
+        role_id = self.role_id,
+        base_info = {
+            role_name = self.base_info.name
+        }
+    })
 end
 
 
