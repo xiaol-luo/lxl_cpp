@@ -73,7 +73,7 @@ end
 function RoleMatch:_on_msg_req_quit_match(role, pid, msg)
     local error_num = Error_None
     if Role_Match_State.free == self.state then
-        error_num = Error.Quit_Match.not_matching
+        -- error_num = Error.Quit_Match.not_matching
     end
     if Role_Match_State.wait_enter_room == self.state then
         error_num = Error.Quit_Match.waiting_enter_room
@@ -81,10 +81,15 @@ function RoleMatch:_on_msg_req_quit_match(role, pid, msg)
     if Role_Match_State.finish == self.state then
         error_num = Error.Quit_Match.match_finished
     end
-    if Error_None == error_num then
-        self.match_client:call(Functional.make_closure(self._on_rpc_cb_quit_match, self), MatchRpcFn.quit_match, self.role.role_id)
-    end
-    if Error_None ~= error_num then
+    if Error_None == error_num  then
+        if self.match_client then
+            self.match_client:call(Functional.make_closure(self._on_rpc_cb_quit_match, self), MatchRpcFn.quit_match, self.role.role_id)
+        else
+            self:clear_match_state()
+            self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = Error_None })
+            self:sync_match_state()
+        end
+    else
         self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = error_num })
     end
 end

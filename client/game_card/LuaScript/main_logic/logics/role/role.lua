@@ -6,4 +6,6 @@ function Role:ctor(role_mgr, role_id)
     self.role_id = role_id
 end
 
+function Role:init()
 
+end

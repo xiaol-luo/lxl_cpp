@@ -8,11 +8,13 @@ function MainLogic:ctor()
 
     self.ui_panel_mgr = nil
     self.event_mgr = nil
+    self.msg_event_mgr = nil
     self.state_mgr = nil
     self.proto_parser = nil
     self.login_cnn_logic = nil
     self.gate_cnn_logic = nil
     self.role_mgr = nil
+    self.main_role = nil
 end
 
 function MainLogic:init(arg)
@@ -25,6 +27,7 @@ function MainLogic:init(arg)
     UI_Panel_Setting_Help.adjust_setting()
 
     self.event_mgr = EventMgr:new()
+    self.msg_event_mgr = EventMgr:new()
 
     self.ui_panel_mgr = UIPanelMgr:new()
     local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
@@ -33,6 +36,9 @@ function MainLogic:init(arg)
 
     self.role_mgr = RoleMgr:new(self)
     self.role_mgr:init()
+
+    self.main_role = MainRole:new(self)
+    self.main_role:init()
 
     self.login_cnn_logic = LoginCnnLogic:new(self)
     self.gate_cnn_logic = GateCnnLogic:new(self)

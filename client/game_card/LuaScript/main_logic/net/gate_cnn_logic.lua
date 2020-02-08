@@ -123,6 +123,7 @@ end
 
 function GateCnnLogic:on_fire_msg(proto_id, msg)
     log_debug("GateCnnLogic:on_fire_msg %s %s", proto_id, msg)
+    self.main_logic.msg_event_mgr:fire(proto_id, proto_id, msg)
     self.main_logic.event_mgr:fire(proto_id, proto_id, msg)
 end
 
