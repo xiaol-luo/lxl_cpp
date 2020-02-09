@@ -11,6 +11,7 @@ end
 function InGameStateLogin:on_enter(params)
     InGameStateLogin.super.on_enter(self, params)
     self.launch_error_num = nil
+    self.main_logic.gate_cnn_logic:close()
     self.main_logic.login_cnn_logic:reset("", 0)
     self.event_subscriber:subscribe(Event_Set__Login_Cnn_Logic.login_done, Functional.make_closure(self._on_event_login_cnn_done, self))
     self.in_game_state.main_logic.ui_panel_mgr:show_panel(UI_Panel_Name.login_panel, {})

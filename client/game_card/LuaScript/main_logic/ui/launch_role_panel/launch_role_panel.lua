@@ -8,6 +8,7 @@ function UILaunchRolePanel:ctor(panel_mgr, panel_setting, root_go)
     self.create_role_btn = nil
     self.role_items = nil
     self.connect_gate_btn = nil
+    self.goto_login_btn = nil
 
     self.ml_event_subscriber = nil
     self.msg_event_subscriber = nil
@@ -23,7 +24,10 @@ function UILaunchRolePanel:init()
     self.notify_txt = UIHelp.attach_ui(UIText, self.root_go, "NotifyTxt")
 
     self.connect_gate_btn =  UIHelp.attach_ui(UIButton, self.root_go, "LaunchView/ConnectBtn")
-    self.connect_gate_btn:set_onclick(Functional.make_closure(self.on_click_create_role_btn, self))
+    self.connect_gate_btn:set_onclick(Functional.make_closure(self.on_click_connect_gate_btn, self))
+
+    self.goto_login_btn = UIHelp.attach_ui(UIButton, self.root_go, "LaunchView/GotoLogin")
+    self.goto_login_btn:set_onclick(Functional.make_closure(self.on_click_goto_login_btn, self))
 
     self.create_role_btn = UIHelp.attach_ui(UIButton, self.root_go, "LaunchView/CreateRoleBtn")
     self.create_role_btn:set_onclick(Functional.make_closure(self.on_click_create_role_btn, self))
@@ -85,6 +89,11 @@ end
 
 function UILaunchRolePanel:on_click_connect_gate_btn()
     g_ins.gate_cnn_logic:connect()
+end
+
+function UILaunchRolePanel:on_click_goto_login_btn()
+    log_debug("UILaunchRolePanel:on_click_goto_login_btn")
+    g_ins.event_mgr:fire(Event_Set__State_InGame.try_enter_login_state)
 end
 
 function UILaunchRolePanel:on_event_gate_cnn_open(cnn_logic, is_succ)

@@ -160,7 +160,7 @@ function AccountLogic:app_auth(from_cnn_id, method, req_url, kv_params, body)
         rsp_client(from_cnn_id, rsp_body)
         local co_ex = ex_coroutine_running()
         if co_ex then
-            ex_coroutine_report_error(error_msg)
+            ex_coroutine_report_error(co_ex, error_msg)
         end
     end
 

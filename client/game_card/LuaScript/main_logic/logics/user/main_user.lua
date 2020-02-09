@@ -9,7 +9,7 @@ function MainUser:ctor(main_logic)
     self.main_logic = main_logic
     self.msg_event_subscriber = self.main_logic.msg_event_mgr:create_subscriber()
     self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
-    self.user_id = nil
+    self.user_info = nil
     self.role_digests = {}
     self.launch_role_id = nil
 end
@@ -42,6 +42,16 @@ end
 function MainUser:launch_role(role_id)
     return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_launch_role, { role_id = role_id } )
 end
+
+function MainUser:reconnect_role(role_id)
+    return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_reconnect, {
+        role_id = role_id,
+        {
+
+        }
+    } )
+end
+
 
 function MainUser:on_msg_rsp_launch_role(proto_id, msg)
     log_debug("MainUser:on_msg_rsp_launch_role %s %s", proto_id, msg)

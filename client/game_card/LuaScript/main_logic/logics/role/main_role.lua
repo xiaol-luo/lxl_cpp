@@ -26,6 +26,8 @@ function MainRole:update_data(msg)
         self.user_id = msg.user_id
         self.role_id = msg.role_id
         self.role_name = msg.base_info.role_name
+    else
+        self.role_id = nil
     end
 end
 

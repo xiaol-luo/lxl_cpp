@@ -126,8 +126,12 @@ function ClientMgr:process_reconnect(netid, pid, msg)
 
     local main_logic = function(co, msg)
         local auth_msg = msg.user_login_msg
-        local auth_error_num = self:_coro_auth_user_login(auth_msg.auth_ip,
-                auth_msg.auth_port, auth_msg.auth_sn, auth_msg.user_id, auth_msg.app_id, auth_msg.account_id)
+        local auth_error_num = Error_None
+        if not auth_msg.ignore_auth then
+            log_debug("1111111111111")
+            auth_error_num = self:_coro_auth_user_login(auth_msg.auth_ip,
+                    auth_msg.auth_port, auth_msg.auth_sn, auth_msg.user_id, auth_msg.app_id, auth_msg.account_id)
+        end
         if Error_None ~= auth_error_num then
             return Error.Reconnect_Game.auth_user_fail
         end

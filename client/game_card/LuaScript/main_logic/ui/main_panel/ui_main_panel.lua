@@ -12,6 +12,7 @@ function UIMainPanel:init()
     self.super.init(self)
     self.ml_event_subscriber = g_ins.event_mgr:create_subscriber()
     self.query_btn = nil
+    self.logout_btn = nil
     self.join_match_btn = nil
     self.quit_match_btn = nil
     self.user_id_txt = nil
@@ -33,6 +34,9 @@ function UIMainPanel:on_show(is_new_show, panel_data)
     self.query_btn = UIHelp.attach_ui(UIButton, self.root_go, "QueryBtn")
     self.query_btn:set_onclick(Functional.make_closure(self._on_click_query_btn, self))
 
+    self.logout_btn = UIHelp.attach_ui(UIButton, self.root_go, "LogoutBtn")
+    self.logout_btn:set_onclick(Functional.make_closure(self._on_click_logout_btn))
+
     self.join_match_btn = UIHelp.attach_ui(UIButton, self.root_go, "MatchView/JoinMatch")
     self.join_match_btn:set_onclick(Functional.make_closure(self._on_click_join_match_btn, self))
 
@@ -50,6 +54,11 @@ function UIMainPanel:_on_click_query_btn()
     g_ins.gate_cnn_logic:send_msg_to_game(ProtoId.pull_match_state)
     g_ins.gate_cnn_logic:send_msg_to_game(ProtoId.pull_room_state)
     g_ins.gate_cnn_logic:send_msg_to_game(ProtoId.pull_remote_room_state)
+end
+
+function UIMainPanel:_on_click_logout_btn()
+    -- g_ins.event_mgr:fire(Event_Set__State_InGame.try_enter_logout_state)
+    g_ins.gate_cnn_logic:close()
 end
 
 function UIMainPanel:_on_click_join_match_btn()
