@@ -3,7 +3,7 @@ MainRole = MainRole or class("MainRole")
 
 function MainRole:ctor(main_logic)
     self.main_logic = main_logic
-    self.event_subscriber = self.main_logic.msg_event_mgr:create_subscriber()
+    self.msg_event_subscriber = self.main_logic.msg_event_mgr:create_subscriber()
     self.role_id = nil
     self.user_id = nil
     self.data_role_msg = nil
@@ -12,12 +12,12 @@ function MainRole:ctor(main_logic)
 end
 
 function MainRole:init()
-    self.event_subscriber:subscribe(ProtoId.sync_role_data, Functional.make_closure(self._on_msg_sync_role_data, self))
-    self.event_subscriber:subscribe(ProtoId.rsp_join_match, Functional.make_closure(self._on_msg_rsp_join_match, self))
-    self.event_subscriber:subscribe(ProtoId.sync_match_state, Functional.make_closure(self._on_msg_sync_match_state, self))
-    self.event_subscriber:subscribe(ProtoId.rsp_quit_match, Functional.make_closure(self._on_msg_rsp_quit_match, self))
-    self.event_subscriber:subscribe(ProtoId.sync_room_state, Functional.make_closure(self._on_msg_sync_room_state, self))
-    self.event_subscriber:subscribe(ProtoId.sync_remote_room_state, Functional.make_closure(self._on_msg_sync_remote_room_state, self))
+    self.msg_event_subscriber:subscribe(ProtoId.sync_role_data, Functional.make_closure(self._on_msg_sync_role_data, self))
+    self.msg_event_subscriber:subscribe(ProtoId.rsp_join_match, Functional.make_closure(self._on_msg_rsp_join_match, self))
+    self.msg_event_subscriber:subscribe(ProtoId.sync_match_state, Functional.make_closure(self._on_msg_sync_match_state, self))
+    self.msg_event_subscriber:subscribe(ProtoId.rsp_quit_match, Functional.make_closure(self._on_msg_rsp_quit_match, self))
+    self.msg_event_subscriber:subscribe(ProtoId.sync_room_state, Functional.make_closure(self._on_msg_sync_room_state, self))
+    self.msg_event_subscriber:subscribe(ProtoId.sync_remote_room_state, Functional.make_closure(self._on_msg_sync_remote_room_state, self))
 end
 
 function MainRole:update_data(msg)

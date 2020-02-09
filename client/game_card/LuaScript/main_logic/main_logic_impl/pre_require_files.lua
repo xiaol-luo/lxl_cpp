@@ -68,5 +68,7 @@ return {
     "main_logic.logics.role.main_role",
     "main_logic.logics.role.role_mgr",
 
+    "main_logic.logics.user.main_user",
+
     "main_logic.ui.ui_panel_setting",
 }

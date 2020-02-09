@@ -21,7 +21,7 @@ function UIMainPanel:init()
     self.room_msg_txt = nil
 end
 
-function UIMainPanel:on_show(panel_data)
+function UIMainPanel:on_show(is_new_show, panel_data)
     self.panel_data = panel_data
     self.ml_event_subscriber:subscribe(ProtoId.sync_role_data, Functional.make_closure(self._on_msg_sync_role_data, self))
     self.ml_event_subscriber:subscribe(ProtoId.rsp_join_match, Functional.make_closure(self._on_msg_rsp_join_match, self))

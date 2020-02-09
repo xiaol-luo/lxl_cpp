@@ -15,6 +15,7 @@ function MainLogic:ctor()
     self.gate_cnn_logic = nil
     self.role_mgr = nil
     self.main_role = nil
+    self.main_user = nil
 end
 
 function MainLogic:init(arg)
@@ -39,6 +40,9 @@ function MainLogic:init(arg)
 
     self.main_role = MainRole:new(self)
     self.main_role:init()
+
+    self.main_user = MainUser:new(self)
+    self.main_user:init()
 
     self.login_cnn_logic = LoginCnnLogic:new(self)
     self.gate_cnn_logic = GateCnnLogic:new(self)

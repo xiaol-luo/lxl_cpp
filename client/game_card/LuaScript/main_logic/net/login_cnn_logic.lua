@@ -4,13 +4,14 @@ local APPID_ID = "FOR_TEST_APP_ID"
 local PLATFORM_NAME = "FOR_TEST_PLATFORM_NAME"
 local TOKEN = "FOR_TEST_TOKEN"
 
-LoginCnnLogic = LoginCnnLogic or class("LoginCnnLogic", CnnLogicBase)
-
 declare_event_set("Event_Set__Login_Cnn_Logic", {
     "open",
     "close",
     "login_done",
 })
+
+
+LoginCnnLogic = LoginCnnLogic or class("LoginCnnLogic", CnnLogicBase)
 
 function LoginCnnLogic:ctor(main_logic)
     self.main_logic = main_logic
@@ -53,6 +54,7 @@ function LoginCnnLogic:on_recv_msg(proto_id, bytes, data_len)
 end
 
 function LoginCnnLogic:on_close(error_num, error_msg)
+    log_debug("LoginCnnLogic:on_close %s %s", error_num, error_msg)
     self.main_logic.event_mgr:fire(Event_Set__Login_Cnn_Logic.close, self, error_num, error_msg)
 end
 
