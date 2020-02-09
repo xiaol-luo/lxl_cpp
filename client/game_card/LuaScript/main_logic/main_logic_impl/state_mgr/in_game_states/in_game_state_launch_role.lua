@@ -9,7 +9,10 @@ end
 
 function InGameStateLaunchRole:on_enter(params)
     InGameStateLaunchRole.super.on_enter(self, params)
+    self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.open, Functional.make_closure(self._on_event_gate_cnn_open, self))
+    self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.login_gate_result, Functional.make_closure(self._on_event_login_gate_result, self))
+
     self.event_subscriber:subscribe(Event_Set__Main_User.launch_role_result, Functional.make_closure(self._on_event_launch_role_result, self))
     self.launch_error_num = nil
 
@@ -33,6 +36,14 @@ function InGameStateLaunchRole:on_exit()
     InGameStateLaunchRole.super.on_exit(self)
     self.event_subscriber:release_all()
     self.in_game_state.main_logic.ui_panel_mgr:release_panel(UI_Panel_Name.launch_role_panel)
+end
+
+function InGameStateLaunchRole:_on_event_gate_cnn_open(cnn_logic, is_succ)
+    -- todo:
+end
+
+function InGameStateLaunchRole:_on_event_gate_cnn_close(cnn_logic, error_num, error_msg)
+    -- todo:
 end
 
 function InGameStateLaunchRole:_on_event_login_gate_result(cnn_logic, error_num)

@@ -57,8 +57,7 @@ function UIMainPanel:_on_click_query_btn()
 end
 
 function UIMainPanel:_on_click_logout_btn()
-    -- g_ins.event_mgr:fire(Event_Set__State_InGame.try_enter_logout_state)
-    g_ins.gate_cnn_logic:close()
+    g_ins.event_mgr:fire(Event_Set__State_InGame.try_enter_logout_state)
 end
 
 function UIMainPanel:_on_click_join_match_btn()

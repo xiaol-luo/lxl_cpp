@@ -9,6 +9,8 @@ end
 
 function InGameStateRun:on_enter(params)
     InGameStateRun.super.on_enter(self, params)
+    self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.open, Functional.make_closure(self._on_event_gate_cnn_open, self))
+    self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.login_gate_result, Functional.make_closure(self._on_event_login_gate_result, self))
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.relogin_gate_result, Functional.make_closure(self._on_event_relogin_gate_result, self))
     self.event_subscriber:subscribe(Event_Set__Main_User.launch_role_result, Functional.make_closure(self._on_event_launch_role_result, self))
@@ -36,10 +38,20 @@ function InGameStateRun:on_exit()
     InGameStateRun.super.on_exit(self)
 end
 
+function InGameStateRun:_on_event_gate_cnn_open(cnn_logic, is_succ)
+    -- todo:
+end
+
+function InGameStateRun:_on_event_gate_cnn_close(cnn_logic, error_num, error_msg)
+    -- todo:
+end
+
 function InGameStateRun:_on_event_login_gate_result(cnn_logic, error_num)
     if Error_None == error_num then
         -- login_gate 成功了， launch_role之前选择的role_id
-        self.main_logic.main_user:launch_role(self.main_logic.main_role.role_id)
+        if self.main_logic.main_role.role_id then
+            self.main_logic.main_user:launch_role(self.main_logic.main_role.role_id)
+        end
     else
         -- login_gate 失败了， 回去登录界面
         self.main_logic.event_mgr:fire(Event_Set__State_InGame.try_enter_logout_state)
@@ -56,7 +68,7 @@ end
 function InGameStateRun:_on_event_launch_role_result(error_num)
     -- launch_role失败，还是回去登录界面吧
     log_debug("InGameStateRun:_on_event_rsp_launch_role %s", error_num)
-    if Error_None == error_num then
+    if Error_None ~= error_num then
         self.main_logic.event_mgr:fire(Event_Set__State_InGame.try_enter_logout_state)
     end
 end
