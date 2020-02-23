@@ -10,6 +10,7 @@ function Room:ctor()
     self.fight_battle_id = nil
     self.bind_roles = {}
     self.all_role_ids = {}
+    self.fight_session_id = nil
     self.fight_service_ip = nil
     self.fight_service_port = nil
     self.is_fight_started = false

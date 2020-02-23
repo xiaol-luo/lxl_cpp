@@ -145,6 +145,52 @@ local pid_proto_map =
         [Proto_Const.Proto_Type]=Proto_Const.Pb,
         [Proto_Const.Proto_Name]="SyncRoleData"
     },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_bind_fight,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqBindFight"
+    },
+
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_bind_fight,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspBindFight"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_quit_fight,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqQuitFight"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_quit_fight,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspQuitFight"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.pull_fight_state,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="PullFightState"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.sync_fight_state,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="SyncFightState"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.req_fight_opera,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="ReqFightOpera"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.rsp_fight_opera,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="RspFightOpera"
+    },
+    {
+        [Proto_Const.Proto_Id]=ProtoId.sync_roll_point_result,
+        [Proto_Const.Proto_Type]=Proto_Const.Pb,
+        [Proto_Const.Proto_Name]="SyncRollPointResult"
+    },
 }
 
 

@@ -35,10 +35,7 @@ function ClientMgr:_on_new_cnn(netid, error_code)
     end
     local client_cnn = self.client_cnn_mgr:get_client_cnn(netid)
     if client_cnn then
-        local client = Client:new()
-        client.netid = netid
-        client.cnn = client_cnn
-        client.state = Client_State.Free
+        local client = Client:new(self, netid, client_cnn)
         self.clients[client.netid] = client
     end
 end
@@ -46,10 +43,10 @@ end
 function ClientMgr:_on_close_cnn(netid, error_code)
     local client = self:get_client(netid)
     if client then
-        if client:is_launching() or client:is_ingame() and client.world_client and client.world_role_session_id then
-            -- todo: notify world service client disconnect
-            client.world_client:call(nil, WorldRpcFn.client_quit, client.world_role_session_id)
+        if client.fight then
+            client.fight:unbind_client(client)
         end
+        client:release()
     end
     self.clients[netid] = nil
 end
@@ -60,4 +57,12 @@ end
 
 function ClientMgr:get_client(netid)
     return self.clients[netid]
+end
+
+function ClientMgr:send(netid, pid, tb)
+    local client = self:get_client(netid)
+    if not client then
+        return false
+    end
+    return client:send(pid, tb)
 end

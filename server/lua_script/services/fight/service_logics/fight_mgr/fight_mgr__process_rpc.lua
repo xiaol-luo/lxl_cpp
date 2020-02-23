@@ -6,21 +6,31 @@ function FightMgr:_init_process_rpc_handler()
 end
 
 function FightMgr:_on_rpc_apply_fight(rpc_rsp, room_id, match_type, match_cells)
+    log_debug("FightMgr:_on_rpc_apply_fight match_cells = %s", match_cells)
     local fight_id = gen_next_seq()
-    self._id_to_fight[fight_id] = {
-        fight_id = fight_id,
-        room_id = room_id,
-        start_fight_sec = nil,
-        room_client = self.service:create_rpc_client(rpc_rsp.from_host),
-    }
-    rpc_rsp:respone(Error_None, fight_id, self.service.service_cfg[Service_Const.Client_Ip], self.service.service_cfg[Service_Const.Client_Port])
+    local fight_session_id = gen_next_seq()
+
+    local fight_cls = nil
+    if Match_Type.balance == match_type then
+        fight_cls = RollPointFight
+    end
+    local error_num = Error.Apply_Fight.not_match_fight
+    if fight_cls then
+        room_client = self.service:create_rpc_client(rpc_rsp.from_host)
+        fight = fight_cls:new(self, fight_id, fight_session_id, room_id, room_client, match_cells)
+        error_num = fight:init()
+        if Error_None == error_num then
+            self._id_to_fight[fight_id] = fight
+        end
+    end
+    rpc_rsp:respone(error_num, fight_id, fight_session_id, self.service.service_cfg[Service_Const.Client_Ip], self.service.service_cfg[Service_Const.Client_Port])
 end
 
 function FightMgr:_on_rpc_start_fight(rpc_rsp, fight_battle_id)
     local fight = self._id_to_fight[fight_battle_id]
     if fight then
+        fight:on_room_notify_start()
         rpc_rsp:respone(Error_None)
-        fight.start_fight_sec = logic_sec()
     else
         rpc_rsp:respone(Error.Start_Fight.no_fight_battle)
     end

@@ -18,7 +18,7 @@ function RoleRoom:_on_msg_pull_remote_room_state(role, pid, msg)
     end
     self.room_client:call(function(rpc_error_num, error_num, pid, msg)
         if Error_None == rpc_error_num and Error_None == error_num then
-            self.role:send_to_client(pid, msg)
+            self.role:send_to_client(ProtoId.sync_remote_room_state, msg)
         else
             self.role:send_to_client(ProtoId.sync_remote_room_state, {
                 head = { rpc_error_num = rpc_error_num, error_num = error_num, }

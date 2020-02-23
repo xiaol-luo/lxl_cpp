@@ -28,7 +28,7 @@ function _RpcRoleRoom._on_rpc_notify_terminate_room(role_mgr, rpc_rsp, room_id, 
     role.room:sync_room_state()
 end
 
-function _RpcRoleRoom._on_rpc_notify_end_room(role_mgr, rpc_rsp, room_id, role_id, session_id)
+function _RpcRoleRoom._on_rpc_notify_end_room(role_mgr, rpc_rsp, room_id, role_id, session_id, fight_result)
     rpc_rsp:respone()
     local role = role_mgr:get_in_game_role(role_id)
     if not role then
@@ -46,6 +46,7 @@ function _RpcRoleRoom._on_rpc_notify_end_room(role_mgr, rpc_rsp, room_id, role_i
     })
     role.room:reset_room()
     -- todo: give reward
+    log_debug("_RpcRoleRoom._on_rpc_notify_end_room fight_result=%s", fight_result)
     role.room:sync_room_state()
 end
 

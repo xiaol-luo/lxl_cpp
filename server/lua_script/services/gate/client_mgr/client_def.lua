@@ -1,5 +1,5 @@
 
-ClientState = {
+Client_State = {
     Free = 0,
     Authing = 1,
     Manage_Role = 2,

@@ -47,7 +47,7 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
             error_num = Error.Gate_User_Login.state_not_fit
             break
         end
-        client.state = ClientState.Authing
+        client.state = Client_State.Authing
     until true
     if Error_None ~= error_num then
         self.client_cnn_mgr:send(netid, ProtoId.rsp_user_login, { error_num = error_num })
@@ -81,7 +81,7 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
                     error_num = Error.Gate_User_Login.gate_state_not_fit
                     break
                 end
-                client.state = ClientState.Manage_Role
+                client.state = Client_State.Manage_Role
                 client.user_id = msg.user_id
                 client.token = msg.auth_sn
             end
@@ -89,8 +89,8 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
         if Error_None ~= error_num then
             local client = self:get_client(netid)
             if client then
-                if ClientState.Authing == client.state then
-                    client.state = ClientState.Free
+                if Client_State.Authing == client.state then
+                    client.state = Client_State.Free
                 end
             end
         end
@@ -117,7 +117,7 @@ function ClientMgr:process_reconnect(netid, pid, msg)
             error_num = Error.Reconnect_Game.gate_client_state_not_fit
             break
         end
-        client.state = ClientState.Authing
+        client.state = Client_State.Authing
     until true
     if Error_None ~= error_num then
         self.client_cnn_mgr:send(netid, ProtoId.rsp_reconnect, { error_num = error_num })
@@ -140,7 +140,7 @@ function ClientMgr:process_reconnect(netid, pid, msg)
         if not client or not client:is_authing() then
             return Error.Reconnect_Game.gate_client_state_not_fit
         end
-        client.state = ClientState.Manage_Role
+        client.state = Client_State.Manage_Role
         client.user_id = auth_msg.user_id
         client.token = auth_msg.auth_sn
 
@@ -152,7 +152,7 @@ function ClientMgr:process_reconnect(netid, pid, msg)
         if not service_info or not service_info.net_connected then
             return Error.Reconnect_Game.no_valid_world_service
         end
-        client.state = ClientState.Launch_Role
+        client.state = Client_State.Launch_Role
         client.world_client = self.service:create_rpc_client(service_info.key)
         local co_ok, rpc_error_num, logic_error_num, game_key, world_role_session_id = client.world_client:coro_call(
                 WorldRpcFn.reconnect_role, client.token, msg.role_id, client.netid)
@@ -160,7 +160,7 @@ function ClientMgr:process_reconnect(netid, pid, msg)
         if not co_ok or Error_None ~= rpc_error_num or Error_None ~= logic_error_num then
             return Error.Reconnect_Game.bind_role_fail
         end
-        client.state = ClientState.In_Game
+        client.state = Client_State.In_Game
         client.launch_role_id = msg.role_id
         client.world_role_session_id = world_role_session_id
         client.game_client = self.service:create_rpc_client(game_key)
@@ -185,11 +185,11 @@ function ClientMgr:process_reconnect(netid, pid, msg)
         if Error_None ~= error_num then
             local client = self:get_client(netid)
             if client then
-                if ClientState.Authing == client.state then
-                    client.state = ClientState.Free
+                if Client_State.Authing == client.state then
+                    client.state = Client_State.Free
                 end
-                if ClientState.Launch_Role == client.state then
-                    client.state = ClientState.Manage_Role
+                if Client_State.Launch_Role == client.state then
+                    client.state = Client_State.Manage_Role
                 end
             end
         end
@@ -304,7 +304,7 @@ function ClientMgr:process_req_launch_role(netid, pid, msg)
     repeat
     do
         local client = self:get_client(netid)
-        if not client or ClientState.Manage_Role ~= client.state or not client.user_id then
+        if not client or Client_State.Manage_Role ~= client.state or not client.user_id then
             error_num = Error.Launch_Role.state_not_fit
             break
         end
@@ -319,7 +319,7 @@ function ClientMgr:process_req_launch_role(netid, pid, msg)
             break
         end
         local world_rpc_client = self.service:create_rpc_client(service_info.key)
-        client.state = ClientState.Launch_Role
+        client.state = Client_State.Launch_Role
         client.world_client = world_rpc_client
         world_rpc_client:call(Functional.make_closure(self._rpc_rsp_req_luanch_role, self, netid, msg.role_id),
                 WorldRpcFn.launch_role, msg.role_id, netid, client.token)
@@ -343,11 +343,11 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, role_id, rpc_error_num, launc
             break
         end
         local client = self:get_client(netid)
-        if not client or ClientState.Launch_Role ~= client.state then
+        if not client or Client_State.Launch_Role ~= client.state then
             error_num = Error.Launch_Role.state_not_fit
             break
         end
-        client.state = ClientState.In_Game
+        client.state = Client_State.In_Game
         client.launch_role_id = role_id
         client.world_role_session_id = world_role_session_id
         client.game_client = self.service:create_rpc_client(game_key)
@@ -357,8 +357,8 @@ function ClientMgr:_rpc_rsp_req_luanch_role(netid, role_id, rpc_error_num, launc
     if Error_None ~= error_num then
         local client = self:get_client(netid)
         if client then
-            if ClientState.Launch_Role == client.state then
-                client.state = ClientState.Manage_Role
+            if Client_State.Launch_Role == client.state then
+                client.state = Client_State.Manage_Role
             end
         end
     end
@@ -375,7 +375,7 @@ function ClientMgr:process_logout_role(netid, pid, msg)
             error_num = Error_Unknown
             break
         end
-        if ClientState.In_Game ~= client.state or not client.launch_role_id or msg.role_id ~= client.launch_role_id then
+        if Client_State.In_Game ~= client.state or not client.launch_role_id or msg.role_id ~= client.launch_role_id then
             error_num = Error.Logout_Role.not_launch_role
             break
         end
@@ -403,11 +403,11 @@ function ClientMgr:_rpc_rsp_logout_role(netid, rpc_error_num, logout_error_num)
             error_num = logout_error_num
             break
         end
-        if ClientState.In_Game ~= client.state then
+        if Client_State.In_Game ~= client.state then
             error_num = Error.Logout_Role.state_not_fit
             break
         end
-        client.state = ClientState.Manage_Role
+        client.state = Client_State.Manage_Role
         client.role_id = nil
         client.world_client = nil
         client.world_role_session_id = nil

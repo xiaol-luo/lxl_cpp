@@ -46,4 +46,20 @@ ProtoId = {
     pull_remote_room_state = 30001,
     sync_remote_room_state = 30002,
     room_service_max_pid = 39999,
+
+    fight_service_min_pid = 40000,
+    req_bind_fight = 40001,
+    rsp_bind_fight = 40002,
+
+    fight_logic_min_pid = 41000, -- 在fight_logic_min_pid与fight_logic_max_pid之间的请求协议都会直接转发给fight:on_client_msg
+    pull_fight_state = 41005,
+    sync_fight_state = 41006,
+    req_fight_opera = 41007,
+    rsp_fight_opera = 41008,
+    sync_roll_point_result = 41009,
+    req_quit_fight = 40010,
+    rsp_quit_fight = 40011,
+    fight_logic_max_pid = 41999,
+
+    fight_service_max_pid = 49999,
 }

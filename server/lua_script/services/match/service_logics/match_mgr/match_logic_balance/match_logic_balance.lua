@@ -4,8 +4,8 @@ MatchLogicBalance = MatchLogicBalance or class("MatchLogicBalance", MatchLogic)
 function MatchLogicBalance:ctor(match_mgr, match_type)
     MatchLogicBalance.super.ctor(self, match_mgr, match_type)
     self.id_to_cell = {}
-    self.room_role_count = 2
-    assert(2 == self.room_role_count)
+    self.room_role_count = 1
+    -- assert(2 == self.room_role_count)
     self._last_do_match_sec = 0
     self._do_match_span_sec = 2
 end
