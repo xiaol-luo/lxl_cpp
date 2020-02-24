@@ -18,5 +18,6 @@ Error.Quit_Match = {
     waiting_enter_room = 4,
     match_finished = 5,
     need_try_again = 6,
+    match_session_not_equal = 7,
 }
 

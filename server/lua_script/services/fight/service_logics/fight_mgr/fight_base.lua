@@ -33,7 +33,9 @@ function FightBase:bind_client(client, role_id, fight_session_id)
     if fight_session_id ~= self.fight_session_id then
         return Error.Bind_Fight.fight_session_not_fix
     end
-    log_debug("FightBase:bind_client match_cells=%s", self.match_cells)
+    if Client_State.free ~= client.state then
+        return Error.Bind_Fight.client_not_free
+    end
     local old_client_data = nil
     for _, item in pairs(self.netid_to_client_datas) do
         if item.role_id == role_id then
@@ -43,14 +45,14 @@ function FightBase:bind_client(client, role_id, fight_session_id)
     end
     if old_client_data then
         -- Todo: 要优化的话，可考虑通知被顶号之类的
-        local old_netid = old_client_data.client.netid
-        self.netid_to_client_datas[old_netid] = nil
-        old_client_data:release()
+        self:unbind_client(old_client_data.client)
     end
     local client_data = {
         role_id = role_id,
         client = client,
     }
+    client.state = Client_State.binded
+    client.fight = self
     self.netid_to_client_datas[client.netid] = client_data
     self:_on_bind_client(client_data)
     return Error_None
@@ -58,16 +60,18 @@ end
 
 function FightBase:unbind_client(client)
     local client_data = self.netid_to_client_datas[client.netid]
+    client_data.client:release()
     if data then
         self:_on_unbind_client(client_data)
     end
-    self.netid_to_clients[client.netid] = nil
+    self.netid_to_client_datas[client.netid] = nil
 end
 
 function FightBase:set_msg_handle_fn_name(pid, fn_name)
     log_assert(IsNumber(pid)  and IsString(fn_name), "pid should be number and fn_name should be string")
     log_assert(not self.client_msg_handle_fn_names[pid], "pid=%s already set fn_name=%s",
             pid, self.client_msg_handle_fn_names[pid])
+    self.client_msg_handle_fn_names[pid] = fn_name
 end
 
 function FightBase:wait_release()
@@ -126,7 +130,7 @@ function FightBase:on_client_msg(client, pid, msg)
             is_handle = true
         end
     end
-    log_debug("FightBase:on_client_msg is_handled=%s, client=%s, pid=%s, msg=%s", is_handle, client, pid, msg)
+    log_debug("FightBase:on_client_msg is_handled=%s, client.netid=%s, pid=%s, msg=%s", is_handle, client.netid, pid, msg)
 end
 
 function FightBase:_on_msg_quit_fight(client_data, pid, msg)

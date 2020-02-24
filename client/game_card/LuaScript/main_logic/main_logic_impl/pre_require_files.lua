@@ -39,6 +39,7 @@ return {
     "main_logic.net.cnn_logic_base",
     "main_logic.net.gate_cnn_logic",
     "main_logic.net.login_cnn_logic",
+    "main_logic.net.fight_cnn_logic",
 
 
     "main_logic.main_logic_impl.state_mgr.main_logic_state_def",

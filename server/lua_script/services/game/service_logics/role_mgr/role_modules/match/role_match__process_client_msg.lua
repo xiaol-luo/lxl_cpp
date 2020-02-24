@@ -64,7 +64,7 @@ function RoleMatch:_on_rpc_cb_join_match(call_match_session_id, rpc_error_num, e
         self.match_cell_id = match_cell_id
     until true
     if Error_None ~= out_msg.error_num then
-        self:clear_match_state()
+        -- self:clear_match_state()
     end
     self:sync_match_state()
     self.role:send_to_client(ProtoId.rsp_join_match, out_msg)

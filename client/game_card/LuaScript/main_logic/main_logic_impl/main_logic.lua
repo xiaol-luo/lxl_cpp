@@ -13,6 +13,7 @@ function MainLogic:ctor()
     self.proto_parser = nil
     self.login_cnn_logic = nil
     self.gate_cnn_logic = nil
+    self.fight_cnn_logic = nil
     self.role_mgr = nil
     self.main_role = nil
     self.main_user = nil
@@ -46,6 +47,7 @@ function MainLogic:init(arg)
 
     self.login_cnn_logic = LoginCnnLogic:new(self)
     self.gate_cnn_logic = GateCnnLogic:new(self)
+    self.fight_cnn_logic = FightCnnLogic:new(self)
 
     self.state_mgr = MainLogicStateMgr:new(self)
     self.state_mgr:init()

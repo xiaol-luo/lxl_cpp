@@ -27,7 +27,7 @@ end
 
 function ClientCnnBase:close()
     if self.cnn then
-        self.cnn:close()
+        self.cnn:reset()
     end
     self.cnn = nil
 end

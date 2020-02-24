@@ -20,6 +20,7 @@ function UIMainPanel:init()
     self.role_name_txt = nil
     self.match_msg_txt = nil
     self.room_msg_txt = nil
+    self.roll_btn = nil
 end
 
 function UIMainPanel:on_show(is_new_show, panel_data)
@@ -30,6 +31,7 @@ function UIMainPanel:on_show(is_new_show, panel_data)
     self.ml_event_subscriber:subscribe(ProtoId.rsp_quit_match, Functional.make_closure(self._on_msg_rsp_quit_match, self))
     self.ml_event_subscriber:subscribe(ProtoId.sync_room_state, Functional.make_closure(self._on_msg_sync_room_state, self))
     self.ml_event_subscriber:subscribe(ProtoId.sync_remote_room_state, Functional.make_closure(self._on_msg_sync_remote_room_state, self))
+    self.ml_event_subscriber:subscribe(ProtoId.sync_roll_point_result, Functional.make_closure(self._on_msg_sync_roll_point_result, self))
 
     self.query_btn = UIHelp.attach_ui(UIButton, self.root_go, "QueryBtn")
     self.query_btn:set_onclick(Functional.make_closure(self._on_click_query_btn, self))
@@ -47,6 +49,9 @@ function UIMainPanel:on_show(is_new_show, panel_data)
     self.role_name_txt = UIHelp.attach_ui(UIText, self.root_go, "RoleName")
     self.match_msg_txt = UIHelp.attach_ui(UIText, self.root_go, "MatchView/MatchMsg")
     self.room_msg_txt = UIHelp.attach_ui(UIText, self.root_go, "MatchView/RoomMsg")
+
+    self.roll_btn = UIHelp.attach_ui(UIButton, self.root_go, "MatchView/RollBtn")
+    self.roll_btn:set_onclick(Functional.make_closure(self._on_click_roll_btn, self))
 end
 
 function UIMainPanel:_on_click_query_btn()
@@ -68,6 +73,10 @@ function UIMainPanel:_on_click_quit_match_btn()
     g_ins.gate_cnn_logic:send_msg_to_game(ProtoId.req_quit_match, {  })
 end
 
+function UIMainPanel:_on_click_roll_btn()
+    g_ins.fight_cnn_logic:send_msg(ProtoId.req_fight_opera, { opera = "roll" })
+end
+
 function UIMainPanel:_on_msg_sync_role_data(proto_id, msg)
     self:refresh_ui()
 end
@@ -86,10 +95,23 @@ end
 
 function UIMainPanel:_on_msg_sync_room_state(proto_id, msg)
     self:refresh_ui()
+    if msg.state == 3 then
+        log_debug("UIMainPanel:_on_msg_sync_room_state reach here")
+        g_ins.fight_cnn_logic:set_fight_info(msg.fight_service_ip, msg.fight_service_port,
+                msg.fight_battle_id, msg.fight_session_id, g_ins.main_role.role_id)
+        g_ins.fight_cnn_logic:set_active(true)
+    else
+        g_ins.fight_cnn_logic:set_active(false)
+    end
 end
 
 function UIMainPanel:_on_msg_sync_remote_room_state(proto_id, msg)
     self:refresh_ui()
+end
+
+function UIMainPanel:_on_msg_sync_roll_point_result(proto_id, msg)
+    self:refresh_ui()
+    self.match_msg_txt:set_text(string.format("roll result: %s", string.toprint(msg)))
 end
 
 function UIMainPanel:refresh_ui()

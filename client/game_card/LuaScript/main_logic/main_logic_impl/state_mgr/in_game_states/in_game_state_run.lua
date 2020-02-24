@@ -4,7 +4,8 @@ InGameStateRun = InGameStateRun or class("InGameStateRun", InGameStateBase)
 function InGameStateRun:ctor(state_mgr, in_game_state)
     InGameStateRun.super.ctor(self, state_mgr, In_Game_State_Name.run, in_game_state)
     self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
-    self.last_reconnect_sec = 0
+    self.gate_last_reconnect_sec = 0
+    self.fight_last_reconnect_sec = 0
 end
 
 function InGameStateRun:on_enter(params)
@@ -18,7 +19,8 @@ function InGameStateRun:on_enter(params)
 
     self.main_logic.gate_cnn_logic:send_msg_to_game(ProtoId.pull_role_data, { pull_type = 0 })
     self.main_logic.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
-    self.last_reconnect_sec = 0
+    self.gate_last_reconnect_sec = 0
+    self.fight_last_reconnect_sec = 0
 end
 
 function InGameStateRun:on_update()
@@ -27,9 +29,20 @@ function InGameStateRun:on_update()
     local cnn_state = self.main_logic.gate_cnn_logic:get_state()
     if Net_Agent_State.closed == cnn_state or Net_Agent_State.free == cnn_state then
         local now_sec = logic_sec()
-        if now_sec - self.last_reconnect_sec >= 10 then
-           self.last_reconnect_sec = now_sec
+        if now_sec - self.gate_last_reconnect_sec >= 10 then
+           self.gate_last_reconnect_sec = now_sec
             self.main_logic.gate_cnn_logic:connect()
+        end
+    end
+    -- log_debug("is_active = %s", self.main_logic.fight_cnn_logic:get_is_active())
+    if self.main_logic.fight_cnn_logic:get_is_active() then
+        local cnn_state = self.main_logic.fight_cnn_logic:get_state()
+        if Net_Agent_State.closed == cnn_state or Net_Agent_State.free == cnn_state then
+            local now_sec = logic_sec()
+            if now_sec - self.gate_last_reconnect_sec >= 3 then
+                self.gate_last_reconnect_sec = now_sec
+                self.main_logic.fight_cnn_logic:connect()
+            end
         end
     end
 end

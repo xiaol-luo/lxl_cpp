@@ -9,4 +9,5 @@ Error.Bind_Fight = {
     client_binded = 2,
     fight_not_exist = 3,
     fight_session_not_fix = 4,
+    client_not_free = 5,
 }

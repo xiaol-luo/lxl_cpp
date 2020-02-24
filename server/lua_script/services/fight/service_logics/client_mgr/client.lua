@@ -23,20 +23,13 @@ function Client:send(pid, tb)
     if not self.cnn then
         return false
     end
-    local is_ok, block = true, nil
-    if tb then
-        is_ok, block = PROTO_PARSER:encode(pid, tb)
-    end
-    if not is_ok then
-        return false
-    end
-    return self.cnn:send(pid, block)
+    return self.cnn:send(pid, tb)
 end
 
 function Client:send_msg_bytes(pid, msg_bytes)
     if not self.cnn then
         return false
     end
-    return self.cnn:send(pid, msg_bytes)
+    return self.cnn:send_msg_bytes(pid, msg_bytes)
 end
 
