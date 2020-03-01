@@ -10,6 +10,7 @@ function UILoginPanel:ctor(panel_mgr, panel_setting, root_go)
     self.notify_txt = nil
     self.ml_event_subscriber = nil
     self.user_info = nil
+    self.account_id_txt = nil
 end
 
 function UILoginPanel:init()
@@ -19,6 +20,7 @@ function UILoginPanel:init()
     self.ml_event_subscriber = g_ins.event_mgr:create_subscriber()
     self.ip_txt = UIHelp.attach_ui(UIText, self.root_go, "LoginView/Ip/Text")
     self.port_txt = UIHelp.attach_ui(UIText, self.root_go, "LoginView/Port/Text")
+    self.account_id_txt = UIHelp.attach_ui(UIText, self.root_go, "LoginView/AccountId/Text")
     self.cnn_btn = UIHelp.attach_ui(UIButton, self.root_go, "LoginView/ConnectBtn")
     self.cnn_btn:set_onclick(Functional.make_closure(self.on_click_cnn_btn, self))
     self.reset_btn = UIHelp.attach_ui(UIButton, self.root_go, "LoginView/ResetBtn")
@@ -45,6 +47,7 @@ function UILoginPanel:on_click_cnn_btn()
     local cnn_state = login_cnn_logic:get_state()
     log_debug("UILoginPanel:on_click_cnn_btn state is %s", cnn_state)
     if Net_Agent_State.free == cnn_state or Net_Agent_State.closed == cnn_state then
+        login_cnn_logic:set_account_id(self.account_id_txt:get_text())
         login_cnn_logic:reset(self.ip_txt:get_text(), tonumber(self.port_txt:get_text()))
         login_cnn_logic:connect()
     else

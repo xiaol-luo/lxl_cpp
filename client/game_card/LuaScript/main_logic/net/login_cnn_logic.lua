@@ -1,5 +1,5 @@
 
-local ACCOUNT_ID = "LXL_1"
+local ACCOUNT_ID = "LXL_2"
 local APPID_ID = "FOR_TEST_APP_ID"
 local PLATFORM_NAME = "FOR_TEST_PLATFORM_NAME"
 local TOKEN = "FOR_TEST_TOKEN"
@@ -19,7 +19,12 @@ function LoginCnnLogic:ctor(main_logic)
     self.error_code = -1
     self.user_info = nil
     self.msg_handlers = {}
+    self.account_id = nil
     self.msg_handlers[ProtoId.rsp_login_game] = Functional.make_closure(self.on_msg_rsp_login_game, self)
+end
+
+function LoginCnnLogic:set_account_id(account_id)
+    self.account_id = account_id
 end
 
 function LoginCnnLogic:on_open(is_succ)
@@ -29,7 +34,7 @@ function LoginCnnLogic:on_open(is_succ)
             timestamp = os.time(),
             platform = PLATFORM_NAME,
             ignore_auth = true,
-            force_account_id = ACCOUNT_ID,
+            force_account_id = self.account_id,
         })
         log_assert(is_ok, "encode proto %s fail %s", self.main_logic.proto_parser:get_proto_desc(ProtoId.req_login_game))
         -- log_debug("LoginCnnLogic:on_open send bin %s %s", #bin, bin)
