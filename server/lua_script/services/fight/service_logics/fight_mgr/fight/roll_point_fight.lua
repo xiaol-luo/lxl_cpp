@@ -7,6 +7,11 @@ function RollPointFight:ctor(fight_mgr, fight_id, fight_session_id, room_id, roo
     self.fight_init_sec = nil
     self.roll_record = {}
     self.fight_result = {}
+    self.role_count = 0
+    for _, cell in pairs(match_cells) do
+        self.role_count = self.role_count + table.size(cell.roles)
+    end
+    self.fight_last_secs = 60 -- 60秒后结束本场fight
 end
 
 function RollPointFight:wait_release()
@@ -59,11 +64,11 @@ function RollPointFight:_check_fight_over()
        return
     end
 
-    if table.size(self.roll_record) >= 1 then
+    if table.size(self.roll_record) >= self.role_count then
         self.is_fight_over = true
     end
     if not self.is_fight_over and self.fight_init_sec then
-        if logic_sec() - self.fight_init_sec > 30 then
+        if logic_sec() - self.fight_init_sec > self.fight_last_secs then
             self.is_fight_over = true
         end
     end

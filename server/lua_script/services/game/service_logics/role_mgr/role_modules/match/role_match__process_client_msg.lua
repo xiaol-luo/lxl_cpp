@@ -99,7 +99,7 @@ function RoleMatch:_on_rpc_cb_quit_match(rpc_error_num, error_num, session_id)
         return
     end
     if Error_None ~= rpc_error_num then
-        self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = Error_None.Quit_Match.need_try_again })
+        self.role:send_to_client(ProtoId.rsp_quit_match, { error_num = Error.Quit_Match.need_try_again })
         return
     end
     if self.match_session_id ~= session_id then
