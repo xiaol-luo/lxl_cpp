@@ -23,21 +23,17 @@ function SprotoStore:load_files(files)
         local parse_succ = false
         for _, dir in pairs(self.search_dirs) do
             local file_path = path.combine(dir, file)
-            local file_attrs = lfs.attributes(file_path)
-            if file_attrs then -- todo: 增加错误处理
-                local f = nil
+            local f = io.open(file_path)
+            if f then
+                local f_content = f:read("a")
+                io.close(f)
                 local fn = function()
-                    f = io.open(file_path)
-                    local f_content = f:read("a")
                     local pbin = sproto_parser.parse(f_content, file_path)
                     local sp = sproto.new(pbin)
                     table.insert(self.sps, sp)
                     parse_succ = nil ~= sp
                 end
                 safe_call(fn)
-                if f then
-                    io.close(f)
-                end
                 break
             end
         end
