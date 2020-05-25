@@ -43,7 +43,7 @@ initial-advertise-peer-urls: http://127.0.0.1:8101
 
 # List of this member's client URLs to advertise to the public.
 # The URLs needed to be a comma-separated list.
-advertise-client-urls: http://0.0.0.0:8100
+advertise-client-urls: http://127.0.0.1:8100
 
 # Discovery URL used to bootstrap the cluster.
 discovery:
