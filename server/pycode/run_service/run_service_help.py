@@ -57,7 +57,7 @@ class RunServiceHelp(object):
         is_ok, error_msg = self.prepare_for_run()
         if not is_ok:
             return -2, error_msg
-        run_cmd = "{} {} {} {} {} {} --lua_args_begin-- -lua_path . -c_path . {} -require_files services.main  -execute_fns start_script".format(
+        run_cmd = "{} {} {} {} {} {} --lua_args_begin-- -lua_path . -c_path . {} -require_files servers.entrance.main  -execute_fns start_script".format(
             self.exe,
             self.role,
             self.work_dir,

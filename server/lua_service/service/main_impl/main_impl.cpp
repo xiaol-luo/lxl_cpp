@@ -2,7 +2,7 @@
 #include "iengine.h"
 #include "service_impl/service_base.h"
 
-const int Args_Index_Service_Name = 1;
+const int Args_Index_Server_Name = 1;
 const int Args_Index_WorkDir = 2;
 const int Args_Index_Data_Dir = 3;
 const int Args_Index_Config_File = 4;
@@ -15,7 +15,7 @@ const char *Const_Opt_Lua_Path = "-lua_path";
 const char *Const_Opt_C_Path = "-c_path";
 const char *Const_Opt_Data_Dir = "-data_dir";
 const char *Const_Opt_Config_File = "-config_file";
-const char *Const_Opt_Service_Name = "-service";
+const char *Const_Opt_Server_Name = "-server";
 const char *Const_Opt_Native_Other_Params = "-native_other_params";
 
 static char dot = '.';

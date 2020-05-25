@@ -151,7 +151,7 @@ int main (int argc, char **argv)
 		return -20;
 	}
 
-	std::string service_name = ExtractServiceName(argv[Args_Index_Service_Name]);
+	std::string service_name = ExtractServiceName(argv[Args_Index_Server_Name]);
 	start_log(ELogLevel_Debug, service_name);
 	engine_init();
 

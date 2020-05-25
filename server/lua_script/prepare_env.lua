@@ -127,7 +127,7 @@ if arg_tb[ParseArgs.Opt_Lua_Path] then
         ParseArgs.append_lua_search_path (v)
     end
 end
-for _, v in ipairs(require("pre_require_files")) do
+for _, v in ipairs(require("servers/entrance/pre_require_files")) do
     require(v)
 end
 

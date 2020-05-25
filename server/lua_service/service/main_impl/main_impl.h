@@ -9,7 +9,7 @@ extern "C"
 
 #include "sol/sol.hpp"
 
-extern const int Args_Index_Service_Name;
+extern const int Args_Index_Server_Name;
 extern const int Args_Index_WorkDir;
 extern const int Args_Index_Data_Dir;
 extern const int Args_Index_Config_File;
@@ -22,7 +22,7 @@ extern const char *Const_Opt_Lua_Path;
 extern const char *Const_Opt_C_Path;
 extern const char *Const_Opt_Data_Dir;
 extern const char *Const_Opt_Config_File;
-extern const char *Const_Opt_Service_Name;
+extern const char *Const_Opt_Server_Name;
 extern const char *Const_Opt_Native_Other_Params;
 
 extern void * LuaAlloc(void *ud, void *ptr, size_t osize, size_t nsize);

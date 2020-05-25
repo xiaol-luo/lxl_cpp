@@ -121,8 +121,8 @@ std::vector<std::string> ServiceMakeLuaExtraArgs(int argc, char ** argv)
 	assert(argc > Args_Index_Min_Value);
 
 	std::vector<std::string> extra_args;
-	extra_args.push_back(Const_Opt_Service_Name);
-	extra_args.push_back(argv[Args_Index_Service_Name]);
+	extra_args.push_back(Const_Opt_Server_Name);
+	extra_args.push_back(argv[Args_Index_Server_Name]);
 	extra_args.push_back(Const_Opt_Lua_Path);
 	extra_args.push_back(argv[Args_Index_WorkDir]);
 	extra_args.push_back(Const_Opt_C_Path);

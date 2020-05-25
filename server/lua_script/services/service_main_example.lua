@@ -1,15 +1,15 @@
 
-ServiceMain = ServiceMain or {}
+ServerMain = ServerMain or {}
 
-function ServiceMain.start()
-
-end
-
-
-function ServiceMain.OnNotifyQuitGame()
+function ServerMain.start()
 
 end
 
-function ServiceMain.CheckCanQuitGame()
+
+function ServerMain.OnNotifyQuitGame()
+
+end
+
+function ServerMain.CheckCanQuitGame()
     return true
 end
