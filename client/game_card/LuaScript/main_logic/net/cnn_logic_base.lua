@@ -103,7 +103,7 @@ end
 function CnnLogicBase:send_msg(pid, tb)
     local ret = false
     if Net_Agent_State.connected == self:get_state() then
-        self.cnn:send_msg(pid, tb)
+        ret = self.cnn:send_msg(pid, tb)
     end
     return ret
 end

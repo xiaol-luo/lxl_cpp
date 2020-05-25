@@ -4,7 +4,7 @@ Client = Client or class("Client")
 function Client:ctor()
     self.netid = nil
     self.cnn = nil
-    self.state = ClientState.Free
+    self.state = Client_State.Free
     self.user_id = nil
     self.launch_role_id = nil
     self.game_client = nil
@@ -14,26 +14,26 @@ function Client:ctor()
 end
 
 function Client:is_authed()
-    return self.state > ClientState.Authing
+    return self.state > Client_State.Authing
 end
 
 function Client:is_alive()
-    return self.state < ClientState.Releasing
+    return self.state < Client_State.Releasing
 end
 
 function Client:is_ingame()
-    return ClientState.In_Game == self.state
+    return Client_State.In_Game == self.state
 end
 
 function Client:is_free()
-    return ClientState.Free == self.state
+    return Client_State.Free == self.state
 end
 
 function Client:is_authing()
-    return ClientState.Authing == self.state
+    return Client_State.Authing == self.state
 end
 
 function Client:is_launching()
-    return ClientState.Launch_Role == self.state
+    return Client_State.Launch_Role == self.state
 end
 

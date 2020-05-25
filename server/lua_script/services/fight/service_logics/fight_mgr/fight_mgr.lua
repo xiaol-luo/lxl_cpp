@@ -1,6 +1,6 @@
 
 FightMgr = FightMgr or class("FightMgr", ServiceLogic)
-FightMgr.Fight_Last_Sec = 5
+FightMgr.Fight_Last_Sec = 600
 FightMgr.Check_Fight_Over_Span_Sec = 1
 
 function FightMgr:ctor(logic_mgr, logic_name)
@@ -20,17 +20,17 @@ end
 
 function FightMgr:stop()
     FightMgr.super.stop(self)
-    local tid = nil
-    tid = self.timer_proxy:delay(function()
-        self.timer_proxy:remove(tid)
-        tid = nil
-        local room_client = self.service:create_rpc_client(rpc_rsp.from_host)
-        room_client:call(nil, RoomRpcFn.notify_fight_battle_over, fight.room_id, fight.fight_battle_id)
-    end, 10 * 1000)
 end
 
 function FightMgr:on_update()
+    self:_fight_update()
     self:_check_fight_over()
+end
+
+function FightMgr:_fight_update()
+    for _, fight in pairs(self._id_to_fight) do
+        fight:update()
+    end
 end
 
 function FightMgr:_check_fight_over()
@@ -40,12 +40,19 @@ function FightMgr:_check_fight_over()
         for _, fight_id in pairs(table.keys(self._id_to_fight)) do
             local fight = self._id_to_fight[fight_id]
             if fight then
-                if fight.start_fight_sec and now_sec - fight.start_fight_sec >= FightMgr.Fight_Last_Sec then
-                    fight.room_client:call(nil, RoomRpcFn.notify_fight_battle_over, fight.room_id, fight.fight_battle_id)
+                if fight:wait_release() then
+                    local fight_result = fight:get_fight_result()
+                    fight.room_client:call(nil, RoomRpcFn.notify_fight_battle_over, fight.room_id, fight.fight_battle_id, fight_result)
                     self._id_to_fight[fight_id] = nil
+                    fight:release()
                 end
             end
         end
     end
+end
+
+function FightMgr:get_fight(fight_id)
+    local fight = self._id_to_fight[fight_id]
+    return fight
 end
 

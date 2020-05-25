@@ -60,14 +60,14 @@ function MatchLogicBalance:quit(quit_role)
     if not quit_role.match_cell_id then
         return Error.Quit_Match.match_cell_not_exist, role.match_cell_id
     end
-    local match_cell = self.id_to_cell[role.match_cell_id]
+    local match_cell = self.id_to_cell[quit_role.match_cell_id]
     if not match_cell then
         return Error.Quit_Match.match_cell_not_exist
     end
     if not quit_role.role_id or quit_role.role_id ~= match_cell.leader_role_id then
         return Error.Quit_Match.role_has_no_right_to_quit
     end
-    self.id_to_cell[match_cell_id] = nil
+    self.id_to_cell[quit_role.match_cell_id] = nil
     for role_id, _ in pairs(match_cell.role_ids) do
         local role = self.service.role_mgr:get_role(role_id)
         if role and role.match_logic == self and role.match_cell_id == quit_role.match_cell_id then

@@ -13,6 +13,7 @@ function RoleRoom:ctor(role)
     self.fight_service_ip = nil
     self.fight_service_port = nil
     self.fight_battle_id = nil
+    self.fight_session_id = nil
     self.is_fight_started = false
 end
 
@@ -73,7 +74,7 @@ function RoleRoom:_check_try_bind_room()
     end
 end
 
-function RoleRoom:_on_rpc_cb_bind_room(rpc_error_num, error_num, session_id, fight_service_ip, fight_service_port, fight_battle_id, is_fight_started)
+function RoleRoom:_on_rpc_cb_bind_room(rpc_error_num, error_num, session_id, fight_service_ip, fight_service_port, fight_battle_id, fight_session_id, is_fight_started)
     if Error_None ~= rpc_error_num then
         if Error_Rpc_Expired == rpc_error_num then
             self:_check_try_bind_room()
@@ -96,6 +97,7 @@ function RoleRoom:_on_rpc_cb_bind_room(rpc_error_num, error_num, session_id, fig
         self.fight_service_port = fight_service_port
         self.fight_battle_id = fight_battle_id
         self.is_fight_started = is_fight_started
+        self.fight_session_id = fight_session_id
         self.role:send_to_client(ProtoId.notify_bind_room, {
             session_id = self.room_session_id,
             room_id = self.room_id
@@ -114,6 +116,7 @@ function RoleRoom:sync_room_state()
         fight_service_port = self.fight_service_port,
         fight_battle_id = self.fight_battle_id,
         is_fight_started = self.is_fight_started,
+        fight_session_id = self.fight_session_id,
     })
 end
 

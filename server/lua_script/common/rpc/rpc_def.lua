@@ -14,10 +14,3 @@ Rpc_Const =
     Default_Expire_Ms = 30000,
 }
 
-Rpc_Error =
-{
-    None = 0,
-    Unknown = -301,
-    Wait_Expired = -302,
-    Remote_Host_Error = -303,
-}

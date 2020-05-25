@@ -1,10 +1,8 @@
 
-local ACCOUNT_ID = "LXL_1"
+local ACCOUNT_ID = "LXL_2"
 local APPID_ID = "FOR_TEST_APP_ID"
 local PLATFORM_NAME = "FOR_TEST_PLATFORM_NAME"
 local TOKEN = "FOR_TEST_TOKEN"
-
-LoginCnnLogic = LoginCnnLogic or class("LoginCnnLogic", CnnLogicBase)
 
 declare_event_set("Event_Set__Login_Cnn_Logic", {
     "open",
@@ -12,13 +10,21 @@ declare_event_set("Event_Set__Login_Cnn_Logic", {
     "login_done",
 })
 
+
+LoginCnnLogic = LoginCnnLogic or class("LoginCnnLogic", CnnLogicBase)
+
 function LoginCnnLogic:ctor(main_logic)
     self.main_logic = main_logic
     self._is_done = false
     self.error_code = -1
     self.user_info = nil
     self.msg_handlers = {}
+    self.account_id = nil
     self.msg_handlers[ProtoId.rsp_login_game] = Functional.make_closure(self.on_msg_rsp_login_game, self)
+end
+
+function LoginCnnLogic:set_account_id(account_id)
+    self.account_id = account_id
 end
 
 function LoginCnnLogic:on_open(is_succ)
@@ -28,7 +34,7 @@ function LoginCnnLogic:on_open(is_succ)
             timestamp = os.time(),
             platform = PLATFORM_NAME,
             ignore_auth = true,
-            force_account_id = ACCOUNT_ID,
+            force_account_id = self.account_id,
         })
         log_assert(is_ok, "encode proto %s fail %s", self.main_logic.proto_parser:get_proto_desc(ProtoId.req_login_game))
         -- log_debug("LoginCnnLogic:on_open send bin %s %s", #bin, bin)
@@ -53,6 +59,7 @@ function LoginCnnLogic:on_recv_msg(proto_id, bytes, data_len)
 end
 
 function LoginCnnLogic:on_close(error_num, error_msg)
+    log_debug("LoginCnnLogic:on_close %s %s", error_num, error_msg)
     self.main_logic.event_mgr:fire(Event_Set__Login_Cnn_Logic.close, self, error_num, error_msg)
 end
 

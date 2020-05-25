@@ -1,6 +1,16 @@
 
 return {
-    "common.error.error_def",
+    "share.common.error.error_def",
+    "share.common.error.error_login_process",
+    "share.common.error.error_match",
+    "share.common.error.error_room",
+    "share.common.reason.reason_define",
+    "share.common.match.match_define",
+    "share.common.match.match_reason_define",
+    "share.common.fight.fight_define",
+    "share.common.fight.error_fight",
+    "share.common.fight.reason_fight",
+
     "common.game_net.game_net_def",
     "common.game_net.game_net",
     "common.csharp.csharp_help",
@@ -23,22 +33,21 @@ return {
     "common.state_mgr.state_base",
     "common.state_mgr.composite_state_base",
 
-    "common.proto.proto_def",
-    "common.proto.proto_parser",
-    "common.proto.proto_store_base",
-    "common.proto.protobuf_store",
-    "common.proto.sproto_store",
+    "libs.proto_parser.proto_def",
+    "libs.proto_parser.proto_parser",
+    "libs.proto_parser.proto_store_base",
+    "libs.proto_parser.protobuf_store",
+    "libs.proto_parser.sproto_store",
 
     "common.init_common_global_vars",
-
-
-    "main_logic.game_proto.game_pids",
-    "main_logic.game_proto.game_pid_proto_map",
-    "main_logic.game_proto.game_proto_files",
+    "share.game_proto.game_pids",
+    "share.game_proto.game_pid_proto_map",
+    "share.game_proto.game_proto_files",
 
     "main_logic.net.cnn_logic_base",
     "main_logic.net.gate_cnn_logic",
     "main_logic.net.login_cnn_logic",
+    "main_logic.net.fight_cnn_logic",
 
 
     "main_logic.main_logic_impl.state_mgr.main_logic_state_def",
@@ -64,11 +73,11 @@ return {
     "main_logic.ui.login_panel.ui_login_panel",
     "main_logic.ui.launch_role_panel.launch_role_panel",
 
-    "main_logic.logics.item.item",
-    "main_logic.logics.item.item_mgr",
-
     "main_logic.logics.role.role",
+    "main_logic.logics.role.main_role",
     "main_logic.logics.role.role_mgr",
+
+    "main_logic.logics.user.main_user",
 
     "main_logic.ui.ui_panel_setting",
 }

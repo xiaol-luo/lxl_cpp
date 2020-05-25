@@ -10,6 +10,7 @@ message SyncRoomState
 	int32 fight_service_port = 6;
 	int64 fight_battle_id = 7;
 	bool is_fight_started = 8;
+	int64 fight_session_id = 9;
 }
 
 message NotifyBindRoom

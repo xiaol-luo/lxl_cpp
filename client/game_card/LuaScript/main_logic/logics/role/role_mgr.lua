@@ -1,8 +1,13 @@
 
 RoleMgr = RoleMgr or class("RoleMgr")
 
-function RoleMgr:ctor()
+function RoleMgr:ctor(main_logic)
+    self.main_logic = main_logic
+    self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
     self._roles = {}
+end
+
+function RoleMgr:init()
 end
 
 function RoleMgr:add_role(role)
@@ -13,14 +18,12 @@ function RoleMgr:remove_role(role_id)
     self._roles[role_id] = nil
 end
 
-function RoleMgr:tick_role()
-    for _, v in pairs(self._roles) do
-        v:say_hi()
-        v:tell_a()
-    end
-    -- print("RoleMgr:tick_role")
+function RoleMgr:get_role(role_id)
+    return self._roles[role_id]
 end
 
-print("reach role mgr")
+
+
+
 
 
