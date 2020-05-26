@@ -30,7 +30,7 @@ function ServiceBase:setup_modules()
 end
 
 function ServiceBase:create_event_proxy()
-    local ret = EventProxy:new(self.event_mgr)
+    local ret = EventProxySet:new(self.event_mgr)
     return ret
 end
 
@@ -72,7 +72,7 @@ function ServiceBase:CheckCanQuitGame()
     if not self.module_mgr then
         can_quit = true
     end
-    if self.module_mgr and ServiceModuleState.Stopped == self.module_mgr:get_curr_state() then
+    if self.module_mgr and Service_State.Stopped == self.module_mgr:get_curr_state() then
         log_debug("ServiceBase:CheckCanQuitGame true")
         can_quit = true
     end

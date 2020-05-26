@@ -36,7 +36,7 @@ function RoleMgr:get_role(role_id)
 end
 
 function RoleMgr:add_role(role_id)
-    assert(IsNumber(role_id))
+    assert(is_number(role_id))
     local role = self:get_role(role_id)
     if not role then
         role = Role:new(role_id)

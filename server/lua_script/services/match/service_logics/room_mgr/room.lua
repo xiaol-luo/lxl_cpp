@@ -89,7 +89,7 @@ function Room:get_role_ids()
 end
 
 function Room:foreach_role(fn, ...)
-    if not IsFunction(fn) then
+    if not is_function(fn) then
         return
     end
     for role_id, _ in pairs(self:get_role_ids()) do

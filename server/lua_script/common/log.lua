@@ -9,7 +9,7 @@ function string_format(fmt_str, ...)
             table.insert(str_list, tostring(arg))
         else
             local Show_Max_Level = 5
-            table.insert(str_list, string.toprint(arg, Show_Max_Level))
+            table.insert(str_list, string.to_print(arg, Show_Max_Level))
         end
     end
     local ret = fmt_str

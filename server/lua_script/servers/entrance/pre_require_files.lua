@@ -6,7 +6,6 @@ local files = {
     "libs.serpent",
     "libs.print_ext",
     "libs.class",
-    "libs.math_ext",
     "libs.string_ext",
     "libs.table_ext",
     "libs.type_check",
@@ -14,7 +13,6 @@ local files = {
     "libs.path_ext",
     "libs.random",
     "libs.xml2lua.xml2lua_ext",
-    "libs.reload",
     "libs.hotfix",
     "libs.sequencer",
 
@@ -28,6 +26,7 @@ local files = {
     "common.timer.timer_proxy",
     "common.event.event_mgr",
     "common.event.event_proxy",
+    "common.event.event_binder",
 
     "libs.coroutine_ex.coroutine_ex_def",
     "libs.coroutine_ex.coroutine_ex",
@@ -46,14 +45,6 @@ local files = {
     "libs.http.http_service",
     "libs.http.http_client",
 
-    "libs.mongo.mongo_def",
-    "libs.mongo.mongo_client",
-    "libs.mongo.mongo_options",
-
-    "libs.redis.redis_def",
-    "libs.redis.redis_client",
-    "libs.redis.redis_reply",
-
     "libs.etcd.etcd_client_def",
     "libs.etcd.etcd_client",
     "libs.etcd.etcd_client_op_base",
@@ -69,6 +60,15 @@ local files = {
     "libs.proto_parser.sproto_store",
     "libs.proto_parser.proto_parser",
 
+    "libs.mongo.mongo_def",
+    "libs.mongo.mongo_client",
+    "libs.mongo.mongo_options",
+
+    "libs.redis.redis_def",
+    "libs.redis.redis_client",
+    "libs.redis.redis_reply",
+
+    "servers.common.const.const",
     "common.zone_service_mgr.zone_service_mgr_def",
     "common.zone_service_mgr.zone_service_mgr",
     "common.zone_service_mgr.zone_service_state",
@@ -86,6 +86,7 @@ local files = {
 
     "common.init_global_vars",
 
-    "servers.common.const.const"
+    "servers.server_impl.server_def",
+    "servers.server_impl.server_base",
 }
 return files

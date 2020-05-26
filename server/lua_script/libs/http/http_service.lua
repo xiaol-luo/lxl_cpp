@@ -1,8 +1,12 @@
 
+---@alias Fn_HttpServiceHandleReq fun(method:HttpMethod, req_url:string, heads_map:table<string, string>, body:string):boolean
+
+---@class HttpService
 HttpService = HttpService or class("HttpService")
 
 function HttpService:ctor()
     self.listener = nil
+    ---@type table<string, Fn_HttpServiceHandleReq>
     self.fn_map = {}
 end
 
@@ -27,6 +31,8 @@ function HttpService:stop()
     self.listener = nil
 end
 
+---@param method_name string
+---@param handle_fn Fn_HttpServiceHandleReq
 function HttpService:set_handle_fn(method_name, handle_fn)
     if nil ~= method_name then
         -- heandle_fn = function(enum_method, req_url, heads_map, body)
@@ -34,14 +40,20 @@ function HttpService:set_handle_fn(method_name, handle_fn)
     end
 end
 
+---@param net_listen NetListen
+---@param error_num number
 function HttpService:on_listener_open(net_listen, error_num)
     log_debug("HttpService:on_listener_open error_num:%s", error_num)
 end
 
+---@param net_listen NetListen
+---@param error_num number
 function HttpService:on_listener_close(net_listen, error_num)
     log_debug("HttpService:on_listener_close error_num:%s", error_num)
 end
 
+---@param net_listen NetListen
+---@return HttpRspCnn
 function HttpService:do_gen_cnn_handler(net_listen)
     local cnn = HttpRspCnn:new(self.net_handler_map)
     cnn:set_req_cb(Functional.make_closure(HttpService.handle_req, self))
@@ -55,6 +67,11 @@ function HttpService:do_gen_cnn_handler(net_listen)
     return cnn
 end
 
+---@param cnn HttpRspCnn
+---@param method HttpMethod
+---@param req_url string
+---@param kv_params table<string, string>
+---@param body string
 function HttpService:handle_req(cnn, method, req_url, kv_params, body)
     local beg_pos= string.find(req_url, "?", 1, true)
     if beg_pos then
@@ -94,7 +111,10 @@ function HttpService:handle_req(cnn, method, req_url, kv_params, body)
     return true
 end
 
-function HttpService:handle_event(cnn, act, error_num)
+---@param cnn HttpRspCnn
+---@param event_name Http_Rsp_Cnn_Event
+---@param error_num number
+function HttpService:handle_event(cnn, event_name, error_num)
 
 end
 

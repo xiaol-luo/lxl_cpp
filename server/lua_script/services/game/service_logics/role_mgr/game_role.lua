@@ -174,8 +174,8 @@ function GameRole:save(db_client, db_name, coll_name)
 end
 
 function GameRole:set_client_msg_process_fn(pid, fn)
-    assert(IsNumber(pid))
-    assert(nil == fn or IsFunction(fn))
+    assert(is_number(pid))
+    assert(nil == fn or is_function(fn))
     if not fn then
         assert(not self._process_client_msg_fns[pid])
     end

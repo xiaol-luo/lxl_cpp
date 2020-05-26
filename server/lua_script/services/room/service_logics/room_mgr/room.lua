@@ -43,7 +43,7 @@ function Room:get_role(role_id)
 end
 
 function Room:foreach_role(fn, ...)
-    assert(IsFunction(fn))
+    assert(is_function(fn))
     for role_id, _ in pairs(self.all_role_ids) do
         local role = self:get_role(role_id)
         if role then

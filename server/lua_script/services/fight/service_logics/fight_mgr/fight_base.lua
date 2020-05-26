@@ -68,7 +68,7 @@ function FightBase:unbind_client(client)
 end
 
 function FightBase:set_msg_handle_fn_name(pid, fn_name)
-    log_assert(IsNumber(pid)  and IsString(fn_name), "pid should be number and fn_name should be string")
+    log_assert(is_number(pid)  and is_string(fn_name), "pid should be number and fn_name should be string")
     log_assert(not self.client_msg_handle_fn_names[pid], "pid=%s already set fn_name=%s",
             pid, self.client_msg_handle_fn_names[pid])
     self.client_msg_handle_fn_names[pid] = fn_name
@@ -125,7 +125,7 @@ function FightBase:on_client_msg(client, pid, msg)
     local fn_name = self.client_msg_handle_fn_names[pid]
     if fn_name then
         local fn = self[fn_name]
-        if IsFunction(fn) then
+        if is_function(fn) then
             fn(self, client_data, pid, msg)
             is_handle = true
         end

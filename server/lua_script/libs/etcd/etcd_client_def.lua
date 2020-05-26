@@ -1,48 +1,54 @@
+---@class Etcd_Const
+Etcd_Const = Etcd_Const or {}
+Etcd_Const.Value = "value"
+Etcd_Const.Key = "key"
+Etcd_Const.Ttl = "ttl"
+Etcd_Const.Dir = "dir"
+Etcd_Const.ModifiedIndex = "modifiedIndex"
+Etcd_Const.CreatedIndex = "createdIndex"
+Etcd_Const.Action = "action"
+Etcd_Const.Node = "node"
+Etcd_Const.Nodes = "nodes"
+Etcd_Const.PrevNode = "prevNode"
+Etcd_Const.Wait = "wait"
+Etcd_Const.Recursive = "recursive"
+Etcd_Const.WaitIndex = "waitIndex"
+Etcd_Const.Refresh = "refresh"
+Etcd_Const.PrevExist = "prevExist"
+Etcd_Const.PrevValue = "prevValue"
+Etcd_Const.PrevIndex = "prevIndex"
+Etcd_Const.ErrorCode = "errorCode"
+Etcd_Const.Message = "message"
+Etcd_Const.Cause = "cause"
+Etcd_Const.Index = "index"
+Etcd_Const.Head_Cluster_Id = "X-Etcd-Cluster-Id"
+Etcd_Const.Head_Index = "X-Etcd-Index"
+Etcd_Const.Head_Raft_Index = "X-Raft-Index"
+Etcd_Const.Head_Raft_Term = "X-Raft-Term"
+Etcd_Const.Expiration = "expiration"
+Etcd_Const.Rsp_State = "rsp_state"
+Etcd_Const.Rsp_State_OK = "OK"
+Etcd_Const.Rsp_State_Created = "Created"
+Etcd_Const.Rsp_State_Unauthorized = "Unauthorized"
+Etcd_Const.Set = "set"
+Etcd_Const.Delete = "delete"
+Etcd_Const.Expire = "expire"
+Etcd_Const.Authorization = "Authorization"
 
-EtcdConst = EtcdConst or {}
-EtcdConst.Value = "value"
-EtcdConst.Key = "key"
-EtcdConst.Ttl = "ttl"
-EtcdConst.Dir = "dir"
-EtcdConst.ModifiedIndex = "modifiedIndex"
-EtcdConst.CreatedIndex = "createdIndex"
-EtcdConst.Action = "action"
-EtcdConst.Node = "node"
-EtcdConst.Nodes = "nodes"
-EtcdConst.PrevNode = "prevNode"
-EtcdConst.Wait = "wait"
-EtcdConst.Recursive = "recursive"
-EtcdConst.WaitIndex = "waitIndex"
-EtcdConst.Refresh = "refresh"
-EtcdConst.PrevExist = "prevExist"
-EtcdConst.PrevValue = "prevValue"
-EtcdConst.PrevIndex = "prevIndex"
-EtcdConst.ErrorCode = "errorCode"
-EtcdConst.Message = "message"
-EtcdConst.Cause = "cause"
-EtcdConst.Index = "index"
-EtcdConst.Head_Cluster_Id = "X-Etcd-Cluster-Id"
-EtcdConst.Head_Index = "X-Etcd-Index"
-EtcdConst.Head_Raft_Index = "X-Raft-Index"
-EtcdConst.Head_Raft_Term = "X-Raft-Term"
-EtcdConst.Expiration = "expiration"
-EtcdConst.Rsp_State = "rsp_state"
-EtcdConst.Rsp_State_OK = "OK"
-EtcdConst.Rsp_State_Created = "Created"
-EtcdConst.Rsp_State_Unauthorized = "Unauthorized"
-EtcdConst.Set = "set"
-EtcdConst.Delete = "delete"
-EtcdConst.Expire = "expire"
-EtcdConst.Authorization = "Authorization"
+---@class Etcd_Event
+---@field HttpConnect number
+---@field HttpClose number
+---@field HttpParse number
+---@field DnsQuery number
+Etcd_Event = Etcd_Event or {}
+Etcd_Event.HttpConnect = 0
+Etcd_Event.HttpClose = 1
+Etcd_Event.HttpParse = 2
+Etcd_Event.DnsQuery = 103
 
-EtcdEvent = EtcdEvent or {}
-EtcdEvent.HttpConnect = 0
-EtcdEvent.HttpClose = 1
-EtcdEvent.HttpParse = 2
-EtcdEvent.DnsQuery = 103
-
-EtcdEventName = EtcdEvent or {}
-EtcdEventName[EtcdEvent.HttpConnect] = "EtcdEvent.HttpConnect"
-EtcdEventName[EtcdEvent.HttpClose] = "HttpConnect.HttpClose"
-EtcdEventName[EtcdEvent.HttpParse] = "EtcdEvent.HttpParse"
-EtcdEventName[EtcdEvent.DnsQuery] = "EtcdEvent.DnsQuery"
+---@class Etcd_Event_Name
+Etcd_Event_Name = Etcd_Event or {}
+Etcd_Event_Name[Etcd_Event.HttpConnect] = "Etcd_Event.HttpConnect"
+Etcd_Event_Name[Etcd_Event.HttpClose] = "HttpConnect.HttpClose"
+Etcd_Event_Name[Etcd_Event.HttpParse] = "Etcd_Event.HttpParse"
+Etcd_Event_Name[Etcd_Event.DnsQuery] = "Etcd_Event.DnsQuery"

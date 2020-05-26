@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<zone>zone_0</zone>
-	<service>world</service>
-	<idx>0</idx>
-	<all_service_config>setting/all_service_config.xml</all_service_config>
+	<server_role>world</server_role>
+	<server_name>luo</server_name>
+
+	<etcd_server>
+		<element>for_make_array</element>
+		<element>
+			<name>service_discovery</name>
+			<host>http://127.0.0.1:8100</host>
+			<user>root</user>
+			<pwd>xiaolzz</pwd>
+		</element>
+	</etcd_server>
+	<advertise_peer_host>127.0.0.1:33000</advertise_peer_host>
+	<advertise_client_host>127.0.0.1:33000</advertise_client_host>
 </root>

@@ -78,8 +78,8 @@ function NetForward:to_client_bytes(role_id, pid, msg_bytes)
 end
 
 function NetForward:set_client_msg_process_fn(pid, fn)
-    assert(IsNumber(pid))
-    assert(nil == fn or IsFunction(fn))
+    assert(is_number(pid))
+    assert(nil == fn or is_function(fn))
     if not fn then
         assert(not self._process_client_msg_fns[pid])
     end

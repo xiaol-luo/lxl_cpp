@@ -103,7 +103,7 @@ function ZoneServiceMgr:etcd_service_val_update()
 end
 
 function ZoneServiceMgr:_etcd_service_val_set_cb(op_id, op, ret)
-    -- log_debug("ZoneServiceMgr:_etcd_set_service_val_cb %s %s", op_id, string.toprint(ret))
+    -- log_debug("ZoneServiceMgr:_etcd_set_service_val_cb %s %s", op_id, string.to_print(ret))
     if not self.is_started then
         return
     end
@@ -127,7 +127,7 @@ function ZoneServiceMgr:_etcd_pull_service_status_cb(op_id, op, ret)
     if not ret:is_ok() then
         timer_delay(Functional.make_closure(self._etcd_pull_service_states, self), 1 * 1000)
     else
-        self.etcd_watch_wait_index = tonumber(ret.op_result[EtcdConst.Head_Index]) + 1
+        self.etcd_watch_wait_index = tonumber(ret.op_result[Etcd_Const.Head_Index]) + 1
         self:_etcd_watch_service_states()
         self:_etcd_service_state_process_pull(ret)
     end
@@ -153,7 +153,7 @@ function ZoneServiceMgr:_etcd_watch_service_states_cb(op_id, op, ret)
     else
         self.etcd_watch_timerid = timer_delay(Functional.make_closure(ZoneServiceMgr._etcd_watch_service_states, self), 0)
         self.etcd_watch_wait_index = 0 -- 即使下一句赋值失败，etcd还能通过self:_etcd_pull_service_states()回复正常
-        self.etcd_watch_wait_index = tonumber(ret.op_result[EtcdConst.Node][EtcdConst.ModifiedIndex]) + 1
+        self.etcd_watch_wait_index = tonumber(ret.op_result[Etcd_Const.Node][Etcd_Const.ModifiedIndex]) + 1
         self:_etcd_service_state_process_watch(ret)
     end
 end

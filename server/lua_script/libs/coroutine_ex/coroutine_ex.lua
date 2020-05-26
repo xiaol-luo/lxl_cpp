@@ -21,6 +21,7 @@ function print_gc(self)
     --log_debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CoroutineEx gc reach! object is %s", tostring(self))
 end
 
+---@class CoroutineEx
 CoroutineEx = CoroutineEx or class("CoroutineEx", nil, { __gc = print_gc })
 
 function wrap_main_logic(main_logic)
@@ -190,7 +191,7 @@ function CoroutineEx:trigger_over_cb()
     end
     if not self.over_cb_done then
         self.over_cb_done = true
-        if IsFunction(self.over_cb) then
+        if is_function(self.over_cb) then
             self.over_cb(self)
         end
         self:release_all()

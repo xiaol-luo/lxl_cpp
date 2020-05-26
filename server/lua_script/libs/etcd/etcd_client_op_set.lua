@@ -1,35 +1,36 @@
 
+---@class EtcdClientOpSet : EtcdClientOpBase
 EtcdClientOpSet = EtcdClientOpSet or class("EtcdClientOptSet", EtcdClientOpBase)
 
 function EtcdClientOpSet:ctor()
     EtcdClientOpSet.super.ctor(self)
-    self[EtcdConst.Key] = nil
-    self[EtcdConst.Value] = nil
-    self[EtcdConst.Ttl] = nil
-    self[EtcdConst.Refresh] = nil
-    self[EtcdConst.Dir] = nil
-    self[EtcdConst.PrevExist] = nil
-    self[EtcdConst.PrevIndex] = nil
-    self[EtcdConst.PrevValue] = nil
+    self[Etcd_Const.Key] = nil
+    self[Etcd_Const.Value] = nil
+    self[Etcd_Const.Ttl] = nil
+    self[Etcd_Const.Refresh] = nil
+    self[Etcd_Const.Dir] = nil
+    self[Etcd_Const.PrevExist] = nil
+    self[Etcd_Const.PrevIndex] = nil
+    self[Etcd_Const.PrevValue] = nil
 end
 
 function EtcdClientOpSet:get_http_url()
-    if not self[EtcdConst.Key] then
+    if not self[Etcd_Const.Key] then
         return false, ""
     end
-    local ret_str = self[EtcdConst.Key]
+    local ret_str = self[Etcd_Const.Key]
     return true, ret_str
 end
 
 function EtcdClientOpSet:get_http_content()
     local keys = {
-        EtcdConst.Value,
-        EtcdConst.Ttl,
-        EtcdConst.Refresh,
-        EtcdConst.Dir,
-        EtcdConst.PrevExist,
-        EtcdConst.PrevIndex,
-        EtcdConst.PrevValue,
+        Etcd_Const.Value,
+        Etcd_Const.Ttl,
+        Etcd_Const.Refresh,
+        Etcd_Const.Dir,
+        Etcd_Const.PrevExist,
+        Etcd_Const.PrevIndex,
+        Etcd_Const.PrevValue,
     }
     local kv_foramt = "%s=%s"
     local sep = "&"

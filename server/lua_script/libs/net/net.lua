@@ -1,4 +1,5 @@
 
+---@class Net
 Net = Net or {}
 
 function Net.connect(ip, port, cnn_handler)

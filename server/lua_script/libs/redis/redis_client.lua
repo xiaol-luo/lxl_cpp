@@ -48,7 +48,7 @@ function RedisClient:array_command(hash_code, cb_fn, cmd_list)
     end
     local input_cmds = {}
     for i, cmd in ipairs(cmd_list) do
-        if not IsString(cmd) then
+        if not is_string(cmd) then
             table.insert(input_cmds, tostring(cmd))
         else
             if 1 == i then -- 如果命令前边有空格，hiredis_vip会分析命令失败
@@ -72,7 +72,7 @@ function RedisClient:binary_command(hash_code, cb_fn, fmt_str, ...)
     else
         local input_cmds = {}
         for _, cmd in ipairs(t) do
-            if not IsString(cmd) then
+            if not is_string(cmd) then
                 table.insert(input_cmds, tostring(cmd))
             else
                 table.insert(input_cmds, cmd)

@@ -127,14 +127,13 @@ if arg_tb[ParseArgs.Opt_Lua_Path] then
         ParseArgs.append_lua_search_path (v)
     end
 end
-for _, v in ipairs(require("servers/entrance/pre_require_files")) do
-    require(v)
-end
+
+require("libs.require_ex")
+
+batch_require(require("servers/entrance/pre_require_files"))
 
 if arg_tb[ParseArgs.Opt_Require_Files] then
-    for _, v in ipairs(arg_tb[ParseArgs.Opt_Require_Files]) do
-        require(v)
-    end
+    batch_require(arg_tb[ParseArgs.Opt_Require_Files])
 end
 
 if arg_tb[ParseArgs.Opt_Execute_Fns] then

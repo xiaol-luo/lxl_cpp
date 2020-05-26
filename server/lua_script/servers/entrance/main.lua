@@ -1,45 +1,47 @@
 
 -- importance global vars
-MAIN_ARGS = nil
-SERVER_SETTING = nil
-SERVER_MAIN = nil
+SERVER_INS = nil
 PROTO_PARSER = nil
 
 local opt_op_fn_map = {
-    [const.main_args_server] = ParseArgs.make_closure(ParseArgs.fill_one_arg, const.main_args_server),
-    [const.main_args_data_dir] = ParseArgs.make_closure(ParseArgs.fill_one_arg, const.main_args_data_dir),
-    [const.main_args_config_file] = ParseArgs.make_closure(ParseArgs.fill_one_arg, const.main_args_config_file),
-    [const.main_args_logic_param] = ParseArgs.make_closure(ParseArgs.fill_args, const.main_args_logic_param),
+    [Const.main_args_server] = ParseArgs.make_closure(ParseArgs.fill_one_arg, Const.main_args_server),
+    [Const.main_args_data_dir] = ParseArgs.make_closure(ParseArgs.fill_one_arg, Const.main_args_data_dir),
+    [Const.main_args_config_file] = ParseArgs.make_closure(ParseArgs.fill_one_arg, Const.main_args_config_file),
+    [Const.main_args_logic_param] = ParseArgs.make_closure(ParseArgs.fill_args, Const.main_args_logic_param),
 }
 
 function start_script(main_args)
-    MAIN_ARGS = ParseArgs.parse_main_args(main_args, ParseArgs.setup_parse_fns(opt_op_fn_map))
-    local server_name = MAIN_ARGS[const.main_args_server]
-    local setting_file = path.combine(MAIN_ARGS[const.main_args_data_dir], MAIN_ARGS[const.main_args_config_file])
-    SERVER_SETTING = xml.parse_file(setting_file)
-    xml.print_table(SERVER_SETTING)
-    SERVER_SETTING = SERVER_SETTING["root"]
+    local init_args = ParseArgs.parse_main_args(main_args, ParseArgs.setup_parse_fns(opt_op_fn_map))
+    local server_name = init_args[Const.main_args_server]
+    local setting_file = path.combine(init_args[Const.main_args_data_dir], init_args[Const.main_args_config_file])
+    local init_setting = xml.parse_file(setting_file)
+
+    log_debug("init_args: %s", init_args)
+    log_debug("init_setting :")
+    xml.print_table(init_setting)
+
+    init_setting = init_setting["root"]
 
     local logic_main_file = string.format("servers.server_impl.%s.server_main", server_name)
     require(logic_main_file)
-    SERVER_MAIN = create_server_main()
-    SERVER_MAIN:init()
-    SERVER_MAIN:start()
+    SERVER_INS = create_server_main(init_setting, init_args)
+    SERVER_INS:init()
+    SERVER_INS:start()
 end
 
 -- callback from native
 function OnNotifyQuitGame()
     log_debug("lua OnNotifyQuitGame")
-    if SERVER_MAIN then
-        SERVER_MAIN:OnNotifyQuitGame()
+    if SERVER_INS then
+        SERVER_INS:notify_quit_game()
     end
 end
 
 -- callback from native
 function CheckCanQuitGame()
     -- log_debug("lua CheckCanQuitGame")
-    if SERVER_MAIN then
-        return SERVER_MAIN:CheckCanQuitGame()
+    if SERVER_INS then
+        return SERVER_INS:check_can_quit_game()
     end
     return true
 end

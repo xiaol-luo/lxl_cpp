@@ -1,34 +1,45 @@
 
-WorldServer = WorldServer or class("WorldServer")
+batch_require(require("servers.server_impl.world.server_require_files"))
 
-for _, v in ipairs(require("servers.server_impl.world.server_require_files")) do
-    require(v)
+---@class WorldServer : ServerBase
+WorldServer = WorldServer or class("WorldServer", ServerBase)
+
+function create_server_main(init_setting, init_args)
+    return WorldServer:new(init_setting, init_args)
 end
 
-function create_server_main()
-    return WorldServer:new()
+function WorldServer:ctor(init_setting, init_args)
+    WorldServer.super.ctor(self, Server_Role.World, init_setting, init_args)
 end
 
-function WorldServer:ctor()
-
+function WorldServer:_on_init()
+    local ret = WorldServer.super._on_init(self)
+    if not ret then
+        return false
+    end
+    return true
 end
 
-function WorldServer:init()
-    log_debug("WorldServer:init")
+function WorldServer:_on_start()
+    local ret = WorldServer.super._on_start(self)
+    if not ret then
+        return false
+    end
+    return true
 end
 
-function WorldServer:start()
-    log_debug("WorldServer:start")
+function WorldServer:_on_stop()
+    WorldServer.super._on_stop(self)
 end
 
-function WorldServer:stop()
-    log_debug("WorldServer:stop")
+function WorldServer:_on_notify_quit_game()
+    WorldServer.super._on_notify_quit_game(self)
 end
 
-function WorldServer:OnNotifyQuitGame()
-    log_debug("WorldServer:OnNotifyQuitGame")
-end
-
-function WorldServer:CheckCanQuitGame()
+function WorldServer:_check_can_quit_game()
+    local can_quit = WorldServer.super._check_can_quit_game(self)
+    if not can_quit then
+        return false
+    end
     return true
 end

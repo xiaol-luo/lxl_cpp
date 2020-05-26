@@ -1,33 +1,35 @@
+
+---@class EtcdClientOpDelete : EtcdClientOpBase
 EtcdClientOpDelete = EtcdClientOpDelete or class("EtcdClientOpDelete", EtcdClientOpBase)
 
 function EtcdClientOpDelete:ctor()
     EtcdClientOpSet.super.ctor(self)
-    self[EtcdConst.Key] = nil
-    self[EtcdConst.Wait] = nil
-    self[EtcdConst.Recursive] = nil
-    self[EtcdConst.WaitIndex] = nil
-    self[EtcdConst.PrevExist] = nil
-    self[EtcdConst.PrevIndex] = nil
-    self[EtcdConst.PrevValue] = nil
+    self[Etcd_Const.Key] = nil
+    self[Etcd_Const.Wait] = nil
+    self[Etcd_Const.Recursive] = nil
+    self[Etcd_Const.WaitIndex] = nil
+    self[Etcd_Const.PrevExist] = nil
+    self[Etcd_Const.PrevIndex] = nil
+    self[Etcd_Const.PrevValue] = nil
 end
 
 function EtcdClientOpDelete:get_http_url()
-    if not self[EtcdConst.Key] then
+    if not self[Etcd_Const.Key] then
         return false, ""
     end
     local keys = {
-        EtcdConst.Recursive,
-        EtcdConst.WaitIndex,
-        EtcdConst.PrevExist,
-        EtcdConst.PrevIndex,
-        EtcdConst.PrevValue,
+        Etcd_Const.Recursive,
+        Etcd_Const.WaitIndex,
+        Etcd_Const.PrevExist,
+        Etcd_Const.PrevIndex,
+        Etcd_Const.PrevValue,
     }
     local query_str = self:concat_values(keys, "%s=%s", "&")
     local ret_str = ""
     if #query_str > 0 then
-        ret_str = string.format("%s?%s", self[EtcdConst.Key], query_str)
+        ret_str = string.format("%s?%s", self[Etcd_Const.Key], query_str)
     else
-        ret_str = self[EtcdConst.Key]
+        ret_str = self[Etcd_Const.Key]
     end
     return true, ret_str
 end

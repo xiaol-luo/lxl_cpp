@@ -18,8 +18,8 @@ function ClientMgr:start()
     self.timer_proxy:release_all()
     local Tick_Span_Ms = 2 * 1000
     self.timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
-    self.event_proxy:subscribe(Client_Cnn_Mgr_Event_New_Client, Functional.make_closure(self._on_new_cnn, self))
-    self.event_proxy:subscribe(Client_Cnn_Mgr_Event_Close_Client, Functional.make_closure(self._on_close_cnn, self))
+    self.event_proxy:bind(Client_Cnn_Mgr_Event_New_Client, Functional.make_closure(self._on_new_cnn, self))
+    self.event_proxy:bind(Client_Cnn_Mgr_Event_Close_Client, Functional.make_closure(self._on_close_cnn, self))
 end
 
 function ClientMgr:stop()

@@ -4,7 +4,7 @@ RpcClient = RpcClient or class("RpcClient")
 local mt = getmetatable(RpcClient)
 mt.__index = function(ins, key)
     -- 用这种方式来构造远程调用函数，所以RpcClient不要随便乱用
-    if not IsString(key) then
+    if not is_string(key) then
         return nil
     end
     local ret = function(ins, ...)
@@ -21,7 +21,7 @@ end
 
 function RpcClient:setup_coroutine_fns(fn_names)
     for _, fn_name in pairs(fn_names) do
-        if IsString(fn_name) and #fn_name > 0 then
+        if is_string(fn_name) and #fn_name > 0 then
             assert(not self[fn_names], string.format("can not change attribute already exist %s", fn_name))
             self[fn_name] = function(self, ...)
                 return self:coro_call(fn_name, ...)

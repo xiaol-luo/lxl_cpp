@@ -35,7 +35,7 @@ function GameAllServiceConfig:parse(file_path)
         self.service_group[name] = {}
         assert(self.kvs[name] and self.kvs[name][Service_Const.Element])
         for _, v in pairs(self.kvs[name][Service_Const.Element]) do
-            if IsTable(v) then
+            if is_table(v) then
                 table.insert(self.service_group[name], v)
             end
         end

@@ -1,4 +1,5 @@
 
+---@class NetHandler
 NetHandler = NetHandler or class("NetHandler")
 
 function NetHandler:ctor()
@@ -58,18 +59,22 @@ function NetHandler:net_handler_weak_ptr()
     return native.to_net_handler_shared_ptr(self.to_net_handler_weak_ptr)
 end
 
+-- connect类native_handler特有
 function NetHandler:cnn_handler_shared_ptr()
     assert(false, "should not reach here")
 end
 
+-- connect类native_handler特有
 function NetHandler:cnn_handler_weak_ptr()
     assert(false, "should not reach here")
 end
 
+-- listen类native_handler特有
 function NetHandler:listen_handler_shared_ptr()
     assert(false, "should not reach here")
 end
 
+-- listen类native_handler特有
 function NetHandler:listen_handler_weak_ptr()
     assert(false, "should not reach here")
 end

@@ -1,4 +1,5 @@
 
+---@class NetHandlerMap
 NetHandlerMap = NetHandlerMap or class("NetHandlerMap")
 
 function NetHandlerMap:ctor()

@@ -19,29 +19,29 @@ local make_peer_service_query_result = function(node)
 end
 
 local parse_node = function(node)
-    local key = node[EtcdConst.Key]
-    local service_state = ZoneServiceState.from_json(node[EtcdConst.Value])
+    local key = node[Etcd_Const.Key]
+    local service_state = ZoneServiceState.from_json(node[Etcd_Const.Value])
     return {key=key, service_state=service_state}
 end
 
 function ZoneServiceMgr:_etcd_service_state_process_pull(ret)
-    -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull %s", string.toprint(ret))
+    -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull %s", string.to_print(ret))
     if not ret:is_ok() then
         return
     end
     local st_nodes = {}
     local op_ret = ret.op_result
-    local dirs = op_ret[EtcdConst.Node][EtcdConst.Nodes]
+    local dirs = op_ret[Etcd_Const.Node][Etcd_Const.Nodes]
     for _, dir in pairs(dirs) do
-        if dir[EtcdConst.Dir] then
-            local nodes = dir[EtcdConst.Nodes] or {}
+        if dir[Etcd_Const.Dir] then
+            local nodes = dir[Etcd_Const.Nodes] or {}
             for _, v in pairs(nodes) do
-                if not v[EtcdConst.Dir] then
+                if not v[Etcd_Const.Dir] then
                     if not is_dir then
                         local node = parse_node(v)
                         assert(not st_nodes[v.key], string.format("dumplicate key %s", v.key))
                         st_nodes[node.key] = node
-                        -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull k, v %s, %s",  node.key, string.toprint(node))
+                        -- log_debug("ZoneServiceMgr:_etcd_service_state_process_pull k, v %s, %s",  node.key, string.to_print(node))
                     end
                 end
             end
@@ -63,22 +63,22 @@ function ZoneServiceMgr:_etcd_service_state_process_pull(ret)
 end
 
 function ZoneServiceMgr:_etcd_service_state_process_watch(ret)
-    -- log_debug("ZoneServiceMgr:_etcd_service_state_process_watch %s", string.toprint(ret))
+    -- log_debug("ZoneServiceMgr:_etcd_service_state_process_watch %s", string.to_print(ret))
     if not ret:is_ok() then
         return
     end
     local op_ret = ret.op_result
-    local action = op_ret[EtcdConst.Action]
-    if EtcdConst.Set == action then
-        local node = parse_node(op_ret[EtcdConst.Node])
+    local action = op_ret[Etcd_Const.Action]
+    if Etcd_Const.Set == action then
+        local node = parse_node(op_ret[Etcd_Const.Node])
         if self.service_state_list[node.key] then
             self:_etcd_service_state_update(node)
         else
             self:_etcd_service_state_add(node)
         end
     end
-    if EtcdConst.Delete == action or EtcdConst.Expire == action then
-        self:_etcd_service_state_delete(op_ret[EtcdConst.Node][EtcdConst.Key])
+    if Etcd_Const.Delete == action or Etcd_Const.Expire == action then
+        self:_etcd_service_state_delete(op_ret[Etcd_Const.Node][Etcd_Const.Key])
     end
 end
 

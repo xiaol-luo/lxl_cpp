@@ -13,7 +13,7 @@ function EtcdClientCxx.make_op_cb_fn(cxx_cb_fn)
     local fn = function (id, op, result)
         local json_str = result:to_json()
         cxx_cb_fn(id, json_str)
-        -- log_debug("EtcdClientCxx.make_op_cb_fn %s %s %s", id, string.toprint(op), string.toprint(result))
+        -- log_debug("EtcdClientCxx.make_op_cb_fn %s %s %s", id, string.to_print(op), string.to_print(result))
     end
     return fn
 end

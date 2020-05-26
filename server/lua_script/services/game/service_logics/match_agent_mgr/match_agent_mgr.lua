@@ -19,7 +19,7 @@ end
 function MatchAgentMgr:start()
     MatchAgentMgr.super.start(self)
     self._timer_proxy:firm(Functional.make_closure(self._on_tick, self), 1 * 1000, -1)
-    self._event_proxy:subscribe(Zone_Service_Mgr_Event_Disconnected_Service, Functional.make_closure(self._on_event_service_disconnect, self))
+    self._event_proxy:bind(Zone_Service_Mgr_Event_Disconnected_Service, Functional.make_closure(self._on_event_service_disconnect, self))
 end
 
 function MatchAgentMgr:stop()

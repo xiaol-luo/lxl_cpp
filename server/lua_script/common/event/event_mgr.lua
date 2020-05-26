@@ -1,6 +1,6 @@
 
+---@class EventMgr
 EventMgr = EventMgr or class("EventMgr")
-
 
 function EventMgr:ctor()
     self.seq_id = 0
@@ -13,9 +13,9 @@ function EventMgr:next_seq_id()
     return self.seq_id
 end
 
-function EventMgr:subscribe(ev_name, fn)
+function EventMgr:bind(ev_name, fn)
     assert(ev_name)
-    assert(IsFunction(fn))
+    assert(is_function(fn))
     local node = {}
     node.id = self:next_seq_id()
     node.name = ev_name
@@ -48,8 +48,9 @@ function EventMgr:cancel(id)
     end
 end
 
+---@return EventProxySet
 function EventMgr:create_proxy()
-    local ret = EventProxy:new(self)
+    local ret = EventProxySet:new(self)
     return ret
 end
 

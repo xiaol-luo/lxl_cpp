@@ -1,4 +1,10 @@
 
+---@class HttpMethod
+---@field Get string
+---@field Post string
+---@field Put string
+---@field Delete string
+---@field Head string
 HttpMethod =
 {
     Get = "Get",
@@ -8,9 +14,13 @@ HttpMethod =
     Head = "Head",
 }
 
+---@param host string
+---@param method HttpMethod
+---@param params table<string, string>
+---@return string
 function make_http_query_url(host, method, params)
     local param_strs = {}
-    if IsTable(params) then
+    if is_table(params) then
         for k, v in pairs(params) do
             local str = string.format("%s=%s", k, v)
             table.insert(param_strs, str)
@@ -25,6 +35,7 @@ function make_http_query_url(host, method, params)
     return query_url
 end
 
+---@param rsp_state string
 function is_rsp_ok(rsp_state)
     return "ok" == string.lower(rsp_state)
 end
