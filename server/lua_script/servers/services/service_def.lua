@@ -1,4 +1,4 @@
-
+---@class Service_State
 Service_State = {}
 Service_State.Free = 0
 Service_State.Inited = 1
@@ -9,6 +9,7 @@ Service_State.Stopping = 5
 Service_State.Stopped = 6
 Service_State.Released = 7
 
+---@class Service_Event
 Service_Event = {}
 Service_Event.State_String = "Service_Event.State_String"
 Service_Event.State_Starting = "Service_Event.State_Starting"
@@ -17,3 +18,7 @@ Service_Event.State_To_Update = "Service_Event.State_To_Update"
 Service_Event.State_Stopping = "Service_Event.State_Stopping"
 Service_Event.State_Stopped = "Service_Event.State_Stopped"
 Service_Event.State_Released = "Service_Event.State_Released"
+
+---@class
+Service_Name = {}
+Service_Name.hotfix = "hotfix"

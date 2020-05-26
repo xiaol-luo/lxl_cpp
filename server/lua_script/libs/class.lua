@@ -21,11 +21,11 @@ setmetatable_help_ = function(t, index)
 end
 setmetatable_help = setmetatable_help_
 
-local tRegisterClass = {}
+-- local tRegisterClass = {}
 
 function class(class_name, super, extra_meta)
-    assert(not tRegisterClass[class_name], string.format("class() - has created class \"%s\" ", class_name))
-    tRegisterClass[class_name] = true
+    -- assert(not tRegisterClass[class_name], string.format("class() - has created class \"%s\" ", class_name))
+    -- tRegisterClass[class_name] = true
 
     local super_type = type(super)
     assert("nil" == super_type or "table" == super_type,

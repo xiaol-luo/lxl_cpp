@@ -1,37 +1,45 @@
 
----@class ServiceMgr : EventMgr
-ServiceMgr = ServiceMgr or class("ServiceMgr", EventMgr)
+---@class ServiceMgrBase : EventMgr
+ServiceMgrBase = ServiceMgrBase or class("ServiceMgrBase", EventMgr)
 
-function ServiceMgr:ctor(server)
+function ServiceMgrBase:ctor(server)
+    ServiceMgrBase.super.ctor(self)
     self.server = server
     self.services = {}
+    ---@type Service_State
     self.curr_state = Service_State.Free
     self.error_num = nil
     self.error_msg = ""
 end
 
-function ServiceMgr:create_event_proxy()
+function ServiceMgrBase:create_event_proxy()
     return self.service:create_event_proxy()
 end
 
-function ServiceMgr:add_service(module)
+function ServiceMgrBase:add_service(module)
     local name = module:get_service_name()
     assert(self.curr_state < Service_State.Starting)
     assert(not self.services[name])
     assert(not self.server[name])
     self.services[name] = module
     self.server[name] = module
-    log_debug("ServiceMgr:add_service %s", name)
+    log_debug("ServiceMgrBase:add_service %s", name)
 end
 
-function ServiceMgr:init()
+function ServiceMgrBase:init()
     if Service_State.Free ~= self.curr_state then
-        return
+        return false
     end
     self.curr_state = Service_State.Inited
+    local ret = self:_on_init()
+    return ret
 end
 
-function ServiceMgr:start()
+function ServiceMgrBase:_on_init()
+    assert(false,"should not reach here")
+end
+
+function ServiceMgrBase:start()
     if self.curr_state < Service_State.Starting then
         self.curr_state = Service_State.Starting
         self:fire(Service_Event.State_Starting, self)
@@ -41,7 +49,7 @@ function ServiceMgr:start()
     end
 end
 
-function ServiceMgr:stop()
+function ServiceMgrBase:stop()
     if self.curr_state >= Service_State.Starting and self.curr_state < Service_State.Stopping then
         self.curr_state = Service_State.Stopping
         self:fire(Service_Event.State_Stopping, self)
@@ -51,7 +59,10 @@ function ServiceMgr:stop()
     end
 end
 
-function ServiceMgr:release()
+function ServiceMgrBase:release()
+    if Service_State.Released == self.curr_state then
+        return
+    end
     self.curr_state = Service_State.Released
     for _, svc in pairs(self.services) do
         svc:release()
@@ -59,25 +70,25 @@ function ServiceMgr:release()
     self:fire(Service_Event.State_Released, self)
 end
 
-function ServiceMgr:get_error()
+function ServiceMgrBase:get_error()
     return self.error_num, self.error_msg
 end
 
-function ServiceMgr:get_curr_state()
+function ServiceMgrBase:get_curr_state()
     return self.curr_state
 end
 
-function ServiceMgr:print_module_state()
+function ServiceMgrBase:print_module_state()
     for k, v in pairs(self.services) do
         log_debug("module state: %s is %s", k, v:get_curr_state())
     end
 end
 
-function ServiceMgr:on_frame()
+function ServiceMgrBase:on_frame()
     if not self.error_num then
         if Service_State.Update == self.curr_state then
             for _, m in pairs(self.services) do
-                m:on_update()
+                m:update()
             end
         end
         if Service_State.Started == self.curr_state then
@@ -96,7 +107,7 @@ function ServiceMgr:on_frame()
                     all_started = false
                     self.error_num = e_num
                     self.error_msg = e_msg
-                    log_error("ServiceMgr Start Fail! module %s, error_num %s, error_msg %s", m:get_module_name(), self.error_num, self.error_msg)
+                    log_error("ServiceMgrBase Start Fail! module %s, error_num %s, error_msg %s", m:get_module_name(), self.error_num, self.error_msg)
                     break
                 end
                 if Service_State.Started ~= m_curr_state then

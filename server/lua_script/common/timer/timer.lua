@@ -1,4 +1,6 @@
 
+Forever_Execute_Timer = -1
+
 function timer_firm(fn, execute_span_ms, execute_times)
     execute_span_ms = math.floor(execute_span_ms)
     execute_times = math.floor(execute_times)

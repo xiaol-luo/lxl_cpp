@@ -88,5 +88,10 @@ local files = {
 
     "servers.server_impl.server_def",
     "servers.server_impl.server_base",
+
+    "servers.services.service_def",
+    "servers.services.service_base",
+    "servers.services.service_mgr_base",
+    "servers.services.hotfix_service",
 }
 return files

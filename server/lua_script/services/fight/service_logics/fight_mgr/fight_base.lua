@@ -75,7 +75,7 @@ function FightBase:set_msg_handle_fn_name(pid, fn_name)
 end
 
 function FightBase:wait_release()
-    assert("should not reach here")
+    assert(false,"should not reach here")
 end
 
 function FightBase:release()

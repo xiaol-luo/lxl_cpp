@@ -1,5 +1,7 @@
 
+batch_require(require("servers.entrance.common_server_require_files"))
 batch_require(require("servers.server_impl.world.server_require_files"))
+
 
 ---@class WorldServer : ServerBase
 WorldServer = WorldServer or class("WorldServer", ServerBase)

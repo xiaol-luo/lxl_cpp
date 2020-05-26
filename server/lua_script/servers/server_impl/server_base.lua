@@ -16,6 +16,12 @@ function ServerBase:ctor(server_role, init_setting, init_args)
     self.etcd_service_discovery_setting = nil
     ---@type EventBinder
     self._event_binder = EventBinder:new()
+    ---@type ServiceMgrBase
+    self._service_mgr = ServiceMgr:new(self)
+    ---@type TimerProxy
+    self._timer_proxy = TimerProxy:new()
+    ---@type Server_Quit_State
+    self.quit_state = Server_Quit_State.none
 end
 
 function ServerBase:init()
@@ -24,8 +30,7 @@ function ServerBase:init()
 end
 
 function ServerBase:start()
-    local ret = self:_on_start()
-    return ret
+    self:_on_start()
 end
 
 function ServerBase:stop()
@@ -39,6 +44,10 @@ end
 function ServerBase:check_can_quit_game()
     local ret = self:_check_can_quit_game()
     return ret
+end
+
+function ServerBase:release()
+    self:_on_release()
 end
 
 function ServerBase:_on_init()
@@ -64,21 +73,60 @@ function ServerBase:_on_init()
         return false
     end
 
+    if not self._service_mgr:init() then
+        return false
+    end
+
     return true
 end
 
 function ServerBase:_on_start()
-    return true
+    self._service_mgr:start()
+    self._timer_proxy:firm(Functional.make_closure(self._on_frame, self), Const.service_micro_sec_per_frame, Forever_Execute_Timer)
 end
 
 function ServerBase:_on_stop()
+    self._service_mgr:stop()
+end
 
+function ServerBase:_on_release()
+    self._service_mgr:release()
+    self._timer_proxy:release_all()
+end
+
+function ServerBase:_on_frame()
+    self._service_mgr:on_frame()
+    local error_num, error_msg = self._service_mgr:get_error()
+    if error_num and Server_Quit_State.none == self.quit_state then
+        native.try_quit_game()
+        assert(error_num, error_msg)
+    end
 end
 
 function ServerBase:_on_notify_quit_game()
-
+    if Server_Quit_State.none == self.quit_state then
+        self.quit_state = Server_Quit_State.quiting
+        self:fire(Server_Event.Notify_Quit_Game, self)
+        self:stop()
+    end
 end
 
 function ServerBase:_check_can_quit_game()
-    return true
+    local can_quit = false
+    if Service_State.Stopped == self._service_mgr:get_curr_state() then
+        can_quit = true
+    end
+    if can_quit and Server_Quit_State.quiting == self.quit_state then
+        self.quit_state = Server_Quit_State.quited
+        self:release()
+    else
+        -- self.module_mgr:print_module_state()
+    end
+    return can_quit
 end
+
+function ServerBase:try_quit_game()
+    native.try_quit_game()
+end
+
+

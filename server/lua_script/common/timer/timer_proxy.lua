@@ -1,4 +1,5 @@
 
+---@class TimerProxy
 TimerProxy = TimerProxy or class("TimerProxy")
 
 function TimerProxy:ctor()

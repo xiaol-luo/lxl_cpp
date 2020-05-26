@@ -25,7 +25,12 @@ function start_script(main_args)
     local logic_main_file = string.format("servers.server_impl.%s.server_main", server_name)
     require(logic_main_file)
     SERVER_INS = create_server_main(init_setting, init_args)
-    SERVER_INS:init()
+    if not SERVER_INS:init() then
+        SERVER_INS = nil
+        log_error("SERVER_INS:init fail")
+        native.try_quit_game()
+        return
+    end
     SERVER_INS:start()
 end
 
