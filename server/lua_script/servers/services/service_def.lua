@@ -22,3 +22,4 @@ Service_Event.State_Released = "Service_Event.State_Released"
 ---@class
 Service_Name = {}
 Service_Name.hotfix = "hotfix"
+Service_Name.discovery = "discovery"

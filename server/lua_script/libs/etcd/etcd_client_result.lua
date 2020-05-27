@@ -14,9 +14,7 @@ function EtcdClientResult:is_ok()
     if 0 ~= self.fail_code then
         return false
     end
-    local rsp_state = self[Etcd_Const.Rsp_State]
-    if Etcd_Const.Rsp_State_OK ~= rsp_state and
-            Etcd_Const.Rsp_State_Created ~= rsp_state then
+    if self.op_result and self.op_result.errorCode and 0 ~= self.op_result.errorCode then
         return false
     end
     return true

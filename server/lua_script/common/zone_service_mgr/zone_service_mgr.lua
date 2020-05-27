@@ -21,7 +21,7 @@ function ZoneServiceMgr:ctor(etcd_host, etcd_usr, etcd_pwd, etcd_ttl, zone_name,
     self.etcd_root_dir = string.format("/%s", self.zone_name)
     self.etcd_service_key = path.combine(self.etcd_root_dir, service_name, service_idx)
     self.etcd_ttl = etcd_ttl
-    self.etcd_service_val = ZoneServiceState:new(self.service_id, self.etcd_service_key, self.listen_ip, self.listen_port)
+    self.etcd_service_val = ZoneServerState:new(self.service_id, self.etcd_service_key, self.listen_ip, self.listen_port)
     self.etcd_last_refresh_ttl_ms = 0
     self.etcd_refresh_ttl_span_ms = self.etcd_ttl * 1000 / 4
     self.etcd_last_fetch_service_states_ms = 0

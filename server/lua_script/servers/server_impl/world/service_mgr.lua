@@ -11,5 +11,9 @@ function ServiceMgr:_on_init()
     hotfix_svc:init("hotifx_dir")
     self:add_service(hotfix_svc)
 
+    local discovery = DiscoveryService:new(self, Service_Name.discovery)
+    discovery:init()
+    self:add_service(discovery)
+
     return true
 end

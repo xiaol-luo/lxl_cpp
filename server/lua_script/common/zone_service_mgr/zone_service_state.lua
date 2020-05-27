@@ -1,56 +1,56 @@
 
-ZoneServiceState = ZoneServiceState or class("ZoneServiceState")
-ZoneServiceState.Const = ZoneServiceState.Const or {}
-ZoneServiceState.Const.Id = "id"
-ZoneServiceState.Const.Ip = "ip"
-ZoneServiceState.Const.Service = "service"
-ZoneServiceState.Const.Port = "port"
-ZoneServiceState.Const.Online = "online"
+ZoneServerState = ZoneServerState or class("ZoneServerState")
+ZoneServerState.Const = ZoneServerState.Const or {}
+ZoneServerState.Const.Id = "id"
+ZoneServerState.Const.Ip = "ip"
+ZoneServerState.Const.Service = "service"
+ZoneServerState.Const.Port = "port"
+ZoneServerState.Const.Online = "online"
 
-function ZoneServiceState:ctor(id, service, ip, port)
-    self[ZoneServiceState.Const.Id] = id
-    self[ZoneServiceState.Const.Service]= service
-    self[ZoneServiceState.Const.Ip]= ip
-    self[ZoneServiceState.Const.Port]= port
+function ZoneServerState:ctor(id, service, ip, port)
+    self[ZoneServerState.Const.Id] = id
+    self[ZoneServerState.Const.Service]= service
+    self[ZoneServerState.Const.Ip]= ip
+    self[ZoneServerState.Const.Port]= port
 end
 
-function ZoneServiceState:set_online(val)
-    self[ZoneServiceState.Const.Online] = val and true or nil
+function ZoneServerState:set_online(val)
+    self[ZoneServerState.Const.Online] = val and true or nil
 end
 
-function ZoneServiceState:get_id()
-    return self[ZoneServiceState.Const.Id]
+function ZoneServerState:get_id()
+    return self[ZoneServerState.Const.Id]
 end
 
-function ZoneServiceState:get_ip()
-    return self[ZoneServiceState.Const.Ip]
+function ZoneServerState:get_ip()
+    return self[ZoneServerState.Const.Ip]
 end
 
-function ZoneServiceState:get_service()
-    return self[ZoneServiceState.Const.Service]
+function ZoneServerState:get_service()
+    return self[ZoneServerState.Const.Service]
 end
 
-function ZoneServiceState:get_port()
-    return self[ZoneServiceState.Const.Port]
+function ZoneServerState:get_port()
+    return self[ZoneServerState.Const.Port]
 end
 
-function ZoneServiceState:get_online()
-    return self[ZoneServiceState.Const.Online]
+function ZoneServerState:get_online()
+    return self[ZoneServerState.Const.Online]
 end
 
-function ZoneServiceState:to_json()
+function ZoneServerState:to_json()
     local tb = {}
-    for k, v in pairs(ZoneServiceState.Const) do
+    for k, v in pairs(ZoneServerState.Const) do
         tb[v] = self[v]
     end
     local ret = rapidjson.encode(tb)
     return ret
 end
 
-function ZoneServiceState.from_json(json_str)
-    local ret = ZoneServiceState:new(nil, nil, nil, nil)
+function ZoneServerState.from_json(json_str)
+    local ret = ZoneServerState:new(nil, nil, nil, nil)
     local tb = rapidjson.decode(json_str)
-    for _, v in pairs(ZoneServiceState.Const) do
+    for _, v in pairs(ZoneServerState.Const) do
         ret[v] = tb[v]
     end
     return ret

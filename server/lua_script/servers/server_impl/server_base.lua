@@ -9,7 +9,8 @@ ServerBase = ServerBase or class("ServerBase", EventMgr)
 
 function ServerBase:ctor(server_role, init_setting, init_args)
     ServerBase.super.ctor(self)
-    self.server_role = server_role
+    self.zone = nil
+    self.server_role = string.lower(server_role)
     self.init_setting = init_setting
     self.init_args = init_args
     self.server_name = nil
@@ -55,6 +56,11 @@ function ServerBase:_on_init()
         log_error("ServerBase:_on_init server_role=%s, but init_setting.server_role=%s, mismatch!", self.server_role, self.init_setting.server_role)
         return false
     end
+
+    if not self.init_setting.zone then
+        return false
+    end
+    self.zone = string.lower(self.init_setting.zone)
 
     if not self.init_setting.server_name then
         return false

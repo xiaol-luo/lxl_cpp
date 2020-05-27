@@ -20,7 +20,7 @@ end
 
 local parse_node = function(node)
     local key = node[Etcd_Const.Key]
-    local service_state = ZoneServiceState.from_json(node[Etcd_Const.Value])
+    local service_state = ZoneServerState.from_json(node[Etcd_Const.Value])
     return {key=key, service_state=service_state}
 end
 

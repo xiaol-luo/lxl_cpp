@@ -1,4 +1,6 @@
 
+--- api manual: https://etcd.io/docs/v2/api/
+
 ---@class EtcdClient
 EtcdClient = EtcdClient or class("EtcdClient")
 
@@ -110,6 +112,7 @@ function EtcdClient:cmp_swap(key, prev_index, prev_value, value, cb_fn)
     op[Etcd_Const.Value] = value
     op[Etcd_Const.PrevIndex] = prev_index
     op[Etcd_Const.PrevValue] = prev_value
+    op[Etcd_Const.PrevExist] = prev_index and  "true" or "false"
     op.cb_fn = cb_fn
     return self:execute(op)
 end

@@ -84,6 +84,7 @@ local files = {
     "common.rpc.rpc_client",
     "common.rpc.zone_service.zone_service_rpc_mgr",
 
+    "common.json_data",
     "common.init_global_vars",
 
     "servers.server_impl.server_def",
