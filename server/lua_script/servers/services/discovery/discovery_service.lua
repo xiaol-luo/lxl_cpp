@@ -1,4 +1,6 @@
 
+local Refresh_Ttl_Sec = 10
+
 ---@class DiscoveryService: ServiceBase
 DiscoveryService = DiscoveryService or class("DiscoveryService", ServiceBase)
 
@@ -31,6 +33,7 @@ function DiscoveryService:ctor(service_mgr, service_name)
         is_keeping = false,
         refresh_ttl_last_sec = 0,
         set_value_last_sec = 0,
+        create_index = nil,
     }
 end
 
@@ -93,7 +96,7 @@ function DiscoveryService:_try_apply_cluster_id()
                     }
                 end
             end
-            print("get cluster_id op ret", op_id, ret)
+            -- print("get cluster_id op ret", op_id, ret)
         end)
         return
     end
@@ -103,9 +106,9 @@ function DiscoveryService:_try_apply_cluster_id()
         local prev_value = self._cluster_id_prev_info.prev_value and tonumber(self._cluster_id_prev_info.prev_value) or 0
         local next_value = 1 +  (prev_value and tonumber(prev_value) or 0)
         self._etcd_client:cmp_swap(self._db_path_apply_cluster_id, self._cluster_id_prev_info.prev_idx,
-                prev_value, next_value, function(op_id, op, ret)
+                prev_value, next_value, nil, function(op_id, op, ret)
                     self._is_applying_cluster_id = false
-                    print("set cluster_id op ret",  op_id, self._db_path_apply_cluster_id, ret)
+                    -- print("set cluster_id op ret",  op_id, self._db_path_apply_cluster_id, ret)
                     if ret:is_ok() then
                         self._cluster_id = ret.op_result.node.value
                         self._zone_server_data[ZoneServerJsonDataField.cluster_id] = self._cluster_id
@@ -128,9 +131,10 @@ function DiscoveryService:_watch_servers_data()
         self._etcd_client:get(self._db_path_watch_server_dir, true, function(op_id, op, ret)
             self._servers_infos.is_watching = false
             if ret:is_ok() then
-                self._servers_infos.wait_idx = ret.op_result[Etcd_Const.Head_Index]
+                self._servers_infos.wait_idx = tonumber(ret.op_result[Etcd_Const.Head_Index]) + 1
+                self:_process_servers_pull_ret(ret)
             end
-            print("DiscoveryService:_watch_servers_data pull ", ret)
+            -- print("DiscoveryService:_watch_servers_data pull ", ret)
         end)
         return
     end
@@ -139,14 +143,104 @@ function DiscoveryService:_watch_servers_data()
         self._servers_infos.is_watching = true
         self._etcd_client:watch(self._db_path_watch_server_dir, true, self._servers_infos.wait_idx, function(op_id, op, ret)
             self._servers_infos.is_watching = false
-            print("DiscoveryService:_watch_servers_data watch ", ret)
+            -- print("DiscoveryService:_watch_servers_data watch ", ret)
             if ret:is_ok() then
-                self._servers_infos.wait_idx = ret.op_result[Etcd_Const.Head_Index]
+                self._servers_infos.wait_idx = tonumber(ret.op_result.node.modifiedIndex) + 1
+                self:_process_servers_watch_ret(ret)
             else
                 self._servers_infos.wait_idx = nil
             end
         end)
         return
+    end
+end
+
+function DiscoveryService:_create_server_data(node)
+    local server_data = nil
+    if not node.dir then
+        local data = ZoneServerJsonData:new():from_json(node.value)
+        server_data = {
+            key = node.key,
+            value = node.value,
+            create_index = node.createdIndex,
+            data = data,
+        }
+    end
+    return server_data
+end
+
+function DiscoveryService:_process_servers_pull_ret(etcd_ret)
+    if not etcd_ret:is_ok() or not etcd_ret.op_result.node.dir then
+        return
+    end
+
+    local old_server_datas = self._servers_infos.server_datas
+    local new_server_datas = {}
+    for _, v in pairs(etcd_ret.op_result.node.nodes or {}) do
+        local server_data = self:_create_server_data(v)
+        if server_data then
+            new_server_datas[server_data.key] = server_data
+        end
+    end
+    self._servers_infos.server_datas = new_server_datas
+
+    local this_server_data = new_server_datas[self._db_path_zone_server_data]
+    if not this_server_data or this_server_data.create_index ~= self._keey_in_cluster_infos.create_index then
+        self:_set_join_cluster(false)
+    end
+
+    local add_servers = {}
+    local delete_servers = {}
+    local change_servers = {}
+
+    for new_k, new_v in pairs(new_server_datas) do
+        if not old_server_datas[new_k] then
+            add_servers[new_k] = {old=nil, new=new_v}
+        else
+            local old_v = old_server_datas[new_k]
+            if old_v.value ~= new_v.value then
+                change_servers[new_k] = { old=old_v, new=new_v }
+            end
+        end
+    end
+
+    for old_k, old_v in pairs(old_server_datas) do
+        if not new_server_datas[old_k] then
+            delete_servers[old_k] = { old=old_v, new=nil }
+        end
+    end
+    -- 派发事件
+    -- print("DiscoveryService:_process_servers_watch_ret", self._servers_infos, add_servers, delete_servers, change_servers)
+end
+
+function DiscoveryService:_process_servers_watch_ret(etcd_ret)
+    if not etcd_ret:is_ok() then
+        return
+    end
+    if self._keey_in_cluster_infos.create_index and etcd_ret.op_result.node.createdIndex < self._keey_in_cluster_infos.create_index then
+        return
+    end
+    if not etcd_ret.op_result.action then
+        return
+    end
+    local key = etcd_ret.op_result.node.key
+    local change_ret = nil
+    if "expire" ==  etcd_ret.op_result.action then
+        change_ret = { old=self._servers_infos.server_datas[key], new=nil }
+    end
+    if "create" == etcd_ret.op_result.action then
+        local server_data = self:_create_server_data(etcd_ret.op_result.node)
+        if server_data then
+            local old_data = self._servers_infos.server_datas[key]
+            if not old_data or old_data.value ~= server_data.value then
+                self._servers_infos.server_datas[key] = server_data
+                change_ret = { old=old_data, new=server_data }
+            end
+        end
+    end
+    if change_ret then
+        -- 派发事件
+        -- print("DiscoveryService:_process_servers_watch_ret", change_ret, self._servers_infos)
     end
 end
 
@@ -156,36 +250,48 @@ function DiscoveryService:_keep_in_cluster()
     end
     local now_sec = logic_sec()
     if not self._is_joined_cluster then
-        if now_sec - self._keey_in_cluster_infos.set_value_last_sec > 1 then
+        if now_sec - self._keey_in_cluster_infos.set_value_last_sec >= 1 then
             self._keey_in_cluster_infos.set_value_last_sec = now_sec
             self._keey_in_cluster_infos.is_keeping = true
-            self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_json_data, function(op_id, op, ret)
+            self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_json_data, Refresh_Ttl_Sec, function(op_id, op, ret)
                 self._keey_in_cluster_infos.is_keeping = false
                 if ret:is_ok() then
-                    self._is_joined_cluster = true
+                    self:_set_join_cluster(true)
+                    self._keey_in_cluster_infos.create_index = ret.op_result.node.createdIndex
                     self._keey_in_cluster_infos.refresh_ttl_last_sec = 0
-                    print("DiscoveryService:_keep_in_cluster set", ret)
+                    self._servers_infos.wait_idx = nil -- 使得执行一次全量pull
+                    -- print("DiscoveryService:_keep_in_cluster set", ret)
+                else
+                    self:_set_join_cluster(false)
                 end
             end)
         end
     end
     if self._is_joined_cluster then
-        if now_sec - self._keey_in_cluster_infos.refresh_ttl_last_sec > 3 then
+        if now_sec - self._keey_in_cluster_infos.refresh_ttl_last_sec >= Refresh_Ttl_Sec / 2 then
             self._keey_in_cluster_infos.refresh_ttl_last_sec = now_sec
             self._keey_in_cluster_infos.is_keeping = true
-            self._etcd_client:refresh_ttl(self._db_path_zone_server_data, 6, false, function(op_id, op, ret)
+            self._etcd_client:refresh_ttl(self._db_path_zone_server_data, Refresh_Ttl_Sec, false, function(op_id, op, ret)
                 self._keey_in_cluster_infos.is_keeping = false
+                -- print("DiscoveryService:_keep_in_cluster refresh ttl", ret)
                 if ret:is_ok() then
+                    if ret.op_result.node.createdIndex ~= self._keey_in_cluster_infos.create_index then
+                        self:_set_join_cluster(false)
+                    end
                 else
-                    self._is_joined_cluster = false
+                    self:_set_join_cluster(false)
                 end
-                print("DiscoveryService:_keep_in_cluster refresh ttl", ret)
             end)
         end
     end
 end
 
-function DiscoveryService:_check_is_joined_cluster()
-
+function DiscoveryService:_set_join_cluster(is_joined)
+    self._is_joined_cluster = is_joined
+    if not self._is_joined_cluster then
+        self._keey_in_cluster_infos.create_index = nil
+    end
 end
+
+
 

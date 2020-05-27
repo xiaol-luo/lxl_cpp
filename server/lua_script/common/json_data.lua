@@ -16,18 +16,17 @@ end
 
 function JsonData:to_json()
     local tb = {}
-    for k, v in pairs(self._fields) do
+    for _, v in pairs(self._fields) do
         tb[v] = self[v]
     end
     local ret = rapidjson.encode(tb)
     return ret
 end
 
-function JsonData.from_json(json_str)
-    local ret = JsonData:new(nil, nil, nil, nil)
+function JsonData:from_json(json_str)
     local tb = rapidjson.decode(json_str)
     for _, v in pairs(self._fields) do
-        ret[v] = tb[v]
+        self[v] = tb[v]
     end
-    return ret
+    return self
 end

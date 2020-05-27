@@ -106,10 +106,11 @@ end
 ---@param value string
 ---@param cb_fn EtcdClientOpCB
 ---@return number
-function EtcdClient:cmp_swap(key, prev_index, prev_value, value, cb_fn)
+function EtcdClient:cmp_swap(key, prev_index, prev_value, value, ttl, cb_fn)
     local op = EtcdClientOpSet:new()
     op[Etcd_Const.Key] = key
     op[Etcd_Const.Value] = value
+    op[Etcd_Const.Ttl] = ttl
     op[Etcd_Const.PrevIndex] = prev_index
     op[Etcd_Const.PrevValue] = prev_value
     op[Etcd_Const.PrevExist] = prev_index and  "true" or "false"
