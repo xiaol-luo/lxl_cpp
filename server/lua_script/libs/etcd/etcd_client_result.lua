@@ -11,6 +11,7 @@ end
 
 ---@return boolean
 function EtcdClientResult:is_ok()
+    local fail_msg = self:fail_msg()
     if 0 ~= self.fail_code then
         return false
     end
@@ -18,6 +19,18 @@ function EtcdClientResult:is_ok()
         return false
     end
     return true
+end
+
+function EtcdClientResult:fail_msg()
+    local fail_msg = nil
+    if self.fail_event then
+        fail_msg = self.fail_event
+    else
+        if self.op_result and self.op_result.message then
+            fail_msg = self.op_result.message
+        end
+    end
+    return fail_msg
 end
 
 ---@param json_str string

@@ -107,7 +107,7 @@ function ServiceMgrBase:on_frame()
                     all_started = false
                     self.error_num = e_num
                     self.error_msg = e_msg
-                    log_error("ServiceMgrBase Start Fail! module %s, error_num %s, error_msg %s", m:get_module_name(), self.error_num, self.error_msg)
+                    log_error("ServiceMgrBase Start Fail! service=%s, error_num=%s, error_msg=%s", m:get_service_name(), self.error_num, self.error_msg)
                     break
                 end
                 if Service_State.Started ~= m_curr_state then

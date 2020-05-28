@@ -3,12 +3,10 @@ Functional = Functional or {}
 Functional.error_handler = Functional.error_handler or nil
 
 function Functional.safe_call(fn, ...)
-    assert(fn)
     return xpcall(fn, Functional.error_handler, ...)
 end
 
 function Functional.call(fn, ...)
-    assert(fn)
     return fn(...)
 end
 

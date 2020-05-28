@@ -23,3 +23,4 @@ Service_Event.State_Released = "Service_Event.State_Released"
 Service_Name = {}
 Service_Name.hotfix = "hotfix"
 Service_Name.discovery = "discovery"
+Service_Name.peer_net = "peer_net"

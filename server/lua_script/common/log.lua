@@ -45,3 +45,7 @@ function log_assert(is_ok, fmt_str, ...)
         assert(false)
     end
 end
+
+function log_print(...)
+    print(...)
+end

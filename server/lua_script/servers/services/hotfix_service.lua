@@ -22,8 +22,8 @@ end
 function HotfixService:_on_start()
     HotfixService.super._on_start(self)
     if "directory" ~= lfs.attributes(self.hotfix_dir, "mode") then
-        self.error_num = _ErrorNum.Not_Valid_Dir
-        self.error_msg = string.format("%s is not a valid dir", self.hotfix_dir)
+        self._error_num = _ErrorNum.Not_Valid_Dir
+        self._error_msg = string.format("%s is not a valid dir", self.hotfix_dir)
     else
         self.file_attrs = self:_list_files_attr()
     end

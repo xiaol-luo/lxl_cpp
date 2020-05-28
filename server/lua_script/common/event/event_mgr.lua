@@ -50,7 +50,7 @@ end
 
 ---@return EventProxySet
 function EventMgr:create_proxy()
-    local ret = EventProxySet:new(self)
+    local ret = EventProxy:new(self)
     return ret
 end
 

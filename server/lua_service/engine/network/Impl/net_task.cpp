@@ -67,6 +67,10 @@ namespace Net
 				break;
 			}
 
+			struct timeval timeout;
+			timeout.tv_sec = 10; timeout.tv_usec = 0;
+			setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+
 			struct sockaddr_in listen_addr;
 			listen_addr.sin_family = AF_INET;
 			listen_addr.sin_addr.S_un.S_addr = inet_addr(m_ip.c_str());
@@ -173,6 +177,10 @@ namespace Net
 				sock = -1;
 				break;
 			}
+
+			struct timeval timeout;
+			timeout.tv_sec = 10; timeout.tv_usec = 0;
+			setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
 
 			struct sockaddr_in listen_addr;
 			listen_addr.sin_family = AF_INET;

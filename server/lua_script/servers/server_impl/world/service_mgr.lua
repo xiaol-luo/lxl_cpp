@@ -15,5 +15,9 @@ function ServiceMgr:_on_init()
     discovery:init()
     self:add_service(discovery)
 
+    local peer_net_svc = PeerNetService:new(self, Service_Name.peer_net)
+    peer_net_svc:init("hotifx_dir")
+    self:add_service(peer_net_svc)
+
     return true
 end
