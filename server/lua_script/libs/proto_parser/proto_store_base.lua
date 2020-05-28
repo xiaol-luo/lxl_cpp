@@ -9,10 +9,10 @@ function ProtoStoreBase:load_files(files)
     assert(false, "should not reach here")
 end
 
-function ProtoStoreBase:encode(proto_name, param)
+function ProtoStoreBase:encode(pto_name, param)
     assert(false, "should not reach here")
 end
 
-function ProtoStoreBase:decode(proto_name, param)
+function ProtoStoreBase:decode(pto_name, param)
     assert(false, "should not reach here")
 end

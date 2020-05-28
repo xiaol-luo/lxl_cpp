@@ -287,12 +287,12 @@ function LoginAction:robot_main_logic(co)
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
 
-    local proto_id = ProtoId.req_join_match
-    local is_ok, proto_bytes = PROTO_PARSER:encode(proto_id, {
+    local pto_id = ProtoId.req_join_match
+    local is_ok, proto_bytes = PROTO_PARSER:encode(pto_id, {
         match_type = Match_Type.balance,
     })
     send_msg(cnn, ProtoId.req_client_forward_game, {
-        proto_id = proto_id,
+        pto_id = pto_id,
         proto_bytes = proto_bytes,
     })
     co_ok, pid, msg = ex_coroutine_yield(co)
@@ -306,7 +306,7 @@ function LoginAction:robot_main_logic(co)
         if pid == ProtoId.sync_room_state then
             if msg.state == 3 then
                 send_msg(cnn, ProtoId.req_client_forward_game, {
-                    proto_id = ProtoId.pull_remote_room_state,
+                    pto_id = ProtoId.pull_remote_room_state,
                     proto_bytes = nil,
                 })
                 co_ok, pid, msg = ex_coroutine_yield(co)

@@ -1,12 +1,22 @@
 
+function PeerNetService:send_msg(cnn_unique_id, pid, msg_tb)
+    local is_ok, bin = true, nil
+    if is_table(msg_tb) then
+        is_ok, bin = self._pto_parser:encode(pid, msg_tb)
+    end
+    if is_ok then
+        is_ok = self:send_binary(cnn_unique_id, pid, bin)
+    end
+    return is_ok
+end
+
 function PeerNetService:send_binary(cnn_unique_id, pid, bin)
     local cnn_state = self._unique_id_to_cnn_states[cnn_unique_id]
     if not cnn_state or false == cnn_state.is_ok then
         return false
     end
     if true == cnn_state.is_ok then
-        cnn_state.cnn:send(pid, bin)
-        return true
+        return cnn_state.cnn:send(pid, bin)
     end
     if nil == cnn_state.is_ok then
         table.insert(cnn_state.cached_pid_bins, { pid = pid, bin = bin })
@@ -15,7 +25,19 @@ function PeerNetService:send_binary(cnn_unique_id, pid, bin)
     return false
 end
 
-function PeerNetService:_on_peer_cnn_open(unique_id, cnn_handler, error_num)
+function PeerNetService:_send_msg_help(cnn, pid, msg_tb)
+    local is_ok, bin = true, nil
+    if is_table(msg_tb) then
+        is_ok, bin = self._pto_parser:encode(pid, msg_tb)
+    end
+    if is_ok then
+        is_ok = cnn:send(pid, bin)
+    end
+    -- log_print("PeerNetService:_send_msg_help", is_ok, pid, bin, msg_tb)
+    return is_ok
+end
+
+function PeerNetService:_on_peer_cnn_open(unique_id, cnn, error_num)
     log_print("PeerNetService:_on_peer_cnn_open ", unique_id)
     local cnn_state = self._unique_id_to_cnn_states[unique_id]
     if cnn_state then
@@ -33,16 +55,22 @@ function PeerNetService:_on_peer_cnn_open(unique_id, cnn_handler, error_num)
             end]]
 
             -- 需要在这里完成互认
+            self:_send_msg_help(cnn_state.cnn, Peer_Net_Pid.req_handshake, {
+                to_server_key = cnn_state.server_key,
+                to_cluster_id = cnn_state.server_data.data.cluster_id,
+                from_server_key = self.server.discovery:get_self_server_key(),
+                from_cluster_id = self.server.discovery:get_cluster_id(),
+            })
         end
     end
 end
 
-function PeerNetService:_on_peer_cnn_close(unique_id, cnn_handler, error_num)
+function PeerNetService:_on_peer_cnn_close(unique_id, cnn, error_num)
     log_print("PeerNetService:_on_peer_cnn_close ", unique_id)
     self:_close_cnn(unique_id)
 end
 
-function PeerNetService:_on_peer_cnn_recv_msg(unique_id, cnn_handler, pid, bin)
+function PeerNetService:_on_peer_cnn_recv_msg(unique_id, cnn, pid, bin)
     local cnn_state = self._unique_id_to_cnn_states[unique_id]
     if not cnn_state then
         return
@@ -67,16 +95,17 @@ function PeerNetService:_on_peer_cnn_recv_msg(unique_id, cnn_handler, pid, bin)
 end
 
 
-function PeerNetService:_on_accept_cnn_open(unique_id, cnn_handler, error_num)
+function PeerNetService:_on_accept_cnn_open(unique_id, cnn, error_num)
     log_print("PeerNetService:_on_accept_cnn_open ", unique_id)
 end
 
-function PeerNetService:_on_accept_cnn_close(unique_id, cnn_handler, error_num)
+function PeerNetService:_on_accept_cnn_close(unique_id, cnn, error_num)
     self:_close_cnn(unique_id)
 end
 
-function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn_handler, pid, bin)
-    log_print("PeerNetService:_on_accept_cnn_recv_msg ", unique_id)
+function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
+    local is_ok, msg = self._pto_parser:decode(pid, bin)
+    -- log_print("PeerNetService:_on_accept_cnn_recv_msg ", unique_id, pid, is_ok, msg, bin)
     local cnn_state = self._unique_id_to_cnn_states[unique_id]
     if not cnn_state then
         return

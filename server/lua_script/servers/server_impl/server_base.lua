@@ -5,6 +5,7 @@
 ---@field server_role Server_Role
 ---@field server_name string
 ---@field etcd_service_discovery_setting EtcdSetting
+---@field pto_parser Proto
 ServerBase = ServerBase or class("ServerBase", EventMgr)
 
 function ServerBase:ctor(server_role, init_setting, init_args)
@@ -23,6 +24,7 @@ function ServerBase:ctor(server_role, init_setting, init_args)
     self._timer_proxy = TimerProxy:new()
     ---@type Server_Quit_State
     self.quit_state = Server_Quit_State.none
+    self.pto_parser = ProtoParser:new()
 end
 
 function ServerBase:init()
@@ -52,6 +54,8 @@ function ServerBase:release()
 end
 
 function ServerBase:_on_init()
+    self.pto_parser:add_search_dirs({ path.combine(self.init_args[Const.main_args_data_dir], "proto")  })
+
     if self.server_role ~= string.lower(self.init_setting.server_role) then
         log_error("ServerBase:_on_init server_role=%s, but init_setting.server_role=%s, mismatch!", self.server_role, self.init_setting.server_role)
         return false

@@ -29,3 +29,7 @@ Server_Event.Inited = "Server_Event.Inited"
 Server_Event.Start = "Server_Event.Start"
 Server_Event.Stop = "Server_Event.Stop"
 Server_Event.Notify_Quit_Game = "Server_Event.Notify_Quit_Game"
+
+Server_Const = {}
+Server_Const.data_dir = "data_dir"
+

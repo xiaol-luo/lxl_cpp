@@ -31,13 +31,13 @@ function ProtobufStore:load_files(files)
     return ret
 end
 
-function ProtobufStore:encode(proto_name, param)
-    local is_ok, ret = safe_call(self.pb.encode, proto_name, param or {})
+function ProtobufStore:encode(pto_name, param)
+    local is_ok, ret = safe_call(self.pb.encode, pto_name, param or {})
     return is_ok, ret
 end
 
-function ProtobufStore:decode(proto_name, blob)
+function ProtobufStore:decode(pto_name, blob)
     blob = blob or ""
-    local is_ok, ret = safe_call(self.pb.decode, proto_name, blob)
+    local is_ok, ret = safe_call(self.pb.decode, pto_name, blob)
     return is_ok, ret
 end

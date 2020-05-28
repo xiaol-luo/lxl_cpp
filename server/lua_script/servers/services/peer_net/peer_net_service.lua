@@ -13,6 +13,8 @@ function PeerNetService:ctor(service_mgr, service_name)
         is_joined = false,
         server_states = {}
     }
+
+    self._pto_parser = self.server.pto_parser
 end
 
 function PeerNetService:_on_init()
@@ -20,6 +22,9 @@ function PeerNetService:_on_init()
             Functional.make_closure(self._on_event_cluster_join_state_change, self))
     self._event_binder:bind(self.server, Discovery_Service_Event.cluster_server_change,
             Functional.make_closure(self._on_event_cluster_server_change, self))
+
+    self._pto_parser:load_files(Peer_Net_Pto.pto_files)
+    self._pto_parser:setup_id_to_protos(Peer_Net_Pto.id_to_pto)
 end
 
 function PeerNetService:_on_start()
@@ -43,7 +48,7 @@ end
 function PeerNetService:_on_update()
     PeerNetService.super._on_update(self)
     local now_sec = logic_sec()
-    if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 5 then
+    if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 2 then
         self._connect_server_last_sec = now_sec
         self:_connect_server(self.server.discovery:get_self_server_key())
     end

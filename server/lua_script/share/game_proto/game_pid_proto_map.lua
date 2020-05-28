@@ -3,193 +3,193 @@ local pid_proto_map =
 {
 --[[
     {
-        [Proto_Const.Proto_Id]=System_Pid.Zone_Service_Rpc_Req,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RpcRequest"
+        [Proto_Const.pto_id]=System_Pid.Zone_Service_Rpc_Req,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RpcRequest"
     },
 --]]
 
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_login_game,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqLoginGame"
+        [Proto_Const.pto_id]=ProtoId.req_login_game,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqLoginGame"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_login_game,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspLoginGame"
+        [Proto_Const.pto_id]=ProtoId.rsp_login_game,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspLoginGame"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_user_login,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqUserLogin"
+        [Proto_Const.pto_id]=ProtoId.req_user_login,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqUserLogin"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_user_login,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspUserLogin"
+        [Proto_Const.pto_id]=ProtoId.rsp_user_login,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspUserLogin"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_pull_role_digest,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqPullRoleDigest"
+        [Proto_Const.pto_id]=ProtoId.req_pull_role_digest,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqPullRoleDigest"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_pull_role_digest,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspPullRoleDigest"
+        [Proto_Const.pto_id]=ProtoId.rsp_pull_role_digest,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspPullRoleDigest"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_create_role,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqCreateRole"
+        [Proto_Const.pto_id]=ProtoId.req_create_role,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqCreateRole"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_create_role,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspCreateRole"
+        [Proto_Const.pto_id]=ProtoId.rsp_create_role,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspCreateRole"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_launch_role,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqLaunchRole"
+        [Proto_Const.pto_id]=ProtoId.req_launch_role,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqLaunchRole"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_launch_role,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspLaunchRole"
+        [Proto_Const.pto_id]=ProtoId.rsp_launch_role,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspLaunchRole"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_logout_role,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqLogoutRole"
+        [Proto_Const.pto_id]=ProtoId.req_logout_role,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqLogoutRole"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_logout_role,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspLogoutRole"
+        [Proto_Const.pto_id]=ProtoId.rsp_logout_role,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspLogoutRole"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_reconnect,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqReconnect"
+        [Proto_Const.pto_id]=ProtoId.req_reconnect,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqReconnect"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_reconnect,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspReconnect"
+        [Proto_Const.pto_id]=ProtoId.rsp_reconnect,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspReconnect"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_client_forward_game,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqForwardMsg"
+        [Proto_Const.pto_id]=ProtoId.req_client_forward_game,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqForwardMsg"
 
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_join_match,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqJoinMatch"
+        [Proto_Const.pto_id]=ProtoId.req_join_match,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqJoinMatch"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_join_match,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspJoinMatch"
+        [Proto_Const.pto_id]=ProtoId.rsp_join_match,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspJoinMatch"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.sync_match_state,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="SyncMatchState"
+        [Proto_Const.pto_id]=ProtoId.sync_match_state,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="SyncMatchState"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_quit_match,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqQuitMatch"
+        [Proto_Const.pto_id]=ProtoId.req_quit_match,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqQuitMatch"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_quit_match,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspQuitMatch"
+        [Proto_Const.pto_id]=ProtoId.rsp_quit_match,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspQuitMatch"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.sync_room_state,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="SyncRoomState"
+        [Proto_Const.pto_id]=ProtoId.sync_room_state,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="SyncRoomState"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.notify_bind_room,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="NotifyBindRoom"
+        [Proto_Const.pto_id]=ProtoId.notify_bind_room,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="NotifyBindRoom"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.notify_unbind_room,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="NotifyUnbindRoom"
+        [Proto_Const.pto_id]=ProtoId.notify_unbind_room,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="NotifyUnbindRoom"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.notify_terminate_room,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="NotifyTerminateRoom"
+        [Proto_Const.pto_id]=ProtoId.notify_terminate_room,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="NotifyTerminateRoom"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.sync_remote_room_state,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="SyncRemoteRoomState"
+        [Proto_Const.pto_id]=ProtoId.sync_remote_room_state,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="SyncRemoteRoomState"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.pull_role_data,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="PullRoleData"
+        [Proto_Const.pto_id]=ProtoId.pull_role_data,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="PullRoleData"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.sync_role_data,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="SyncRoleData"
+        [Proto_Const.pto_id]=ProtoId.sync_role_data,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="SyncRoleData"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_bind_fight,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqBindFight"
+        [Proto_Const.pto_id]=ProtoId.req_bind_fight,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqBindFight"
     },
 
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_bind_fight,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspBindFight"
+        [Proto_Const.pto_id]=ProtoId.rsp_bind_fight,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspBindFight"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_quit_fight,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqQuitFight"
+        [Proto_Const.pto_id]=ProtoId.req_quit_fight,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqQuitFight"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_quit_fight,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspQuitFight"
+        [Proto_Const.pto_id]=ProtoId.rsp_quit_fight,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspQuitFight"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.pull_fight_state,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="PullFightState"
+        [Proto_Const.pto_id]=ProtoId.pull_fight_state,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="PullFightState"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.sync_fight_state,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="SyncFightState"
+        [Proto_Const.pto_id]=ProtoId.sync_fight_state,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="SyncFightState"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.req_fight_opera,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="ReqFightOpera"
+        [Proto_Const.pto_id]=ProtoId.req_fight_opera,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="ReqFightOpera"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.rsp_fight_opera,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="RspFightOpera"
+        [Proto_Const.pto_id]=ProtoId.rsp_fight_opera,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="RspFightOpera"
     },
     {
-        [Proto_Const.Proto_Id]=ProtoId.sync_roll_point_result,
-        [Proto_Const.Proto_Type]=Proto_Const.Pb,
-        [Proto_Const.Proto_Name]="SyncRollPointResult"
+        [Proto_Const.pto_id]=ProtoId.sync_roll_point_result,
+        [Proto_Const.pto_type]=Proto_Const.Pb,
+        [Proto_Const.pto_name]="SyncRollPointResult"
     },
 }
 
