@@ -14,6 +14,25 @@ function ProtoParser:add_search_dirs(search_dirs)
     end
 end
 
+ function ProtoParser:load_files(proto_type, files)
+     local store = self.stores[proto_type]
+     if store then
+         for _, v in pairs(files) do
+             if not store:load_files(v) then
+                 log_error("ProtoParser:load_files fail, file=%s", v)
+             end
+         end
+     end
+ end
+
+ function ProtoParser:set_id_to_proto(id, store_name, proto_name)
+     assert(store_name and id and proto_name)
+     local store = self.stores[store_name]
+     assert(store)
+     assert(not self.id2proto_detail[proto_id])
+     self.id2proto_detail[proto_id] = { [Proto_Const.Id] = id, [Proto_Const.Store] = store, [Proto_Const.Name] = proto_name }
+ end
+
 local set_proto_detail = function(proto_parser, id, store_name, proto_name)
     assert(id)
     assert(proto_name)
@@ -94,6 +113,7 @@ function ProtoParser:decode_by_name(proto_type, proto_name, block)
     return store:decode(proto_name, block)
 end
 
+ ---
 function ProtoParser:pb_encode(proto_name, tb)
     return self:encode_by_name(Proto_Const.Pb, proto_name, tb)
 end
