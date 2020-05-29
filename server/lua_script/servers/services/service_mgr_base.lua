@@ -16,13 +16,10 @@ function ServiceMgrBase:create_event_proxy()
     return self.service:create_event_proxy()
 end
 
-function ServiceMgrBase:add_service(module)
-    local name = module:get_service_name()
+function ServiceMgrBase:add_service(service)
+    local name = service:get_service_name()
     assert(self.curr_state < Service_State.Starting)
-    assert(not self.services[name])
-    assert(not self.server[name])
-    self.services[name] = module
-    self.server[name] = module
+    self.server:_set_as_field(name, service)
     log_debug("ServiceMgrBase:add_service %s", name)
 end
 
@@ -91,9 +88,9 @@ function ServiceMgrBase:get_curr_state()
     return self.curr_state
 end
 
-function ServiceMgrBase:print_module_state()
+function ServiceMgrBase:print_service_state()
     for k, v in pairs(self.services) do
-        log_debug("module state: %s is %s", k, v:get_curr_state())
+        log_debug("service state: %s is %s", k, v:get_curr_state())
     end
 end
 

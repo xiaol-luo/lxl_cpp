@@ -137,8 +137,16 @@ function ServerBase:_check_can_quit_game()
     return can_quit
 end
 
+function ServerBase:_set_as_field(field_name, obj)
+    if obj then
+        assert(not self[field_name])
+        self[field_name] = obj
+    end
+end
+
 function ServerBase:try_quit_game()
     native.try_quit_game()
 end
+
 
 
