@@ -8,7 +8,7 @@ function string_format(fmt_str, ...)
         if "table" ~= type(arg) then
             table.insert(str_list, tostring(arg))
         else
-            local Show_Max_Level = 5
+            local Show_Max_Level = 3
             table.insert(str_list, string.to_print(arg, Show_Max_Level))
         end
     end

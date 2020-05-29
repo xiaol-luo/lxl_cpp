@@ -10,7 +10,7 @@
 ---@field advertise_peer_ip
 ---@field advertise_peer_port
 ZoneServerJsonDataField = {}
-ZoneServerJsonDataField.cluster_id = "cluster_id"
+ZoneServerJsonDataField.cluster_server_id = "cluster_server_id"
 ZoneServerJsonDataField.db_path = "db_path"
 ZoneServerJsonDataField.zone = "zone"
 ZoneServerJsonDataField.server_role = "server_role"

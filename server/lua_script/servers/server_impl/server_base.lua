@@ -6,6 +6,8 @@
 ---@field server_name string
 ---@field etcd_service_discovery_setting EtcdSetting
 ---@field pto_parser Proto
+---@field discovery DiscoveryService
+---@field peer_net PeerNetService
 ServerBase = ServerBase or class("ServerBase", EventMgr)
 
 function ServerBase:ctor(server_role, init_setting, init_args)

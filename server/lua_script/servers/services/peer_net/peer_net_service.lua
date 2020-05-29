@@ -48,7 +48,7 @@ end
 function PeerNetService:_on_update()
     PeerNetService.super._on_update(self)
     local now_sec = logic_sec()
-    if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 2 then
+    if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 10 then
         self._connect_server_last_sec = now_sec
         self:_connect_server(self.server.discovery:get_self_server_key())
     end
@@ -65,7 +65,8 @@ function PeerNetService:_on_event_cluster_server_change(action, old_server_data,
         server_state = {
             server_key = server_key,
             server_data = nil,
-            cnn_unique_id = nil
+            cnn_unique_id = nil,
+            loop_cnn_unique_id = nil, -- 容忍处理自己连自己
         }
         self._cluster_state.server_states[server_key] = server_state
     end
@@ -83,6 +84,9 @@ function PeerNetService:_on_event_cluster_server_change(action, old_server_data,
         self:_close_cnn(server_state.cnn_unique_id)
         server_state.cnn_unique_id = nil
     end
+    if server_state.loop_cnn_unique_id then
+        self._close_cnn(server_state.loop_cnn_unique_id)
+    end
 end
 
 function PeerNetService:_make_accept_cnn(listen_handler)
@@ -98,7 +102,7 @@ function PeerNetService:_make_accept_cnn(listen_handler)
         cnn_type = Peer_Net_Const.accept_cnn_type,
         server_key = nil,
         server_data = nil,
-        is_ok = false, -- nil:悬而未决，true:可用, false:不可用
+        is_ok = nil, -- nil:悬而未决，true:可用, false:不可用
         recv_msg_counts = 0,
         error_num = nil,
         cnn_async_id = nil,
@@ -125,10 +129,12 @@ function PeerNetService:_connect_server(server_key)
             cnn_type = Peer_Net_Const.peer_cnn_type,
             server_key = server_state.server_key,
             server_data = server_data,
-            is_ok = false,
+            is_ok = nil, -- nil:悬而未决，true:可用, false:不可用
+            recv_msg_counts = 0,
             error_num = nil,
             error_msg = nil,
             cnn_async_id = cnn_async_id,
+            cached_pid_bins = {}
         }
         server_state.cnn_unique_id = unique_id
     end
@@ -170,6 +176,10 @@ function PeerNetService:_disconnect_server(server_key)
     if server_state and server_state.cnn_unique_id  then
         self:_close_cnn(server_state.cnn_unique_id)
         server_state.cnn_unique_id = nil
+    end
+    if server_state and server_state.loop_cnn_unique_id  then
+        self:_close_cnn(server_state.loop_cnn_unique_id)
+        server_state.loop_cnn_unique_id = nil
     end
 end
 

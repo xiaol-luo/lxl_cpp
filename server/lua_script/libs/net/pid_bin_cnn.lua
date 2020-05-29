@@ -27,7 +27,9 @@ function PidBinCnn:set_recv_cb(cb)
 end
 
 function PidBinCnn:on_recv(pid, bin)
-    Functional.safe_call(self.recv_cb, self, pid, bin)
+    if is_function(self.recv_cb) then
+        Functional.safe_call(self.recv_cb, self, pid, bin)
+    end
 end
 
 ---@param pid number

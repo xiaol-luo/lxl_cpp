@@ -31,6 +31,19 @@ function ServiceMgrBase:init()
         return false
     end
     self.curr_state = Service_State.Inited
+
+    local hotfix_svc = HotfixService:new(self, Service_Name.hotfix)
+    hotfix_svc:init("hotifx_dir")
+    self:add_service(hotfix_svc)
+
+    local discovery = DiscoveryService:new(self, Service_Name.discovery)
+    discovery:init()
+    self:add_service(discovery)
+
+    local peer_net_svc = PeerNetService:new(self, Service_Name.peer_net)
+    peer_net_svc:init()
+    self:add_service(peer_net_svc)
+
     local ret = self:_on_init()
     return ret
 end

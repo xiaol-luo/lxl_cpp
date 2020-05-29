@@ -9,10 +9,10 @@ function DiscoveryService:ctor(service_mgr, service_name)
     self._is_joined_cluster = false
 
     self._db_path_apply_cluster_id = nil
-    self._cluster_id = nil
+    self._cluster_server_id = nil
 
     self._db_path_zone_server_data = nil
-    self._zone_server_json_data = nil
+    self._zone_server_data_json_str = nil
     self._zone_server_data = ZoneServerJsonData:new()
 
     ---@type EtcdClient
@@ -66,13 +66,13 @@ end
 
 function DiscoveryService:_on_update()
     DiscoveryService.super._on_update(self)
-    self:_try_apply_cluster_id()
+    self:_try_apply_cluster_server_id()
     self:_watch_servers_data()
     self:_keep_in_cluster()
 end
 
-function DiscoveryService:_try_apply_cluster_id()
-    if self._cluster_id then
+function DiscoveryService:_try_apply_cluster_server_id()
+    if self._cluster_server_id then
         return
     end
     local now_sec = logic_sec()
@@ -113,9 +113,9 @@ function DiscoveryService:_try_apply_cluster_id()
                     self._is_applying_cluster_id = false
                     -- log_print("set cluster_id op ret",  op_id, self._db_path_apply_cluster_id, ret)
                     if ret:is_ok() then
-                        self._cluster_id = ret.op_result.node.value
-                        self._zone_server_data[ZoneServerJsonDataField.cluster_id] = self._cluster_id
-                        self._zone_server_json_data = self._zone_server_data:to_json()
+                        self._cluster_server_id = ret.op_result.node.value
+                        self._zone_server_data[ZoneServerJsonDataField.cluster_server_id] = self._cluster_server_id
+                        self._zone_server_data_json_str = self._zone_server_data:to_json()
                     else
                         self._cluster_id_prev_info = nil
                     end
@@ -279,7 +279,7 @@ function DiscoveryService:_fire_server_data_change(change_ret)
 end
 
 function DiscoveryService:_keep_in_cluster()
-    if self._keey_in_cluster_infos.is_keeping or not self._cluster_id then
+    if self._keey_in_cluster_infos.is_keeping or not self._cluster_server_id then
         return
     end
     local now_sec = logic_sec()
@@ -287,7 +287,7 @@ function DiscoveryService:_keep_in_cluster()
         if now_sec - self._keey_in_cluster_infos.set_value_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 4.0 then
             self._keey_in_cluster_infos.set_value_last_sec = now_sec
             self._keey_in_cluster_infos.is_keeping = true
-            self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_json_data, Discovery_Service_Const.refresh_ttl_sec, function(op_id, op, ret)
+            self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_data_json_str, Discovery_Service_Const.refresh_ttl_sec, function(op_id, op, ret)
                 self._keey_in_cluster_infos.is_keeping = false
                 if ret:is_ok() then
                     self:_set_join_cluster(true)
@@ -340,12 +340,20 @@ function DiscoveryService:get_server_datas()
     return self._servers_infos.server_datas
 end
 
-function DiscoveryService:get_cluster_id()
-    return self._cluster_id
+function DiscoveryService:get_cluster_server_id()
+    return self._cluster_server_id
 end
 
 function DiscoveryService:get_self_server_key()
     return self._db_path_zone_server_data
+end
+
+function DiscoveryService:get_self_server_data()
+    return self._zone_server_data
+end
+
+function DiscoveryService:get_self_server_data_str()
+    return self._zone_server_data_json_str
 end
 
 

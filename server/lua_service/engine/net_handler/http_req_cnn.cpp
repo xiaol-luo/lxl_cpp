@@ -40,7 +40,7 @@ void HttpReqCnn::OnClose(int num)
 	}
 	if (0 != error_num)
 	{
-		log_error("HttpReqCnn::OnClose {}", error_num);
+		log_error("HttpReqCnn::OnClose {}, host={}:{}", error_num, m_host, m_port);
 	}
 	auto ap_cnn_map = m_cnn_map.lock();
 	if (ap_cnn_map)
