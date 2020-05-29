@@ -1,16 +1,43 @@
 
-function PeerNetService:send_msg(cnn_unique_id, pid, msg_tb)
+-- function PeerNetService:send_msg_with_server_key(server_key, pid, msg_tb)
+function PeerNetService:send_msg(server_key, pid, msg_tb)
     local is_ok, bin = true, nil
     if is_table(msg_tb) then
         is_ok, bin = self._pto_parser:encode(pid, msg_tb)
     end
     if is_ok then
-        is_ok = self:send_binary(cnn_unique_id, pid, bin)
+       is_ok = self:send_binary(server_key, pid, bin)
     end
     return is_ok
 end
 
-function PeerNetService:send_binary(cnn_unique_id, pid, bin)
+-- function PeerNetService:send_binary_with_server_key(server_key, pid, bin)
+function PeerNetService:send_binary(server_key, pid, bin)
+    local server_state = self._cluster_state.server_states[server_key]
+    if not server_state or not server_state.server_data then
+        return false
+    end
+    if not server_state.cnn_unique_id then
+        local ret = self:_connect_server(server_state.server_key)
+        if not ret then
+            return false
+        end
+    end
+    return self:send_binary_with_id(server_state.cnn_unique_id, pid, bin)
+end
+
+function PeerNetService:send_msg_with_id(cnn_unique_id, pid, msg_tb)
+    local is_ok, bin = true, nil
+    if is_table(msg_tb) then
+        is_ok, bin = self._pto_parser:encode(pid, msg_tb)
+    end
+    if is_ok then
+        is_ok = self:send_binary_with_id(cnn_unique_id, pid, bin)
+    end
+    return is_ok
+end
+
+function PeerNetService:send_binary_with_id(cnn_unique_id, pid, bin)
     local cnn_state = self._unique_id_to_cnn_states[cnn_unique_id]
     if not cnn_state or false == cnn_state.is_ok then
         return false
@@ -33,7 +60,6 @@ function PeerNetService:_send_msg_help(cnn, pid, msg_tb)
     if is_ok then
         is_ok = cnn:send(pid, bin)
     end
-    -- log_print("PeerNetService:_send_msg_help", is_ok, pid, bin, msg_tb)
     return is_ok
 end
 
@@ -49,7 +75,6 @@ function PeerNetService:_on_peer_cnn_open(unique_id, cnn, error_num)
         else
             -- cnn_state.is_ok = true
             -- 需要在这里完成互认
-            -- -- log_print("PeerNetService:_on_peer_cnn_open xxxxxx 1", cnn_state.server_key, self._cluster_state.server_states)
             local server_state = self._cluster_state.server_states[cnn_state.server_key]
             if server_state and unique_id == server_state.cnn_unique_id then
                 server_state.cnn_unique_id = unique_id
@@ -80,11 +105,11 @@ function PeerNetService:_on_peer_cnn_recv_msg(unique_id, cnn, pid, bin)
     end
 
     cnn_state.recv_msg_counts = cnn_state.recv_msg_counts + 1
-
     local is_ok, msg = self._pto_parser:decode(pid, bin)
 
     if true == cnn_state.is_ok then
-        -- log_print("PeerNetService:_on_peer_cnn_recv_msg reach cnn_state.is_ok=true ")
+        self:_on_cnn_recv_msg(pid, msg, unique_id, cnn_state.server_key, cnn_state.server_id)
+        return
     end
     if false == cnn_state.is_ok then
         -- 应该不会来到这里
@@ -105,7 +130,6 @@ function PeerNetService:_on_peer_cnn_recv_msg(unique_id, cnn, pid, bin)
         if not is_handshake_succ then
             self:_close_cnn(unique_id)
         else
-            table.insert(cnn_state.cached_pid_bins, { pid = pid, bin = bin }) -- for test
             for _, v in ipairs(cnn_state.cached_pid_bins) do
                 cnn_state.cnn:send(v.pid, v.bin)
             end
@@ -126,20 +150,18 @@ end
 function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
     local cnn_state = self._unique_id_to_cnn_states[unique_id]
     if not cnn_state or false == cnn_state.is_ok then
-        return false
+        return
     end
 
     cnn_state.recv_msg_counts = cnn_state.recv_msg_counts + 1
-
     local is_ok, msg = self._pto_parser:decode(pid, bin)
-    -- log_print("PeerNetService:_on_accept_cnn_recv_msg 1111111111111111 ", unique_id, pid, is_ok, msg, bin)
 
     if true == cnn_state.is_ok then
-        -- return cnn_state.cnn:send(pid, bin)
-        -- log_print("PeerNetService:_on_accept_cnn_recv_msg reach cnn_state.is_ok=true ")
+        self:_on_cnn_recv_msg(pid, msg, unique_id, cnn_state.server_key, cnn_state.server_id)
+        return
     end
+
     if nil == cnn_state.is_ok then
-        -- log_print("1")
         local is_handshake_succ = false
         if is_ok and self._cluster_state.is_joined then
             if Peer_Net_Pid.req_handshake == pid then
@@ -148,8 +170,7 @@ function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
                     if from_server_state and from_server_state.server_data and  from_server_state.server_data.data.cluster_server_id == msg.from_cluster_server_id then
                         -- 到此为止，集群上服务器信息已经对上了，下边要处理两种情况，且要考虑是否已经有连接已经存在得情况
                         -- 1.如果是自己连自己，那么在loop_cnn_unique_id未被占用（之前未有连接存在）就认为互认成功,否则直接放弃
-                        -- 2.如果非自己连自己，那么在cnn_unique_id未被占用（之前未有连接存在）就认为互认成功，如果已经被占用，用新的取代之前得
-                        -- log_print("2")
+                        -- 2.如果非自己连自己，那么在cnn_unique_id未被占用（之前未有连接存在）就认为互认成功，如果已经被占用，保留小的cluster_server_id对应的连接(以后要观察这种策略会不会造成问题)
                         if msg.to_cluster_server_id == msg.from_cluster_server_id then
                             if not from_server_state.loop_cnn_unique_id then
                                 from_server_state.loop_cnn_unique_id = unique_id
@@ -157,11 +178,21 @@ function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
                             end
                         else
                             if from_server_state.cnn_unique_id then
-                                self:_close_cnn(from_server_state.cnn_unique_id)
+                                local self_cluster_server_id = tonumber(self.server:get_cluster_server_key())
+                                local from_cluster_server_id = tonumber(msg.from_cluster_server_id)
+                                if from_cluster_server_id < self_cluster_server_id then -- 保留小的cluster_server_id对应的连接
+                                    self:_close_cnn(from_server_state.cnn_unique_id)
+                                    from_server_state.cnn_unique_id = unique_id
+                                    is_handshake_succ = true
+                                end
+                            else
+                                from_server_state.cnn_unique_id = unique_id
+                                is_handshake_succ = true
                             end
-                            from_server_state.cnn_unique_id = unique_id
-                            is_handshake_succ = true
                         end
+                        cnn_state.server_key = from_server_state.server_key
+                        cnn_state.server_id  = from_server_state.server_data.data.cluster_server_id
+                        cnn_state.server_data = from_server_state.server_data
                     end
                 end
             end
@@ -171,18 +202,28 @@ function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
             error_num = is_handshake_succ and 0 or -1,
             error_msg = "",
         })
-        -- log_print("PeerNetService:_on_accept_cnn_recv_msg hankshake ret", is_handshake_succ)
         if not is_handshake_succ then
             self:_close_cnn(unique_id)
         else
-            table.insert(cnn_state.cached_pid_bins, { pid = pid, bin = bin }) -- for test
             for _, v in ipairs(cnn_state.cached_pid_bins) do
                 cnn_state.cnn:send(v.pid, v.bin)
             end
             cnn_state.cached_pid_bins = {}
         end
-        return true
+        return
     end
-    return false
+end
+
+function PeerNetService:_on_cnn_recv_msg(pid, msg, unique_id, from_server_key, from_server_id)
+    local handle_fn = self._pto_handle_fns[pid]
+    if not handle_fn then
+        log_warn("PeerNetService:_on_cnn_recv_msg not handle function for pid=%s, msg from server_key=%s", pid, from_server_key)
+        return false
+    end
+    local ret, error_msg = Functional.safe_call(handle_fn, pid, msg, unique_id, from_server_key, from_server_id)
+    if not ret then
+        log_error("PeerNetService:_on_cnn_recv_msg call handle fn fail! reason is %s", error_msg)
+    end
+    return ret
 end
 

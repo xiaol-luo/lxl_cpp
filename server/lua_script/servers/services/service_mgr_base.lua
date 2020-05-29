@@ -20,6 +20,8 @@ function ServiceMgrBase:add_service(service)
     local name = service:get_service_name()
     assert(self.curr_state < Service_State.Starting)
     self.server:_set_as_field(name, service)
+    assert(not self.services[name])
+    self.services[name] = service
     log_debug("ServiceMgrBase:add_service %s", name)
 end
 

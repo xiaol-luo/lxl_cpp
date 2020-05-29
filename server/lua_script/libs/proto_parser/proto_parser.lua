@@ -1,5 +1,6 @@
 
- ProtoParser = ProtoParser or class("ProtoParser")
+---@class ProtoParser
+ProtoParser = ProtoParser or class("ProtoParser")
 
 function ProtoParser:ctor()
     self.stores = {}

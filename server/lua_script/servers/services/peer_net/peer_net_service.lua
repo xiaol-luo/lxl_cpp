@@ -14,7 +14,10 @@ function PeerNetService:ctor(service_mgr, service_name)
         server_states = {}
     }
 
+    ---@type ProtoParser
     self._pto_parser = self.server.pto_parser
+    ---@type table<number, Fn_Peer_Net_Pto_Handle>
+    self._pto_handle_fns = {}
 end
 
 function PeerNetService:_on_init()
@@ -48,9 +51,9 @@ end
 function PeerNetService:_on_update()
     PeerNetService.super._on_update(self)
     local now_sec = logic_sec()
-    if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 10 then
+    if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 1 then
         self._connect_server_last_sec = now_sec
-        self:_connect_server(self.server.discovery:get_self_server_key())
+        self:send_msg(self.server.discovery:get_self_server_key(), 33, nil)
     end
 end
 
@@ -101,6 +104,7 @@ function PeerNetService:_make_accept_cnn(listen_handler)
         cnn = cnn,
         cnn_type = Peer_Net_Const.accept_cnn_type,
         server_key = nil,
+        server_id = nil,
         server_data = nil,
         is_ok = nil, -- nil:悬而未决，true:可用, false:不可用
         recv_msg_counts = 0,
@@ -128,6 +132,7 @@ function PeerNetService:_connect_server(server_key)
             cnn = cnn,
             cnn_type = Peer_Net_Const.peer_cnn_type,
             server_key = server_state.server_key,
+            server_id = server_data.data.cluster_server_id,
             server_data = server_data,
             is_ok = nil, -- nil:悬而未决，true:可用, false:不可用
             recv_msg_counts = 0,
@@ -183,3 +188,10 @@ function PeerNetService:_disconnect_server(server_key)
     end
 end
 
+---@field pid number
+---@field fn Fn_Peer_Net_Pto_Handle
+function PeerNetService:set_pto_handle_fn(pid, fn)
+    assert(is_number(pid) and is_function(fn))
+    assert(not self._pto_handle_fns[pid])
+    self._pto_handle_fns[pid] = fn
+end
