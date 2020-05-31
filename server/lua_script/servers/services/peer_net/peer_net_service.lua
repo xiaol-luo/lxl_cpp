@@ -53,7 +53,7 @@ function PeerNetService:_on_update()
     local now_sec = logic_sec()
     if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 1 then
         self._connect_server_last_sec = now_sec
-        self:send_msg(self.server.discovery:get_self_server_key(), 33, nil)
+        -- self:send_msg(self.server.discovery:get_self_server_key(), 33, nil)
     end
 end
 
@@ -88,7 +88,7 @@ function PeerNetService:_on_event_cluster_server_change(action, old_server_data,
         server_state.cnn_unique_id = nil
     end
     if server_state.loop_cnn_unique_id then
-        self._close_cnn(server_state.loop_cnn_unique_id)
+        self:_close_cnn(server_state.loop_cnn_unique_id)
     end
 end
 
@@ -191,7 +191,10 @@ end
 ---@field pid number
 ---@field fn Fn_Peer_Net_Pto_Handle
 function PeerNetService:set_pto_handle_fn(pid, fn)
-    assert(is_number(pid) and is_function(fn))
-    assert(not self._pto_handle_fns[pid])
+    assert(is_number(pid))
+    if fn then
+        assert(is_function(fn))
+        assert(not self._pto_handle_fns[pid])
+    end
     self._pto_handle_fns[pid] = fn
 end

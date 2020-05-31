@@ -43,6 +43,10 @@ function ServiceMgrBase:init()
     peer_net_svc:init()
     self:add_service(peer_net_svc)
 
+    local rpc_svc = RpcService:new(self, Service_Name.rpc)
+    rpc_svc:init()
+    self:add_service(rpc_svc)
+
     local ret = self:_on_init()
     return ret
 end

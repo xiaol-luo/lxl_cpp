@@ -1,13 +1,11 @@
 
-Peer_Net_Pto_Files = {
-
-}
-
 Peer_Net_Pid = {}
 Peer_Net_Pto = {}
+
 Peer_Net_Pto.pto_files = {
     { [Proto_Const.pto_path]="peer_net.pb", [Proto_Const.pto_type]=Proto_Const.Pb },
 }
+
 Peer_Net_Pto.id_to_pto = {}
 local pto_tb = Peer_Net_Pto.id_to_pto
 

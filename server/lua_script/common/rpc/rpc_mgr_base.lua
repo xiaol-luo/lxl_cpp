@@ -1,4 +1,9 @@
 
+
+---@alias Fn_RpcRemoteCallHandleFn fun(rpc_rsp:RpcRsp, ...):void
+---@alias Fn_RpcRemoteCallCallback fun(rpc_error_num:number, ...):void
+
+---@class RpcMgrBase
 RpcMgrBase = RpcMgrBase or class("RpcMgrBase")
 
 function RpcMgrBase:ctor()
@@ -6,8 +11,10 @@ function RpcMgrBase:ctor()
     self.last_check_expired_ms = 0
     self.Check_Expired_Span_ms = 15 * 1000
     self.rsp_list = {}
-    self.req_msg_process_fn = {}
+    ---@type table<string, Fn_RpcRemoteCallHandleFn>
+    self.remote_call_handle_fn = {}
     self.delay_execute_fns = {}
+    self._next_unique_id = make_sequence(0)
 end
 
 function RpcMgrBase:init()
@@ -18,7 +25,7 @@ function RpcMgrBase:destory()
     self.req_list = {}
 end
 
-function RpcMgrBase:on_msg(from_host, pid, block, ...)
+function RpcMgrBase:on_msg(from_host, pid, msg, ...)
     assert(false, "should not reach here")
 end
 
@@ -42,22 +49,26 @@ function RpcMgrBase:unpack_params(param_block)
     -- return ...
 end
 
-function RpcMgrBase:set_req_msg_process_fn(fn_name, fn)
+---@param fn_name string
+---@param fn Fn_RpcRemoteCallHandleFn
+function RpcMgrBase:set_remote_call_handle_fn(fn_name, fn)
     if not fn then
-        self.req_msg_process_fn[fn_name] = nil
+        self.remote_call_handle_fn[fn_name] = nil
         return
     end
-    assert(not self.req_msg_process_fn[fn_name])
-    self.req_msg_process_fn[fn_name] = fn
+    assert(not self.remote_call_handle_fn[fn_name])
+    self.remote_call_handle_fn[fn_name] = fn
 end
 
-function RpcMgrBase:set_req_msg_coroutine_process_fn(fn_name, fn)
+---@param fn_name string
+---@param fn Fn_RpcRemoteCallHandleFn
+function RpcMgrBase:set_remote_call_coro_handle_fn(fn_name, fn)
     if not fn then
-        self.req_msg_process_fn[fn_name] = nil
+        self.remote_call_handle_fn[fn_name] = nil
         return
     end
 
-    assert(not self.req_msg_process_fn[fn_name])
+    assert(not self.remote_call_handle_fn[fn_name])
 
     local real_fn = function(rsp, ...)
         local co = ex_coroutine_create(function (rsp, ...)
@@ -70,14 +81,15 @@ function RpcMgrBase:set_req_msg_coroutine_process_fn(fn_name, fn)
         rsp.co = co
         ex_coroutine_start(co, rsp, ...)
     end
-    self.req_msg_process_fn[fn_name] = real_fn
+    self.remote_call_handle_fn[fn_name] = real_fn
 end
 
+---@param cb_fn Fn_RpcRemoteCallCallback
 function RpcMgrBase:call(cb_fn, remote_host, remote_fn, ...)
     assert(nil == cb_fn or is_function(cb_fn))
     assert(remote_host)
     assert(remote_fn)
-    local req_id = NextRpcUniqueId()
+    local req_id = self._next_unique_id()
     local err = self:net_call(req_id, remote_host, remote_fn, ...)
     if Rpc_Error.None ~= err then
         if cb_fn then -- 模拟异步
@@ -120,7 +132,6 @@ function RpcMgrBase:respone(rsp_id, remote_host, req_id, action, ...)
 end
 
 function RpcMgrBase:handle_rsp_msg(from_host, pid, msg)
-    -- log_debug("RpcMgrBase:handle_rsp_msg %s %s %s", from_host, pid, msg)
     -- msg contains req_id, action, action_params
     local req = self.req_list[msg.req_id]
     if not req then
@@ -144,18 +155,17 @@ function RpcMgrBase:handle_rsp_msg(from_host, pid, msg)
 end
 
 function RpcMgrBase:handle_req_msg(from_host, pid, msg)
-    -- log_debug("RpcMgrBase:handle_req_msg %s %s %s", from_host, pid, msg)
     -- msg contains id, fn_name, fn_params
-    local rsp_id = NextRpcUniqueId()
-    local rpc_rsp = RpcRsp:new(rsp_id, from_host, msg.id, self)
+    local rsp_id = self._next_unique_id()
+    local rpc_rsp = RpcRsp:new(rsp_id, from_host, msg.req_id, self)
     self.rsp_list[rpc_rsp.id] = rpc_rsp
-    if not msg.id or not msg.fn_name then
-        self:respone(rsp_id, from_host, msg.id, Rpc_Const.Action_Report_Error, "request miss req_id or fn_name")
+    if not msg.req_id or not msg.fn_name then
+        self:respone(rsp_id, from_host, msg.req_id, Rpc_Const.Action_Report_Error, "request miss req_id or fn_name")
         return
     end
-    local fn = self.req_msg_process_fn[msg.fn_name]
+    local fn = self.remote_call_handle_fn[msg.fn_name]
     if not fn then
-        self:respone(rsp_id, from_host, msg.id, Rpc_Const.Action_Report_Error, string.format("not found process function %s", msg.fn_name))
+        self:respone(rsp_id, from_host, msg.req_id, Rpc_Const.Action_Report_Error, string.format("not found process function %s", msg.fn_name))
         return
     end
     fn(rpc_rsp, self:unpack_params(msg.fn_params))

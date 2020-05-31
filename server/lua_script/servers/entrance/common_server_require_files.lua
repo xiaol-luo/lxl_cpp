@@ -8,4 +8,9 @@ return {
     "servers.services.peer_net.peer_net_pto",
     "servers.services.peer_net.peer_net_service",
     "servers.services.peer_net.peer_net_service_cnn_logic",
+
+    "servers.services.rpc_service.rpc_service_def",
+    "servers.services.rpc_service.rpc_pto",
+    "servers.services.rpc_service.rpc_service_rpc_mgr",
+    "servers.services.rpc_service.rpc_service",
 }

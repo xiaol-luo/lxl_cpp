@@ -1,4 +1,5 @@
 
+---@class RpcReq
 RpcReq = RpcReq or class("RpcReq")
 
 function RpcReq:ctor()

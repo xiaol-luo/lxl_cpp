@@ -1,5 +1,5 @@
 
-
+---@class RpcRsp
 RpcRsp = RpcRsp or class("RpcRsp")
 
 function RpcRsp:ctor(id, from_host, from_id, rpc_mgr)

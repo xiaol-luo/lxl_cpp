@@ -1,4 +1,5 @@
 
+---@class RpcClient
 RpcClient = RpcClient or class("RpcClient")
 
 local mt = getmetatable(RpcClient)
@@ -30,11 +31,13 @@ function RpcClient:setup_coroutine_fns(fn_names)
     end
 end
 
+---@param cb_fn Fn_RpcRemoteCallCallback
 function RpcClient:call(cb_fn, remote_fn, ...)
     -- log_debug("RpcClient:call %s %s %s", cb_fn, remote_fn, {...})
     self.rpc_mgr:call(cb_fn, self.remote_host, remote_fn, ...)
 end
 
+---@param cb_fn Fn_RpcRemoteCallCallback
 function RpcClient:coro_call(remote_fn, ...)
     local co = ex_coroutine_running()
     assert(co, "should be called in a running coroutine")
