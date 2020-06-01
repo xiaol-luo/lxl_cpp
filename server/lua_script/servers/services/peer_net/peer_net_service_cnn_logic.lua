@@ -13,8 +13,8 @@ end
 
 -- function PeerNetService:send_binary_with_server_key(server_key, pid, bin)
 function PeerNetService:send_binary(server_key, pid, bin)
-    local server_state = self._cluster_state.server_states[server_key]
-    if not server_state or not server_state.server_data then
+    local server_state = self._culster_server_states[server_key]
+    if not server_state or not server_state:is_joined_cluster() then
         return false
     end
     if not server_state.cnn_unique_id then
@@ -75,14 +75,13 @@ function PeerNetService:_on_peer_cnn_open(unique_id, cnn, error_num)
         else
             -- cnn_state.is_ok = true
             -- 需要在这里完成互认
-            local server_state = self._cluster_state.server_states[cnn_state.server_key]
+            local server_state = self._culster_server_states[cnn_state.server_key]
             if server_state and unique_id == server_state.cnn_unique_id then
-                server_state.cnn_unique_id = unique_id
                 self:_send_msg_help(cnn_state.cnn, Peer_Net_Pid.req_handshake, {
                     to_server_key = cnn_state.server_key,
                     to_cluster_server_id = cnn_state.server_data.data.cluster_server_id,
-                    from_server_key = self.server.discovery:get_self_server_key(),
-                    from_cluster_server_id = self.server.discovery:get_cluster_server_id(),
+                    from_server_key = self.server:get_cluster_server_key(),
+                    from_cluster_server_id = self.server:get_cluster_server_id(),
                 })
             else
                 cnn_state.is_ok = false
@@ -118,9 +117,9 @@ function PeerNetService:_on_peer_cnn_recv_msg(unique_id, cnn, pid, bin)
     if nil == cnn_state.is_ok then
         -- 第一条协议也必须是互认协议，先完成互认，才能处理后续的协议
         local is_handshake_succ = false
-        if is_ok and self._cluster_state.is_joined then
+        if is_ok and self._is_joined_cluster then
             if Peer_Net_Pid.rsp_handshake == pid and 0 == msg.error_num then
-                local server_state = self._cluster_state.server_states[cnn_state.server_key]
+                local server_state = self._culster_server_states[cnn_state.server_key]
                 if server_state and server_state.cnn_unique_id == unique_id then
                     is_handshake_succ = true
                 end
@@ -163,11 +162,11 @@ function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
 
     if nil == cnn_state.is_ok then
         local is_handshake_succ = false
-        if is_ok and self._cluster_state.is_joined then
+        if is_ok and self._is_joined_cluster then
             if Peer_Net_Pid.req_handshake == pid then
                 if self.server:get_cluster_server_key() == msg.to_server_key and self.server:get_cluster_server_id() == msg.to_cluster_server_id then
-                    local from_server_state = self._cluster_state.server_states[msg.from_server_key]
-                    if from_server_state and from_server_state.server_data and  from_server_state.server_data.data.cluster_server_id == msg.from_cluster_server_id then
+                    local from_server_state = self._culster_server_states[msg.from_server_key]
+                    if from_server_state  and  from_server_state:get_cluster_server_id() == msg.from_cluster_server_id then
                         -- 到此为止，集群上服务器信息已经对上了，下边要处理两种情况，且要考虑是否已经有连接已经存在得情况
                         -- 1.如果是自己连自己，那么在loop_cnn_unique_id未被占用（之前未有连接存在）就认为互认成功,否则直接放弃
                         -- 2.如果非自己连自己，那么在cnn_unique_id未被占用（之前未有连接存在）就认为互认成功，如果已经被占用，保留小的cluster_server_id对应的连接(以后要观察这种策略会不会造成问题)

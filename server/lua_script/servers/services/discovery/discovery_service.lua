@@ -163,13 +163,12 @@ function DiscoveryService:_create_server_data(node)
     local server_data = nil
     if not node.dir then
         local data = ZoneServerJsonData:new():from_json(node.value)
-        server_data = {
-            key = node.key,
-            value = node.value,
-            create_index = node.createdIndex,
-            modified_index = node.modifiedIndex,
-            data = data,
-        }
+        server_data = DiscoveryServerData:new()
+        server_data.key = node.key
+        server_data.value = node.value
+        server_data.create_index = node.createdIndex
+        server_data.modified_index = node.modifiedIndex
+        server_data.data = data
     end
     return server_data
 end

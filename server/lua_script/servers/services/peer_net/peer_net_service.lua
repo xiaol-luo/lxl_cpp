@@ -4,15 +4,15 @@ PeerNetService = PeerNetService or class("PeerNetService", ServiceBase)
 
 function PeerNetService:ctor(service_mgr, service_name)
     PeerNetService.super.ctor(self, service_mgr, service_name)
+    ---@type NetListen
     self._listen_handler = nil
     self._next_unique_id = make_sequence(0)
+    self._is_joined_cluster = false
 
+    ---@type table<number, PeerNetCnnState>
     self._unique_id_to_cnn_states = {}
-
-    self._cluster_state = {
-        is_joined = false,
-        server_states = {}
-    }
+    ---@type table<string, PeerNetServerState>
+    self._culster_server_states = {}
 
     ---@type ProtoParser
     self._pto_parser = self.server.pto_parser
@@ -58,20 +58,16 @@ function PeerNetService:_on_update()
 end
 
 function PeerNetService:_on_event_cluster_join_state_change(is_joined)
-    self._cluster_state.is_joined = is_joined
+    self._is_joined_cluster = is_joined
 end
 
 function PeerNetService:_on_event_cluster_server_change(action, old_server_data, new_server_data)
     local server_key = old_server_data and old_server_data.key or new_server_data.key
-    local server_state = self._cluster_state.server_states[server_key]
+    local server_state = self._culster_server_states[server_key]
     if not server_state then
-        server_state = {
-            server_key = server_key,
-            server_data = nil,
-            cnn_unique_id = nil,
-            loop_cnn_unique_id = nil, -- 容忍处理自己连自己
-        }
-        self._cluster_state.server_states[server_key] = server_state
+        server_state = PeerNetServerState:new()
+        server_state.server_key = server_key
+        self._culster_server_states[server_key] = server_state
     end
 
     if Discovery_Service_Const.cluster_server_join == action then
@@ -99,48 +95,38 @@ function PeerNetService:_make_accept_cnn(listen_handler)
     cnn:set_close_cb(Functional.make_closure(PeerNetService._on_accept_cnn_close, self, unique_id))
     cnn:set_recv_cb(Functional.make_closure(PeerNetService._on_accept_cnn_recv_msg, self, unique_id))
 
-    self._unique_id_to_cnn_states[unique_id] = {
-        unique_id = unique_id,
-        cnn = cnn,
-        cnn_type = Peer_Net_Const.accept_cnn_type,
-        server_key = nil,
-        server_id = nil,
-        server_data = nil,
-        is_ok = nil, -- nil:悬而未决，true:可用, false:不可用
-        recv_msg_counts = 0,
-        error_num = nil,
-        cnn_async_id = nil,
-        cached_pid_bins = {} -- 缓存的数据
-    }
+    local cnn_state = PeerNetCnnState:new()
+    cnn_state.unique_id = unique_id
+    cnn_state.cnn = cnn
+    cnn_state.cnn_type = Peer_Net_Const.accept_cnn_type
+    self._unique_id_to_cnn_states[unique_id] = cnn_state
+
     return cnn
 end
 
 function PeerNetService:_connect_server(server_key)
-    if not self._cluster_state.is_joined then
+    if not self._is_joined_cluster then
         return nil
     end
-    local server_state = self._cluster_state.server_states[server_key]
-    if not server_state or not server_state.server_data then
+    local server_state = self._culster_server_states[server_key]
+    if not server_state or not server_state:is_joined_cluster() then
         return nil
     end
-    if not server_state.cnn_unique_id then
+    if server_state:is_none_network() then
         local server_data = server_state.server_data
         local cnn, unique_id = self:_make_peer_cnn()
         local cnn_async_id = Net.connect_async(server_data.data.advertise_peer_ip, server_data.data.advertise_peer_port, cnn)
-        self._unique_id_to_cnn_states[unique_id] = {
-            unique_id = unique_id,
-            cnn = cnn,
-            cnn_type = Peer_Net_Const.peer_cnn_type,
-            server_key = server_state.server_key,
-            server_id = server_data.data.cluster_server_id,
-            server_data = server_data,
-            is_ok = nil, -- nil:悬而未决，true:可用, false:不可用
-            recv_msg_counts = 0,
-            error_num = nil,
-            error_msg = nil,
-            cnn_async_id = cnn_async_id,
-            cached_pid_bins = {}
-        }
+
+        local cnn_state = PeerNetCnnState:new()
+        cnn_state.unique_id = unique_id
+        cnn_state.cnn = cnn
+        cnn_state.cnn_type = Peer_Net_Const.peer_cnn_type
+        cnn_state.server_key = server_state.server_key
+        cnn_state.server_id = server_data.data.cluster_server_id
+        cnn_state.server_data = server_data
+        cnn_state.cnn_async_id = cnn_async_id
+        self._unique_id_to_cnn_states[unique_id] = cnn_state
+
         server_state.cnn_unique_id = unique_id
     end
 
@@ -163,21 +149,25 @@ function PeerNetService:_close_cnn(unique_id)
         if cnn_state.cnn then
             cnn_state.cnn:reset()
         end
-        if cnn_state.server_key then
-            local server_state = self._cluster_state.server_states[cnn_state.server_key]
-            if server_state then
-                server_state.cnn_unique_id = nil
-            end
-        end
         if cnn_state.cnn_async_id then
             Net.cancel_async(cnn_state.cnn_async_id)
         end
-        -- todo:应该还有协议缓存队列
+        if cnn_state.server_key then
+            local server_state = self._culster_server_states[cnn_state.server_key]
+            if server_state then
+                if server_state.cnn_unique_id  and server_state.cnn_unique_id == unique_id then
+                    server_state.cnn_unique_id = nil
+                end
+                if server_state.loop_cnn_unique_id  and server_state.loop_cnn_unique_id == unique_id then
+                    server_state.loop_cnn_unique_id = nil
+                end
+            end
+        end
     end
 end
 
 function PeerNetService:_disconnect_server(server_key)
-    local server_state = self._cluster_state.server_states[server_key]
+    local server_state = self._culster_server_states[server_key]
     if server_state and server_state.cnn_unique_id  then
         self:_close_cnn(server_state.cnn_unique_id)
         server_state.cnn_unique_id = nil
