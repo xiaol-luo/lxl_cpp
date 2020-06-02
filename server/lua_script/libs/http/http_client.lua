@@ -26,6 +26,10 @@ end
 ---@alias Fn_HttpClientRspCb fun(ret:HttpClientRspResult):void
 ---@alias Fn_HttpClientEventCb fun(ret:HttpClientEventResult):void
 
+function HttpClient.cancel(op_id)
+    native.http_cancel(op_id)
+end
+
 ---@param url string
 ---@param rsp_fn Fn_HttpClientRspCb
 ---@param event_fn Fn_HttpClientEventCb

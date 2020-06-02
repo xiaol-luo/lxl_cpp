@@ -54,6 +54,12 @@ local files = {
     "libs.etcd.etcd_client_result",
     "libs.etcd.etcd_client_cxx",
 
+    "libs.etcd_watch.etcd_watch_def",
+    "libs.etcd_watch.etcd_watch_result",
+    "libs.etcd_watch.etcd_watch_result_visitor",
+    "libs.etcd_watch.etcd_watcher",
+
+
     "libs.proto_parser.proto_def",
     "libs.proto_parser.proto_store_base",
     "libs.proto_parser.protobuf_store",

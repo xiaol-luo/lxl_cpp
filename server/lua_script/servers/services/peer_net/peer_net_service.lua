@@ -21,6 +21,7 @@ function PeerNetService:ctor(service_mgr, service_name)
 end
 
 function PeerNetService:_on_init()
+    PeerNetService.super._on_init(self)
     self._event_binder:bind(self.server, Discovery_Service_Event.cluster_join_state_change,
             Functional.make_closure(self._on_event_cluster_join_state_change, self))
     self._event_binder:bind(self.server, Discovery_Service_Event.cluster_server_change,

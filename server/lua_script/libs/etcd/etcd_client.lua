@@ -139,3 +139,7 @@ end
 function EtcdClient:execute(op)
     return op:execute(self)
 end
+
+function EtcdClient:cancel(op_id)
+    HttpClient.cancel(op_id)
+end

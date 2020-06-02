@@ -34,6 +34,7 @@ Etcd_Const.Rsp_State_Unauthorized = "Unauthorized"
 Etcd_Const.Set = "set"
 Etcd_Const.Delete = "delete"
 Etcd_Const.Expire = "expire"
+Etcd_Const.Create = "create"
 Etcd_Const.Authorization = "Authorization"
 
 ---@class Etcd_Event

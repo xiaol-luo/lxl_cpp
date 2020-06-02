@@ -12,6 +12,7 @@ function RpcService:ctor(service_mgr, service_name)
 end
 
 function RpcService:_on_init()
+    RpcService.super._on_init(self)
     self._pto_parser:load_files(Rpc_Pto.pto_files)
     self._pto_parser:setup_id_to_protos(Rpc_Pto.id_to_pto)
     self._rpc_mgr:init()

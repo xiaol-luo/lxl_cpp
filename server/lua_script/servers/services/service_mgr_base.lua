@@ -47,6 +47,10 @@ function ServiceMgrBase:init()
     rpc_svc:init()
     self:add_service(rpc_svc)
 
+    local zone_setting_svc = ZoneSettingService:new(self, Service_Name.zone_setting)
+    zone_setting_svc:init()
+    self:add_service(zone_setting_svc)
+
     local ret = self:_on_init()
     return ret
 end
