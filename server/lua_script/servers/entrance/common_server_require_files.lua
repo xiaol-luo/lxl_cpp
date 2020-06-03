@@ -26,9 +26,8 @@ return {
     "libs.etcd_watch.etcd_watcher",
 
     "libs.etcd_result.etcd_result_def",
-    "libs.etcd_result.etcd_result_base",
+    "libs.etcd_result.etcd_result",
     "libs.etcd_result.etcd_result_node",
     "libs.etcd_result.etcd_result_dir",
-    "libs.etcd_result.etcd_result_watch",
 
 }

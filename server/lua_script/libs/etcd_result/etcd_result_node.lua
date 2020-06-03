@@ -1,16 +1,30 @@
 
----@class EtcdResultNode: EtcdResultBase
-EtcdResultNode = EtcdResultNode or class("EtcdResultNode", EtcdResultBase)
+---@class EtcdResultNode
+EtcdResultNode = EtcdResultNode or class("EtcdResultNode")
 
 function EtcdResultNode:ctor()
-    EtcdResultNode.super.ctor(self, Etcd_Result_Type.node)
+    self.create_index = nil
+    self.modify_index = nil
+    self.key = nil
+    self.value = nil
+    self.is_dir = nil
 end
 
 function EtcdResultNode:reset()
-    EtcdResultNode.super.reset(self)
+    self.create_index = nil
+    self.modify_index = nil
 end
 
-function EtcdResultNode:parse_from(op_result)
-    EtcdResultNode.super.parse_from(self, op_result)
-
+function EtcdResultNode:parse_from(node_data)
+    self.key = node_data[Etcd_Const.Key]
+    self.create_index = node_data[Etcd_Const.CreatedIndex]
+    self.modify_index = node_data[Etcd_Const.ModifiedIndex]
+    self.is_dir = node_data[Etcd_Const.Dir]
+    self.value = node_data[Etcd_Const.Value]
+    return true
 end
+
+function EtcdResultNode:is_dir_node()
+    return false
+end
+

@@ -42,11 +42,11 @@ function ZoneSettingService:_on_update()
     if not self._last_set_sec or now_sec - self._last_set_sec > 10 then
         self._last_set_sec = now_sec
         if math.random() > 0.5 then
-            self._etcd_client:set(string.format("%s/r_%s", self._watch_path, math.random(1, 10)),
+            self._etcd_client:set(string.format("%s/file_%s", self._watch_path, math.random(1, 2)),
                     math.random(), math.random(10, 20))
         else
-            self._etcd_client:set(string.format("%s/s_%s/t_%s", self._watch_path, math.random(1, 10),
-                    math.random(20, 30)), math.random(), math.random(10, 20))
+            self._etcd_client:set(string.format("%s/dir_%s/file_%s", self._watch_path, math.random(1, 2),
+                    math.random(1, 2)), math.random(), math.random(10, 20))
         end
     end
 

@@ -99,7 +99,7 @@ function EtcdWatcher:_process_watch_result(seq, op_id, op, ret)
     end
 
     -- for test
-    if math.random() > 0.5 then
+    if math.random() > 0 then
         self._wait_idx = nil
     end
 end
