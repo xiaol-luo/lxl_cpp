@@ -39,7 +39,7 @@ function ZoneSettingService:_on_update()
     ZoneSettingService.super._on_update(self)
 
     local now_sec = logic_sec()
-    if not self._last_set_sec or now_sec - self._last_set_sec > 5 then
+    if not self._last_set_sec or now_sec - self._last_set_sec > 10 then
         self._last_set_sec = now_sec
         if math.random() > 0.5 then
             self._etcd_client:set(string.format("%s/r_%s", self._watch_path, math.random(1, 10)),

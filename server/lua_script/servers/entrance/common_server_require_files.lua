@@ -17,12 +17,18 @@ return {
     "servers.services.rpc_service.rpc_service_rpc_mgr",
     "servers.services.rpc_service.rpc_service",
 
+    "servers.services.zone_setting.zone_setting_def",
+    "servers.services.zone_setting.zone_setting_service",
+
     "libs.etcd_watch.etcd_watch_def",
     "libs.etcd_watch.etcd_watch_result",
     "libs.etcd_watch.etcd_watch_result_visitor",
     "libs.etcd_watch.etcd_watcher",
 
-    "servers.services.zone_setting.zone_setting_def",
-    "servers.services.zone_setting.zone_setting_service",
+    "libs.etcd_result.etcd_result_def",
+    "libs.etcd_result.etcd_result_base",
+    "libs.etcd_result.etcd_result_node",
+    "libs.etcd_result.etcd_result_dir",
+    "libs.etcd_result.etcd_result_watch",
 
 }

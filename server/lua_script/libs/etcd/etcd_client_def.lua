@@ -31,11 +31,15 @@ Etcd_Const.Rsp_State_OK = "OK"
 Etcd_Const.Rsp_State_Created = "Created"
 Etcd_Const.Rsp_State_Not_Found = "Not Found"
 Etcd_Const.Rsp_State_Unauthorized = "Unauthorized"
+Etcd_Const.Authorization = "Authorization"
+
+Etcd_Const.Get = "get"
 Etcd_Const.Set = "set"
 Etcd_Const.Delete = "delete"
 Etcd_Const.Expire = "expire"
 Etcd_Const.Create = "create"
-Etcd_Const.Authorization = "Authorization"
+Etcd_Const.Update = "update"
+
 
 ---@class Etcd_Event
 ---@field HttpConnect number

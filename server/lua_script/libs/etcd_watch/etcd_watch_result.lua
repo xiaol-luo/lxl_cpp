@@ -13,11 +13,11 @@ end
 
 ---@param full_data EtcdClientResult
 function EtcdWatchResult:reset(full_data)
-
+    log_print("EtcdWatchResult:reset ", full_data)
 end
 
 ---@param change_data EtcdClientResult
 function EtcdWatchResult:apply_change(change_data)
-
+    log_print("EtcdWatchResult:apply_change ", change_data)
 end
 

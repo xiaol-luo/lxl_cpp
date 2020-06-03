@@ -65,7 +65,6 @@ end
 
 ---@param ret EtcdClientResult
 function EtcdWatcher:_process_pull_result(seq, op_id, op, ret)
-    log_print("EtcdWatcher:_process_pull_result 1", ret:is_ok())
     if seq < self._last_seq then
         return
     end
@@ -73,19 +72,17 @@ function EtcdWatcher:_process_pull_result(seq, op_id, op, ret)
 
     if ret:is_ok() then
         self._wait_idx = tonumber(ret.op_result[Etcd_Const.Head_Index]) + 1
-        self.watch_result:reset(ret)
+        self.watch_result:reset(ret.op_result)
         if next(self.watch_result.result_diff) then
             self:fire(Etcd_Watch_Event.watch_content_change, self)
         end
     else
         self._wait_idx = nil
     end
-    log_print("EtcdWatcher:_process_pull_result 2", ret.op_result, self._wait_idx)
 end
 
 ---@param ret EtcdClientResult
 function EtcdWatcher:_process_watch_result(seq, op_id, op, ret)
-    log_print("EtcdWatcher:_process_watch_result 1")
     if seq < self._last_seq then
         return
     end
@@ -93,7 +90,7 @@ function EtcdWatcher:_process_watch_result(seq, op_id, op, ret)
 
     if ret:is_ok() then
         self._wait_idx = tonumber(ret.op_result.node.modifiedIndex) + 1
-        self.watch_result:apply_change(ret)
+        self.watch_result:apply_change(ret.op_result)
         if next(self.watch_result.result_diff) then
             self:fire(Etcd_Watch_Event.watch_content_change, self)
         end
@@ -102,10 +99,9 @@ function EtcdWatcher:_process_watch_result(seq, op_id, op, ret)
     end
 
     -- for test
-    --if math.random() > 0.5 then
-    --    self._wait_idx = nil
-    --end
-    log_print("EtcdWatcher:_process_watch_result 2", self._wait_idx, ret.op_result)
+    if math.random() > 0.5 then
+        self._wait_idx = nil
+    end
 end
 
 
