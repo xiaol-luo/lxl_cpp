@@ -13,7 +13,6 @@ function EtcdResult:parse_from(op_result)
     if not op_result then
         return false
     end
-    log_print("EtcdResult:parse_from 1")
     self.action = op_result[Etcd_Const.Action]
     local etcd_idx = op_result[Etcd_Const.Head_Index]
     if etcd_idx then
@@ -23,7 +22,6 @@ function EtcdResult:parse_from(op_result)
     if error_code then
         self.error_code = tonumber(error_code)
     end
-    log_print("EtcdResult:parse_from 2")
     local force_as_node = (Etcd_Const.Get ~= self.action)
     self.node = parse_etcd_result_node(op_result.node, force_as_node)
     return nil ~= self.node

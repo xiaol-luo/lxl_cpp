@@ -19,7 +19,7 @@ function EtcdResultNode:parse_from(node_data)
     self.key = node_data[Etcd_Const.Key]
     self.create_index = node_data[Etcd_Const.CreatedIndex]
     self.modify_index = node_data[Etcd_Const.ModifiedIndex]
-    self.is_dir = node_data[Etcd_Const.Dir]
+    self.is_dir = node_data[Etcd_Const.Dir] or false
     self.value = node_data[Etcd_Const.Value]
     return true
 end
@@ -27,4 +27,5 @@ end
 function EtcdResultNode:is_dir_node()
     return false
 end
+
 

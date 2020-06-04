@@ -63,6 +63,7 @@ local files = {
     "libs.etcd_result.etcd_result",
     "libs.etcd_result.etcd_result_node",
     "libs.etcd_result.etcd_result_dir",
+    "libs.etcd_result.etcd_result_node_visitor",
 
     "libs.proto_parser.proto_def",
     "libs.proto_parser.proto_store_base",

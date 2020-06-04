@@ -20,6 +20,12 @@ function EtcdWatchResult:reset(full_data)
     log_print("full_data", full_data)
     log_print("---------------------------------------------")
     log_print("EtcdWatchResult:reset ", ret)
+
+    for k, v in pairs(EtcdResultNodeVisitor:new(ret.node)) do
+        log_print("EtcdWatchResult:reset iter", tostring(k), "==", v)
+        log_print("====================================================")
+    end
+
     log_print("!!!!!!!!!!!!!!!!!!!reset!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 end
@@ -28,10 +34,10 @@ end
 function EtcdWatchResult:apply_change(change_data)
     local ret = EtcdResult.parse(change_data)
 
-    log_print("+++++++++++++++++apply_change+++++++++++++++++++++++++++")
+--[[    log_print("+++++++++++++++++apply_change+++++++++++++++++++++++++++")
     log_print("apply_change full data", change_data)
     log_print("---------------------------------------------")
     log_print("EtcdWatchResult:apply_change ", ret)
-    log_print("!!!!!!!!!!!!!!!!!!!!apply_change!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    log_print("!!!!!!!!!!!!!!!!!!!!apply_change!!!!!!!!!!!!!!!!!!!!!!!!!!")]]
 end
 

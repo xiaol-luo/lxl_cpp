@@ -29,5 +29,6 @@ return {
     "libs.etcd_result.etcd_result",
     "libs.etcd_result.etcd_result_node",
     "libs.etcd_result.etcd_result_dir",
+    "libs.etcd_result.etcd_result_node_visitor",
 
 }
