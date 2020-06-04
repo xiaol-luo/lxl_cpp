@@ -1,35 +1,35 @@
 
 local extract_next_kv = function(node, index)
-    log_print(string.format("extract_next_kv kv!!!!!!!! is_dir=%s tb=%s index=%s", node:is_dir_node(), tostring(node), tostring(index)))
+    -- log_print(string.format("extract_next_kv kv!!!!!!!! is_dir=%s tb=%s index=%s", node:is_dir_node(), tostring(node), tostring(index)))
 
     local tb = node
 
     local k, v = nil
     if node:is_dir_node() then
         if nil == index then
-            log_print("extract_next_kv", 1)
+            -- log_print("extract_next_kv", 1)
             k, v = node, node
         else
-            log_print("extract_next_kv", 2)
+            -- log_print("extract_next_kv", 2)
             local real_index = index
             if real_index == node then
-                log_print("extract_next_kv", 3)
+                -- log_print("extract_next_kv", 3)
                 real_index = nil
             end
             if node.value then
-                log_print("extract_next_kv", 4)
+                -- log_print("extract_next_kv", 4)
                 tb = node.value
                 k, v = next(node.value, real_index)
             end
         end
     else
-        log_print("extra_meta_extract_next_kv", 5)
+        -- log_print("extra_meta_extract_next_kv", 5)
         if nil == index then
             k, v = node, node
         end
     end
 
-    log_print(string.format("extract_next_kv reslut!!!! is_dir=%s tb=%s k=%s v=%s\n\n\n", node:is_dir_node(), tostring(tb),  tostring(k), tostring(v)))
+    -- log_print(string.format("extract_next_kv reslut!!!! is_dir=%s tb=%s k=%s v=%s\n\n\n", node:is_dir_node(), tostring(tb),  tostring(k), tostring(v)))
     return k, v
 end
 
@@ -65,6 +65,7 @@ local visit_next_dir = function(wait_visit_nodes, self, index)
 end
 
 local visit_next_node = function(wait_visit_nodes, self, index)
+    -- log_print("visit_next_node ", index)
     local k, v = nil
     local real_index = index
     repeat
