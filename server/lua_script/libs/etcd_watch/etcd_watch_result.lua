@@ -13,6 +13,29 @@ function EtcdWatchResult:ctor(watch_path)
     self._is_result_diff_dirty = false
 end
 
+function EtcdWatchResult:get_node(key)
+    return self.result[key]
+end
+
+function EtcdWatchResult:get_dir_nodes(key)
+    local ret = {}
+    if is_string(key) and #key > 0 then
+        local dir_key = string.lrtrim(key, " /")
+        if #dir_key <= 0 then
+            dir_key = "/"
+        else
+            dir_key = "/" .. dir_key .. "/"
+        end
+
+        for key, node in pairs(self.result) do
+            if 1 == string.find(key, dir_key) then
+                ret[key] = node
+            end
+        end
+    end
+    return ret
+end
+
 ---@param full_data EtcdClientResult
 function EtcdWatchResult:reset(full_data)
     local etcd_result = EtcdResult.parse(full_data)
@@ -23,7 +46,9 @@ function EtcdWatchResult:reset(full_data)
     for _, node in EtcdResultNodeVisitor:new(etcd_result.node):iter_node() do
         self.result[node.key] = node
         if old_result[node.key] then
-            self:_add_result_diff(Etcd_Watch_Result_Diff.Update, node.key, node)
+            if old_result[node.key].value ~= node.value then
+                self:_add_result_diff(Etcd_Watch_Result_Diff.Update, node.key, node)
+            end
         else
             self:_add_result_diff(Etcd_Watch_Result_Diff.Add, node.key, node)
         end
@@ -33,6 +58,7 @@ function EtcdWatchResult:reset(full_data)
         self:_add_result_diff(Etcd_Watch_Result_Diff.Delete, node.key, nil)
     end
     self:_fire_result_diff()
+    self:fire(Etcd_Watch_Event.watch_result_change, self)
 end
 
 function EtcdWatchResult:_add_result_diff(result_diff, key, new_val)
@@ -52,7 +78,6 @@ function EtcdWatchResult:_fire_result_diff()
     for _, v in pairs(self.result_diff) do
         self:fire(Etcd_Watch_Event.watch_result_diff, v.key, v.result_diff, v.new_val)
     end
-    self:fire(Etcd_Watch_Event.watch_result_change, self)
 end
 
 ---@param change_data EtcdClientResult
@@ -65,8 +90,9 @@ function EtcdWatchResult:apply_change(change_data)
         is_handle = true
         if etcd_ret.node.is_dir then
             local remove_node_key = {}
+            local dir_key = etcd_ret.node.key .. "/"
             for key, node in pairs(self.result) do
-                if 1 == string.find(key, etcd_ret.node.key) then
+                if 1 == string.find(key, dir_key) then
                     table.insert(remove_node_key, { key=key, node=node })
                 end
             end

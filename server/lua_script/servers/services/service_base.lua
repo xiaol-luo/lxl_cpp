@@ -1,10 +1,11 @@
 
----@class ServiceBase
+---@class ServiceBase: EventMgr
 ---@field service_mgr ServiceMgrBase
 ---@field server ServerBase
-ServiceBase = ServiceBase or class("ServiceBase")
+ServiceBase = ServiceBase or class("ServiceBase", EventMgr)
 
 function ServiceBase:ctor(service_mgr, service_name)
+    ServiceBase.super.ctor(self)
     self.service_mgr = service_mgr
     self.server = self.service_mgr.server
     self._service_name = service_name

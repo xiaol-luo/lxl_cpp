@@ -27,3 +27,8 @@ gen_next_seq = make_sequence()
 lua_json = require("libs.json")
 
 msgpack = require("libs.msgpack")
+
+local sha = require("libs.sha")
+hash256 = sha.hash256
+new_hash256 = sha.new256
+

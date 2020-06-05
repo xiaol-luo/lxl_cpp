@@ -22,7 +22,6 @@ return {
 
     "libs.etcd_watch.etcd_watch_def",
     "libs.etcd_watch.etcd_watch_result",
-    "libs.etcd_watch.etcd_watch_result_visitor",
     "libs.etcd_watch.etcd_watcher",
 
     "libs.etcd_result.etcd_result_def",

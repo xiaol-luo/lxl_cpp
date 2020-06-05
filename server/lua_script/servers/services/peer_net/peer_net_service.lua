@@ -54,7 +54,7 @@ function PeerNetService:_on_update()
     local now_sec = logic_sec()
     if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 1 then
         self._connect_server_last_sec = now_sec
-        -- self:send_msg(self.server.discovery:get_self_server_key(), 33, nil)
+        self:send_msg(self.server.discovery:get_self_server_key(), 33, nil)
     end
 end
 
