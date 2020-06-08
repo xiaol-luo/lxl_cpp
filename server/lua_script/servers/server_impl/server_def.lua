@@ -32,4 +32,3 @@ Server_Event.Notify_Quit_Game = "Server_Event.Notify_Quit_Game"
 
 Server_Const = {}
 Server_Const.data_dir = "data_dir"
-

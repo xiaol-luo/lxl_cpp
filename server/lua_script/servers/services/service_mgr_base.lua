@@ -35,6 +35,10 @@ function ServiceMgrBase:init()
     hotfix_svc:init("hotifx_dir")
     self:add_service(hotfix_svc)
 
+    local zone_setting_svc = ZoneSettingService:new(self, Service_Name.zone_setting)
+    zone_setting_svc:init()
+    self:add_service(zone_setting_svc)
+
     local discovery = DiscoveryService:new(self, Service_Name.discovery)
     discovery:init()
     self:add_service(discovery)
@@ -46,10 +50,6 @@ function ServiceMgrBase:init()
     local rpc_svc = RpcService:new(self, Service_Name.rpc)
     rpc_svc:init()
     self:add_service(rpc_svc)
-
-    local zone_setting_svc = ZoneSettingService:new(self, Service_Name.zone_setting)
-    zone_setting_svc:init()
-    self:add_service(zone_setting_svc)
 
     local ret = self:_on_init()
     return ret

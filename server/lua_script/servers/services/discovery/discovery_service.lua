@@ -34,6 +34,12 @@ function DiscoveryService:ctor(service_mgr, service_name)
         set_value_last_sec = 0,
         create_index = nil,
     }
+
+    ---@type ZoneSettingService
+    self._zone_setting = nil
+
+    self._is_allow_join_cluster = false
+    self._cluster_server_name = nil
 end
 
 function DiscoveryService:_on_init()
@@ -53,11 +59,16 @@ function DiscoveryService:_on_init()
     self._zone_server_data[ZoneServerJsonDataField.db_path] = self._db_path_zone_server_data
 
     self._etcd_client = EtcdClient:new(self._etcd_setting.host, self._etcd_setting.user, self._etcd_setting.pwd)
+    self._zone_setting = self.server.zone_setting
+    self._cluster_server_name = gen_cluster_server_name(self.server.server_role, self.server.server_name)
 end
 
 function DiscoveryService:_on_start()
     DiscoveryService.super._on_start(self)
     self._etcd_client:set(self._db_path_watch_server_dir, nil, nil, true)
+    self._is_allow_join_cluster = self._zone_setting:is_server_allow_join(self._cluster_server_name)
+    self._event_binder:bind(self._zone_setting, Zone_Setting_Event.zone_setting_allow_join_servers_diff,
+            Functional.make_closure(self._on_event_zone_setting_allow_join_servers_diff, self))
 end
 
 function DiscoveryService:_on_stop()
@@ -127,6 +138,9 @@ end
 
 function DiscoveryService:_watch_servers_data()
     if self._servers_infos.is_watching then
+        return
+    end
+    if not self._zone_setting:is_ready() then
         return
     end
 
@@ -281,6 +295,9 @@ function DiscoveryService:_keep_in_cluster()
     if self._keey_in_cluster_infos.is_keeping or not self._cluster_server_id then
         return
     end
+    if not self._is_allow_join_cluster or not self._zone_setting:is_ready() then
+        return
+    end
     local now_sec = logic_sec()
     if not self._is_joined_cluster then
         if now_sec - self._keey_in_cluster_infos.set_value_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 4.0 then
@@ -291,13 +308,13 @@ function DiscoveryService:_keep_in_cluster()
                 if ret:is_ok() then
                     self:_set_join_cluster(true)
                     self._keey_in_cluster_infos.create_index = ret.op_result.node.createdIndex
+                    self._keey_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
                     self._keey_in_cluster_infos.refresh_ttl_last_sec = 0
                     self._servers_infos.wait_idx = nil -- 使得执行一次全量pull
                     -- log_print("DiscoveryService:_keep_in_cluster set", ret)
                 else
                     self:_set_join_cluster(false)
                 end
-                log_info("DiscoveryService join cluster ret=%s, fail_reason=%s", ret:is_ok(), ret:fail_msg())
             end)
         end
     end
@@ -309,6 +326,7 @@ function DiscoveryService:_keep_in_cluster()
                 self._keey_in_cluster_infos.is_keeping = false
                 -- log_print("DiscoveryService:_keep_in_cluster refresh ttl", ret)
                 if ret:is_ok() then
+                    self._keey_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
                     if ret.op_result.node.createdIndex ~= self._keey_in_cluster_infos.create_index then
                         self:_set_join_cluster(false)
                     end
@@ -316,6 +334,21 @@ function DiscoveryService:_keep_in_cluster()
                     self:_set_join_cluster(false)
                 end
             end)
+        end
+    end
+end
+
+function DiscoveryService:_on_event_zone_setting_allow_join_servers_diff(key, diff_type, value)
+    local old_value = self._is_allow_join_cluster
+    self._is_allow_join_cluster = self._zone_setting:is_server_allow_join(self._cluster_server_name)
+    if old_value and old_value ~= self._is_allow_join_cluster then
+        if self._is_joined_cluster and self._keey_in_cluster_infos.modified_index then
+            self._etcd_client:cmp_delete(self._db_path_zone_server_data, self._keey_in_cluster_infos.modified_index, self._zone_server_data_json_str, false,
+                    function (op_id, op, ret)
+                        if ret:is_ok() then
+                            self:_set_join_cluster(false)
+                        end
+                    end)
         end
     end
 end
@@ -353,6 +386,10 @@ end
 
 function DiscoveryService:get_self_server_data_str()
     return self._zone_server_data_json_str
+end
+
+function DiscoveryService:get_self_cluster_server_name()
+    return self._cluster_server_name
 end
 
 

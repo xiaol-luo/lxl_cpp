@@ -47,6 +47,7 @@ end
 
 function PeerNetService:_on_stop()
     PeerNetService.super._on_stop(self)
+    self:_close_all_cnns()
 end
 
 function PeerNetService:_on_update()
@@ -59,7 +60,11 @@ function PeerNetService:_on_update()
 end
 
 function PeerNetService:_on_event_cluster_join_state_change(is_joined)
+    local old_value = self._is_joined_cluster
     self._is_joined_cluster = is_joined
+    if old_value and old_value ~= self._is_joined_cluster then
+        self:_close_all_cnns()
+    end
 end
 
 function PeerNetService:_on_event_cluster_server_change(action, old_server_data, new_server_data)
@@ -176,6 +181,12 @@ function PeerNetService:_disconnect_server(server_key)
     if server_state and server_state.loop_cnn_unique_id  then
         self:_close_cnn(server_state.loop_cnn_unique_id)
         server_state.loop_cnn_unique_id = nil
+    end
+end
+
+function PeerNetService:_close_all_cnns()
+    for _, unique_cnn_id in ipairs(table.keys(self._unique_id_to_cnn_states)) do
+        self:_close_cnn(unique_cnn_id)
     end
 end
 

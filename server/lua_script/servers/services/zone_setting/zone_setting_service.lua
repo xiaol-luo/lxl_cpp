@@ -9,6 +9,7 @@ function ZoneSettingService:ctor(service_mgr, service_name)
     self._event_binder = EventBinder:new()
     self._etcd_client = nil
 
+    self._is_setting_ready = false
     ---@type table<string, number>
     self._zone_role_min_nums = nil
     ---@type table<string, boolean>
@@ -17,6 +18,7 @@ function ZoneSettingService:ctor(service_mgr, service_name)
     self._db_path_zone_setting = nil
     self._db_path_zone_allow_join_servers = nil
     self._db_path_zone_role_min_nums = nil
+    self._db_path_is_setting_ready = nil
 end
 
 function ZoneSettingService:_on_init()
@@ -31,6 +33,7 @@ function ZoneSettingService:_on_init()
     self._db_path_zone_setting = string.format(Zone_Setting_Const.db_path_zone_setting_format, self.server.zone)
     self._db_path_zone_allow_join_servers = string.format(Zone_Setting_Const.db_path_zone_allow_join_servers_format, self.server.zone)
     self._db_path_zone_role_min_nums = string.format(Zone_Setting_Const.db_path_zone_role_min_nums_format, self.server.zone)
+    self._db_path_is_setting_ready = string.format(Zone_Setting_Const.db_path_is_setting_ready_format, self.server.zone)
 end
 
 function ZoneSettingService:_on_start()
@@ -50,9 +53,11 @@ end
 function ZoneSettingService:_on_update()
     ZoneSettingService.super._on_update(self)
 
+    local now_sec = logic_sec()
     -- for test
-    if not self._zone_server_setting_is_setted then
-        self._zone_server_setting_is_setted = true
+    if not self._zone_server_setting_is_setted or now_sec - self._zone_server_setting_is_setted > 10 then
+        self._zone_server_setting_is_setted = now_sec
+
         local min_role_num = {
             { role="world", num=1 },
         }
@@ -61,17 +66,16 @@ function ZoneSettingService:_on_update()
         }
 
         for _, v in ipairs(min_role_num) do
-            local key = string.format("%s/%s", self._db_path_zone_allow_join_servers, v.role)
+            local key = string.format("%s/%s", self._db_path_zone_role_min_nums, v.role)
             self._etcd_client:set(key, v.num)
         end
         for _, v in ipairs(allow_join_servers) do
-            local key = string.format("%s/%s", self._db_path_zone_role_min_nums, v)
+            local key = string.format("%s/%s", self._db_path_zone_allow_join_servers, v)
             self._etcd_client:set(key, 1)
         end
     end
 
     -- for test
-    local now_sec = logic_sec()
     if not self._last_set_sec or now_sec - self._last_set_sec > 10 then
         self._last_set_sec = now_sec
         if math.random() > 0.5 then
@@ -117,6 +121,17 @@ function ZoneSettingService:_on_zone_setting_change(watch_result, etcd_watcher)
     end
     for key, value in pairs(old_zone_role_min_nums) do
         self:fire(Zone_Setting_Event.zone_setting_role_min_nums_diff, key, Zone_Setting_Diff.delete, false)
+    end
+
+    if true or not self._is_setting_ready then
+        local node = watch_result:get_node(self._db_path_is_setting_ready)
+        if node and #node.value > 0 then
+            local is_ready =  tonumber(node.value) > 0
+            if is_ready then
+                self._is_setting_ready = true
+                self:fire(Zone_Setting_Event.zone_setting_is_ready)
+            end
+        end
     end
 
     log_print("ZoneSettingService:_on_zone_setting_change", self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
@@ -170,5 +185,43 @@ function ZoneSettingService:_on_zone_setting_diff(key, result_diff_type, new_nod
         end
     end
 
-    log_print("ZoneSettingService:_on_zone_setting_diff", self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
+    if not self._is_setting_ready and Etcd_Watch_Result_Diff.Delete ~= result_diff_type and new_node.key == self._db_path_is_setting_ready then
+        if new_node and #new_node.value > 0 then
+            local is_ready =  tonumber(new_node.value) > 0
+            if is_ready then
+                self._is_setting_ready = true
+                self:fire(Zone_Setting_Event.zone_setting_is_ready)
+            end
+        end
+    end
+
+    log_print("ZoneSettingService:_on_zone_setting_diff", self._is_setting_ready,  self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
 end
+
+function ZoneSettingService:is_ready()
+    return self._is_setting_ready
+end
+
+function ZoneSettingService:get_role_min_num(role)
+    local ret = nil
+    if self._zone_role_min_nums then
+        if is_string(role) and #role > 0 then
+            local key = string.format("%s/%s", self._db_path_zone_role_min_nums, role)
+            ret = self._zone_role_min_nums[key]
+        end
+    end
+    return ret
+end
+
+function ZoneSettingService:is_server_allow_join(server_name)
+    local ret = false
+    if self._zone_allow_join_servers then
+        if is_string(server_name) and #server_name > 0 then
+            local key = string.format("%s/%s", self._db_path_zone_allow_join_servers, server_name)
+            ret = self._zone_allow_join_servers[key] or false
+        end
+    end
+    return ret
+end
+
+
