@@ -54,7 +54,7 @@ function ZoneSettingService:_on_update()
     ZoneSettingService.super._on_update(self)
 
     local now_sec = logic_sec()
-    -- for test
+--[[    -- for test
     if not self._zone_server_setting_is_setted or now_sec - self._zone_server_setting_is_setted > 10 then
         self._zone_server_setting_is_setted = now_sec
 
@@ -85,7 +85,7 @@ function ZoneSettingService:_on_update()
             self._etcd_client:set(string.format("%s/dir_%s/file_%s", self._watch_path, math.random(1, 2),
                     math.random(1, 1)), math.random(), math.random(10, 20))
         end
-    end
+    end]]
 end
 
 ---@param watch_result EtcdWatchResult

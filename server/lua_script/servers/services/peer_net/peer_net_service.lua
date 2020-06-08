@@ -52,18 +52,20 @@ end
 
 function PeerNetService:_on_update()
     PeerNetService.super._on_update(self)
-    local now_sec = logic_sec()
+
+    -- for test
+--[[    local now_sec = logic_sec()
     if nil == self._connect_server_last_sec or now_sec - self._connect_server_last_sec > 1 then
         self._connect_server_last_sec = now_sec
         self:send_msg(self.server.discovery:get_self_server_key(), 33, nil)
-    end
+    end]]
 end
 
 function PeerNetService:_on_event_cluster_join_state_change(is_joined)
     local old_value = self._is_joined_cluster
     self._is_joined_cluster = is_joined
     if old_value and old_value ~= self._is_joined_cluster then
-        self:_close_all_cnns()
+        -- self:_close_all_cnns()
     end
 end
 

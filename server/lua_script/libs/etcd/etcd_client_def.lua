@@ -39,6 +39,7 @@ Etcd_Const.Delete = "delete"
 Etcd_Const.Expire = "expire"
 Etcd_Const.Create = "create"
 Etcd_Const.Update = "update"
+Etcd_Const.CompareAndDelete = "compareAndDelete"
 
 
 ---@class Etcd_Event

@@ -234,25 +234,25 @@ function DiscoveryService:_process_servers_pull_ret(etcd_ret)
 end
 
 function DiscoveryService:_process_servers_watch_ret(etcd_ret)
+    -- log_print("DiscoveryService:_process_servers_watch_ret ", etcd_ret)
     if not etcd_ret:is_ok() then
         return
     end
     if self._keey_in_cluster_infos.create_index and etcd_ret.op_result.node.createdIndex < self._keey_in_cluster_infos.create_index then
         return
     end
-    if not etcd_ret.op_result.action then
-        return
-    end
+    local action = etcd_ret.op_result.action
     local key = etcd_ret.op_result.node.key
     local change_ret = nil
-    if "expire" ==  etcd_ret.op_result.action then
+    if Etcd_Const.Expire == action or Etcd_Const.Delete == action or Etcd_Const.CompareAndDelete == action
+    then
         local old_v = self._servers_infos.server_datas[key]
         if old_v.modified_index < etcd_ret.op_result.node.modifiedIndex then -- watch到的数据必须比缓存的数据更新
             change_ret = { old=old_v, new=nil }
             self._servers_infos.server_datas[key] = nil
         end
     end
-    if "create" == etcd_ret.op_result.action then
+    if Etcd_Const.Create == action or Etcd_Const.Set == action then
         local server_data = self:_create_server_data(etcd_ret.op_result.node)
         if server_data then
             local old_data = self._servers_infos.server_datas[key]
