@@ -11,9 +11,9 @@ function ZoneSettingService:ctor(service_mgr, service_name)
 
     self._is_setting_ready = false
     ---@type table<string, number>
-    self._zone_role_min_nums = nil
+    self._zone_role_min_nums = {}
     ---@type table<string, boolean>
-    self._zone_allow_join_servers = nil -- key=name
+    self._zone_allow_join_servers = {} -- key=name
 
     self._db_path_zone_setting = nil
     self._db_path_zone_allow_join_servers = nil
@@ -134,7 +134,7 @@ function ZoneSettingService:_on_zone_setting_change(watch_result, etcd_watcher)
         end
     end
 
-    log_print("ZoneSettingService:_on_zone_setting_change", self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
+    -- log_print("ZoneSettingService:_on_zone_setting_change", self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
 end
 
 ---@param key string
@@ -195,7 +195,7 @@ function ZoneSettingService:_on_zone_setting_diff(key, result_diff_type, new_nod
         end
     end
 
-    log_print("ZoneSettingService:_on_zone_setting_diff", self._is_setting_ready,  self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
+    -- log_print("ZoneSettingService:_on_zone_setting_diff", self._is_setting_ready,  self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
 end
 
 function ZoneSettingService:is_ready()
@@ -220,6 +220,22 @@ function ZoneSettingService:is_server_allow_join(server_name)
             local key = string.format("%s/%s", self._db_path_zone_allow_join_servers, server_name)
             ret = self._zone_allow_join_servers[key] or false
         end
+    end
+    return ret
+end
+
+function ZoneSettingService:get_role_min_nums()
+    local ret = {}
+    for k, v in pairs(self._zone_role_min_nums) do
+        ret[k] = v
+    end
+    return ret
+end
+
+function ZoneSettingService:get_allow_join_servers()
+    local ret = {}
+    for k, v in pairs(self._zone_allow_join_servers) do
+        ret[k] = v
     end
     return ret
 end

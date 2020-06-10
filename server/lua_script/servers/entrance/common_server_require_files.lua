@@ -20,6 +20,9 @@ return {
     "servers.services.zone_setting.zone_setting_def",
     "servers.services.zone_setting.zone_setting_service",
 
+    "servers.services.cluster_state.cluster_state_def",
+    "servers.services.cluster_state.cluster_state_service",
+
     "libs.etcd_watch.etcd_watch_def",
     "libs.etcd_watch.etcd_watch_result",
     "libs.etcd_watch.etcd_watcher",

@@ -18,10 +18,15 @@ end
 
 function extract_from_cluster_server_name(cluster_server_name)
     local server_role, server_name = nil, nil
-    local strs = string.split(cluster_server_name, ".")
-    if #strs < 2 and #strs[1] > 0 and #strs[2] > 0 then
-        server_role = string.lrtrim(strs[1], " ")
-        server_name = string.lrtrim(strs[2], " ")
+    if cluster_server_name or #cluster_server_name > 0 then
+        local tmps = string.split(cluster_server_name, "/")
+        if #tmps > 0 then
+            local strs = string.split(tmps[#tmps], ".")
+            if 2 == #strs and #strs[1] > 0 and #strs[2] > 0 then
+                server_role = string.lrtrim(strs[1], " ")
+                server_name = string.lrtrim(strs[2], " ")
+            end
+        end
     end
     return server_role, server_name
 end

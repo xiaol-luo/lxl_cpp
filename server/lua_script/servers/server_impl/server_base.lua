@@ -9,6 +9,8 @@
 ---@field discovery DiscoveryService
 ---@field peer_net PeerNetService
 ---@field zone string
+---@field zone_setting ZoneSettingService
+---@field cluster_state ClusterStateService
 ServerBase = ServerBase or class("ServerBase", EventMgr)
 
 function ServerBase:ctor(server_role, init_setting, init_args)

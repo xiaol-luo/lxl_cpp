@@ -51,6 +51,10 @@ function ServiceMgrBase:init()
     rpc_svc:init()
     self:add_service(rpc_svc)
 
+    local cluster_state_svc = ClusterStateService:new(self, Service_Name.cluster_state)
+    cluster_state_svc:init()
+    self:add_service(cluster_state_svc)
+
     local ret = self:_on_init()
     return ret
 end
