@@ -24,10 +24,6 @@ end
 
 function PeerNetService:_on_init()
     PeerNetService.super._on_init(self)
-    self._event_binder:bind(self.server, Discovery_Service_Event.cluster_join_state_change,
-            Functional.make_closure(self._on_event_cluster_join_state_change, self))
-    self._event_binder:bind(self.server, Discovery_Service_Event.cluster_server_change,
-            Functional.make_closure(self._on_event_cluster_server_change, self))
 
     self._pto_parser:load_files(Peer_Net_Pto.pto_files)
     self._pto_parser:setup_id_to_protos(Peer_Net_Pto.id_to_pto)
@@ -45,10 +41,16 @@ function PeerNetService:_on_start()
     else
         log_info("PeerNetService listen advertise_peer_port %s", advertise_peer_port)
     end
+
+    self._event_binder:bind(self.server, Discovery_Service_Event.cluster_join_state_change,
+            Functional.make_closure(self._on_event_cluster_join_state_change, self))
+    self._event_binder:bind(self.server, Discovery_Service_Event.cluster_server_change,
+            Functional.make_closure(self._on_event_cluster_server_change, self))
 end
 
 function PeerNetService:_on_stop()
     PeerNetService.super._on_stop(self)
+    self._event_binder:release_all()
     self:_close_all_cnns()
 end
 

@@ -51,6 +51,8 @@ end
 
 function ServiceBase:release()
     self._curr_state = Service_State.Released
+    self._event_binder:release_all()
+    self._timer_proxy:release_all()
     self:_on_release()
 end
 
