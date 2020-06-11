@@ -15,7 +15,7 @@ function string.split(s, sep)
 	if string.len(s) == 0 then return {} end
 
     local pos, r = 0, {}
-    local iterator = function() return string.find(s, sep, pos) end -- 这里采用非朴素搜索，即sep可以是类似正则表达式子的东西
+    local iterator = function() return string.find(s, sep, pos, true) end
     for pos_b, pos_e in iterator do
         table.insert(r, string.sub(s, pos, pos_b - 1))
         pos = pos_e + 1

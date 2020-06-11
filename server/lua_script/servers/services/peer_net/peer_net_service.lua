@@ -13,6 +13,8 @@ function PeerNetService:ctor(service_mgr, service_name)
     self._unique_id_to_cnn_states = {}
     ---@type table<string, PeerNetServerState>
     self._culster_server_states = {}
+    ---@type table<string, table<string, PeerNetServerState>
+    self._cluster_server_states_group_by_roles = {}
 
     ---@type ProtoParser
     self._pto_parser = self.server.pto_parser
@@ -70,29 +72,54 @@ function PeerNetService:_on_event_cluster_join_state_change(is_joined)
 end
 
 function PeerNetService:_on_event_cluster_server_change(action, old_server_data, new_server_data)
+    -- _culster_server_states 的增减都在这里了控制了，可以放心地在这里写快速索引相关的内容
     local server_key = old_server_data and old_server_data.key or new_server_data.key
     local server_state = self._culster_server_states[server_key]
     if not server_state then
+        if Discovery_Service_Const.cluster_server_leave == action then
+            return
+        end
         server_state = PeerNetServerState:new()
-        server_state.server_key = server_key
         self._culster_server_states[server_key] = server_state
+        server_state.server_key = server_key
+        server_state.server_role, server_state.server_name = extract_from_cluster_server_name(server_key)
+        server_state.cluster_server_name = gen_cluster_server_name(server_state.server_role, server_state.server_role)
+        if not server_state.server_role or #server_state.server_name <= 0
+                or not server_state.server_name or not #server_state.server_name then
+            log_error("PeerNetService:_on_event_cluster_server_change server_key invalid! server_key=%s, server_role=%s, server_name=%s",
+                    server_key, server_state.server_role, server_state.server_name)
+            return
+        end
+        ---@type RandomHash
+        local role_server_states = self._cluster_server_states_group_by_roles[server_state.server_role]
+        if not role_server_states then
+            role_server_states = RandomHash:new()
+            self._cluster_server_states_group_by_roles[server_state.server_role] = role_server_states
+        end
+        role_server_states:add(server_key, server_state)
     end
 
-    if Discovery_Service_Const.cluster_server_join == action then
-        server_state.server_data = new_server_data
-    end
-    if Discovery_Service_Const.cluster_server_leave == action then
-        server_state.server_data = nil
-    end
-    if Discovery_Service_Const.cluster_server_change == action then
-        server_state.server_data = new_server_data
-    end
     if server_state.cnn_unique_id then
         self:_close_cnn(server_state.cnn_unique_id)
         server_state.cnn_unique_id = nil
     end
     if server_state.loop_cnn_unique_id then
         self:_close_cnn(server_state.loop_cnn_unique_id)
+    end
+
+    if Discovery_Service_Const.cluster_server_join == action then
+        server_state.server_data = new_server_data
+    end
+    if Discovery_Service_Const.cluster_server_change == action then
+        server_state.server_data = new_server_data
+    end
+    if Discovery_Service_Const.cluster_server_leave == action then
+        self._culster_server_states[server_key] = nil
+        ---@type RandomHash
+        local role_server_states = self._cluster_server_states_group_by_roles[server_state.server_role]
+        if role_server_states then
+            role_server_states:remove(server_key)
+        end
     end
 end
 
@@ -201,4 +228,29 @@ function PeerNetService:set_pto_handle_fn(pid, fn)
         assert(not self._pto_handle_fns[pid])
     end
     self._pto_handle_fns[pid] = fn
+end
+
+function PeerNetService:random_server_key(server_role)
+    local ret = nil
+    if server_role then
+        local role_server_states = self._cluster_server_states_group_by_roles[server_role]
+        if role_server_states then
+            local val, key = role_server_states:random()
+            ret = key
+        end
+    end
+    return ret
+end
+
+function PeerNetService:get_role_server_keys(server_role)
+    local ret = {}
+    if server_role then
+        local role_server_states = self._cluster_server_states_group_by_roles[server_role]
+        if role_server_states then
+            for server_key, _ in pairs(role_server_states) do
+                table.insert(ret, server_key)
+            end
+        end
+    end
+    return ret
 end

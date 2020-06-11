@@ -4,6 +4,9 @@
 ---@field server_data DiscoveryServerData
 ---@field cnn_unique_id number
 ---@field loop_cnn_unique_id number
+---@field server_role_name string
+---@field server_role string
+---@field server_name string
 PeerNetServerState = PeerNetServerState or class("PeerNetServerState")
 
 function PeerNetServerState:ctor()
@@ -11,6 +14,9 @@ function PeerNetServerState:ctor()
     self.server_data = nil
     self.cnn_unique_id = nil
     self.loop_cnn_unique_id = nil
+    self.cluster_server_name = nil -- $server_role.$server_name
+    self.server_role = nil
+    self.server_name = nil
 end
 
 function PeerNetServerState:is_joined_cluster()

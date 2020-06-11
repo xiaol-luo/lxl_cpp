@@ -17,13 +17,11 @@ function RpcService:_on_init()
     self._pto_parser:setup_id_to_protos(Rpc_Pto.id_to_pto)
     self._rpc_mgr:init()
 
-    -- for test
-    --[[
+--[[    -- for test
     self:set_remote_call_handle_fn("hello", function(rpc_rsp, ...)
         log_print("handle remote call hello, params=", ...)
         rpc_rsp:respone(Error_None, "test", ...)
-    end)
-    ]]
+    end)]]
 end
 
 function RpcService:_on_start()
@@ -43,13 +41,13 @@ function RpcService:_on_update()
     RpcService.super._on_update(self)
     self._rpc_mgr:on_frame()
 
-    -- for test
-    --[[
-    local client = self:create_rpc_client(self.server:get_cluster_server_key())
-    client:call(function (rpc_error_num, ...)
-        -- log_print("remote call callback ", rpc_error_num, ...)
-    end, "hello", "world")
-    ]]
+--[[    -- for test
+    local client = self:create_random_client(Server_Role.World)
+    if client then
+        client:call(function (rpc_error_num, ...)
+            log_print("remote call callback ", rpc_error_num, ...)
+        end, "hello", "world")
+    end]]
 end
 
 ---@param fn_name string
@@ -69,7 +67,17 @@ function RpcService:call(cb_fn, remote_server_key, remote_fn, ...)
 end
 
 ---@return RpcClient
-function RpcService:create_rpc_client(remote_server_key)
+function RpcService:create_client(remote_server_key)
     local ret = RpcClient:new(self._rpc_mgr, remote_server_key)
+    return ret
+end
+
+---@return RpcClient
+function RpcService:create_random_client(server_role)
+    local ret = nil
+    local remote_server_key = self.server.peer_net:random_server_key(server_role)
+    if remote_server_key then
+        ret = RpcClient:new(self._rpc_mgr, remote_server_key)
+    end
     return ret
 end

@@ -24,6 +24,7 @@ function DiscoveryService:ctor(service_mgr, service_name)
     self._servers_infos = {
         is_watching = false,
         wait_idx = nil,
+        ---@type table<string, ZoneServerJsonData>
         server_datas = {},
     }
 
@@ -173,6 +174,8 @@ function DiscoveryService:_watch_servers_data()
     end
 end
 
+
+---@return ZoneServerJsonData
 function DiscoveryService:_create_server_data(node)
     local server_data = nil
     if not node.dir then
@@ -368,6 +371,7 @@ function DiscoveryService:is_joined_cluster()
     return self._is_joined_cluster
 end
 
+---@return table<string, ZoneServerJsonData>
 function DiscoveryService:get_server_datas()
     return self._servers_infos.server_datas
 end
@@ -380,6 +384,7 @@ function DiscoveryService:get_self_server_key()
     return self._db_path_zone_server_data
 end
 
+---@return ZoneServerJsonData
 function DiscoveryService:get_self_server_data()
     return self._zone_server_data
 end

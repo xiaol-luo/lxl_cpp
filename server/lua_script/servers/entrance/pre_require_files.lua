@@ -78,6 +78,8 @@ local files = {
     "libs.redis.redis_client",
     "libs.redis.redis_reply",
 
+    "libs.data_struct.random_hash",
+
     "servers.common.const.const",
     "common.zone_service_mgr.zone_service_mgr_def",
     "common.zone_service_mgr.zone_service_mgr",
