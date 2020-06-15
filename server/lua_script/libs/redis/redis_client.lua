@@ -9,16 +9,20 @@ function RedisClient:ctor(is_cluster, hosts, pwd, thread_num, cnn_timeout_ms, cm
     self.cnn_timeout_ms = cnn_timeout_ms
     self.cmd_timeout_ms = cmd_timeout_ms
     self.redis_task_mgr = native.RedisTaskMgr:new()
+    self.timer_proxy = TimerProxy:new()
 end
 
 function RedisClient:start()
     self:stop()
-    -- local ret = self.redis_task_mgr:start(self.is_cluster, self.hosts, self.pwd, self.thread_num, self.cnn_timeout_ms, self.cmd_timeout_ms)
     local ret = self.redis_task_mgr:start(self.is_cluster, self.hosts, self.pwd, self.thread_num, self.cnn_timeout_ms, self.cmd_timeout_ms)
+    if ret then
+        self.timer_proxy:add(Functional.make_closure(self.on_tick, self), 0.25, Forever_Execute_Timer)
+    end
     return ret
 end
 
 function RedisClient:stop()
+    self.timer_proxy:release_all()
     self.redis_task_mgr:stop()
 end
 

@@ -8,22 +8,21 @@ function MongoClient:ctor(thread_num, hosts, auth_db, user_name, pwd)
     self.user_name_ = user_name
     self.pwd_ = pwd
     self.mongo_task_mgr_ = native.MongoTaskMgr:new()
-    self.delay_execute_fns = {}
+    self.timer_proxy = TimerProxy:new()
 end
 
 function MongoClient:start()
     self:stop()
-    return self.mongo_task_mgr_:start(self.thread_num_, self.hosts_, self.auth_db_,
-            self.user_name_, self.pwd_)
+    local ret = self.mongo_task_mgr_:start(self.thread_num_, self.hosts_, self.auth_db_, self.user_name_, self.pwd_)
+    if ret then
+        self.timer_proxy:add(Functional.make_closure(self.on_tick, self), 0.25, Forever_Execute_Timer)
+    end
+    return ret
 end
 
 function MongoClient:on_tick()
+    self.timer_proxy:release_all()
     self.mongo_task_mgr_:on_frame()
-    local delay_execute_fns = self.delay_execute_fns
-    self.delay_execute_fns = {}
-    for _, fn in ipairs(delay_execute_fns) do
-        fn()
-    end
 end
 
 function MongoClient:stop()
