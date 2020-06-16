@@ -28,6 +28,8 @@ local files = {
     "common.event.event_proxy",
     "common.event.event_binder",
 
+    "common.consistent_hash.consistent_hash",
+
     "libs.coroutine_ex.coroutine_ex_def",
     "libs.coroutine_ex.coroutine_ex",
     "libs.coroutine_ex.coroutine_ex_mgr",

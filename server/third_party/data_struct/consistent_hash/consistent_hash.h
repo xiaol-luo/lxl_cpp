@@ -12,7 +12,7 @@ public:
 	~ConsistentHash();
 	
 	bool SetRealNode(std::string name, uint32_t virtual_nodes);
-	std::pair<bool, std::string> Find(const void *p, uint32_t len);
+	std::pair<bool, std::string> FindAddress(const void *p, uint32_t len);
 	static uint32_t cal_hash(const void *p, uint32_t len);
 
 private:
