@@ -94,7 +94,7 @@ bool ConsistentHash::SetRealNode(std::string name, uint32_t virtual_nodes)
 	return true;
 }
 
-std::pair<bool, std::string> ConsistentHash::Find(const void * p, uint32_t len)
+std::pair<bool, std::string> ConsistentHash::FindAddress(const void * p, uint32_t len)
 {
 	if (p && len > 0 && !m_ring_nodes.empty())
 	{

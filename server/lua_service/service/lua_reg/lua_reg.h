@@ -21,5 +21,5 @@ void lua_reg_mongo(lua_State *L);
 void lua_reg_redis(lua_State *L);
 bool lua_table_to_unorder_map(sol::main_table tb, std::unordered_map<std::string, std::string> &uo_map);
 bool lua_object_to_string(sol::object lua_obj, std::string &out_str);
-
+void lua_reg_consistent_hash(lua_State *L);
 
