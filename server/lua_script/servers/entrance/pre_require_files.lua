@@ -81,6 +81,9 @@ local files = {
     "libs.data_struct.random_hash",
 
     "servers.common.const.const",
+    "servers.common.config.etcd_server_config",
+    "servers.common.config.redis_server_config",
+
     "common.zone_service_mgr.zone_service_mgr_def",
     "common.zone_service_mgr.zone_service_mgr",
     "common.zone_service_mgr.zone_service_state",

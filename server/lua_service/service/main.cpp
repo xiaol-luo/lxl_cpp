@@ -29,6 +29,7 @@ extern "C"
 #include "hiredis_vip/hircluster.h"
 
 #include "redis/redis_task_mgr.h"
+#include "data_struct/consistent_hash/consistent_hash.h"
 
 void QuitGame(int signal)
 {
@@ -37,13 +38,10 @@ void QuitGame(int signal)
 
 int main (int argc, char **argv) 
 {
-	srand((unsigned int)time(NULL));
-
 #ifdef WIN32
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
 #endif
-
 	if (false)
 	{
 		redisClusterContext *rcc = redisClusterConnect("127.0.0.1:7000", REDIS_BLOCK);

@@ -38,6 +38,7 @@ if [ ${is_init} = true ]; then
     etcdctl --endpoints ${end_points} -username root:xiaolzz role add rw_all
     etcdctl --endpoints ${end_points} -username root:xiaolzz role grant --readwrite --path / rw_all
     etcdctl --endpoints ${end_points} -username root:xiaolzz user grant --roles rw_all lxl
+    etcdctl --endpoints ${end_points} -username root:xiaolzz role revoke --readwrite --path '/*' guest
 fi
 
 

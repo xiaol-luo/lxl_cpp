@@ -133,14 +133,16 @@ class RunServiceHelp(object):
     def role(self):
         str_arr = self.role_str.split('_')
         assert(str_arr and len(str_arr) > 0)
-        return str_arr[0]
+        str_arr.pop()
+        ret = str.join("_", str_arr)
+        return ret
 
     @property
     def role_idx(self):
         str_arr = self.role_str.split('_')
         ret = None
         if str_arr and len(str_arr) > 1:
-            ret = str_arr[1]
+            ret = str_arr[len(str_arr) - 1]
         return ret
 
     @property

@@ -4,6 +4,7 @@ batch_require(require("servers.server_impl.world.server_require_files"))
 
 
 ---@class WorldServer : ServerBase
+---@field redis_consistent_hash_setting RedisServerConfig
 WorldServer = WorldServer or class("WorldServer", ServerBase)
 
 function create_server_main(init_setting, init_args)

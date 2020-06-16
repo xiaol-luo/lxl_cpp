@@ -32,7 +32,7 @@ function ServiceMgrBase:init()
     self.curr_state = Service_State.Inited
 
     local hotfix_svc = HotfixService:new(self, Service_Name.hotfix)
-    hotfix_svc:init("hotifx_dir")
+    hotfix_svc:init("hotfix_dir")
     self:add_service(hotfix_svc)
 
     local zone_setting_svc = ZoneSettingService:new(self, Service_Name.zone_setting)

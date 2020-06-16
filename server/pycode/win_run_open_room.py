@@ -63,7 +63,7 @@ for sig_num in [signal.SIGINT, signal.SIGTERM]:
 
 kill_alive_services()
 
-in_home = False
+in_home = True
 
 if in_home:
 	code_dir = r"F:\github\lxl_cpp\server"
@@ -76,13 +76,14 @@ else:
 
 run_cmds = []
 #for role_name in ["platform", "auth", "login_0", "gate_0", "world_0", "game_0", "match_0", "fight_0", "room_0"]:
-for role_name in ["world_0"]:
+for role_name in ["world_0", "world_sentinel_0"]:
     run_cmd = "{} {} {} {}".format(
         exe_file,
         role_name,
         code_dir,
         os.path.join(work_dir_base, role_name)
     )
+    print("run cmd", run_cmd)
     run_cmds.append(run_cmd)
 
 process_datas = list()

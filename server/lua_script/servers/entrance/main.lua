@@ -15,9 +15,7 @@ function start_script(main_args)
     local server_name = init_args[Const.main_args_server]
     local setting_file = path.combine(init_args[Const.main_args_data_dir], init_args[Const.main_args_config_file])
     local init_setting = xml.parse_file(setting_file)
-
-    log_debug("init_args: %s", init_args)
-    log_debug("init_setting :")
+    
     xml.print_table(init_setting)
 
     init_setting = init_setting["root"]

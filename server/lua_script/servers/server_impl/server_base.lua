@@ -4,7 +4,7 @@
 ---@field init_setting table<string, string>
 ---@field server_role Server_Role
 ---@field server_name string
----@field etcd_service_discovery_setting EtcdSetting
+---@field etcd_service_discovery_setting EtcdServerConfig
 ---@field pto_parser Proto
 ---@field discovery DiscoveryService
 ---@field peer_net PeerNetService
@@ -78,10 +78,9 @@ function ServerBase:_on_init()
 
     for _, v in ipairs(self.init_setting.etcd_server.element) do
         if is_table(v) and v.name == Const.service_discovery  then
-            self.etcd_service_discovery_setting = {}
-            self.etcd_service_discovery_setting.host = v.host
-            self.etcd_service_discovery_setting.user = v.user or ""
-            self.etcd_service_discovery_setting.pwd = v.pwd or ""
+
+            self.etcd_service_discovery_setting = EtcdServerConfig:new()
+            self.etcd_service_discovery_setting:parse_from(v)
         end
     end
     if not self.etcd_service_discovery_setting or not self.etcd_service_discovery_setting.host then
