@@ -15,7 +15,7 @@ function MongoClient:start()
     self:stop()
     local ret = self.mongo_task_mgr_:start(self.thread_num_, self.hosts_, self.auth_db_, self.user_name_, self.pwd_)
     if ret then
-        self.timer_proxy:add(Functional.make_closure(self.on_tick, self), 0.25, Forever_Execute_Timer)
+        self.timer_proxy:firm(Functional.make_closure(self.on_tick, self), 200, Forever_Execute_Timer)
     end
     return ret
 end

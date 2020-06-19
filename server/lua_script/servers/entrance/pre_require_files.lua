@@ -79,6 +79,7 @@ local files = {
     "libs.redis.redis_def",
     "libs.redis.redis_client",
     "libs.redis.redis_reply",
+    "libs.redis.redis_result",
 
     "libs.data_struct.random_hash",
 

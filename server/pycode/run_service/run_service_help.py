@@ -30,7 +30,7 @@ class RunServiceHelp(object):
     def run_service(input_args):
         is_ok, rsh= RunServiceHelp.parse_args(input_args)
         if not is_ok:
-            return -1, "run service parse_args fail"
+            return -1, "run service parse_args fail" + rsh
         ret_num, error_msg = rsh.run()
         if 0 != ret_num:
             return ret_num, error_msg
@@ -66,6 +66,7 @@ class RunServiceHelp(object):
             self.scripts_dir(),
             self.exe_dir
         )
+        print("run cmd: " + run_cmd)
         try:
             self.process = subprocess.Popen(
                 shlex.split(run_cmd),

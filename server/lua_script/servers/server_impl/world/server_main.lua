@@ -4,7 +4,7 @@ batch_require(require("servers.server_impl.world.server_require_files"))
 
 
 ---@class WorldServer : ServerBase
----@field redis_consistent_hash_setting RedisServerConfig
+---@field redis_online_servers_setting RedisServerConfig
 WorldServer = WorldServer or class("WorldServer", ServerBase)
 
 function create_server_main(init_setting, init_args)
@@ -16,6 +16,17 @@ function WorldServer:ctor(init_setting, init_args)
 end
 
 function WorldServer:_on_init()
+    -- 一致性哈希使用redis server的配置
+    for _, v in ipairs(self.init_setting.redis_service.element) do
+        if is_table(v) and v.name == Const.online_servers  then
+            self.redis_online_servers_setting = RedisServerConfig:new()
+            self.redis_online_servers_setting:parse_from(v)
+        end
+    end
+    if not self.redis_online_servers_setting or not self.redis_online_servers_setting.host then
+        return false
+    end
+
     local ret = WorldServer.super._on_init(self)
     if not ret then
         return false

@@ -19,7 +19,7 @@ Service_Event.State_Stopping = "Service_Event.State_Stopping"
 Service_Event.State_Stopped = "Service_Event.State_Stopped"
 Service_Event.State_Released = "Service_Event.State_Released"
 
----@class
+---@class Service_Name
 Service_Name = {}
 Service_Name.hotfix = "hotfix"
 Service_Name.discovery = "discovery"
@@ -27,3 +27,5 @@ Service_Name.peer_net = "peer_net"
 Service_Name.rpc = "rpc"
 Service_Name.zone_setting = "zone_setting"
 Service_Name.cluster_state = "cluster_state"
+Service_Name.online_world_monitor = "online_world_monitor"
+Service_Name.online_world_shadow = "online_world_shadow"

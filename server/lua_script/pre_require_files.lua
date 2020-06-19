@@ -37,6 +37,7 @@ local files = {
     "libs.redis.redis_def",
     "libs.redis.redis_client",
     "libs.redis.redis_reply",
+    "libs.redis.redis_result",
     "libs.etcd.etcd_client_def",
     "libs.etcd.etcd_client",
     "libs.etcd.etcd_client_op_base",

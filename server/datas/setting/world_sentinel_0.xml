@@ -16,7 +16,7 @@
 	<redis_service>
 		<element>for_make_array</element>
 		<element>
-			<name>consistent_hash</name>
+			<name>online_servers</name>
 			<is_cluster>1</is_cluster>
 			<host>127.0.0.1:7000</host>
 			<pwd>xiaolzz</pwd>

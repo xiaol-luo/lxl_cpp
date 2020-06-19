@@ -40,9 +40,6 @@ function class(class_name, super, extra_meta)
     cls.super = super
     cls.__index = cls
     if extra_meta then
-        if class_name  == "EtcdResultDir" then
-            log_print("!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~~~ meta", extra_meta)
-        end
         if extra_meta.__gc then
             cls.__gc = extra_meta.__gc
         end

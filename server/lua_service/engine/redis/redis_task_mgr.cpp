@@ -365,7 +365,7 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 	}
 	else
 	{
-		std::string match_pattern_str = R"raw(([\S]+):([0-9]+)))raw";
+		std::string match_pattern_str = R"raw(([\S]+):([0-9]+))raw";
 		std::regex match_pattern(match_pattern_str, std::regex::icase);
 		std::smatch match_ret;
 		bool is_match = regex_match(this->owner->m_hosts, match_ret, match_pattern);
