@@ -123,7 +123,7 @@ function ZoneSettingService:_on_zone_setting_change(watch_result, etcd_watcher)
         self:fire(Zone_Setting_Event.zone_setting_role_min_nums_diff, key, Zone_Setting_Diff.delete, false)
     end
 
-    if true or not self._is_setting_ready then
+    if not self._is_setting_ready then
         local node = watch_result:get_node(self._db_path_is_setting_ready)
         if node and #node.value > 0 then
             local is_ready =  tonumber(node.value) > 0
@@ -134,7 +134,7 @@ function ZoneSettingService:_on_zone_setting_change(watch_result, etcd_watcher)
         end
     end
 
-    -- log_print("ZoneSettingService:_on_zone_setting_change", self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
+    -- log_print("ZoneSettingService:_on_zone_setting_change", self._is_setting_ready, self._zone_allow_join_servers or {}, self._zone_role_min_nums or {})
 end
 
 ---@param key string

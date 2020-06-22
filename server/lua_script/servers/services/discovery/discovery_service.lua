@@ -28,7 +28,6 @@ function DiscoveryService:ctor(service_mgr, service_name)
         server_datas = {},
     }
 
-    self._is_keeping_in_cluster = false
     self._keey_in_cluster_infos = {
         is_keeping = false,
         refresh_ttl_last_sec = 0,
@@ -363,6 +362,7 @@ function DiscoveryService:_set_join_cluster(is_joined)
         self._keey_in_cluster_infos.create_index = nil
     end
     if is_change then
+        log_print("DiscoveryService:_set_join_cluster ", is_joined)
         self.server:fire(Discovery_Service_Event.cluster_join_state_change, self._is_joined_cluster)
     end
 end

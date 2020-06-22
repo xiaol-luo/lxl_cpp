@@ -5,7 +5,7 @@ RedisResult = RedisResult or class("RedisResult")
 function RedisResult:ctor(ret)
     -- self._ret = ret
     self._task_id = ret.task_id
-    self._error_num = ret.error_num
+    self._error_num = tonumber(ret.error_num)
     self._error_msg = ret.error_msg
     self._reply = RedisReply:new(ret.reply)
 end

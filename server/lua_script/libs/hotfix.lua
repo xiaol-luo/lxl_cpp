@@ -216,7 +216,7 @@ end
 
 function hotfix_read_file(file_path)
     local file_content = nil
-    local tmp_paths = string.split(file_path, "%.")
+    local tmp_paths = string.split(file_path, ".")
     local real_file_path = table.concat(tmp_paths, "/")
     local search_paths = string.split(package.path, ";")
     for _, v in ipairs(search_paths) do
