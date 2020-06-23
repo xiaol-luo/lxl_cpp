@@ -9,7 +9,7 @@ local Logic_State = {
     diff_online_server_data = "diff_online_server_data",
     persist_online_server_data = "persist_online_server_data",
     lead_world_rehash = "lead_world_rehash",
-    wait_online_server_change = "wait_online_server_change",
+    guarantee_data_valid = "guarantee_data_valid",
     released = "released",
 }
 
@@ -30,7 +30,8 @@ local Opera_State = {
     fail = "fail",
 }
 
-local LEAD_WORLD_REHASH_DURATION_SEC = 20
+local LEAD_WORLD_REHASH_DURATION_SEC = 10
+local GUARANTEE_DATA_VALID_DURATION_SEC = 60
 
 ---@class OnlineWorldMonitor: ServiceBase
 OnlineWorldMonitor = OnlineWorldMonitor or class("OnlineWorldMonitor", ServiceBase)
@@ -41,6 +42,10 @@ function OnlineWorldMonitor:ctor(service_mgr, service_name)
     self._redis_key_online_world_adjusting_version = string.format(Online_World_Const.redis_key_online_world_adjusting_version_format, self.server.zone)
     self._redis_key_online_world_version = string.format(Online_World_Const.redis_key_online_world_version_format, self.server.zone)
     self._redis_key_online_world_servers = string.format(Online_World_Const.redis_key_online_world_servers_format, self.server.zone)
+
+    log_print("self._redis_key_online_world_adjusting_version", self._redis_key_online_world_adjusting_version)
+    log_print("self._redis_key_online_world_version", self._redis_key_online_world_version)
+    log_print("self._redis_key_online_world_servers", self._redis_key_online_world_servers)
 
     self._redis_client = nil
     self._zone_setting = self.server.zone_setting
@@ -54,7 +59,9 @@ function OnlineWorldMonitor:ctor(service_mgr, service_name)
 
     self._adjusting_online_world_servers = nil
     self._lead_world_rehash_state_over_sec = nil
+    self._guarantee_data_valid_over_sec = 0
     self._last_tick_logic_sec = 0
+    self._is_never_lead_rehash = true
 end
 
 function OnlineWorldMonitor:_on_init()
@@ -152,6 +159,7 @@ function OnlineWorldMonitor:_tick_logic()
         local is_all_done = self:_check_query_db_logic()
         if is_all_done then
             self:_set_logic_state(Logic_State.pulled_persistent_data)
+            assert(self._version)
         end
     end
 
@@ -168,56 +176,59 @@ function OnlineWorldMonitor:_tick_logic()
             self._redis_client:command(1, nil, "del %s", self._redis_key_online_world_servers)
             self:_set_logic_state(Logic_State.persist_online_server_data)
         else
-            self:_set_logic_state(Logic_State.wait_online_server_change)
+            self._guarantee_data_valid_over_sec = now_sec + GUARANTEE_DATA_VALID_DURATION_SEC
+            if self._is_never_lead_rehash then
+                self._lead_world_rehash_state_over_sec = now_sec + LEAD_WORLD_REHASH_DURATION_SEC
+                self:_set_logic_state(Logic_State.lead_world_rehash)
+            else
+                self:_set_logic_state(Logic_State.guarantee_data_valid)
+            end
         end
     end
 
     if Logic_State.persist_online_server_data == self._curr_logic_state then
-        -- pass
+        -- 当如果redis集群不可达时，要想给个容错策略，
+        -- 最简单的就是超时就放弃持久化，且放弃应用新配置
+        -- 暂时以now_sec >= self._guarantee_data_valid_over_sec 定为超时
         local is_all_done = self:_persist_online_server_data()
-        if is_all_done then
-            self._lead_world_rehash_state_over_sec = logic_sec() + LEAD_WORLD_REHASH_DURATION_SEC
-            self._version = self._adjusting_version
-            self._online_world_servers = self._adjusting_online_world_servers
-            self._adjusting_version = nil
-            self._adjusting_online_world_servers = nil
-            self:_set_logic_state(Logic_State.lead_world_rehash)
+        if is_all_done or now_sec >= self._guarantee_data_valid_over_sec then
+            if now_sec >= self._guarantee_data_valid_over_sec then
+                self._guarantee_data_valid_over_sec = now_sec + GUARANTEE_DATA_VALID_DURATION_SEC
+
+                if is_all_done then
+                    self._lead_world_rehash_state_over_sec = now_sec + LEAD_WORLD_REHASH_DURATION_SEC
+                    self._version = self._adjusting_version
+                    self._online_world_servers = self._adjusting_online_world_servers
+                    self._adjusting_version = nil
+                    self._adjusting_online_world_servers = nil
+                    self:_set_logic_state(Logic_State.lead_world_rehash)
+                else
+                    self._adjusting_version = nil
+                    self._adjusting_online_world_servers = nil
+                    self:_set_logic_state(Logic_State.guarantee_data_valid)
+                end
+            end
         end
     end
 
     if Logic_State.lead_world_rehash == self._curr_logic_state then
-        if logic_sec() >= self._lead_world_rehash_state_over_sec then
-            self:_set_logic_state(Logic_State.wait_online_server_change)
+        if now_sec >= self._lead_world_rehash_state_over_sec then
+            self._lead_world_rehash_state_over_sec = nil
+            self:_set_logic_state(Logic_State.guarantee_data_valid)
         else
             -- todo:尽其所能全力通知所有关联的server，rehash
+            self._is_never_lead_rehash = false
             self:_notify_online_world_data()
         end
     end
 
-    if Logic_State.wait_online_server_change == self._curr_logic_state then
-        -- pass
+    if Logic_State.guarantee_data_valid == self._curr_logic_state then
+        -- 提前10秒去检查配置是否有变动,如果有变动，
+        -- 在Logic_State.persist_online_server_data中等等时间走完，然后设置新值
+        if now_sec >= self._guarantee_data_valid_over_sec -10 then --
+            self:_set_logic_state(Logic_State.diff_online_server_data)
+        end
     end
-end
-
-function OnlineWorldMonitor:_try_pull_data()
-    self._redis_client:command(1, function(ret)
-        log_print("OnlineWorldMonitor:_try_pull_data", self._redis_key_online_world_adjusting_version, ret)
-        self:_try_pull_data()
-        self._adjusting_version = ret:get_number()
-    end, string.format("get %s", self._redis_key_online_world_adjusting_version))
-
-    self._redis_client:command(1, function(ret)
-        log_print("OnlineWorldMonitor:_try_pull_data", self._redis_key_online_world_version, ret)
-        -- self:_try_pull_data()
-        self._has_pulled_from_db = true
-
-        self._version = ret:get_number()
-    end, string.format("get %s", self._redis_key_online_world_version))
-
-    self._redis_client:command(1, function(ret)
-        self._has_pulled_from_db = true
-        -- log_print("OnlineWorldMonitor:_try_pull_data", self._redis_key_online_world_servers, ret)
-    end, string.format("LRANGE %s 0 -1", self._redis_key_online_world_servers))
 end
 
 function OnlineWorldMonitor:_set_logic_state(state)
@@ -243,6 +254,7 @@ function OnlineWorldMonitor:_reset_datas()
     self._has_pulled_from_db = false
     self._online_world_servers = {}
     self._version = nil
+    log_print("OnlineWorldMonitor:_reset_datas")
     self._adjusting_version = nil
     self._opera_states = {}
 end
@@ -271,8 +283,8 @@ function OnlineWorldMonitor:_check_query_db_logic()
             else
                 self:_set_opera_state(Opera_Name.query_db_version, Opera_State.success)
                 self._version = ret:get_reply():get_number() or 0
+                -- log_print("!!!!!!!!!!!!!!!!!!!!!", self._version, ret)
             end
-
         end, "get " .. self._redis_key_online_world_version)
     end
 
@@ -285,8 +297,10 @@ function OnlineWorldMonitor:_check_query_db_logic()
             else
                 self:_set_opera_state(Opera_Name.query_db_online_servers, Opera_State.success)
                 self._online_world_servers = {}
-                for _, v in pairs(ret:get_reply():get_array()) do
-                    self._online_world_servers[v] = true
+                if Error_None == ret:get_error() and not ret:get_reply():get_error() then
+                    for _, v in pairs(ret:get_reply():get_array()) do
+                        self._online_world_servers[v:get_str()] = true
+                    end
                 end
             end
         end, "LRANGE %s 0 -1", self._redis_key_online_world_servers)
@@ -333,15 +347,19 @@ end
 function OnlineWorldMonitor:_persist_online_server_data()
     local opera_state = Opera_State.free
     opera_state = self:_get_opera_state(Opera_Name.set_db_adjusting_version)
+    local adjusting_version_alive_sec = self._guarantee_data_valid_over_sec - logic_sec()
+    if adjusting_version_alive_sec < 0 then
+        adjusting_version_alive_sec = 0
+    end
+    adjusting_version_alive_sec = adjusting_version_alive_sec + LEAD_WORLD_REHASH_DURATION_SEC
     self._redis_client:command(1, function(ret)
         self:_set_opera_state(Opera_Name.set_db_adjusting_version, Opera_State.acting)
         if Error_None ~= ret:get_error() or ret:get_reply():get_error() then
             self:_set_opera_state(Opera_Name.set_db_adjusting_version, Opera_State.fail)
         else
             self:_set_opera_state(Opera_Name.set_db_adjusting_version, Opera_State.success)
-            self._adjusting_version = ret:get_reply():get_number()
         end
-    end, "SETEX %s %s %s ", self._redis_key_online_world_adjusting_version, LEAD_WORLD_REHASH_DURATION_SEC, self._adjusting_version)
+    end, "SETEX %s %s %s ", self._redis_key_online_world_adjusting_version, adjusting_version_alive_sec, self._adjusting_version)
 
     if Opera_State.success == opera_state then
         opera_state = self:_get_opera_state(Opera_Name.set_db_version)
@@ -354,7 +372,7 @@ function OnlineWorldMonitor:_persist_online_server_data()
                     self:_set_opera_state(Opera_Name.set_db_version, Opera_State.success)
                 end
 
-            end, "set %s %s", self._redis_key_online_world_version, self._version)
+            end, "set %s %s", self._redis_key_online_world_version, self._adjusting_version)
         end
 
         opera_state = self:_get_opera_state(Opera_Name.set_db_online_servers)
@@ -388,10 +406,6 @@ function OnlineWorldMonitor:_persist_online_server_data()
     return is_all_done
 end
 
-function OnlineWorldMonitor:_lead_world_rehash()
-
-end
-
 function OnlineWorldMonitor:_notify_online_world_data(to_server_key)
     local notify_servers = nil
     if to_server_key then
@@ -399,17 +413,25 @@ function OnlineWorldMonitor:_notify_online_world_data(to_server_key)
     else
         notify_servers = self.server.peer_net:get_role_server_keys(Server_Role.World)
     end
+    local send_tb = {
+        version = self._version,
+        servers = self._online_world_servers,
+    }
+    if self._guarantee_data_valid_over_sec then
+        send_tb.data_valid_left_sec = self._guarantee_data_valid_over_sec - logic_sec()
+    end
+    if self._lead_world_rehash_state_over_sec then
+        send_tb.lead_rehash_left_sec = self._lead_world_rehash_state_over_sec - logic_sec()
+    end
+    log_print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ", self._curr_logic_state,  send_tb)
     for _, v in pairs(notify_servers) do
-        self.server.rpc:call(nil, v, Online_World_Rpc_Method.notify_online_world_servers_data, {
-            version = self._version,
-            servers = self._online_world_servers,
-        })
+        self.server.rpc:call(nil, v, Online_World_Rpc_Method.notify_online_world_servers_data, send_tb)
     end
 end
 
 ---@param rsp RpcRsp
-function OnlineWorldMonitor:_on_rpc_query_online_world_servers_data(rsp, data)
-    log_print("OnlineWorldMonitor:_on_rpc_query_online_world_servers_data")
+function OnlineWorldMonitor:_on_rpc_query_online_world_servers_data(rsp, ...)
+    -- log_print("++++++++++++++++++++++++++++++ OnlineWorldMonitor:_on_rpc_query_online_world_servers_data", ...)
     rsp:respone()
     self:_notify_online_world_data(rsp.from_host)
 end

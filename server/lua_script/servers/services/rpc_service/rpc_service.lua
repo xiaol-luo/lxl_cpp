@@ -63,7 +63,7 @@ function RpcService:set_remote_call_coro_handle_fn(fn_name, fn)
 end
 
 function RpcService:call(cb_fn, remote_server_key, remote_fn, ...)
-    self._rpc_mgr(cb_fn, remote_server_key, remote_fn, ...)
+    self._rpc_mgr:call(cb_fn, remote_server_key, remote_fn, ...)
 end
 
 ---@return RpcClient

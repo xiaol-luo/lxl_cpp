@@ -39,12 +39,15 @@ end
 function OnlineWorldShadow:_on_update()
     OnlineWorldShadow.super._on_update(self)
     if self.server.discovery:is_joined_cluster() then
-        self.server.rpc:call(nil, Online_World_Rpc_Method.query_online_world_servers_data)
+        local server_key = self.server.peer_net:rand_role_server_key(Server_Role.World_Sentinel)
+        if server_key then
+            self.server.rpc:call(nil, server_key, Online_World_Rpc_Method.query_online_world_servers_data, 1, 2)
+        end
     end
 end
 
 ---@param rsp RpcRsp
-function OnlineWorldShadow:_on_rpc_notify_online_world_servers_data(rsp, data)
-    log_print("OnlineWorldShadow:_on_rpc_notify_online_world_servers_data", data)
+function OnlineWorldShadow:_on_rpc_notify_online_world_servers_data(rsp, ...)
+    -- log_print("-------------------------- OnlineWorldShadow:_on_rpc_notify_online_world_servers_data", ...)
     rsp:respone()
 end
