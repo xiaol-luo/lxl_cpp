@@ -22,11 +22,14 @@ function OnlineWorldShadow:_on_start()
         self._error_msg = "OnlineWorldMonitor start redis client fail"
         return
     end
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.notify_online_world_servers_data,
+            Functional.make_closure(self._on_rpc_notify_online_world_servers_data, self))
 end
 
 function OnlineWorldShadow:_on_stop()
     OnlineWorldShadow.super._on_stop(self)
     self._redis_client:stop()
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.notify_online_world_servers_data, nil)
 end
 
 function OnlineWorldShadow:_on_release()
@@ -35,4 +38,13 @@ end
 
 function OnlineWorldShadow:_on_update()
     OnlineWorldShadow.super._on_update(self)
+    if self.server.discovery:is_joined_cluster() then
+        self.server.rpc:call(nil, Online_World_Rpc_Method.query_online_world_servers_data)
+    end
+end
+
+---@param rsp RpcRsp
+function OnlineWorldShadow:_on_rpc_notify_online_world_servers_data(rsp, data)
+    log_print("OnlineWorldShadow:_on_rpc_notify_online_world_servers_data", data)
+    rsp:respone()
 end

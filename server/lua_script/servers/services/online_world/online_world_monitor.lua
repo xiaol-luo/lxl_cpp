@@ -54,6 +54,7 @@ function OnlineWorldMonitor:ctor(service_mgr, service_name)
 
     self._adjusting_online_world_servers = nil
     self._lead_world_rehash_state_over_sec = nil
+    self._last_tick_logic_sec = 0
 end
 
 function OnlineWorldMonitor:_on_init()
@@ -75,11 +76,15 @@ function OnlineWorldMonitor:_on_start()
     self:_set_logic_state(Logic_State.reset_all)
 
     -- self:_try_pull_data()
+
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_online_world_servers_data,
+            Functional.make_closure(self._on_rpc_query_online_world_servers_data, self))
 end
 
 function OnlineWorldMonitor:_on_stop()
     OnlineWorldMonitor.super._on_stop(self)
     self._redis_client:stop()
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_online_world_servers_data, nil)
 end
 
 function OnlineWorldMonitor:_on_release()
@@ -122,6 +127,10 @@ end
 function OnlineWorldMonitor:_tick_logic()
     if not self.server.discovery:is_joined_cluster() then
         return
+    end
+    local now_sec = logic_sec()
+    if now_sec - self._last_tick_logic_sec >= 1 then
+        self._last_tick_logic_sec = now_sec
     end
 
     if Logic_State.reset_all == self._curr_logic_state then
@@ -181,6 +190,7 @@ function OnlineWorldMonitor:_tick_logic()
             self:_set_logic_state(Logic_State.wait_online_server_change)
         else
             -- todo:尽其所能全力通知所有关联的server，rehash
+            self:_notify_online_world_data()
         end
     end
 
@@ -380,4 +390,26 @@ end
 
 function OnlineWorldMonitor:_lead_world_rehash()
 
+end
+
+function OnlineWorldMonitor:_notify_online_world_data(to_server_key)
+    local notify_servers = nil
+    if to_server_key then
+        notify_servers = { to_server_key }
+    else
+        notify_servers = self.server.peer_net:get_role_server_keys(Server_Role.World)
+    end
+    for _, v in pairs(notify_servers) do
+        self.server.rpc:call(nil, v, Online_World_Rpc_Method.notify_online_world_servers_data, {
+            version = self._version,
+            servers = self._online_world_servers,
+        })
+    end
+end
+
+---@param rsp RpcRsp
+function OnlineWorldMonitor:_on_rpc_query_online_world_servers_data(rsp, data)
+    log_print("OnlineWorldMonitor:_on_rpc_query_online_world_servers_data")
+    rsp:respone()
+    self:_notify_online_world_data(rsp.from_host)
 end

@@ -11,6 +11,7 @@
 ---@field zone string
 ---@field zone_setting ZoneSettingService
 ---@field cluster_state ClusterStateService
+---@field rpc RpcService
 ServerBase = ServerBase or class("ServerBase", EventMgr)
 
 function ServerBase:ctor(server_role, init_setting, init_args)
