@@ -13,8 +13,12 @@ function ConsistentHash:ctor()
     self._consistent_hash = native.ConsistentHash:new()
 end
 
-function ConsistentHash:set_real_node(node_name)
+function ConsistentHash:upsert_node(node_name)
     return self._consistent_hash:set_real_node(node_name, Virtual_Node_Num)
+end
+
+function ConsistentHash:delete_node(node_name)
+    return self._consistent_hash:set_real_node(node_name, 0)
 end
 
 function ConsistentHash:find_address(val)
