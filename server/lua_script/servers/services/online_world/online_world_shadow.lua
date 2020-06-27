@@ -5,7 +5,6 @@
     self:_version: 当前正在应用的online_world_servers的版本，若其有变化，则本进程应该做一些数据迁移操作，比如根据一致性哈希判断，不属于本进程的数据迁移到其他world上；
     根据这三个变量，1.实现动态伸缩world的数量时，self:_version变化触发本进程数据转移行为，被转进的进程根据self:is_adjusting_version()==true，和一致性哈希判定，决定是否接纳迁移数据
     2.当本进程与redis和monitor失去联系，那么本进程某些服务将停止服务，尽量保证集群数据正确性
-    3.当数据迁移的时候，如果self._adjusting_version != self._version, 那么无法接收数据
 --]]
 
 ---@class OnlineWorldShadow: ServiceBase
