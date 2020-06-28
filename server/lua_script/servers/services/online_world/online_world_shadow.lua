@@ -37,7 +37,7 @@ end
 function OnlineWorldShadow:_on_init()
     OnlineWorldShadow.super:_on_init(self)
     ---@type RedisServerConfig
-    local redis_cfg = self.server.redis_online_servers_setting
+    local redis_cfg = self.server.redis_setting_online_servers
     self._redis_client = RedisClient:new(redis_cfg.is_cluster, redis_cfg.host, redis_cfg.pwd, redis_cfg.thread_num, redis_cfg.cnn_timeout_ms, redis_cfg.cmd_timeout_ms)
 end
 

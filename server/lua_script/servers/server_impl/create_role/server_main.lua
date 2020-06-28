@@ -4,7 +4,8 @@ batch_require(require("servers.server_impl.create_role.server_require_files"))
 
 
 ---@class CreateRoleServer : ServerBase
----@field redis_online_servers_setting RedisServerConfig
+---@field mongo_setting_uuid MongoServerConfig
+---@field mongo_setting_game MongoServerConfig
 CreateRoleServer = CreateRoleServer or class("CreateRoleServer", ServerBase)
 
 function create_server_main(init_setting, init_args)
@@ -16,16 +17,23 @@ function CreateRoleServer:ctor(init_setting, init_args)
 end
 
 function CreateRoleServer:_on_init()
-    ---- 一致性哈希使用redis server的配置
-    --for _, v in ipairs(self.init_setting.redis_service.element) do
-    --    if is_table(v) and v.name == Const.online_servers  then
-    --        self.redis_online_servers_setting = RedisServerConfig:new()
-    --        self.redis_online_servers_setting:parse_from(v)
-    --    end
-    --end
-    --if not self.redis_online_servers_setting or not self.redis_online_servers_setting.host then
-    --    return false
-    --end
+    -- mongo的配置:uuid 和game
+    for _, v in ipairs(self.init_setting.mongo_service.element) do
+        if is_table(v) and v.name == Const.mongo_setting_name_uuid  then
+            self.mongo_setting_uuid = MongoServerConfig:new()
+            self.mongo_setting_uuid:parse_from(v)
+        end
+        if is_table(v) and v.name == Const.mongo_setting_name_game  then
+            self.mongo_setting_game = MongoServerConfig:new()
+            self.mongo_setting_game:parse_from(v)
+        end
+    end
+    if not self.mongo_setting_uuid or not self.mongo_setting_uuid.host then
+        return false
+    end
+    if not self.mongo_setting_game or not self.mongo_setting_game.host then
+        return false
+    end
 
     local ret = CreateRoleServer.super._on_init(self)
     if not ret then

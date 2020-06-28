@@ -13,6 +13,27 @@
 			<pwd>xiaolzz</pwd>
 		</element>
 	</etcd_server>
+
+	<mongo_service>
+		<element>for_make_array</element>
+		<element>
+			<name>game</name>
+			<host>127.0.0.1:9400</host>
+			<auth_db>admin</auth_db>
+			<user>lxl</user>
+			<pwd>xiaolzz</pwd>
+			<thread_num>3</thread_num>
+		</element>
+		<element>
+			<name>uuid</name>
+			<host>127.0.0.1:9400</host>
+			<auth_db>admin</auth_db>
+			<user>lxl</user>
+			<pwd>xiaolzz</pwd>
+			<thread_num>3</thread_num>
+		</element>
+	</mongo_service>
+
 	<advertise_peer_ip>127.0.0.1</advertise_peer_ip>
 	<advertise_peer_port>37000</advertise_peer_port>
 	<advertise_client_ip>127.0.0.1</advertise_client_ip>
