@@ -93,14 +93,12 @@ function OnlineWorldShadow:_on_rpc_notify_online_world_servers_data(rsp, msg)
         if is_number(msg.lead_rehash_left_sec) then
             self:_set_adjusting_version(msg.version, msg.lead_rehash_left_sec)
         end
-        local need_detail_info = false
         if not self._version or msg.version > self._version then
-            need_detail_info = not msg.servers
-        end
-        if need_detail_info then
-            self:_query_online_world_monitor(false)
-        else
-            self:_set_online_world_servers(msg.version, msg.servers)
+            if nil == msg.servers then
+                self:_query_online_world_monitor(false)
+            else
+                self:_set_online_world_servers(msg.version, msg.servers)
+            end
         end
     end
 end
@@ -163,7 +161,7 @@ function OnlineWorldShadow:_set_adjusting_version(version, left_sec)
 end
 
 function OnlineWorldShadow:_set_online_world_servers(version, servers)
-    if not is_number(version) then
+    if not is_number(version) or not is_table(servers) then
         return
     end
     if self._version and version == self._version then

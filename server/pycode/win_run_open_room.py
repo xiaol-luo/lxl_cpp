@@ -76,7 +76,7 @@ else:
 
 run_cmds = []
 #for role_name in ["platform", "auth", "login_0", "gate_0", "world_0", "game_0", "match_0", "fight_0", "room_0"]:
-for role_name in ["world_0", "world_sentinel_0"]:
+for role_name in ["world_0", "world_sentinel_0", "gate_0", "game_0"]:
     run_cmd = "{} {} {} {}".format(
         exe_file,
         role_name,

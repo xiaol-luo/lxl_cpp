@@ -5,6 +5,7 @@
 Server_Role = {}
 Server_Role.World = "world"
 Server_Role.Game = "game"
+Server_Role.Gate = "gate"
 Server_Role.World_Sentinel = "world_sentinel"
 
 
