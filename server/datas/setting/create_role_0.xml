@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<zone>zone_0</zone>
+	<server_role>create_role</server_role>
+	<server_name>create_role_0</server_name>
+
+	<etcd_server>
+		<element>for_make_array</element>
+		<element>
+			<name>service_discovery</name>
+			<host>http://127.0.0.1:8100</host>
+			<user>root</user>
+			<pwd>xiaolzz</pwd>
+		</element>
+	</etcd_server>
+	<advertise_peer_ip>127.0.0.1</advertise_peer_ip>
+	<advertise_peer_port>37000</advertise_peer_port>
+	<advertise_client_ip>127.0.0.1</advertise_client_ip>
+	<advertise_client_port>37001</advertise_client_port>
+</root>
