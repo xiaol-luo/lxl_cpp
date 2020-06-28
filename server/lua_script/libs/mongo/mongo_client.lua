@@ -21,12 +21,12 @@ function MongoClient:start()
 end
 
 function MongoClient:on_tick()
-    self.timer_proxy:release_all()
     self.mongo_task_mgr_:on_frame()
 end
 
 function MongoClient:stop()
     self.mongo_task_mgr_:stop()
+    self.timer_proxy:release_all()
 end
 
 local process_mongo_cb = function(cb_fn, ret_json_str)
