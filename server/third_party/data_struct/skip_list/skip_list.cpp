@@ -67,13 +67,13 @@ void skip_list_node_free(skip_list_node_t * node)
 }
 
 
-skip_list_t * skip_list_alloc(uint16_t expect_lvl, skip_list_cmp_node_key_pt cmp_key, skip_list_free_node_key_pt free_key)
+skip_list_t * skip_list_alloc(uint16_t expect_lvl, skip_list_lt_cmp_node_key_pt lt_cmp_key, skip_list_free_node_key_pt free_key)
 {
 	skip_list_t *ret = (skip_list_t *)calloc(1, sizeof(skip_list_t));
 	ret->expect_lvl = expect_lvl;
 	ret->using_max_lvl = 0;
 	ret->_help_trace_less_nodes = (skip_list_node_t **)calloc(ret->using_max_lvl + 1, sizeof(skip_list_node_t *));
-	ret->cmp_key = cmp_key;
+	ret->lt_cmp_key = lt_cmp_key;
 	ret->free_key = free_key;
 	ret->head = skip_list_node_alloc(NULL, NULL, ret->expect_lvl * 2, ret->free_key);
 	ret->tail = skip_list_node_alloc(NULL, NULL, ret->expect_lvl * 2, ret->free_key);
@@ -125,7 +125,7 @@ skip_list_node_t * skip_list_insert(skip_list_t * list, void * key, void * data)
 	for (int32_t curr_lvl = using_max_lvl; curr_lvl >= 0; --curr_lvl)
 	{
 		skip_list_node_t *cmp_node = curr_node->forward_nodes[curr_lvl];
-		while (cmp_node != list->tail && list->cmp_key(cmp_node->key, key))
+		while (cmp_node != list->tail && list->lt_cmp_key(cmp_node->key, key))
 		{
 			curr_node = cmp_node;
 			cmp_node = curr_node->forward_nodes[curr_lvl];
