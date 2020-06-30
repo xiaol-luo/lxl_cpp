@@ -5,7 +5,9 @@
 Server_Role = {}
 Server_Role.World = "world"
 Server_Role.Game = "game"
+Server_Role.Gate = "gate"
 Server_Role.World_Sentinel = "world_sentinel"
+Server_Role.Create_Role = "create_role"
 
 
 ---@class Server_Quit_State

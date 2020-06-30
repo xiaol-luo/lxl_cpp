@@ -257,3 +257,20 @@ function PeerNetService:get_role_server_keys(server_role)
     return ret
 end
 
+function PeerNetService:rand_role_server_key(server_role)
+    local ret = nil
+    if server_role then
+        local role_server_states = self._cluster_server_states_group_by_roles[server_role]
+        local server_keys = table.keys(role_server_states or {})
+        if #server_keys >= 1 then
+            if 1 == #server_keys then
+                ret = server_keys[1]
+            else
+                local rand_idx = math.random(1, #server_keys)
+                ret = server_keys[rand_idx]
+            end
+        end
+    end
+    return ret
+end
+

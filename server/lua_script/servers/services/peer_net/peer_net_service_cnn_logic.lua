@@ -177,7 +177,7 @@ function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
                             end
                         else
                             if from_server_state.cnn_unique_id then
-                                local self_cluster_server_id = tonumber(self.server:get_cluster_server_key())
+                                local self_cluster_server_id = tonumber(self.server:get_cluster_server_id())
                                 local from_cluster_server_id = tonumber(msg.from_cluster_server_id)
                                 if from_cluster_server_id < self_cluster_server_id then -- 保留小的cluster_server_id对应的连接
                                     self:_close_cnn(from_server_state.cnn_unique_id)

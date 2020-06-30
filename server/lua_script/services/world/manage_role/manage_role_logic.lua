@@ -20,6 +20,7 @@ function RoleMgr:init()
     local rpc_process_fns_map = {
         [WorldRpcFn.get_role_digest] = self.get_role_digest,
         [WorldRpcFn.create_role] = self.create_role,
+
         [WorldRpcFn.launch_role] = self.launch_role,
         [WorldRpcFn.client_quit] = self.client_quit,
         [WorldRpcFn.logout_role] = self.logout_role,
