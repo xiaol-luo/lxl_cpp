@@ -55,8 +55,10 @@ srv_rbtree_node_t * srv_rbtree_min(srv_rbtree_node_t *node, srv_rbtree_node_t *s
 
 void srv_rbtree_insert_value(srv_rbtree_node_t *root, srv_rbtree_node_t *node, srv_rbtree_node_t *sentinel);
 
-#endif
 
 #ifdef _cplusplus
 }
 #endif
+
+#endif
+
