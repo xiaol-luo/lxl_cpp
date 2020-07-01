@@ -24,9 +24,9 @@ struct skip_list_node_s
 typedef struct skip_list_s skip_list_t;
 struct skip_list_s
 {
-	uint16_t expect_lvl;
+	uint16_t expect_n_nodes_make_one_index; // 期望每n个节点，有一个索引
 	uint16_t using_max_lvl;
-	skip_list_node_t **_help_trace_less_nodes;
+	skip_list_node_t **_help_trace_nodes;
 	skip_list_node_t *head;
 	skip_list_node_t *tail;
 	skip_list_free_node_key_pt free_key;
@@ -38,10 +38,9 @@ void skip_list_node_free(skip_list_node_t *node);
 
 skip_list_t * skip_list_alloc(uint16_t expect_lvl, skip_list_lt_cmp_node_key_pt lt_cmp_key, skip_list_free_node_key_pt free_key);
 void skip_list_free(skip_list_t *list);
-skip_list_node_t * skip_list_insert(skip_list_t *list, void *key, void *data);
-void skip_list_remove(skip_list_t *list, skip_list_node_t *node);
-skip_list_node_t * skip_list_find(skip_list_t *list, void *key);
-void skip_list_find_key(void *key);
+bool skip_list_insert(skip_list_t *list, void *key, void *data);
+void * skip_list_remove(skip_list_t *list, void *key);
+bool skip_list_find(skip_list_t * list, void * key, void **out_data);
 
 
 #ifdef _cplusplus
