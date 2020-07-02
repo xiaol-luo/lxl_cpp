@@ -2,6 +2,7 @@
 batch_require(require("servers.entrance.common_server_require_files"))
 batch_require(require("servers.server_impl.create_role.server_require_files"))
 
+ServiceMgr = CreateRoleServiceMgr
 
 ---@class CreateRoleServer : ServerBase
 ---@field mongo_setting_uuid MongoServerConfig

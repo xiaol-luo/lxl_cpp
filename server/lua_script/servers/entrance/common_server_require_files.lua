@@ -23,6 +23,10 @@ return {
     "servers.services.cluster_state.cluster_state_def",
     "servers.services.cluster_state.cluster_state_service",
 
+    "servers.services.logic_service.logic_service_def",
+    "servers.services.logic_service.logic_service_base",
+    "servers.services.logic_service.logic_entity",
+
     "libs.etcd_watch.etcd_watch_def",
     "libs.etcd_watch.etcd_watch_result",
     "libs.etcd_watch.etcd_watcher",

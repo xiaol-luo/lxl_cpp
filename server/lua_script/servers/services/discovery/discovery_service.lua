@@ -109,6 +109,9 @@ function DiscoveryService:_try_apply_cluster_server_id()
                         prev_value = nil,
                     }
                 end
+                if ret:fail_msg() then
+                    log_warn("DiscoveryService:_try_apply_cluster_server_id get fail, because %s", ret:fail_msg())
+                end
             end
             -- log_print("get cluster_id op ret", op_id, ret)
         end)
@@ -130,7 +133,11 @@ function DiscoveryService:_try_apply_cluster_server_id()
                     else
                         self._cluster_id_prev_info = nil
                     end
-                    log_info("DiscoveryService apply cluster id ret=%s, fail_msg=%s", ret:is_ok(), ret:fail_msg())
+                    if ret:fail_msg() then
+                        log_warn("DiscoveryService apply cluster id ret=%s, fail_msg=%s", ret:is_ok(), ret:fail_msg())
+                    else
+                        log_info("DiscoveryService apply cluster id ret=%s", ret:is_ok())
+                    end
                 end)
         return
     end

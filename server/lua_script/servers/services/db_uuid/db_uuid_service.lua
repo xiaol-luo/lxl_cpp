@@ -1,17 +1,12 @@
 
-DBUuidService = DBUuidService or class("DBUuidService", ServiceBase)
-
-local _Const = {
-    name = "name",
-    last_id = "last_id",
-}
-
 local _ErrorNum = {
     Start_Db_Client_Fail = 1,
     Wait_Too_Long_To_Start = 2,
 }
 
----@class DBUuidService: ServiceBase
+---@class DBUuidService:ServiceBase
+DBUuidService = DBUuidService or class("DBUuidService", ServiceBase)
+
 function DBUuidService:ctor(service_mgr, service_name)
     DBUuidService.super.ctor(self, service_mgr, service_name)
     self.hosts = nil
@@ -78,9 +73,6 @@ end
 
 function DBUuidService:_on_update()
     DBUuidService.super._on_update(self)
-    -- self.db_client:on_tick()
-    local test = self:apply(DB_Uuid_Names.role_id)
-    log_print("DBUuidService:_on_update ", test)
 end
 
 function DBUuidService:cancel_check_start_success()

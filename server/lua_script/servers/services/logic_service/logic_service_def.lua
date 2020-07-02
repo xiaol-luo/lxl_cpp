@@ -1,5 +1,5 @@
 
-ServiceLogicState = {
+Logic_Entity_State = {
     Free = 0,
     Inited = 1,
     Started = 2,

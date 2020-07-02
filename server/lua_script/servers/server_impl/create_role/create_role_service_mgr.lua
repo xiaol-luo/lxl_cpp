@@ -1,12 +1,12 @@
 
----@class ServiceMgr: ServiceMgrBase
-ServiceMgr = class("ServiceMgr", ServiceMgrBase)
+---@class CreateRoleServiceMgr: ServiceMgrBase
+CreateRoleServiceMgr = class("CreateRoleServiceMgr", ServiceMgrBase)
 
-function ServiceMgr:ctor(server)
-    ServiceMgr.super.ctor(self, server)
+function CreateRoleServiceMgr:ctor(server)
+    CreateRoleServiceMgr.super.ctor(self, server)
 end
 
-function ServiceMgr:_on_init()
+function CreateRoleServiceMgr:_on_init()
 
     local db_uuid = DBUuidService:new(self, Service_Name.db_uuid)
     ---@type CreateRoleServer
@@ -15,6 +15,10 @@ function ServiceMgr:_on_init()
     db_uuid:init(mg_setting_uuid.host, mg_setting_uuid.auth_db, mg_setting_uuid.user, mg_setting_uuid.pwd,
             DB_Uuid_Const.query_db, DB_Uuid_Const.query_coll, { [DB_Uuid_Names.role_id]=true })
     self:add_service(db_uuid)
+
+    local logic_svc = CreateRoleLogicService:new(self, Service_Name.logics)
+    logic_svc:init()
+    self:add_service(logic_svc)
 
     return true
 end
