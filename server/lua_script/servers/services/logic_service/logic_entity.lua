@@ -1,5 +1,7 @@
 
 ---@class LogicEntity
+---@field server ServerBase
+---@field logic_svc LogicServiceBase
 LogicEntity = LogicEntity or class("LogicEntity", EventMgr)
 
 function LogicEntity:ctor(logic_svc, logic_name)
@@ -9,7 +11,10 @@ function LogicEntity:ctor(logic_svc, logic_name)
     self.server = self.logic_svc.server
     self._curr_state = Logic_Entity_State.Free
     self._timer_proxy = TimerProxy:new()
+    ---@type TimerProxy
     self._event_binder = EventBinder:new()
+    ---@type RpcServiceProxy
+    self._rpc_svc_proxy = self.server.rpc:create_svc_proxy()
 end
 
 function LogicEntity:set_error(error_num, error_msg)

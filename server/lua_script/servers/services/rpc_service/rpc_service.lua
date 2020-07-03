@@ -82,3 +82,9 @@ function RpcService:create_random_client(server_role)
     end
     return ret
 end
+
+---@return RpcServiceProxy
+function RpcService:create_svc_proxy()
+    local ret = RpcServiceProxy:new(self)
+    return ret
+end

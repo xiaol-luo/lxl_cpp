@@ -55,7 +55,6 @@ function ClientMgr:process_req_user_login(netid, pid, msg)
     end
 
     local main_logic = function(co, msg)
-        log_debug("xxxxxxxxxxx %s", string.to_print(msg))
         if msg.ignore_auth then
             return Error_None
         else

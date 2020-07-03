@@ -2,6 +2,7 @@
 batch_require(require("servers.entrance.common_server_require_files"))
 batch_require(require("servers.server_impl.gate.server_require_files"))
 
+ServiceMgr = GateServiceMgr
 
 ---@class GateServer : ServerBase
 ---@field redis_setting_online_servers RedisServerConfig

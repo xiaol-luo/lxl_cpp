@@ -16,6 +16,7 @@ return {
     "servers.services.rpc_service.rpc_pto",
     "servers.services.rpc_service.rpc_service_rpc_mgr",
     "servers.services.rpc_service.rpc_service",
+    "servers.services.rpc_service.rpc_service_proxy",
 
     "servers.services.zone_setting.zone_setting_def",
     "servers.services.zone_setting.zone_setting_service",

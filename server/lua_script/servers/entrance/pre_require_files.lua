@@ -84,6 +84,8 @@ local files = {
     "libs.data_struct.random_hash",
 
     "servers.common.const.const",
+    "servers.common.rpc.rpc",
+
     "servers.common.config.etcd_server_config",
     "servers.common.config.redis_server_config",
     "servers.common.config.mongo_server_config",

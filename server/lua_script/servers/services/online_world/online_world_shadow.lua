@@ -104,7 +104,7 @@ function OnlineWorldShadow:_on_rpc_notify_online_world_servers_data(rsp, msg)
 end
 
 function OnlineWorldShadow:_query_online_world_monitor(is_simple_info)
-    local server_key = self.server.peer_net:rand_role_server_key(Server_Role.World_Sentinel)
+    local server_key = self.server.peer_net:random_server_key(Server_Role.World_Sentinel)
     if server_key then
         self.server.rpc:call(function(rpc_error_num)
             if Error_None == rpc_error_num then
