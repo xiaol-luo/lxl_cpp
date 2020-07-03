@@ -22,14 +22,18 @@ function GateLogic:_on_release()
 end
 
 function GateLogic:_on_update()
+    --[[
     -- log_print("GateLogic:_on_update")
     local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
     if server_key then
-        -- log_print("GateLogic:_on_update 1")
-        --self._rpc_svc_proxy:call(function(...)
-        --    log_print("Rpc.create_role.method.query_roles", ...)
-        --end, server_key, Rpc.create_role.method.query_roles)
+        self._rpc_svc_proxy:call(function(...)
+            -- log_print("Rpc.create_role.method.query_roles", ...)
+        end, server_key, Rpc.create_role.method.query_roles, 1)
+        self._rpc_svc_proxy:call(function(...)
+            -- log_print("Rpc.create_role.method.query_roles", ...)
+        end, server_key, Rpc.create_role.method.create_role, 1)
     end
+    ]]
 end
 
 

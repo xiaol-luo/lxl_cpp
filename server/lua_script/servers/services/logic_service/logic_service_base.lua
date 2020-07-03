@@ -10,7 +10,7 @@ end
 function LogicServiceBase:add_logic(logic)
     table.insert(self._logic_list, logic)
     local name = logic:get_name()
-    assert(not self[name])
+    assert(name and not self[name])
     self[name] = logic
 end
 

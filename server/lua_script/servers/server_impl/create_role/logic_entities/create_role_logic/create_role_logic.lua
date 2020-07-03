@@ -35,7 +35,7 @@ function CreateRoleLogic:_on_update()
 end
 
 ---@param rpc_rsp RpcRsp
-function CreateRoleLogic:_handle_remote_call_query_roles(rpc_rsp, user_id)
+function CreateRoleLogic:_handle_remote_call_create_role(rpc_rsp, user_id)
     if not user_id then
         rpc_rsp:report_error("user_id is nil")
         return
@@ -51,20 +51,44 @@ function CreateRoleLogic:_handle_remote_call_query_roles(rpc_rsp, user_id)
     }
 
     --
-    self._db_client:count_document(user_id, self.server.zone_name, Const.mongo.collection_name.user, { user_id = user_id }, function(db_ret)
-        log_print("_db_client:count_document", db_ret)
-        if 0 == db_ret.error_num and db_ret.matched_count < Const.role_count_per_user then
-
+    self._db_client:count_document(user_id, self.server.zone_name, Const.mongo.collection_name.role, { user_id = user_id }, function(db_ret)
+        if 0 == db_ret.error_num then
+            if db_ret.matched_count < Const.role_count_per_user then
+                self._db_client:insert_one(user_id, self.server.zone_name, Const.mongo.collection_name.role, doc, function(db_ret)
+                    if 0 == db_ret.error_num then
+                        rpc_rsp:respone(doc.role_id)
+                    else
+                        rpc_rsp:respone("insert role fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg)
+                    end
+                end)
+            else
+                rpc_rsp:respone("user has role num is %s, more than %s", db_ret.matched_count, Const.role_count_per_user)
+            end
+        else
+            rpc_rsp:respone("query role count fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg)
         end
     end)
-
-    rsp:respone()
-    log_print("CreateRoleLogic:_handle_remote_call_query_roles")
 end
 
 ---@param rpc_rsp RpcRsp
-function CreateRoleLogic:_handle_remote_call_create_role(rpc_rsp)
-    log_print("CreateRoleLogic:_handle_remote_call_create_role")
-    rsp:respone()
+function CreateRoleLogic:_handle_remote_call_query_roles(rpc_rsp, user_id, role_id)
+    local find_opt = MongoOptFind:new()
+    find_opt:set_max_time(5 * 1000)
+    local filter = {}
+    filter.user_id = user_id
+    if role_id and role_id > 0 then
+        filter.role_id = role_id
+    end
+    self._db_client:find_many(user_id, self.server.zone_name, Const.mongo.collection_name.role, filter, function(db_ret)
+        if 0 == db_ret.error_num then
+            local ret = {}
+            for _, v in pairs(db_ret.val) do
+                table.insert(ret, { role_id = v.role_id })
+            end
+            rpc_rsp:respone(ret)
+        else
+            rpc_rsp:report_error(string.format("error_num:%s, error_msg:%s", db_ret.error_num, db_ret.error_msg))
+        end
+    end, find_opt)
 end
 
