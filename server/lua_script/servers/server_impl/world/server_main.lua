@@ -14,6 +14,8 @@ end
 
 function WorldServer:ctor(init_setting, init_args)
     WorldServer.super.ctor(self, Server_Role.World, init_setting, init_args)
+    self.redis_setting_online_servers = nil
+    self.mongo_setting_game = nil
 end
 
 function WorldServer:_on_init()

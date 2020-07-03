@@ -1,5 +1,7 @@
 
 ---@class CreateRoleServiceMgr: ServiceMgrBase
+---@field db_uuid DBUuidService
+---@field logics CreateRoleLogicService
 CreateRoleServiceMgr = class("CreateRoleServiceMgr", ServiceMgrBase)
 
 function CreateRoleServiceMgr:ctor(server)

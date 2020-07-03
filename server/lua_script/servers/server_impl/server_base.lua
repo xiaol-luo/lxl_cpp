@@ -8,7 +8,7 @@
 ---@field pto_parser Proto
 ---@field discovery DiscoveryService
 ---@field peer_net PeerNetService
----@field zone string
+---@field zone_name string
 ---@field zone_setting ZoneSettingService
 ---@field cluster_state ClusterStateService
 ---@field rpc RpcService
@@ -16,7 +16,7 @@ ServerBase = ServerBase or class("ServerBase", EventMgr)
 
 function ServerBase:ctor(server_role, init_setting, init_args)
     ServerBase.super.ctor(self)
-    self.zone = nil
+    self.zone_name = nil
     self.server_role = string.lower(server_role)
     self.init_setting = init_setting
     self.init_args = init_args
@@ -70,7 +70,7 @@ function ServerBase:_on_init()
     if not self.init_setting.zone then
         return false
     end
-    self.zone = string.lower(self.init_setting.zone)
+    self.zone_name = string.lower(self.init_setting.zone)
 
     if not self.init_setting.server_name then
         return false

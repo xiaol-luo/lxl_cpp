@@ -1,4 +1,5 @@
 
+---@class MongoClient
 MongoClient = MongoClient or class("MongoClient")
 
 function MongoClient:ctor(thread_num, hosts, auth_db, user_name, pwd)

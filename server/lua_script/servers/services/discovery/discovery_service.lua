@@ -44,12 +44,12 @@ end
 
 function DiscoveryService:_on_init()
     DiscoveryService.super._on_init(self)
-    self._db_path_watch_server_dir = string.format(Discovery_Service_Const.db_path_format_zone_server_dir, self.server.zone)
-    self._db_path_apply_cluster_id = string.format(Discovery_Service_Const.db_path_format_apply_cluster_id, self.server.zone)
+    self._db_path_watch_server_dir = string.format(Discovery_Service_Const.db_path_format_zone_server_dir, self.server.zone_name)
+    self._db_path_apply_cluster_id = string.format(Discovery_Service_Const.db_path_format_apply_cluster_id, self.server.zone_name)
     self._db_path_zone_server_data = string.format(Discovery_Service_Const.db_path_format_zone_server_data,
-            self.server.zone, self.server.server_role, self.server.server_name)
+            self.server.zone_name, self.server.server_role, self.server.server_name)
     self._etcd_setting = self.server.etcd_service_discovery_setting
-    self._zone_server_data[ZoneServerJsonDataField.zone] = self.server.zone
+    self._zone_server_data[ZoneServerJsonDataField.zone] = self.server.zone_name
     self._zone_server_data[ZoneServerJsonDataField.server_role] = self.server.server_role
     self._zone_server_data[ZoneServerJsonDataField.server_name] = self.server.server_name
     self._zone_server_data[ZoneServerJsonDataField.advertise_client_ip] = self.server.init_setting.advertise_client_ip

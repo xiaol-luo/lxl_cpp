@@ -34,9 +34,9 @@ OnlineWorldMonitor = OnlineWorldMonitor or class("OnlineWorldMonitor", ServiceBa
 
 function OnlineWorldMonitor:ctor(service_mgr, service_name)
     OnlineWorldMonitor.super.ctor(self, service_mgr, service_name)
-    self._redis_key_online_world_adjusting_version = string.format(Online_World_Const.redis_key_online_world_adjusting_version_format, self.server.zone)
-    self._redis_key_online_world_version = string.format(Online_World_Const.redis_key_online_world_version_format, self.server.zone)
-    self._redis_key_online_world_servers = string.format(Online_World_Const.redis_key_online_world_servers_format, self.server.zone)
+    self._redis_key_online_world_adjusting_version = string.format(Online_World_Const.redis_key_online_world_adjusting_version_format, self.server.zone_name)
+    self._redis_key_online_world_version = string.format(Online_World_Const.redis_key_online_world_version_format, self.server.zone_name)
+    self._redis_key_online_world_servers = string.format(Online_World_Const.redis_key_online_world_servers_format, self.server.zone_name)
 
     log_print("self._redis_key_online_world_adjusting_version", self._redis_key_online_world_adjusting_version)
     log_print("self._redis_key_online_world_version", self._redis_key_online_world_version)

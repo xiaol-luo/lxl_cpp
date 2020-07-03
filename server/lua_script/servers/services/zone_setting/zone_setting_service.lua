@@ -24,16 +24,16 @@ end
 function ZoneSettingService:_on_init()
     ZoneSettingService.super:_on_init(self)
     local etcd_setting = self.server.etcd_service_discovery_setting
-    self._watch_path = string.format(Zone_Setting_Const.db_path_zone_setting_format, self.server.zone)
+    self._watch_path = string.format(Zone_Setting_Const.db_path_zone_setting_format, self.server.zone_name)
     self._zone_setting_watcher = EtcdWatcher:new(etcd_setting.host, etcd_setting.user, etcd_setting.pwd, self._watch_path)
     self._event_binder:bind(self._zone_setting_watcher, Etcd_Watch_Event.watch_result_change, Functional.make_closure(self._on_zone_setting_change, self))
     self._event_binder:bind(self._zone_setting_watcher, Etcd_Watch_Event.watch_result_diff, Functional.make_closure(self._on_zone_setting_diff, self))
 
     self._etcd_client = EtcdClient:new(etcd_setting.host, etcd_setting.user, etcd_setting.pwd)
-    self._db_path_zone_setting = string.format(Zone_Setting_Const.db_path_zone_setting_format, self.server.zone)
-    self._db_path_zone_allow_join_servers = string.format(Zone_Setting_Const.db_path_zone_allow_join_servers_format, self.server.zone)
-    self._db_path_zone_role_min_nums = string.format(Zone_Setting_Const.db_path_zone_role_min_nums_format, self.server.zone)
-    self._db_path_is_setting_ready = string.format(Zone_Setting_Const.db_path_is_setting_ready_format, self.server.zone)
+    self._db_path_zone_setting = string.format(Zone_Setting_Const.db_path_zone_setting_format, self.server.zone_name)
+    self._db_path_zone_allow_join_servers = string.format(Zone_Setting_Const.db_path_zone_allow_join_servers_format, self.server.zone_name)
+    self._db_path_zone_role_min_nums = string.format(Zone_Setting_Const.db_path_zone_role_min_nums_format, self.server.zone_name)
+    self._db_path_is_setting_ready = string.format(Zone_Setting_Const.db_path_is_setting_ready_format, self.server.zone_name)
 end
 
 function ZoneSettingService:_on_start()

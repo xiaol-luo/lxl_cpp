@@ -15,6 +15,8 @@ end
 
 function CreateRoleServer:ctor(init_setting, init_args)
     CreateRoleServer.super.ctor(self, Server_Role.Create_Role, init_setting, init_args)
+    self.mongo_setting_uuid = nil
+    self.mongo_setting_game = nil
 end
 
 function CreateRoleServer:_on_init()

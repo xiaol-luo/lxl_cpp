@@ -27,9 +27,9 @@ function OnlineWorldShadow:ctor(service_mgr, service_name)
     self._query_online_world_monitor_last_sec = 0
     self._query_online_world_reids_last_sec = 0
 
-    self._redis_key_online_world_adjusting_version = string.format(Online_World_Const.redis_key_online_world_adjusting_version_format, self.server.zone)
-    self._redis_key_online_world_version = string.format(Online_World_Const.redis_key_online_world_version_format, self.server.zone)
-    self._redis_key_online_world_servers = string.format(Online_World_Const.redis_key_online_world_servers_format, self.server.zone)
+    self._redis_key_online_world_adjusting_version = string.format(Online_World_Const.redis_key_online_world_adjusting_version_format, self.server.zone_name)
+    self._redis_key_online_world_version = string.format(Online_World_Const.redis_key_online_world_version_format, self.server.zone_name)
+    self._redis_key_online_world_servers = string.format(Online_World_Const.redis_key_online_world_servers_format, self.server.zone_name)
 
     self._server_hash = ConsistentHash:new()
 end
