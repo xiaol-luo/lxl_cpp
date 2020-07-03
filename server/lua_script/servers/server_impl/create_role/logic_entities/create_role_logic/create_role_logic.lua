@@ -51,8 +51,11 @@ function CreateRoleLogic:_handle_remote_call_query_roles(rpc_rsp, user_id)
     }
 
     --
-    self._db_client:count_document(user_id, self.server.zone_name, Const.mongo.collection_name.user, { user_id = user_id }, function()
-        
+    self._db_client:count_document(user_id, self.server.zone_name, Const.mongo.collection_name.user, { user_id = user_id }, function(db_ret)
+        log_print("_db_client:count_document", db_ret)
+        if 0 == db_ret.error_num and db_ret.matched_count < Const.role_count_per_user then
+
+        end
     end)
 
     rsp:respone()
