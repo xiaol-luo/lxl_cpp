@@ -18,6 +18,7 @@ end
 local help_fns = {}
 
 function Functional.make_closure(fn, ...)
+    assert(fn)
     local t_len, t = Functional.varlen_param_info(...)
     assert(t_len <= #help_fns, string.format("write more help fns #t=%d", t_len))
     local ret = help_fns[t_len](Functional.call, fn, t)
@@ -25,6 +26,7 @@ function Functional.make_closure(fn, ...)
 end
 
 function Functional.make_safe_closure(fn, ...)
+    assert(fn)
     local t_len, t = Functional.varlen_param_info(...)
     assert(t_len < #help_fns, string.format("write more help fns #t=%d", t_len))
     local ret = help_fns[t_len](Functional.safe_call, fn, table.unpack(t))

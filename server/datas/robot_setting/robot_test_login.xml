@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<gates>
+		<gate>for_array</gate>
+		<gate>for_array</gate>
+		<gate>
+			<name>gate_info</name>
+			<ip>127.0.0.1</ip>
+			<port>35001</port>
+		</gate>
+	</gates>
+	<robot_num>1</robot_num>
+</root>

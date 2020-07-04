@@ -1,4 +1,16 @@
 
+function batch_require(...)
+    for _, v in pairs(...) do
+        local tp = type(v)
+        if "table" == tp then
+            batch_require(table.unpack(v))
+        end
+        if "string" == tp then
+            require(v)
+        end
+    end
+end
+
 ParseArgs = ParseArgs or {}
 ParseArgs.One_Gang = "-"
 ParseArgs.Opt_Lua_Path = "lua_path"
@@ -128,12 +140,10 @@ if arg_tb[ParseArgs.Opt_Lua_Path] then
     end
 end
 
-require("libs.require_ex")
-
-batch_require(require("servers/entrance/pre_require_files"))
-
 if arg_tb[ParseArgs.Opt_Require_Files] then
-    batch_require(arg_tb[ParseArgs.Opt_Require_Files])
+    for _, v in pairs(arg_tb[ParseArgs.Opt_Require_Files]) do
+        require(v)
+    end
 end
 
 if arg_tb[ParseArgs.Opt_Execute_Fns] then

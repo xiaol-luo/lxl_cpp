@@ -30,6 +30,24 @@ extern "C"
 
 #include "redis/redis_task_mgr.h"
 #include "data_struct/consistent_hash/consistent_hash.h"
+#include "data_struct/skip_list/skip_list.h"
+
+
+typedef struct skip_node_key_s skip_node_key_t;
+struct skip_node_key_s
+{
+	int a;
+	int b;
+};
+
+bool cmp_skip_node_key(void *n1, void *n2)
+{
+	skip_node_key_t *p_n1 = (skip_node_key_t *)n1;
+	skip_node_key_t *p_n2 = (skip_node_key_t *)n2;
+	if (p_n1->a != p_n2->a)
+		return p_n1->a < p_n2->a;
+	return p_n1->b < p_n2->b;
+}
 
 void QuitGame(int signal)
 {
@@ -42,95 +60,17 @@ int main (int argc, char **argv)
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
 #endif
-	if (false)
+	if (true)
 	{
-		redisClusterContext *rcc = redisClusterConnect("127.0.0.1:7000", REDIS_BLOCK);
-		redisReply *reply = (redisReply *)redisClusterCommand(rcc, "set foo 100");
-		if (nullptr == reply)
+		skip_list_t *list = skip_list_alloc(3, cmp_skip_node_key, free);
+		for (int i = 0; i < 10; ++i)
 		{
-			printf("set foo fail\n");
-			return -1;
+			skip_node_key_t *key = (skip_node_key_t *)calloc(1, sizeof(skip_node_key_t));
+			key->a = rand() % 100;
+			key->b = rand() % 100;
+			skip_list_insert(list, key, NULL);
 		}
-		freeReplyObject(reply);
-		reply = (redisReply *)redisClusterCommand(rcc, "get foo");
-		if (nullptr == reply)
-		{
-			printf("get foo fail\n");
-			return -1;
-		}
-		freeReplyObject(reply);
-		redisClusterFree(rcc);
-	}
-
-	if (false)
-	{
-		RedisTaskMgr mgr;
-		if (mgr.Start(true, "127.0.0.1:7000", "xiaolzz", 1, 2000, 9000))
-		{
-			while (true)
-			{
-				if (true)
-				{
-					mgr.ExecuteCmd(1, [](RedisTask *task) {
-						if (nullptr != task->reply)
-						{
-							printf("reply 1 %d \n", task->reply->type);
-						}
-					}, "set foo %d", 100);
-				}
-				
-				if (true)
-				{
-					std::string cmd = "get foo";
-					mgr.ExecuteCmd(1, [](RedisTask *task) {
-						if (task->reply)
-						{
-							printf("reply 2 %d \n", task->reply->type);
-						}
-					}, cmd);
-				}
-
-				if (true)
-				{
-					std::vector<std::string> cmds = { "foo", "100" };
-					mgr.ExecuteCmdBinFormat(1, [](RedisTask *task) {
-						if (task->reply)
-						{
-							printf("reply 3 %d \n", task->reply->type);
-						}
-					},  "set %b %b", cmds);
-				}
-
-				if (true)
-				{
-					std::vector<std::string> cmds = { "get", "foo" };
-					mgr.ExecuteCmdArgv(1, [](RedisTask *task) {
-						if (task->reply)
-						{
-							printf("reply 4 %d \n", task->reply->type);
-						}
-					}, cmds);
-				}
-
-				if (false)
-				{
-					const char *argv[2] = { "get", "foo" };
-					size_t argv_len[2] = { 3, 3 };
-					mgr.ExecuteCmdArgv(1, [](RedisTask *task) {
-						if (task->reply)
-						{
-							printf("reply 5 %d \n", task->reply->type);
-						}
-					}, sizeof(argv)/ sizeof(argv[0]), argv, argv_len);
-				}
-
-				mgr.OnFrame();
-				static const int SLEEP_SPAN = 25;
-				std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_SPAN));
-			}
-		}
-		mgr.Stop();
-
+		skip_list_free(list);
 	}
 
 	// argv: exe_name work_dir lua_file lua_file_params...

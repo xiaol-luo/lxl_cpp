@@ -1,5 +1,5 @@
 
-batch_require(require("servers.entrance.common_server_require_files"))
+
 batch_require(require("servers.server_impl.world.server_require_files"))
 
 
@@ -21,7 +21,7 @@ end
 function WorldServer:_on_init()
     -- 一致性哈希使用redis server的配置
     for _, v in ipairs(self.init_setting.redis_service.element) do
-        if is_table(v) and v.name == Const.redis_setting_name_online_servers  then
+        if is_table(v) and v.name == Const.redis_setting_name_online_servers then
             self.redis_setting_online_servers = RedisServerConfig:new()
             self.redis_setting_online_servers:parse_from(v)
         end

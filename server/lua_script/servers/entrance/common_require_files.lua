@@ -28,6 +28,10 @@ return {
     "servers.services.logic_service.logic_service_base",
     "servers.services.logic_service.logic_entity",
 
+    "servers.services.client_net_service.client_net_def",
+    "servers.services.client_net_service.client_net_cnn",
+    "servers.services.client_net_service.client_net_service",
+
     "libs.etcd_watch.etcd_watch_def",
     "libs.etcd_watch.etcd_watch_result",
     "libs.etcd_watch.etcd_watcher",

@@ -151,5 +151,12 @@ function ServerBase:try_quit_game()
     native.try_quit_game()
 end
 
+function ServerBase:_find_xml_elements(elements, field, value)
+    for _, v in pairs(elements) do
+        if v[field] == value then
+
+        end
+    end
+end
 
 

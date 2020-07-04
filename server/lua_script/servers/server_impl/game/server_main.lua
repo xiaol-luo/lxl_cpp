@@ -1,5 +1,5 @@
 
-batch_require(require("servers.entrance.common_server_require_files"))
+
 batch_require(require("servers.server_impl.game.server_require_files"))
 
 

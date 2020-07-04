@@ -71,7 +71,7 @@ protected:
 	std::queue<Net::NetTask *> m_net_tasks;
 	std::mutex *m_net_task_results_mutex = nullptr;
 	std::queue<Net::NetTaskResult> m_net_task_results;
-	int m_net_task_thread_num = 1;
+	int m_net_task_thread_num = 16;
 	NetTaskThread **m_net_task_threads = nullptr;
 	void ProcessNetTaskResult();
 
@@ -83,7 +83,7 @@ protected:
 	int64_t GenAsyncId();
 
 protected:
-	int m_net_worker_num = 10;
+	int m_net_worker_num = 16;
 	Net::INetWorker **m_net_workers = nullptr;
 	Net::INetWorker * ChoseWorker(NetId netid);
 	void ProcessNetDatas();
