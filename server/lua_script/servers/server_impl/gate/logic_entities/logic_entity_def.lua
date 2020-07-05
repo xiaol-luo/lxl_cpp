@@ -3,7 +3,8 @@ Gate_Logic_Entity_Const = {
 
 }
 
-Gate_Logic_Name = {
-    gate = "gate",
-    create_role_agent = "create_role_agent",
-}
+Gate_Logic_Name = {}
+
+Gate_Logic_Name.gate = "gate"
+Gate_Logic_Name.create_role_agent = "create_role_agent"
+Gate_Logic_Name.gate_client_mgr = "gate_client_mgr"

@@ -1,5 +1,5 @@
 
-Client_State = {
+Gate_Client_State = {
     free = 0,
     binded = 1,
     raise_error = 2,

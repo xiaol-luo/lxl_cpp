@@ -5,7 +5,7 @@ function Client:ctor(client_mgr, netid, cnn)
     self.client_mgr = client_mgr
     self.netid = netid
     self.cnn = cnn
-    self.state = Client_State.free
+    self.state = Gate_Client_State.free
     self.fight = nil
     self.error_msg = ""
 end
@@ -14,7 +14,7 @@ function Client:release()
     if self.cnn then
         self.cnn:close()
     end
-    self.state = Client_State.released
+    self.state = Gate_Client_State.released
     self.cnn = nil
     self.fight = nil
 end

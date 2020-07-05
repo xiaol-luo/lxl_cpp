@@ -33,7 +33,7 @@ function FightBase:bind_client(client, role_id, fight_session_id)
     if fight_session_id ~= self.fight_session_id then
         return Error.Bind_Fight.fight_session_not_fix
     end
-    if Client_State.free ~= client.state then
+    if Gate_Client_State.free ~= client.state then
         return Error.Bind_Fight.client_not_free
     end
     local old_client_data = nil
@@ -51,7 +51,7 @@ function FightBase:bind_client(client, role_id, fight_session_id)
         role_id = role_id,
         client = client,
     }
-    client.state = Client_State.binded
+    client.state = Gate_Client_State.binded
     client.fight = self
     self.netid_to_client_datas[client.netid] = client_data
     self:_on_bind_client(client_data)

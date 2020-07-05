@@ -31,6 +31,10 @@ function GateServer:_on_init()
     if not ret then
         return false
     end
+
+    self.pto_parser:load_files(Login_Pto.pto_files)
+    self.pto_parser:setup_id_to_protos(Login_Pto.id_to_pto)
+
     return true
 end
 

@@ -58,14 +58,21 @@ function ClientNetService:_on_update()
     ClientNetService.super._on_update(self)
 end
 
+---@return ClientNetCnn
+function ClientNetService:get_cnn(netid)
+    local ret = self._cnn_map[netid]
+    return ret
+end
+
 ---@param cnn PidBinCnn
 function ClientNetService:_cnn_handler_on_open(cnn, error_num)
     local netid = cnn:netid()
-    if Error_None ~= error_num then
+    if Error_None == error_num then
+
         local client_net_cnn = ClientNetCnn:new(self, cnn)
         self._cnn_map[netid] = client_net_cnn
         if self._cnn_cbs and self._cnn_cbs.on_open then
-            self._cnn_cbs.on_open(self, netid, error_num)
+            self._cnn_cbs.on_open(self, netid)
         end
     end
     log_debug("ClientNetService:_cnn_handler_on_open netid %s error_num %s", netid, error_num)

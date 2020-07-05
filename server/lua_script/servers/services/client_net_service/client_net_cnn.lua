@@ -41,14 +41,7 @@ function ClientNetCnn:send_msg(pid, msg)
     if not self:is_alive() then
         return false
     end
-    local is_ok, bin = true, nil
-    if msg then
-        if not self._pto_parser:exist(pid) then
-            is_ok = false
-        else
-            is_ok, bin = self._pto_parser:encode(pid, msg)
-        end
-    end
+    local is_ok, bin = self._pto_parser:encode(pid, msg)
     if is_ok then
         return self._cnn:send(pid, bin)
     else

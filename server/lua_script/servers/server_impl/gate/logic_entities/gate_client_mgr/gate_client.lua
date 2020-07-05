@@ -1,9 +1,10 @@
+---@class GateClient
+---@field cnn ClientNetCnn
+GateClient = GateClient or class("GateClient")
 
-Client = Client or class("Client")
-
-function Client:ctor()
-    self.netid = nil
-    self.cnn = nil
+function GateClient:ctor(cnn)
+    self.cnn = cnn
+    self.netid = cnn.netid
     self.state = Gate_Client_State.free
     self.user_id = nil
     self.launch_role_id = nil
@@ -13,27 +14,27 @@ function Client:ctor()
     self.token = nil
 end
 
-function Client:is_authed()
+function GateClient:is_authed()
     return self.state > Gate_Client_State.authing
 end
 
-function Client:is_alive()
+function GateClient:is_alive()
     return self.state < Gate_Client_State.releasing
 end
 
-function Client:is_ingame()
+function GateClient:is_ingame()
     return Gate_Client_State.in_game == self.state
 end
 
-function Client:is_free()
+function GateClient:is_free()
     return Gate_Client_State.free == self.state
 end
 
-function Client:is_authing()
+function GateClient:is_authing()
     return Gate_Client_State.authing == self.state
 end
 
-function Client:is_launching()
+function GateClient:is_launching()
     return Gate_Client_State.launch_role == self.state
 end
 

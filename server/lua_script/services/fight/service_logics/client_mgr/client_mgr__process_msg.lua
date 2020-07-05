@@ -9,7 +9,7 @@ function ClientMgr:_default_hanle_msg_fn(netid, pid, msg)
     if pid > ProtoId.fight_logic_min_pid and pid < ProtoId.fight_logic_max_pid then
         local client = self.clients[netid]
         if client then
-            if Client_State.binded == client.state and client.fight then
+            if Gate_Client_State.binded == client.state and client.fight then
                 client.fight:on_client_msg(client, pid, msg)
             else
                 log_error("ClientMgr:_default_hanle_msg_fn netid=%s, pid=%s client not binded", netid, pid)
@@ -30,7 +30,7 @@ function ClientMgr:_on_msg_req_bind_fight(netid, pid, msg)
             error_num = Error.Bind_Fight.no_client
             break
         end
-        if Client_State.free ~= client.state then
+        if Gate_Client_State.free ~= client.state then
             error_num = Error.Bind_Fight.client_binded
             break
         end

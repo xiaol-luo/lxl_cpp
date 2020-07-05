@@ -2,6 +2,10 @@
 ---@class CreateRoleAgentLogic:LogicEntity
 CreateRoleAgentLogic = CreateRoleAgentLogic or class("CreateRoleAgentLogic", LogicEntity)
 
+function CreateRoleAgentLogic:ctor(logic_svc, logic_name)
+    CreateRoleAgentLogic.super.ctor(self, logic_svc, logic_name)
+end
+
 function CreateRoleAgentLogic:_on_init()
     CreateRoleAgentLogic.super._on_init(self)
 end

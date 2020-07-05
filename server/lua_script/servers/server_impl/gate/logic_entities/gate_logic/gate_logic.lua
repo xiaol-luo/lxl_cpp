@@ -2,6 +2,11 @@
 ---@class GateLogic:LogicEntity
 GateLogic = GateLogic or class("GateLogic", LogicEntity)
 
+function GateLogic:ctor(logic_svc, logic_name)
+    GateLogic.super.ctor(self, logic_svc, logic_name)
+end
+
+
 function GateLogic:_on_init()
     GateLogic.super._on_init(self)
 end

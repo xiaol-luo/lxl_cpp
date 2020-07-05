@@ -1,7 +1,7 @@
 
 local files =
 {
-    [Proto_Const.Pb] =
+    [Pto_Const.Pb] =
     {
         "client_login.pb",
         "client_gate.pb",
@@ -13,7 +13,7 @@ local files =
         "game.pb",
         "fight.pb",
     },
-    [Proto_Const.Sproto] =
+    [Pto_Const.Sproto] =
     {
 
     },

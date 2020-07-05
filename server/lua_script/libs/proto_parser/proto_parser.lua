@@ -4,8 +4,8 @@ ProtoParser = ProtoParser or class("ProtoParser")
 
 function ProtoParser:ctor()
     self.stores = {}
-    self.stores[Proto_Const.Pb] = ProtobufStore:new()
-    self.stores[Proto_Const.Sproto] = SprotoStore:new()
+    self.stores[Pto_Const.Pb] = ProtobufStore:new()
+    self.stores[Pto_Const.Sproto] = SprotoStore:new()
     self.id2proto_detail = {}
 end
 
@@ -29,7 +29,7 @@ end
  function ProtoParser:load_files(file_list)
      local ret = true
      for _, v in pairs(file_list) do
-         if not self:load_file(v[Proto_Const.pto_type], v[Proto_Const.pto_path]) then
+         if not self:load_file(v[Pto_Const.pto_type], v[Pto_Const.pto_path]) then
              ret = false
          end
      end
@@ -41,12 +41,12 @@ end
      local store = self.stores[pto_type]
      assert(store)
      assert(not self.id2proto_detail[pto_id])
-     self.id2proto_detail[pto_id] = { [Proto_Const.pto_id] = pto_id, [Proto_Const.pto_type] = store, [Proto_Const.pto_name] = pto_name }
+     self.id2proto_detail[pto_id] = { [Pto_Const.pto_id] = pto_id, [Pto_Const.pto_type] = store, [Pto_Const.pto_name] = pto_name }
  end
 
  function ProtoParser:setup_id_to_protos(pto_list)
      for _, v in pairs(pto_list) do
-         self:setup_id_to_proto(v[Proto_Const.pto_id], v[Proto_Const.pto_type], v[Proto_Const.pto_name])
+         self:setup_id_to_proto(v[Pto_Const.pto_id], v[Pto_Const.pto_type], v[Pto_Const.pto_name])
      end
  end
 
@@ -58,13 +58,11 @@ end
  end
 
 function ProtoParser:encode(pto_id, param)
-    if not pto_id or not param then
-        log_error("ProtoParser:encode input invalie pto_id=%s, param=%s", pto_id, param)
-        return false, nil
-    end
+    local is_ok, ret = false, nil
     local proto_detail = self.id2proto_detail[pto_id]
-    assert(proto_detail)
-    local is_ok, ret = proto_detail[Proto_Const.pto_type]:encode(proto_detail[Proto_Const.pto_name], param)
+    if proto_detail then
+        is_ok, ret = proto_detail[Pto_Const.pto_type]:encode(proto_detail[Pto_Const.pto_name], param)
+    end
     return is_ok, ret
 end
 
@@ -73,7 +71,7 @@ function ProtoParser:decode(pto_id, block)
     local ret = nil
     local proto_detail = self.id2proto_detail[pto_id]
     if proto_detail then
-        is_ok, ret = proto_detail[Proto_Const.pto_type]:decode(proto_detail[Proto_Const.pto_name], block)
+        is_ok, ret = proto_detail[Pto_Const.pto_type]:decode(proto_detail[Pto_Const.pto_name], block)
     end
     return is_ok, ret
 end
@@ -91,19 +89,19 @@ function ProtoParser:decode_by_name(pto_type, pto_name, block)
 end
 
 function ProtoParser:pb_encode(pto_name, tb)
-    return self:encode_by_name(Proto_Const.Pb, pto_name, tb)
+    return self:encode_by_name(Pto_Const.Pb, pto_name, tb)
 end
 
 function ProtoParser:pb_decode(pto_name, block)
-    return self:decode_by_name(Proto_Const.Pb, pto_name, block)
+    return self:decode_by_name(Pto_Const.Pb, pto_name, block)
 end
 
 function ProtoParser:sproto_encode(pto_name, tb)
-    return self:encode_by_name(Proto_Const.Sproto, pto_name, tb)
+    return self:encode_by_name(Pto_Const.Sproto, pto_name, tb)
 end
 
 function ProtoParser:sproto_decode(pto_name, block)
-    return self:decode_by_name(Proto_Const.Sproto, pto_name, block)
+    return self:decode_by_name(Pto_Const.Sproto, pto_name, block)
 end
 
 

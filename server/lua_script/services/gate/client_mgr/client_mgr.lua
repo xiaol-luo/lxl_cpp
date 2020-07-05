@@ -38,7 +38,7 @@ function ClientMgr:_on_new_cnn(netid, error_code)
         local client = Client:new()
         client.netid = netid
         client.cnn = client_cnn
-        client.state = Client_State.Free
+        client.state = Gate_Client_State.free
         self.clients[client.netid] = client
     end
 end

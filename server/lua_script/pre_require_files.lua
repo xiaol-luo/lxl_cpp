@@ -54,7 +54,7 @@ local files = {
     "common.zone_service_mgr.zone_service_state",
     "common.zone_service_mgr.zone_service_mgr__peer_connect",
     "common.zone_service_mgr.zone_service_mgr__accept_connect",
-    "libs.proto_parser.proto_def",
+
     "libs.proto_parser.proto_store_base",
     "libs.proto_parser.protobuf_store",
     "libs.proto_parser.sproto_store",
