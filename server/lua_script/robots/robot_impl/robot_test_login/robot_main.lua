@@ -86,6 +86,8 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         loop_times = loop_times - 1
 
         local opera_id = math.random(1, 2)
+        log_print("loop opera_id loop_times", opera_id, loop_times)
+
         if 1 == opera_id then
             self:send_msg(gate_cnn, Login_Pid.req_pull_role_digest, {})
         end
@@ -99,12 +101,13 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
             ex_coroutine_report_error("gate connection is over")
             return
         end
-        log_print("recv msg", co_ok, action_name, error_num, pid, msg)
+        log_print("recv msg", opera_id, co_ok, action_name, error_num, pid, msg)
     end
 end
 
 ---@param co CoroutineEx
 function RobotTestLogin:_test_over_logic(co)
+    log_print("RobotTestLogin:_test_over_logic")
     local co_custom_data = co:get_custom_data()
     if co_custom_data.gate_cnn then
         co_custom_data.gate_cnn:reset()

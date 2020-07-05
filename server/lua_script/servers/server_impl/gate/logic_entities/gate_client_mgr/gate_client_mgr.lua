@@ -7,6 +7,9 @@ function GateClientMgr:ctor(logic_svc, logic_name)
     self._gate_clients = {}
     ---@type ClientNetService
     self._client_net_svc = self.server.client_net
+    self._msg_handlers = {}
+    ---@type ProtoParser
+    self._pto_parser = self.server.pto_parser
 end
 
 function GateClientMgr:_on_init()
@@ -60,30 +63,21 @@ function GateClientMgr:_client_net_svc_cnn_on_open(client_net_svc, netid)
 end
 
 function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error_code)
-    log_print("GateClientMgr:_client_net_svc_cnn_on_close", netid, error_code)
-
     local gate_client = self._gate_clients[netid]
     if not gate_client then
         return
     end
     self._gate_clients[netid] = nil
-
-
-
-    --[[
-    local client = self:get_client(netid)
-    if client then
-        if client:is_launching() or client:is_ingame() and client.world_client and client.world_role_session_id then
-            -- todo: notify world service client disconnect
-            client.world_client:call(nil, WorldRpcFn.client_quit, client.world_role_session_id)
-        end
-    end
-    self._gate_clients[netid] = nil
-    ]]
 end
 
 function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)
     log_print("GateClientMgr:_client_net_svc_cnn_on_recv", netid, pid)
+
+    local handle_fn = self._msg_handlers[pid]
+    if not handle_fn then
+        log_warn("GateClientMgr:_client_net_svc_cnn_on_recv not set handle function for pid %s", pid)
+        return
+    end
 
     local gate_client = self._gate_clients[netid]
     if not gate_client then
@@ -93,7 +87,13 @@ function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, b
         end
         return
     end
-    gate_client.cnn:send_msg(pid + 1, {})
+
+    local is_ok, msg = self._pto_parser:decode(pid, bin)
+    if is_ok then
+        handle_fn(gate_client, pid, msg)
+    end
+
+    -- gate_client.cnn:send_msg(pid + 1, {})
 end
 
 function GateClientMgr:_on_tick()
@@ -102,4 +102,12 @@ end
 
 function GateClientMgr:get_client(netid)
     return self._gate_clients[netid]
+end
+
+function GateClientMgr:set_msg_handler(pid, handler)
+    if handler then
+        assert(is_function(handler))
+        assert(not self._msg_handlers[pid])
+    end
+    self._msg_handlers[pid] = handler
 end

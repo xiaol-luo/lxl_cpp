@@ -6,12 +6,26 @@ function GateClient:ctor(cnn)
     self.cnn = cnn
     self.netid = cnn.netid
     self.state = Gate_Client_State.free
-    self.user_id = nil
+    self.user_id = math.random(1, 10000) -- for test
     self.launch_role_id = nil
     self.game_client = nil
     self.world_client = nil
     self.world_role_session_id = nil
     self.token = nil
+end
+
+function GateClient:send_bin(pid, bin)
+    if self.cnn then
+        return self.cnn:send_bin(pid, bin)
+    end
+    return false
+end
+
+function GateClient:send_msg(pid, msg)
+    if self.cnn then
+        return self.cnn:send_msg(pid, bin)
+    end
+    return false
 end
 
 function GateClient:is_authed()
