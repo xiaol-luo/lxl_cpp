@@ -10,8 +10,9 @@ function LogicEntity:ctor(logic_svc, logic_name)
     self._logic_name = logic_name
     self.server = self.logic_svc.server
     self._curr_state = Logic_Entity_State.Free
-    self._timer_proxy = TimerProxy:new()
     ---@type TimerProxy
+    self._timer_proxy = TimerProxy:new()
+    ---@type EventBinder
     self._event_binder = EventBinder:new()
     ---@type RpcServiceProxy
     self._rpc_svc_proxy = self.server.rpc:create_svc_proxy()
@@ -48,6 +49,8 @@ end
 function LogicEntity:release()
     self._curr_state = Logic_Entity_State.Released
     self._timer_proxy:release_all()
+    self._rpc_svc_proxy:clear_remote_call()
+    self._event_binder:release_all()
     self:_on_release()
 end
 

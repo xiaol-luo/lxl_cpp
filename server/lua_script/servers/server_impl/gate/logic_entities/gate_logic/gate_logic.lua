@@ -4,22 +4,24 @@ GateLogic = GateLogic or class("GateLogic", LogicEntity)
 
 function GateLogic:ctor(logic_svc, logic_name)
     GateLogic.super.ctor(self, logic_svc, logic_name)
+    ---@type GateClientMgr
+    self._gate_client_mgr = nil
 end
 
 
 function GateLogic:_on_init()
     GateLogic.super._on_init(self)
+    self._gate_client_mgr = self.logic_svc.gate_client_mgr
 end
 
 function GateLogic:_on_start()
     GateLogic.super._on_start(self)
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.method.query_roles, Functional.make_closure(self._handle_remote_call_query_roles, self))
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.method.create_role, Functional.make_closure(self._handle_remote_call_create_role, self))
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_user_login, Functional.make_closure(self._on_msg_user_login, self))
 end
 
 function GateLogic:_on_stop()
     GateLogic.super._on_stop(self)
-    self._rpc_svc_proxy:clear_remote_call()
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_user_login, nil)
 end
 
 function GateLogic:_on_release()
@@ -27,18 +29,19 @@ function GateLogic:_on_release()
 end
 
 function GateLogic:_on_update()
-    --[[
-    -- log_print("GateLogic:_on_update")
-    local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
-    if server_key then
-        self._rpc_svc_proxy:call(function(...)
-            -- log_print("Rpc.create_role.method.query_roles", ...)
-        end, server_key, Rpc.create_role.method.query_roles, 1)
-        self._rpc_svc_proxy:call(function(...)
-            -- log_print("Rpc.create_role.method.query_roles", ...)
-        end, server_key, Rpc.create_role.method.create_role, 1)
+
+end
+
+---@param gate_client GateClient
+function GateLogic:_on_msg_user_login(gate_client, pid, msg)
+    -- log_print("GateLogic:_user_login ", msg)
+    if gate_client.user_id then
+        gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = 1})
+        gate_client:reset()
+        return
     end
-    ]]
+    gate_client.user_id = msg.user_id
+    gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = Error_None})
 end
 
 

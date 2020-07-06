@@ -15,8 +15,8 @@ end
 
 function CreateRoleAgentLogic:_on_start()
     CreateRoleAgentLogic.super._on_start(self)
-    self._gate_client_mgr:set_msg_handler(Login_Pid.req_pull_role_digest, Functional.make_closure(self._query_roles, self))
-    self._gate_client_mgr:set_msg_handler(Login_Pid.req_create_role, Functional.make_closure(self._create_role, self))
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_pull_role_digest, Functional.make_closure(self._on_msg_query_roles, self))
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_create_role, Functional.make_closure(self._on_msg_create_role, self))
 end
 
 function CreateRoleAgentLogic:_on_stop()
@@ -34,28 +34,40 @@ function CreateRoleAgentLogic:_on_update()
     -- log_print("CreateRoleAgentLogic:_on_update")
 end
 
-function CreateRoleAgentLogic:_query_roles(gate_client, pid, msg)
+function CreateRoleAgentLogic:_on_msg_query_roles(gate_client, pid, msg)
     local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
     if server_key then
-        self._rpc_svc_proxy:call(function(rpc_error_num, ...)
-            log_print("Rpc.create_role.method.query_roles", rpc_error_num, ...)
-            gate_client:send_msg(Login_Pid.rsp_pull_role_digest, {
-                error_num = rpc_error_num,
-                role_digests = {},
-            })
+        self._rpc_svc_proxy:call(function(rpc_error_num, error_num, role_digests)
+            local msg = {}
+            if Error_None == rpc_error_num then
+                msg.error_num = error_num
+                if Error_None == error_num then
+                    msg.role_digests = role_digests
+                end
+            else
+                msg.error_num = rpc_error_num
+            end
+            -- log_print("Rpc.create_role.method.query_roles", msg)
+            gate_client:send_msg(Login_Pid.rsp_pull_role_digest, msg)
         end, server_key, Rpc.create_role.method.query_roles, gate_client.user_id, msg.role_id)
     end
 end
 
-function CreateRoleAgentLogic:_create_role(gate_client, pid, msg)
+function CreateRoleAgentLogic:_on_msg_create_role(gate_client, pid, msg)
     local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
     if server_key then
-        self._rpc_svc_proxy:call(function(rpc_error_num, ...)
-            log_print("Rpc.create_role.method._create_role", rpc_error_num, ...)
-            gate_client:send_msg(Login_Pid.rsp_create_role, {
-                error_num = rpc_error_num,
-                role_id = 0,
-            })
+        self._rpc_svc_proxy:call(function(rpc_error_num, error_num, role_id)
+            local msg = {}
+            if Error_None == rpc_error_num then
+                msg.error_num = error_num
+                if Error_None == error_num then
+                    msg.role_id = role_id
+                end
+            else
+                msg.error_num = rpc_error_num
+            end
+            -- log_print("Rpc.create_role.method._create_role", msg)
+            gate_client:send_msg(Login_Pid.rsp_create_role, msg)
         end, server_key, Rpc.create_role.method.create_role, gate_client.user_id, msg.params)
     end
 end

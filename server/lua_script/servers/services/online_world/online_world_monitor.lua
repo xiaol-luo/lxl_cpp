@@ -102,6 +102,7 @@ function OnlineWorldMonitor:_tick_logic()
     if not self.server.discovery:is_joined_cluster() then
         return
     end
+
     local now_sec = logic_sec()
     if now_sec - self._last_tick_logic_sec < 1 then
         return
@@ -234,22 +235,23 @@ function OnlineWorldMonitor:_check_query_db_logic()
             if Error_None ~= ret:get_error() then
                 self:_set_opera_state(Opera_Name.query_db_online_servers, Opera_State.fail)
             else
+                local is_ok = false
                 if Error_None == ret:get_error() and not ret:get_reply():get_error() then
+                    self._online_world_servers = {}
                     local reply_array = ret:get_reply():get_array()
                     if reply_array and #reply_array >= 1 then
                         self._version = reply_array[1]:get_number()
                         if self._version then
                             table.remove(reply_array, 1)
-                        else
-                            self._version = 1
                         end
-                        self._online_world_servers = {}
                         for _, v in pairs(reply_array) do
                             self._online_world_servers[v:get_str()] = true
                         end
-                        self:_set_opera_state(Opera_Name.query_db_online_servers, Opera_State.success)
                     end
+                    is_ok = true
+                    self._version = self._version or 1
                 end
+                self:_set_opera_state(Opera_Name.query_db_online_servers, is_ok and Opera_State.success or Opera_State.fail)
             end
         end, "LRANGE %s 0 -1", self._redis_key_online_world_servers)
     end
@@ -351,6 +353,7 @@ function OnlineWorldMonitor:_notify_online_world_data(to_server_key, is_simple_i
     if not is_simple_info then
         send_tb.servers = self._online_world_servers
     end
+    -- log_print("OnlineWorldMonitor:_notify_online_world_data", notify_servers, send_tb)
     for _, v in pairs(notify_servers) do
         self.server.rpc:call(nil, v, Online_World_Rpc_Method.notify_online_world_servers_data, send_tb)
     end

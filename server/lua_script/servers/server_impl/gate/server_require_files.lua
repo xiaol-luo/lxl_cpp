@@ -13,6 +13,9 @@ local files = {
     "servers.server_impl.gate.logic_entities.gate_client_mgr.gate_client_def",
     "servers.server_impl.gate.logic_entities.gate_client_mgr.gate_client",
     "servers.server_impl.gate.logic_entities.gate_client_mgr.gate_client_mgr",
+
+    "servers.server_impl.gate.logic_entities.world_agent.world_agent_logic_def",
+    "servers.server_impl.gate.logic_entities.world_agent.world_agent_logic",
 }
 
 return files

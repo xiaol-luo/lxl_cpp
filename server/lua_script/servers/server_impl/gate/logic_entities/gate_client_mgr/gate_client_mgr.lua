@@ -71,7 +71,7 @@ function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error
 end
 
 function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)
-    log_print("GateClientMgr:_client_net_svc_cnn_on_recv", netid, pid)
+    -- log_print("GateClientMgr:_client_net_svc_cnn_on_recv", netid, pid)
 
     local handle_fn = self._msg_handlers[pid]
     if not handle_fn then

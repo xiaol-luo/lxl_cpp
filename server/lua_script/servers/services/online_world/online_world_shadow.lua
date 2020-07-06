@@ -89,6 +89,7 @@ function OnlineWorldShadow:_on_rpc_notify_online_world_servers_data(rsp, msg)
 
     self._world_monitor_rsp_last_sec = logic_sec()
 
+    -- log_print("OnlineWorldShadow:_on_rpc_notify_online_world_servers_data", self._version, msg)
     if is_number(msg.version) then
         if is_number(msg.lead_rehash_left_sec) then
             self:_set_adjusting_version(msg.version, msg.lead_rehash_left_sec)
@@ -238,6 +239,10 @@ function OnlineWorldShadow:find_server_address(val)
     else
         return nil
     end
+end
+
+function OnlineWorldShadow:get_version()
+    return self._version
 end
 
 

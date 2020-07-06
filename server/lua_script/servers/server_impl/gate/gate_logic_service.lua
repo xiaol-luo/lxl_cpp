@@ -22,4 +22,11 @@ function GateLogicService:_on_init()
         logic:init()
         self:add_logic(logic)
     end
+
+    do
+        local logic = WorldAgentLogic:new(self, Gate_Logic_Name.world_agent)
+        logic:init()
+        self:add_logic(logic)
+    end
+
 end

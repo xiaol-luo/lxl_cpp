@@ -63,6 +63,8 @@ end
 function RobotTestLogin:_test_main_logic(co, logic_uuid)
     local co_ok, action_name, error_num, pid, msg = nil
 
+    ex_coroutine_expired(co,  3000)
+
     local co_custom_data = {}
     co_custom_data.logic_uuid = logic_uuid
     co:set_custom_data(co_custom_data)
@@ -81,12 +83,25 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
     end
     log_print("cnn open", co_ok, action_name, error_num)
 
-    local loop_times = math.random(1, 20)
+
+    ex_coroutine_expired(co,  3000)
+
+    local user_id = math.random(1, 3000)
+    self:send_msg(gate_cnn, Login_Pid.req_user_login, { user_id= user_id })
+    co_ok, action_name, error_num, pid, msg = ex_coroutine_yield(co)
+    if not co_ok or Action_Name.cnn_on_recv ~= action_name or pid ~= Login_Pid.rsp_user_login then
+        ex_coroutine_report_error("gate connection is over")
+        return
+    end
+
+    local role_digests = nil
+    local loop_times = math.random(1, 5)
     while loop_times > 0 do
+        ex_coroutine_expired(co,  3000)
         loop_times = loop_times - 1
 
         local opera_id = math.random(1, 2)
-        log_print("loop opera_id loop_times", opera_id, loop_times)
+        log_print("loop opera_id loop_times ", user_id, opera_id, loop_times)
 
         if 1 == opera_id then
             self:send_msg(gate_cnn, Login_Pid.req_pull_role_digest, {})
@@ -101,7 +116,26 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
             ex_coroutine_report_error("gate connection is over")
             return
         end
-        log_print("recv msg", opera_id, co_ok, action_name, error_num, pid, msg)
+        log_print("recv msg", user_id, opera_id, co_ok, action_name, error_num, pid, msg)
+        if Login_Pid.rsp_pull_role_digest == pid then
+            if Error_None == msg.error_num then
+                role_digests = msg.role_digests
+            end
+        end
+    end
+
+
+    if role_digests and next(role_digests) then
+        local role_id = role_digests[1].role_id
+        log_print("===== try launch role ", user_id, role_id, role_digests)
+        self:send_msg(gate_cnn, Login_Pid.req_launch_role, { role_id = role_id})
+        ex_coroutine_expired(co,  3000)
+        co_ok, action_name, error_num, pid, msg = ex_coroutine_yield(co)
+        if not co_ok or Action_Name.cnn_on_recv ~= action_name then
+            ex_coroutine_report_error("gate connection is over")
+            return
+        end
+        log_print("recv msg", user_id, opera_id, co_ok, action_name, error_num, pid, msg)
     end
 end
 
