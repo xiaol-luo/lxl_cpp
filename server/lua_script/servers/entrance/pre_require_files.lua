@@ -1,21 +1,7 @@
 local files = {
     "common.log",
     "common.error_handler",
-
-    "libs.functional",
-    "libs.serpent",
-    "libs.print_ext",
     "libs.class",
-    "libs.string_ext",
-    "libs.table_ext",
-    "libs.type_check",
-    "libs.assert",
-    "libs.path_ext",
-    "libs.random",
-    "libs.xml2lua.xml2lua_ext",
-    "libs.hotfix",
-    "libs.sequencer",
-
     "rapidjson",
     "pb",
     "lpeg",
@@ -27,8 +13,20 @@ local files = {
     "common.event.event_mgr",
     "common.event.event_proxy",
     "common.event.event_binder",
-
     "common.consistent_hash.consistent_hash",
+
+    "libs.functional",
+    "libs.serpent",
+    "libs.print_ext",
+    "libs.string_ext",
+    "libs.table_ext",
+    "libs.type_check",
+    "libs.assert",
+    "libs.path_ext",
+    "libs.random",
+    "libs.xml2lua.xml2lua_ext",
+    "libs.hotfix",
+    "libs.sequencer",
 
     "libs.coroutine_ex.coroutine_ex_def",
     "libs.coroutine_ex.coroutine_ex",
@@ -82,13 +80,6 @@ local files = {
 
     "libs.data_struct.random_hash",
 
-    "servers.common.const.const",
-    "servers.common.rpc.rpc",
-
-    "servers.common.config.etcd_server_config",
-    "servers.common.config.redis_server_config",
-    "servers.common.config.mongo_server_config",
-
     "common.zone_service_mgr.zone_service_mgr_def",
     "common.zone_service_mgr.zone_service_mgr",
     "common.zone_service_mgr.zone_service_state",
@@ -97,6 +88,7 @@ local files = {
 
     "common.msg_handler.msg_handler_base",
     "common.msg_handler.zone_service_msg_handler_base",
+
     "common.rpc.rpc_def",
     "common.rpc.rpc_mgr_base",
     "common.rpc.rpc_req",
@@ -106,14 +98,5 @@ local files = {
 
     "common.json_data",
     "common.init_global_vars",
-
-    "servers.server_impl.server_def",
-    "servers.server_impl.server_base",
-    "servers.server_impl.server_base_property",
-
-    "servers.services.service_def",
-    "servers.services.service_base",
-    "servers.services.service_mgr_base",
-    "servers.services.hotfix_service",
 }
 return files

@@ -11,7 +11,7 @@ function GateClient:ctor(cnn)
     self.game_client = nil
     self.world_client = nil
     self.world_role_session_id = nil
-    self.token = nil
+    self.token = gen_uuid()
 end
 
 function GateClient:send_bin(pid, bin)

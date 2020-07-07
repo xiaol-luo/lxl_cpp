@@ -39,7 +39,24 @@ end
 
 ---@param gate_client GateClient
 function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
-    local world_addr = self._world_online_shadow:find_server_address(gate_client.user_id)
+    if self._world_online_shadow:is_parted() then
+        gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = Error_World_Online_Shadow_Parted })
+        return
+    end
+    if self._world_online_shadow:is_adjusting_version() then
+        gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = Error_World_Online_Shadow_Parted })
+        return
+    end
+    local selected_world_key = self._world_online_shadow:find_server_address(gate_client.user_id)
+    if nil == selected_world_key then
+        gate_client:send_msg(Login_Pid.rsp_launch_role, {error_num = Error.Launch_Role.no_avaliable_world })
+        return
+    end
+
+    self._rpc_svc_proxy:call(function(rpc_error_num, error_num)
+        log_print("WorldAgentLogic:_on_msg_launch_role", rpc_error_num, ...)
+    end, selected_world_key, Rpc.world.method.launch_role, gate_client.netid, gate_client.token, msg.user_id, msg.role_id)
+
     -- log_print("------------------------- WorldAgentLogic:_on_msg_launch_role ", world_addr, self._world_online_shadow:get_version())
 --[[    local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
     if server_key then
@@ -53,17 +70,5 @@ function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
     end]]
 end
 
-function WorldAgentLogic:_create_role(gate_client, pid, msg)
-    local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
-    if server_key then
-        self._rpc_svc_proxy:call(function(rpc_error_num, ...)
-            log_print("Rpc.create_role.method._create_role", rpc_error_num, ...)
-            gate_client:send_msg(Login_Pid.rsp_create_role, {
-                error_num = rpc_error_num,
-                role_id = 0,
-            })
-        end, server_key, Rpc.create_role.method.create_role, gate_client.user_id, msg.params)
-    end
-end
 
 

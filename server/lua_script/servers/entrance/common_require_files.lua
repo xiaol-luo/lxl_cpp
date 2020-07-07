@@ -1,6 +1,24 @@
 
 return {
+
+    "servers.common.config.etcd_server_config",
+    "servers.common.config.redis_server_config",
+    "servers.common.config.mongo_server_config",
+
+    "servers.common.const.const",
+    "servers.common.rpc.rpc",
     "servers.common.pto.pto_def",
+    "servers.common.error.error",
+
+    "servers.server_impl.server_def",
+    "servers.server_impl.server_base",
+    "servers.server_impl.server_base_property",
+
+    "servers.services.service_def",
+    "servers.services.service_base",
+    "servers.services.service_mgr_base",
+    "servers.services.hotfix_service",
+
     "servers.services.discovery.discovery_service_def",
     "servers.services.discovery.discovery_service",
     "servers.services.discovery.zone_server_json_data",
