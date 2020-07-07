@@ -1,9 +1,9 @@
 local files = {
     "servers.server_impl.world_sentinel.service_mgr",
 
-    "servers.services.online_world.online_world_def",
-    "servers.services.online_world.online_world_monitor",
-    "servers.services.online_world.online_world_shadow",
+    "servers.services.world_online.world_online_def",
+    "servers.services.world_online.world_online_monitor",
+    "servers.services.world_online.world_online_shadow",
 }
 
 return files

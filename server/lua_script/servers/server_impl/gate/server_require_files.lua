@@ -2,9 +2,9 @@ local files = {
     "servers.server_impl.gate.gate_service_mgr",
     "servers.server_impl.gate.gate_logic_service",
 
-    "servers.services.online_world.online_world_def",
-    "servers.services.online_world.online_world_monitor",
-    "servers.services.online_world.online_world_shadow",
+    "servers.services.world_online.world_online_def",
+    "servers.services.world_online.world_online_monitor",
+    "servers.services.world_online.world_online_shadow",
 
     "servers.server_impl.gate.logic_entities.logic_entity_def",
     "servers.server_impl.gate.logic_entities.gate_logic.gate_logic",

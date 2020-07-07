@@ -8,13 +8,13 @@ end
 
 function ServiceMgr:_on_init()
 
-    --local online_world_shadown = OnlineWorldShadow:new(self, Service_Name.online_world_shadow)
-    --online_world_shadown:init()
-    --self:add_service(online_world_shadown)
+    --local world_online_shadown = OnlineWorldShadow:new(self, Service_Name.world_online_shadow)
+    --world_online_shadown:init()
+    --self:add_service(world_online_shadown)
 
-    local online_world_monitor = OnlineWorldMonitor:new(self, Service_Name.online_world_monitor)
-    online_world_monitor:init()
-    self:add_service(online_world_monitor)
+    local world_online_monitor = OnlineWorldMonitor:new(self, Service_Name.world_online_monitor)
+    world_online_monitor:init()
+    self:add_service(world_online_monitor)
 
     return true
 end

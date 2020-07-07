@@ -60,15 +60,27 @@ int main (int argc, char **argv)
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
 #endif
-	if (true)
+	if (false)
 	{
 		skip_list_t *list = skip_list_alloc(3, cmp_skip_node_key, free);
-		for (int i = 0; i < 10; ++i)
+		for (int i = 1; i < 100; ++i)
 		{
 			skip_node_key_t *key = (skip_node_key_t *)calloc(1, sizeof(skip_node_key_t));
-			key->a = rand() % 100;
-			key->b = rand() % 100;
+			// key->a = rand() % 100;
+			// key->b = rand() % 100;
+			key->a = i;
+			key->b = i;
 			skip_list_insert(list, key, NULL);
+			int rank_val = rand();
+			if (rank_val % 4 == 0)
+			{
+				skip_list_remove(list, key);
+			}
+			skip_node_key_t find_key;
+			find_key.a = rand() % 100;
+			find_key.b = find_key.a;
+			uint32_t rank = skip_list_rank(list, &find_key);
+			printf("i = %d , count %d value %d in rank is %d \n", i, (int)list->node_count,  find_key.a, (int)rank);
 		}
 		skip_list_free(list);
 	}

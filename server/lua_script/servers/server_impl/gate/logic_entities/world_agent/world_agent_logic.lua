@@ -13,7 +13,7 @@ end
 function WorldAgentLogic:_on_init()
     WorldAgentLogic.super._on_init(self)
     self._gate_client_mgr = self.logic_svc.gate_client_mgr
-    self._world_online_shadow = self.server.online_world_shadow
+    self._world_online_shadow = self.server.world_online_shadow
 end
 
 function WorldAgentLogic:_on_start()
