@@ -87,7 +87,8 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
     ex_coroutine_expired(co,  3000)
 
     local user_id = math.random(1, 3000)
-    self:send_msg(gate_cnn, Login_Pid.req_user_login, { user_id= user_id })
+    local auth_sn = gen_uuid()
+    self:send_msg(gate_cnn, Login_Pid.req_user_login, { user_id=user_id, auth_sn=auth_sn })
     co_ok, action_name, error_num, pid, msg = ex_coroutine_yield(co)
     if not co_ok or Action_Name.cnn_on_recv ~= action_name or pid ~= Login_Pid.rsp_user_login then
         ex_coroutine_report_error("gate connection is over")
@@ -95,7 +96,7 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
     end
 
     local role_digests = nil
-    local loop_times = math.random(1, 5)
+    local loop_times = math.random(1, 3)
     while loop_times > 0 do
         ex_coroutine_expired(co,  3000)
         loop_times = loop_times - 1

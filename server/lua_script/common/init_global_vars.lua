@@ -32,4 +32,4 @@ local sha = require("libs.sha")
 hash256 = sha.hash256
 new_hash256 = sha.new256
 
-gen_uuid = native.gen_uuid()
+gen_uuid = native.gen_uuid

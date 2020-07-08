@@ -75,7 +75,7 @@ function ClientNetService:_cnn_handler_on_open(cnn, error_num)
             self._cnn_cbs.on_open(self, netid)
         end
     end
-    log_debug("ClientNetService:_cnn_handler_on_open netid %s error_num %s", netid, error_num)
+    -- log_debug("ClientNetService:_cnn_handler_on_open netid %s error_num %s", netid, error_num)
 end
 
 ---@param cnn PidBinCnn
@@ -88,7 +88,7 @@ function ClientNetService:_cnn_handler_on_close(cnn, error_num)
         client_net_cnn:reset()
         self._cnn_cbs.on_close(self, netid, error_num)
     end
-    log_debug("ClientNetService:_cnn_handler_on_close netid %s error_num %s", netid, error_num)
+    -- log_debug("ClientNetService:_cnn_handler_on_close netid %s error_num %s", netid, error_num)
 end
 
 ---@param cnn PidBinCnn

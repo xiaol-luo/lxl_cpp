@@ -370,7 +370,7 @@ function RoleMgr:reconnect_role(rpc_rsp, auth_token, role_id, gate_client_netid)
             error_num = Error_Unknown
             break
         end
-        session_id = self:next_opera_id()
+        session_id = self:next_session_id()
         role.state = Role_State.using
         role.session_id = session_id
         role.idle_begin_sec = nil

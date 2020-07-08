@@ -2,6 +2,7 @@
 
 batch_require(require("servers.server_impl.world.server_require_files"))
 
+ServiceMgr = WorldServiceMgr
 
 ---@class WorldServer : ServerBase
 ---@field redis_setting_online_servers RedisServerConfig

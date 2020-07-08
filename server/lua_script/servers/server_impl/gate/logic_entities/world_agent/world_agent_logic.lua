@@ -53,21 +53,12 @@ function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
         return
     end
 
+    log_print("WorldAgentLogic:_on_msg_launch_role ", selected_world_key)
     self._rpc_svc_proxy:call(function(rpc_error_num, error_num)
-        log_print("WorldAgentLogic:_on_msg_launch_role", rpc_error_num, ...)
-    end, selected_world_key, Rpc.world.method.launch_role, gate_client.netid, gate_client.token, msg.user_id, msg.role_id)
-
-    -- log_print("------------------------- WorldAgentLogic:_on_msg_launch_role ", world_addr, self._world_online_shadow:get_version())
---[[    local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
-    if server_key then
-        self._rpc_svc_proxy:call(function(rpc_error_num, ...)
-            log_print("Rpc.create_role.method.query_roles", rpc_error_num, ...)
-            gate_client:send_msg(Login_Pid.rsp_pull_role_digest, {
-                error_num = rpc_error_num,
-                role_digests = {},
-            })
-        end, server_key, Rpc.create_role.method.query_roles, gate_client.user_id, msg.role_id)
-    end]]
+        log_print("WorldAgentLogic:_on_msg_launch_role", rpc_error_num)
+        local picked_error_num = pick_error_num(rpc_error_num, error_num)
+        gate_client:send_msg(Login_Pid.rsp_launch_role, {error_num = picked_error_num })
+    end, selected_world_key, Rpc.world.method.launch_role, gate_client.netid, gate_client.auth_sn, msg.user_id, msg.role_id)
 end
 
 

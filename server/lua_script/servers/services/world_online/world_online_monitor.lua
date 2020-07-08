@@ -272,10 +272,12 @@ function OnlineWorldMonitor:_check_online_server_diff()
     local has_diff = false
     local allow_join_world_servers = {}
     local allow_join_servers = self._zone_setting:get_allow_join_servers()
-    for server_key, is_allow_join in pairs(allow_join_servers) do
+    for db_path, is_allow_join in pairs(allow_join_servers) do
         if is_allow_join then
-            local server_role = extract_from_cluster_server_name(server_key)
+            local server_role, server_name = extract_from_cluster_server_name(db_path)
             if Server_Role.World == server_role then
+                local server_key = string.format(Discovery_Service_Const.db_path_format_zone_server_data,
+                        self.server.zone_name, server_role, server_name)
                 allow_join_world_servers[server_key] = true
                 if not self._world_online_servers[server_key] then
                     has_diff = true

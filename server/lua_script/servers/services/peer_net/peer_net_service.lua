@@ -233,7 +233,6 @@ function PeerNetService:set_pto_handle_fn(pid, fn)
 end
 
 function PeerNetService:random_server_key(server_role)
-    -- log_print("PeerNetService:random_server_key", server_role, self._cluster_server_states_group_by_roles)
     local ret = nil
     if server_role then
         local role_server_states = self._cluster_server_states_group_by_roles[server_role]
@@ -242,6 +241,7 @@ function PeerNetService:random_server_key(server_role)
             ret = key
         end
     end
+    -- log_print("PeerNetService:random_server_key", server_role, ret)
     return ret
 end
 

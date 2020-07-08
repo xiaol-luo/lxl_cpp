@@ -46,7 +46,7 @@ end
 
 ---@param client_net_svc ClientNetService
 function GateClientMgr:_client_net_svc_cnn_on_open(client_net_svc, netid)
-    log_print("GateClientMgr:_client_net_svc_cnn_on_open", netid)
+    -- log_print("GateClientMgr:_client_net_svc_cnn_on_open", netid)
     local cnn = client_net_svc:get_cnn(netid)
     if not cnn then
         return
