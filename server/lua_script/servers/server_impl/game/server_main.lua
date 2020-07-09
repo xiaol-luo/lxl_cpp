@@ -3,6 +3,8 @@
 batch_require(require("servers.server_impl.game.server_require_files"))
 
 
+ServiceMgr = GameServiceMgr
+
 ---@class GameServer : ServerBase
 ---@field redis_setting_online_servers RedisServerConfig
 ---@field mongo_setting_game MongoServerConfig
