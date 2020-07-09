@@ -180,7 +180,7 @@ end
 
 function RoleMgr:release_role(rpc_rsp, role_id)
     log_debug("RoleMgr:release_role %s", role_id)
-    rpc_rsp:respone(Error_None)
+    rpc_rsp:respone()
     local role = self:get_role(role_id)
     if role then
         if role:is_dirty() then

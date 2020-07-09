@@ -1,5 +1,6 @@
 
 ---@class WorldRoleState
+---@field cached_rpc_rsp RpcRsp
 WorldRoleState = WorldRoleState or class("WorldRoleState")
 
 function WorldRoleState:ctor(mgr, gate_server_key, gate_netid, gate_auth_sn, user_id, role_id, session_id)
@@ -13,6 +14,10 @@ function WorldRoleState:ctor(mgr, gate_server_key, gate_netid, gate_auth_sn, use
     self.state = World_Role_State.inited
     self.cached_rpc_rsp = nil
     self.game_server_key = nil
+    self.idle_begin_sec = nil
+    self.release_try_times = nil
+    self.release_opera_ids = nil
+    self.release_begin_sec = nil
 end
 
 

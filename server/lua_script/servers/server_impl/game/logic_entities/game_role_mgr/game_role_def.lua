@@ -2,14 +2,10 @@
 
 Game_Role_Def = {}
 
-Game_Role_State =
-{
-    inited = 0,
-    launch = 1,
-    using = 2,
-    idle = 3,
-    releasing = 4,
-    released = 5,
+Game_Role_State = {
+    free = "free",
+    load_from_db = "load_from_db",
+    in_game = "in_game",
+    in_error = "in_error",
 }
-
 
