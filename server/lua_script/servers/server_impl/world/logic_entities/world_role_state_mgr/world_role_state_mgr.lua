@@ -69,7 +69,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         -- 如果正在被使用，那么就顶号
         if World_Role_State.using == role_state then
             if role_state.gate_server_key == rpc_rsp.from_host and role_state.gate_netid == gate_netid then
-                rpc_rsp:respone(Error.launch_role.repeat_launch)
+                rpc_rsp:respone(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
             else
                 if role_state.gate_server_key and role_state.gate_netid then
                     self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
@@ -78,6 +78,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
                 end
                 role_state.session_id = self:next_session_id()
                 rpc_rsp:respone(Error_None, role_state.game_server_key, role_state.session_id)
+                -- todo: 这里很可能game暂时和world断开连接，得想个修复策略，gate信息不一致，那么就向world请求下gate信息
                 self._rpc_svc_proxy:call(nil, Rpc.world.method.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
             end
         end
@@ -85,7 +86,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         -- 如果正在launch过程中，用新的launch过程挤掉上一个launch过程。这么做相对简单
         if World_Role_State.launch == role_state.state then
             if role_state.gate_server_key == rpc_rsp.from_host and role_state.gate_netid == gate_netid then
-                rpc_rsp:respone(Error.launch_role.repeat_launch)
+                rpc_rsp:respone(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
             else
                 role_state.cached_rpc_rsp:respone(Error.launch_role.another_launch)
                 role_state.cached_rpc_rsp = rpc_rsp
@@ -101,6 +102,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
             role_state.state = World_Role_State.using
             role_state.idle_begin_sec = nil
             rpc_rsp:respone(Error_None, role_state.game_server_key, role_state.session_id)
+            -- todo: 这里很可能game暂时和world断开连接，得想个修复策略，gate信息不一致，那么就向world请求下gate信息
             self._rpc_svc_proxy:call(nil, Rpc.world.method.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
         end
 
