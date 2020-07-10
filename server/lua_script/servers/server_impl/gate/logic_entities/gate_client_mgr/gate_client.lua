@@ -28,9 +28,9 @@ function GateClient:send_msg(pid, msg)
     return false
 end
 
-function GateClient:reset()
+function GateClient:Disconnect()
     if self.cnn then
-        self.cnn:reset()
+        Net.close(self.netid)
     end
 end
 

@@ -88,6 +88,7 @@ function ClientNetService:_cnn_handler_on_close(cnn, error_num)
         client_net_cnn:reset()
         self._cnn_cbs.on_close(self, netid, error_num)
     end
+    cnn:reset()
     -- log_debug("ClientNetService:_cnn_handler_on_close netid %s error_num %s", netid, error_num)
 end
 

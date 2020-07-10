@@ -21,7 +21,9 @@ function RoleStateMgr:_on_start()
     RoleStateMgr.super._on_start(self)
 
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.launch_role, Functional.make_closure(self._handle_remote_call_launch_role, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.logout_role, Functional.make_closure(self._handle_remote_logout_role, self))
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.logout_role, Functional.make_closure(self._handle_remote_call_logout_role, self))
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.reconnect_role, Functional.make_closure(self._handle_remote_call_reconnect_role, self))
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.gate_client_quit, Functional.make_closure(self._handle_remote_call_gate_client_quit, self))
 end
 
 function RoleStateMgr:_on_stop()
@@ -241,6 +243,6 @@ function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num
 end
 
 ---@param rpc_rsp RpcRsp
-function RoleStateMgr:_handle_remote_logout_role(rpc_rsp, user_id, role_id)
+function RoleStateMgr:_handle_remote_call_logout_role(rpc_rsp, user_id, role_id)
     rpc_rsp:respone(Error_None)
 end

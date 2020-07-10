@@ -29,6 +29,8 @@ function GateClientMgr:_on_start()
 
     local Tick_Span_Ms = 2 * 1000
     self._timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
+
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.kick_client, Functional.make_closure(self._handle_remote_call_kick_client, self))
 end
 
 function GateClientMgr:_on_stop()
@@ -54,7 +56,7 @@ function GateClientMgr:_client_net_svc_cnn_on_open(client_net_svc, netid)
 
     if self._gate_clients[netid] then
         log_error("GateClientMgr:_client_net_svc_cnn_on_open unknown error: repeated netid %s", netid)
-        cnn:reset()
+        Net.close(netid)
         return
     end
 
@@ -83,7 +85,7 @@ function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, b
     if not gate_client then
         local cnn = client_net_svc:get_cnn(netid)
         if cnn then
-            cnn:reset()
+            Net.close(netid)
         end
         return
     end
@@ -110,4 +112,14 @@ function GateClientMgr:set_msg_handler(pid, handler)
         assert(not self._msg_handlers[pid])
     end
     self._msg_handlers[pid] = handler
+end
+
+---@param rpc_rsp RpcRsp
+function GateClientMgr:_handle_remote_call_kick_client(rpc_rsp, gate_netid, kick_reason)
+    rpc_rsp:respone()
+    local gate_client = self._gate_clients[gate_netid]
+    if gate_client then
+        Net.close(gate_netid)
+    end
+    -- 由网络回调来触发回调_client_net_svc_cnn_on_close， 进而移除client
 end
