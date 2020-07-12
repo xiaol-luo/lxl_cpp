@@ -76,8 +76,8 @@ function ex_coroutine_expired(co, ms)
 end
 
 ---@param co CoroutineEx
-function ex_coroutine_cancel_expried(co)
-    co:cancel_expried()
+function ex_coroutine_cancel_expired(co)
+    co:cancel_expired()
 end
 
 ---@param co CoroutineEx

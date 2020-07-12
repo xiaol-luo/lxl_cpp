@@ -4,6 +4,7 @@ GateClientMgr = GateClientMgr or class("GateClientMgr", LogicEntity)
 
 function GateClientMgr:ctor(logic_svc, logic_name)
     GateClientMgr.super.ctor(self, logic_svc, logic_name)
+    ---@type table<number, GateClient>
     self._gate_clients = {}
     ---@type ClientNetService
     self._client_net_svc = self.server.client_net
@@ -70,6 +71,14 @@ function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error
         return
     end
     self._gate_clients[netid] = nil
+
+    log_print("GateClientMgr:_client_net_svc_cnn_on_close", gate_client.role_id, "xxx", gate_client.session_id)
+    if gate_client.role_id and gate_client.session_id then
+        local find_error_num, selected_world_key = self.server.world_online_shadow:find_available_server_address(gate_client.role_id)
+        if Error_None == find_error_num then
+            self._rpc_svc_proxy:call(nil, selected_world_key, Rpc.world.method.gate_client_quit, gate_client.session_id)
+        end
+    end
 end
 
 function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)
@@ -121,5 +130,4 @@ function GateClientMgr:_handle_remote_call_kick_client(rpc_rsp, gate_netid, kick
     if gate_client then
         Net.close(gate_netid)
     end
-    -- 由网络回调来触发回调_client_net_svc_cnn_on_close， 进而移除client
 end

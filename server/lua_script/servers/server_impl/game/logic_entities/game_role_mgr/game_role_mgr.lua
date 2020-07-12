@@ -35,12 +35,14 @@ function GameRoleMgr:_handle_remote_call_launch_role(rpc_rsp, netid, auth_sn, us
 end
 
 ---@param rpc_rsp RpcRsp
-function GameRoleMgr:_handle_remote_call_change_gate_client(rpc_rsp, user_id, role_id)
+function GameRoleMgr:_handle_remote_call_change_gate_client(rpc_rsp, ...)
+    log_print("GameRoleMgr:_handle_remote_call_change_gate_client",  ...)
     rpc_rsp:respone(Error_None)
 end
 
 ---@param rpc_rsp RpcRsp
-function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, user_id, role_id)
+function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, ...)
+    log_print("GameRoleMgr:_handle_remote_call_release_role", ...)
     rpc_rsp:respone(Error_None)
 end
 

@@ -63,18 +63,24 @@ message RspLogoutRole
 	int32 error_num = 1;
 }
 
-message ReqReconnect
+message ReqReconnectRole
 {
 	ReqUserLogin user_login_msg = 1;
 	int64 role_id = 2;
 }
 
-message RspReconnect
+message RspReconnectRole
 {
 	int32 error_num = 1;
 }
 
 message ReqForwardMsg
+{
+	int32 proto_id = 1;
+	bytes proto_bytes = 2;
+}
+
+message ForwardGameMsg
 {
 	int32 proto_id = 1;
 	bytes proto_bytes = 2;

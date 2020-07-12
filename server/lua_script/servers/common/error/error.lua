@@ -19,7 +19,8 @@ Rpc_Error =
 
 Error_Consistent_Hash_Mismatch = -400
 Error_Consistent_Hash_Adjusting = -401
-Error_World_Online_Shadow_Parted = -402
+Error_Server_Online_Shadow_Parted = -402
+Error_Not_Available_Server = -403
 
 require("servers.common.error.error_world_server")
 

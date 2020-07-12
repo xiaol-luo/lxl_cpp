@@ -25,7 +25,7 @@ function ConsistentHash:find_address(val)
     if "number" == type(val) or "string" == type(val) then
         return self._consistent_hash:find_address(val)
     else
-        log_warn("ConsistentHash:find_address input value should be number or string, but now is %s", type(val))
+        log_warn("ConsistentHash:find_address input value should be number or string, but now is %s, %s", type(val), debug.traceback())
         return false, ""
     end
 end

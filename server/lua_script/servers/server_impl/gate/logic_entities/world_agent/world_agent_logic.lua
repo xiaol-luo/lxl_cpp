@@ -19,7 +19,8 @@ end
 function WorldAgentLogic:_on_start()
     WorldAgentLogic.super._on_start(self)
     self._gate_client_mgr:set_msg_handler(Login_Pid.req_launch_role, Functional.make_closure(self._on_msg_launch_role, self))
-    -- self._gate_client_mgr:set_msg_handler(Login_Pid.req_create_role, Functional.make_closure(self._create_role, self))
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_logout_role, Functional.make_closure(self._on_msg_logout_role, self))
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_reconnect_role, Functional.make_closure(self._on_msg_reconnect_role, self))
 end
 
 function WorldAgentLogic:_on_stop()
@@ -39,26 +40,172 @@ end
 
 ---@param gate_client GateClient
 function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
-    if self._world_online_shadow:is_parted() then
-        gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = Error_World_Online_Shadow_Parted })
-        return
+    log_print("WorldAgentLogic:_on_msg_launch_role")
+    local error_num = Error_None
+    repeat
+        local find_error_num, selected_world_key = self._world_online_shadow:find_available_server_address(msg.role_id)
+        if Error_None ~= find_error_num then
+            error_num = find_error_num
+            break
+        end
+        if Gate_Client_State.manage_role ~= gate_client.state then
+            error_num = Error.launch_role.gate_client_state_not_fit
+            break
+        end
+        if not gate_client.user_id then
+            error_num = Error_Unknown
+            break
+        end
+        gate_client.state = Gate_Client_State.launch_role
+        self._rpc_svc_proxy:call(
+                Functional.make_closure(self._rpc_rsp_req_launch_role, self, gate_client.netid, msg.role_id),
+                selected_world_key, Rpc.world.method.launch_role, gate_client.netid, gate_client.auth_sn, gate_client.user_id, msg.role_id
+        )
+    until true
+
+    if Error_None ~= error_num then
+        gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = error_num })
     end
-    if self._world_online_shadow:is_adjusting_version() then
-        gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = Error_World_Online_Shadow_Parted })
-        return
-    end
-    local selected_world_key = self._world_online_shadow:find_server_address(gate_client.user_id)
-    if nil == selected_world_key then
-        gate_client:send_msg(Login_Pid.rsp_launch_role, {error_num = Error.Launch_Role.no_avaliable_world })
+end
+
+function WorldAgentLogic:_rpc_rsp_req_launch_role(gate_netid, role_id, rpc_error_num, launch_error_num, game_server_key, session_id)
+    local gate_client = self._gate_client_mgr:get_client(gate_netid)
+    if not gate_client then
         return
     end
 
-    log_print("WorldAgentLogic:_on_msg_launch_role ", selected_world_key)
-    self._rpc_svc_proxy:call(function(rpc_error_num, error_num)
-        log_print("WorldAgentLogic:_on_msg_launch_role", rpc_error_num)
-        local picked_error_num = pick_error_num(rpc_error_num, error_num)
-        gate_client:send_msg(Login_Pid.rsp_launch_role, {error_num = picked_error_num })
-    end, selected_world_key, Rpc.world.method.launch_role, gate_client.netid, gate_client.auth_sn, msg.user_id, msg.role_id)
+    local error_num = Error_None
+    repeat
+        local picked_error_num = pick_error_num(rpc_error_num, launch_error_num)
+        if Error_None ~= picked_error_num then
+            error_num = picked_error_num
+            break
+        end
+        if not gate_client or Gate_Client_State.launch_role ~= gate_client.state then
+            error_num = Error.launch_role.gate_client_state_not_fit
+            break
+        end
+        gate_client.state = Gate_Client_State.in_game
+        gate_client.role_id = role_id
+        gate_client.game_server_key = game_server_key
+        gate_client.session_id = session_id
+    until true
+    if Error_None ~= error_num then
+        if not gate_client and Gate_Client_State.launch_role == gate_client.state then
+            gate_client.state = Gate_Client_State.manage_role
+        end
+    end
+    gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = error_num })
+end
+
+function WorldAgentLogic:_on_msg_logout_role(gate_client, pid, msg)
+    log_print("++++ WorldAgentLogic:_on_msg_logout_role")
+    local error_num = Error_None
+    repeat
+        if Gate_Client_State.in_game ~= gate_client.state or not gate_client.role_id or gate_client.role_id ~= msg.role_id  then
+            error_num = Error.logout_role.gate_client_state_not_fit
+            break
+        end
+        local find_error_num, selected_world_key = self._world_online_shadow:find_available_server_address(gate_client.role_id)
+        if Error_None ~= find_error_num then
+            error_num = find_error_num
+            break
+        end
+        self._rpc_svc_proxy:call(
+                Functional.make_closure(self._rpc_rsp_logout_role, self, gate_client.netid, gate_client.session_id),
+                selected_world_key, Rpc.world.method.logout_role, gate_client.session_id)
+    until true
+
+    if Error_None ~= error_num then
+        gate_client:send_msg(Login_Pid.rsp_logout_role, { error_num = error_num  })
+    end
+end
+
+function WorldAgentLogic:_rpc_rsp_logout_role(gate_netid, session_id, rpc_error_num, logic_error_num)
+    local gate_client = self._gate_client_mgr:get_client(gate_netid)
+    if not gate_client or gate_client.session_id ~= session_id then
+        return
+    end
+    if Gate_Client_State.in_game ~= gate_client.state then
+        return
+    end
+
+    log_print("++++ WorldAgentLogic:_rpc_rsp_logout_role")
+
+    local error_num = Error_None
+    repeat
+        local picked_error_num = pick_error_num(rpc_error_num, logic_error_num)
+        if Error_None ~= picked_error_num then
+            error_num = picked_error_num
+            break
+        end
+        gate_client.state = Gate_Client_State.manage_role
+        gate_client.role_id = nil
+        gate_client.session_id = nil
+        gate_client.game_server_key = nil
+    until true
+    gate_client:send_msg(Login_Pid.rsp_logout_role, { error_num = error_num })
+end
+
+function WorldAgentLogic:_on_msg_reconnect_role(gate_client, pid, msg)
+    log_print("WorldAgentLogic:_on_msg_reconnect_role", msg)
+    -- todo: 补认证过程
+    local error_num = Error_None
+    local auth_msg = msg.user_login_msg
+    repeat
+        if Gate_Client_State.free ~= gate_client.state then
+            error_num = Error.reconnect_role.gate_client_state_not_fit
+            break
+        end
+
+        -- todo: 补认证过程，姑且先这样做
+        gate_client.user_id = auth_msg.user_id
+        gate_client.auth_sn = auth_msg.auth_sn
+        gate_client.state = Gate_Client_State.manage_role
+
+        local find_error_num, selected_world_key = self._world_online_shadow:find_available_server_address(msg.role_id)
+        if Error_None ~= find_error_num then
+            error_num = find_error_num
+            break
+        end
+
+        gate_client.state = Gate_Client_State.launch_role
+        self._rpc_svc_proxy:call(
+                Functional.make_closure(self._rpc_rsp_reconnect_role, self, gate_client.netid, msg.role_id),
+                selected_world_key, Rpc.world.method.reconnect_role, gate_client.netid, msg.role_id, gate_client.auth_sn
+        )
+    until true
+
+    if Error_None ~= error_num then
+        gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num })
+    end
+end
+
+function WorldAgentLogic:_rpc_rsp_reconnect_role(netid, role_id, rpc_error_num, logic_error_num, game_server_key, session_id)
+    local gate_client = self._gate_client_mgr:get_client(netid)
+    if not gate_client then
+        return
+    end
+
+    local error_num = Error_None
+    local picked_error_num = pick_error_num(rpc_error_num, logic_error_num)
+    if Error_None ~= picked_error_num then
+        error_num = picked_error_num
+        if Gate_Client_State.launch_role == gate_client.state then
+            gate_client.state = Gate_Client_State.manage_role
+            gate_client.auth_sn = nil
+        end
+    else
+        if Gate_Client_State.launch_role == gate_client.state then
+            gate_client.state = Gate_Client_State.in_game
+            gate_client.game_server_key = game_server_key
+            gate_client.session_id = session_id
+            gate_client.role_id = role_id
+        else
+            error_num = Error.reconnect_role.gate_client_state_not_fit
+        end
+    end
+    gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num })
 end
 
 

@@ -11,5 +11,11 @@ function GameServiceMgr:_on_init()
     world_online_shadown:init()
     self:add_service(world_online_shadown)
 
+    do
+        local svc = GameLogicService:new(self, Service_Name.logics)
+        svc:init()
+        self:add_service(svc)
+    end
+
     return true
 end

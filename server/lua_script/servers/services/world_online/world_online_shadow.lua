@@ -191,7 +191,7 @@ function OnlineWorldShadow:_set_world_online_servers(version, servers)
     self:_check_adjust_version()
 
     --for i=1, 100 do
-    --    log_print("consistent_hash ret is ", i, self:find_server_address(i))
+    --    log_print("consistent_hash ret is ", i, self:find_available_server_address(i))
     --end
 end
 
@@ -232,13 +232,35 @@ function OnlineWorldShadow:_check_adjust_version()
     end
 end
 
-function OnlineWorldShadow:find_server_address(val)
-    local is_find, addr = self._server_hash:find_address(val)
-    if is_find then
-        return addr
-    else
-        return nil
-    end
+function OnlineWorldShadow:cal_server_address(val)
+    local is_find, selected_world_key = self._server_hash:find_address(val)
+    return is_find and selected_world_key or nil
+end
+
+function OnlineWorldShadow:find_available_server_address(val)
+    local error_num = Error_None
+    local selected_world_key = nil
+    repeat
+        if self:is_parted() then
+            error_num = Error_Server_Online_Shadow_Parted
+            break
+        end
+        if self:is_adjusting_version() then
+            error_num = Error_Server_Online_Shadow_Parted
+            break
+        end
+        local is_find = false
+        is_find, selected_world_key = self._server_hash:find_address(val)
+        if not is_find then
+            error_num = Error_Not_Available_Server
+            break
+        end
+        if not self.server.peer_net:is_server_available(selected_world_key) then
+            error_num = Error_Not_Available_Server
+            break
+        end
+    until true
+    return error_num, selected_world_key
 end
 
 function OnlineWorldShadow:get_version()

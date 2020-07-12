@@ -38,10 +38,10 @@ setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.req_logout_role, "ReqLogoutRol
 setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.rsp_logout_role, "RspLogoutRole")
 
 -- 请求重连
-Login_Pid.req_reconnect = 11 + Pto_Const.login_min_pto_id
-Login_Pid.rsp_reconnect = 12 + Pto_Const.login_min_pto_id
-setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.req_reconnect, "ReqReconnect")
-setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.rsp_reconnect, "RspReconnect")
+Login_Pid.req_reconnect_role = 11 + Pto_Const.login_min_pto_id
+Login_Pid.rsp_reconnect_role = 12 + Pto_Const.login_min_pto_id
+setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.req_reconnect_role, "ReqReconnectRole")
+setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.rsp_reconnect_role, "RspReconnectRole")
 
 -- 请求转发到game
 Login_Pid.forward_game_msg = 13  + Pto_Const.login_min_pto_id

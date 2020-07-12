@@ -258,4 +258,9 @@ function PeerNetService:get_role_server_keys(server_role)
     return ret
 end
 
+function PeerNetService:is_server_available(server_key)
+    local ret = self._culster_server_states[server_key]
+    return ret and ret:is_joined_cluster() or false
+end
+
 

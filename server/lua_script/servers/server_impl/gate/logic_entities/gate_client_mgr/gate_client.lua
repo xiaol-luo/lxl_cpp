@@ -7,11 +7,10 @@ function GateClient:ctor(cnn)
     self.netid = cnn.netid
     self.state = Gate_Client_State.free
     self.user_id = nil
-    self.launch_role_id = nil
-    self.game_client = nil
-    self.world_client = nil
-    self.world_role_session_id = nil
     self.auth_sn = nil
+    self.role_id = nil
+    self.game_server_key = nil
+    self.session_id = nil
 end
 
 function GateClient:send_bin(pid, bin)
@@ -32,6 +31,7 @@ function GateClient:Disconnect()
     if self.cnn then
         Net.close(self.netid)
     end
+    log_print("GateClient:Disconnect ", debug.traceback())
 end
 
 function GateClient:is_authed()

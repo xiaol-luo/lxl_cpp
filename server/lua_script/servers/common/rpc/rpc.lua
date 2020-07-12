@@ -1,5 +1,6 @@
 
 ---@class RPC
+---@field gate Rpc.gate
 Rpc = {}
 
 require("servers.common.rpc.rpc_create_role")
