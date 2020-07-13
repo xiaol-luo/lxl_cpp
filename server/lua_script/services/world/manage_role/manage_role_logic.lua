@@ -272,7 +272,7 @@ function RoleMgr:on_frame()
             end
         end
         if Role_State.idle == role.state and role.idle_begin_sec then
-            if now_sec > role.idle_begin_sec + Idle_Role_Hold_Max_Sec  then
+            if now_sec > role.idle_begin_sec + Idle_Role_Hold_Max_Sec then
                 self:try_release_role(role_id)
             end
         end

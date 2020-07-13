@@ -60,7 +60,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         self._session_id_to_role_state[role_state.session_id] = role_state
         log_print("_handle_remote_call_launch_role 1", role_id, role_state.session_id)
         self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, role_state.session_id),
-                role_state.game_server_key, Rpc.game.method.launch_role, role_id, role_state.session_id)
+                role_state.game_server_key, Rpc.game.method.launch_role, user_id, role_id)
         role_state.state = World_Role_State.launch
         old_session_id = role_state.session_id
     else
@@ -106,7 +106,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
                 role_state.session_id = self:_next_session_id()
                 log_print("_handle_remote_call_launch_role 2", tostring(rpc_rsp))
                 self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, role_state.session_id),
-                    role_state.game_server_key, Rpc.game.method.launch_role, role_id, role_state.session_id)
+                    role_state.game_server_key, Rpc.game.method.launch_role, user_id, role_id)
             end
         end
 
@@ -263,9 +263,11 @@ function RoleStateMgr:try_release_role(role_id)
             role_state.game_server_key, Rpc.game.method.release_role, role_state.role_id)
 end
 
-function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num)
-    local role_state = self._role_id_to_role_state[role_id]
+function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num, error_num)
+    --
     log_debug("RoleMgr:_rpc_rsp_try_release_role %s %s", role_id, rpc_error_num, error_num)
+
+    local role_state = self._role_id_to_role_state[role_id]
     if not role_state or not role_state.release_opera_ids or not role_state.release_opera_ids[opera_id] then
         return
     end

@@ -22,7 +22,10 @@ Error_Consistent_Hash_Adjusting = -401
 Error_Server_Online_Shadow_Parted = -402
 Error_Not_Available_Server = -403
 
+Error_Mongo_Opera_Fail = -500
+
 require("servers.common.error.error_world_server")
+require("servers.common.error.error_game_server")
 
 function pick_error_num(...)
     local ret = Error_None
