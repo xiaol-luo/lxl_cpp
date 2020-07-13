@@ -8,7 +8,7 @@ function print(...)
             table.insert(str_list, tostring(arg))
 
         else
-            table.insert(str_list, string.to_print(arg))
+            table.insert(str_list, string.to_print(arg, 3))
         end
     end
     local ret = table.concat(str_list, ' ')

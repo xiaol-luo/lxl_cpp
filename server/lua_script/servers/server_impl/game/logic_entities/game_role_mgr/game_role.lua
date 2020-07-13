@@ -6,7 +6,7 @@ function GameRole:ctor(mgr, user_id, role_id)
     self._mgr = mgr
     self._user_id = user_id
     self._role_id = role_id
-    self._state = Game_Role_State.inited
+    self._state = Game_Role_State.free
     self._gate_server_key = nil
     self._gate_netid = nil
 

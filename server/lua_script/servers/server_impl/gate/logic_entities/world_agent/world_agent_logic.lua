@@ -40,7 +40,6 @@ end
 
 ---@param gate_client GateClient
 function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
-    log_print("WorldAgentLogic:_on_msg_launch_role")
     local error_num = Error_None
     repeat
         local find_error_num, selected_world_key = self._world_online_shadow:find_available_server_address(msg.role_id)
@@ -99,7 +98,6 @@ function WorldAgentLogic:_rpc_rsp_req_launch_role(gate_netid, role_id, rpc_error
 end
 
 function WorldAgentLogic:_on_msg_logout_role(gate_client, pid, msg)
-    log_print("++++ WorldAgentLogic:_on_msg_logout_role")
     local error_num = Error_None
     repeat
         if Gate_Client_State.in_game ~= gate_client.state or not gate_client.role_id or gate_client.role_id ~= msg.role_id  then
@@ -130,8 +128,6 @@ function WorldAgentLogic:_rpc_rsp_logout_role(gate_netid, session_id, rpc_error_
         return
     end
 
-    log_print("++++ WorldAgentLogic:_rpc_rsp_logout_role")
-
     local error_num = Error_None
     repeat
         local picked_error_num = pick_error_num(rpc_error_num, logic_error_num)
@@ -148,7 +144,6 @@ function WorldAgentLogic:_rpc_rsp_logout_role(gate_netid, session_id, rpc_error_
 end
 
 function WorldAgentLogic:_on_msg_reconnect_role(gate_client, pid, msg)
-    log_print("WorldAgentLogic:_on_msg_reconnect_role", msg)
     -- todo: 补认证过程
     local error_num = Error_None
     local auth_msg = msg.user_login_msg

@@ -43,8 +43,6 @@ end
 
 ---@param rpc_rsp RpcRsp
 function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_sn, user_id, role_id)
-    log_print("RoleStateMgr:_handle_remote_call_launch_role", gate_netid, user_id, role_id)
-
     local old_session_id = nil
     local role_state = self._role_id_to_role_state[role_id]
     if not role_state then
@@ -58,7 +56,6 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         role_state.cached_rpc_rsp = rpc_rsp
         self._role_id_to_role_state[role_state.role_id] = role_state
         self._session_id_to_role_state[role_state.session_id] = role_state
-        log_print("_handle_remote_call_launch_role 1", role_id, role_state.session_id)
         self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, role_state.session_id),
                 role_state.game_server_key, Rpc.game.method.launch_role, user_id, role_id)
         role_state.state = World_Role_State.launch
@@ -74,10 +71,8 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         end
         old_session_id = role_state.session_id
 
-        log_print("RoleStateMgr:_handle_remote_call_launch_role step", 100)
         -- 如果正在被使用，那么就顶号
         if World_Role_State.using == role_state.state then
-            log_print("RoleStateMgr:_handle_remote_call_launch_role step", 201)
             if role_state.gate_server_key == rpc_rsp.from_host and role_state.gate_netid == gate_netid then
                 rpc_rsp:respone(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
             else
@@ -95,7 +90,6 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
 
         -- 如果正在launch过程中，用新的launch过程挤掉上一个launch过程。这么做相对简单
         if World_Role_State.launch == role_state.state then
-            log_print("RoleStateMgr:_handle_remote_call_launch_role step", 301)
             if role_state.gate_server_key == rpc_rsp.from_host and role_state.gate_netid == gate_netid then
                 rpc_rsp:respone(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
             else
@@ -104,7 +98,6 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
                 end
                 role_state.cached_rpc_rsp = rpc_rsp
                 role_state.session_id = self:_next_session_id()
-                log_print("_handle_remote_call_launch_role 2", tostring(rpc_rsp))
                 self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, role_state.session_id),
                     role_state.game_server_key, Rpc.game.method.launch_role, user_id, role_id)
             end
@@ -112,7 +105,6 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
 
         -- 如果是闲置状态，直接接上就好了
         if World_Role_State.idle == role_state.state then
-            log_print("RoleStateMgr:_handle_remote_call_launch_role step", 401)
             role_state.session_id = self:_next_session_id()
             role_state.state = World_Role_State.using
             role_state.idle_begin_sec = nil
@@ -121,24 +113,21 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
             self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.method.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
         end
 
-        log_print("RoleStateMgr:_handle_remote_call_launch_role step", 501)
         -- 最后维护好gate_server_key、gate_netid、auth_sn和self._session_id_to_role_state数据正确
         role_state.gate_server_key = rpc_rsp.from_host
         role_state.gate_netid = gate_netid
         role_state.auth_sn = auth_sn
         self._session_id_to_role_state[role_state.session_id] = role_state
-        if old_session_id ~= role_state.session_id then
+        if old_session_id and old_session_id ~= role_state.session_id then
             self._session_id_to_role_state[old_session_id] = nil
         end
     end
 end
 
 function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, error_num)
-    log_print("RoleStateMgr:_rpc_rsp_launch_role ", role_id, session_id, rpc_error_num, error_num)
     local picked_error = pick_error_num(rpc_error_num, error_num)
     local role_state = self._role_id_to_role_state[role_id]
     if not role_state then
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 11111")
         return
     end
     if not role_state.session_id then
@@ -149,12 +138,10 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
             self._session_id_to_role_state[role_state.session_id] = nil
             self._role_id_to_role_state[role_state.role_id] = nil
         end
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 2222222222")
         return
     end
     if role_state.session_id ~= session_id then
         -- session_id 应该是被顶号了
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 33333")
         return
     end
 
@@ -174,12 +161,10 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
             self._session_id_to_role_state[role_state.session_id] = nil
             self._role_id_to_role_state[role_state.role_id] = nil
         end
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 4444")
         return
     end
 
     if Error_None ~= picked_error then
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 55555")
         if role_state.cached_rpc_rsp then
             role_state.cached_rpc_rsp:respone(picked_error)
         end
@@ -188,7 +173,6 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
         self._session_id_to_role_state[role_state.session_id] = nil
         self._role_id_to_role_state[role_state.role_id] = nil
     else
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 6666")
         self._rpc_svc_proxy:call(
                 Functional.make_closure(self._rpc_rsp_bind_game_role_to_gate_client_after_launch, self, role_id, session_id),
                 role_state.game_server_key, Rpc.game.method.change_gate_client,
@@ -200,23 +184,19 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
     local picked_error = pick_error_num(rpc_error_num, error_num)
     local role_state = self._role_id_to_role_state[role_id]
     if not role_state then
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 7777")
         return
     end
     if not role_state.session_id then
         -- role_state没有被占用,，此时launch已经成功了，那么执行try_release_role比较简单
         self:try_release_role()
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 8888")
         return
     end
     if role_state.session_id ~= session_id then
         -- session_id 应该是被顶号了
-        log_print("RoleStateMgr:_rpc_rsp_launch_role 9999")
         return
     end
 
     if World_Role_State.launch ~= role_state.state then
-        log_print("RoleStateMgr:_rpc_rsp_launch_role aaaa")
         -- todo: 发生了意想不到的错误，让客户端断开连接,让game清理role数据
         if role_state.cached_rpc_rsp then
             role_state.cached_rpc_rsp:respone(Error_Unknown)
@@ -231,10 +211,8 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
     end
 
     if Error_None == picked_error then
-        log_print("RoleStateMgr:_rpc_rsp_launch_role bbbb")
         role_state.state = World_Role_State.using
         if role_state.cached_rpc_rsp then
-            log_print("RoleStateMgr:_rpc_rsp_launch_role bbbb 111")
             role_state.cached_rpc_rsp:respone(Error_None, role_state.gate_server_key, role_state.session_id)
         end
         role_state.cached_rpc_rsp = nil
@@ -264,9 +242,6 @@ function RoleStateMgr:try_release_role(role_id)
 end
 
 function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num, error_num)
-    --
-    log_debug("RoleMgr:_rpc_rsp_try_release_role %s %s", role_id, rpc_error_num, error_num)
-
     local role_state = self._role_id_to_role_state[role_id]
     if not role_state or not role_state.release_opera_ids or not role_state.release_opera_ids[opera_id] then
         return
@@ -358,7 +333,6 @@ function RoleStateMgr:_handle_remote_call_logout_role(rpc_rsp, session_id)
 end
 
 function RoleStateMgr:_handle_remote_call_gate_client_quit(rpc_rsp, session_id)
-    log_print("RoleStateMgr:_handle_remote_call_gate_client_quit ", session_id)
     rpc_rsp:respone()
     local role_state = self._session_id_to_role_state[session_id]
     if role_state then

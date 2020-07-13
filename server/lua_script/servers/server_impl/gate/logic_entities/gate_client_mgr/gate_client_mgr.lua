@@ -71,8 +71,6 @@ function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error
         return
     end
     self._gate_clients[netid] = nil
-
-    log_print("GateClientMgr:_client_net_svc_cnn_on_close", gate_client.role_id, "xxx", gate_client.session_id)
     if gate_client.role_id and gate_client.session_id then
         local find_error_num, selected_world_key = self.server.world_online_shadow:find_available_server_address(gate_client.role_id)
         if Error_None == find_error_num then
