@@ -17,6 +17,10 @@ etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/world_sent
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/gate.gate_0 1
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/game.game_0 1
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/world.luo 1
+etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/world.xiao 1
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/create_role.create_role_0 1
+
+etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world.luo 1
+etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world.xiao 1
 
 etcdctl ${endpoints_flag} ls -r /${zone_name}

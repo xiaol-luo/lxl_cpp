@@ -14,9 +14,12 @@ function ZoneSettingService:ctor(service_mgr, service_name)
     self._zone_role_min_nums = {}
     ---@type table<string, boolean>
     self._zone_allow_join_servers = {} -- key=name
+    ---@type table<string, boolean>
+    self._zone_allow_work_servers = {} -- 特定server_role会有限制，比如world，根据具体实现来
 
     self._db_path_zone_setting = nil
     self._db_path_zone_allow_join_servers = nil
+    self._db_path_zone_allow_work_servers = nil
     self._db_path_zone_role_min_nums = nil
     self._db_path_is_setting_ready = nil
 end
@@ -32,6 +35,7 @@ function ZoneSettingService:_on_init()
     self._etcd_client = EtcdClient:new(etcd_setting.host, etcd_setting.user, etcd_setting.pwd)
     self._db_path_zone_setting = string.format(Zone_Setting_Const.db_path_zone_setting_format, self.server.zone_name)
     self._db_path_zone_allow_join_servers = string.format(Zone_Setting_Const.db_path_zone_allow_join_servers_format, self.server.zone_name)
+    self._db_path_zone_allow_work_servers = string.format(Zone_Setting_Const.db_path_zone_allow_work_servers_format, self.server.zone_name)
     self._db_path_zone_role_min_nums = string.format(Zone_Setting_Const.db_path_zone_role_min_nums_format, self.server.zone_name)
     self._db_path_is_setting_ready = string.format(Zone_Setting_Const.db_path_is_setting_ready_format, self.server.zone_name)
 end
@@ -107,6 +111,22 @@ function ZoneSettingService:_on_zone_setting_change(watch_result, etcd_watcher)
         self:fire(Zone_Setting_Event.zone_setting_allow_join_servers_diff, key, Zone_Setting_Diff.delete, false)
     end
 
+    local old_zone_allow_work_servers = self._zone_allow_work_servers or {}
+    self._zone_allow_work_servers = {}
+    for key, node in pairs(watch_result:get_dir_nodes(self._db_path_zone_allow_work_servers)) do
+        local value = (tonumber(node.value) ~= 0)
+        self._zone_allow_work_servers[key] = value
+
+        local old_value = old_zone_allow_work_servers[key] and old_zone_allow_work_servers[key] or false
+        if old_value ~= value then
+            self:fire(Zone_Setting_Event.zone_setting_allow_work_servers_diff, key, Zone_Setting_Diff.upsert, value)
+        end
+        old_zone_allow_work_servers[key] = nil
+    end
+    for key, value in pairs(old_zone_allow_work_servers) do
+        self:fire(Zone_Setting_Event.zone_setting_allow_work_servers_diff, key, Zone_Setting_Diff.delete, false)
+    end
+
     local old_zone_role_min_nums = self._zone_role_min_nums or {}
     self._zone_role_min_nums = {}
     for key, node in pairs(watch_result:get_dir_nodes(self._db_path_zone_role_min_nums)) do
@@ -157,6 +177,27 @@ function ZoneSettingService:_on_zone_setting_diff(key, result_diff_type, new_nod
                 local new_value = (tonumber(new_node.value) ~= 0)
                 local old_value = self._zone_allow_join_servers[key] and self._zone_allow_join_servers[key] or false
                 self._zone_allow_join_servers[key] = new_value
+                if new_value ~= old_value then
+                    self:fire(Zone_Setting_Event.zone_setting_allow_join_servers_diff, key, Zone_Setting_Diff.upsert, new_value)
+                end
+            end
+        end
+    end
+
+    if self._zone_allow_work_servers then
+        dir_key = self._db_path_zone_allow_work_servers .. "/"
+        if 1 == string.find(key, dir_key) then
+            if Etcd_Watch_Result_Diff.Delete == result_diff_type then
+                local new_value = false
+                local old_value = self._zone_allow_work_servers[key] and self._zone_allow_work_servers[key] or false
+                self._zone_allow_work_servers[key] = nil
+                if old_value ~= new_value then
+                    self:fire(Zone_Setting_Event.zone_setting_allow_join_servers_diff, key, Zone_Setting_Diff.delete, setting)
+                end
+            else
+                local new_value = (tonumber(new_node.value) ~= 0)
+                local old_value = self._zone_allow_work_servers[key] and self._zone_allow_work_servers[key] or false
+                self._zone_allow_work_servers[key] = new_value
                 if new_value ~= old_value then
                     self:fire(Zone_Setting_Event.zone_setting_allow_join_servers_diff, key, Zone_Setting_Diff.upsert, new_value)
                 end
@@ -236,6 +277,25 @@ function ZoneSettingService:get_allow_join_servers()
     local ret = {}
     for k, v in pairs(self._zone_allow_join_servers) do
         ret[k] = v
+    end
+    return ret
+end
+
+function ZoneSettingService:get_allow_work_servers()
+    local ret = {}
+    for k, v in pairs(self._zone_allow_work_servers) do
+        ret[k] = v
+    end
+    return ret
+end
+
+function ZoneSettingService:is_server_allow_work(server_name)
+    local ret = false
+    if self._zone_allow_work_servers then
+        if is_string(server_name) and #server_name > 0 then
+            local key = string.format("%s/%s", self._db_path_zone_allow_work_servers, server_name)
+            ret = self._zone_allow_work_servers[key] or false
+        end
     end
     return ret
 end

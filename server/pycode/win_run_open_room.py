@@ -75,7 +75,7 @@ else:
 	work_dir_base = r"E:\git\ws\lxl_cpp"
 
 run_cmds = []
-for role_name in ["world_0", "world_sentinel_0", "gate_0", "game_0", "create_role_0"]:
+for role_name in ["world_0", "world_1", "world_sentinel_0", "gate_0", "game_0", "create_role_0"]:
 # for role_name in ["world_0", "world_sentinel_0", "gate_0", "game_0"]:
     run_cmd = "{} {} {} {}".format(
         exe_file,

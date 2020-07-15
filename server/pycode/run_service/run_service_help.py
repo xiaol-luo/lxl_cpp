@@ -50,6 +50,7 @@ class RunServiceHelp(object):
 
     def prepare_for_run(self):
         os.makedirs(self.work_dir, exist_ok=True)
+        os.makedirs(self.work_dir+"/hotfix_dir", exist_ok=True)
         return True, None
 
     def run(self):

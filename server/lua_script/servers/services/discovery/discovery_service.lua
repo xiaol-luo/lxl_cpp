@@ -28,7 +28,7 @@ function DiscoveryService:ctor(service_mgr, service_name)
         server_datas = {},
     }
 
-    self._keey_in_cluster_infos = {
+    self._keep_in_cluster_infos = {
         is_keeping = false,
         refresh_ttl_last_sec = 0,
         set_value_last_sec = 0,
@@ -212,7 +212,7 @@ function DiscoveryService:_process_servers_pull_ret(etcd_ret)
     self._servers_infos.server_datas = new_server_datas
 
     local this_server_data = new_server_datas[self._db_path_zone_server_data]
-    if not this_server_data or this_server_data.create_index ~= self._keey_in_cluster_infos.create_index then
+    if not this_server_data or this_server_data.create_index ~= self._keep_in_cluster_infos.create_index then
         self:_set_join_cluster(false)
     end
 
@@ -247,7 +247,7 @@ function DiscoveryService:_process_servers_watch_ret(etcd_ret)
     if not etcd_ret:is_ok() then
         return
     end
-    if self._keey_in_cluster_infos.create_index and etcd_ret.op_result.node.createdIndex < self._keey_in_cluster_infos.create_index then
+    if self._keep_in_cluster_infos.create_index and etcd_ret.op_result.node.createdIndex < self._keep_in_cluster_infos.create_index then
         return
     end
     local action = etcd_ret.op_result.action
@@ -301,7 +301,7 @@ function DiscoveryService:_fire_server_data_change(change_ret)
 end
 
 function DiscoveryService:_keep_in_cluster()
-    if self._keey_in_cluster_infos.is_keeping or not self._cluster_server_id then
+    if self._keep_in_cluster_infos.is_keeping or not self._cluster_server_id then
         return
     end
     if not self._is_allow_join_cluster or not self._zone_setting:is_ready() then
@@ -309,18 +309,18 @@ function DiscoveryService:_keep_in_cluster()
     end
     local now_sec = logic_sec()
     if not self._is_joined_cluster then
-        if now_sec - self._keey_in_cluster_infos.set_value_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 4.0 then
-            self._keey_in_cluster_infos.set_value_last_sec = now_sec
-            self._keey_in_cluster_infos.is_keeping = true
+        if now_sec - self._keep_in_cluster_infos.set_value_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 4.0 then
+            self._keep_in_cluster_infos.set_value_last_sec = now_sec
+            self._keep_in_cluster_infos.is_keeping = true
             self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_data_json_str, Discovery_Service_Const.refresh_ttl_sec, function(op_id, op, ret)
-                self._keey_in_cluster_infos.is_keeping = false
+                self._keep_in_cluster_infos.is_keeping = false
+                -- log_print("DiscoveryService:_keep_in_cluster set", ret:is_ok())
                 if ret:is_ok() then
                     self:_set_join_cluster(true)
-                    self._keey_in_cluster_infos.create_index = ret.op_result.node.createdIndex
-                    self._keey_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
-                    self._keey_in_cluster_infos.refresh_ttl_last_sec = 0
+                    self._keep_in_cluster_infos.create_index = ret.op_result.node.createdIndex
+                    self._keep_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
+                    self._keep_in_cluster_infos.refresh_ttl_last_sec = 0
                     self._servers_infos.wait_idx = nil -- 使得执行一次全量pull
-                    -- log_print("DiscoveryService:_keep_in_cluster set", ret)
                 else
                     self:_set_join_cluster(false)
                 end
@@ -328,15 +328,15 @@ function DiscoveryService:_keep_in_cluster()
         end
     end
     if self._is_joined_cluster then
-        if now_sec - self._keey_in_cluster_infos.refresh_ttl_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 2.0 then
-            self._keey_in_cluster_infos.refresh_ttl_last_sec = now_sec
-            self._keey_in_cluster_infos.is_keeping = true
+        if now_sec - self._keep_in_cluster_infos.refresh_ttl_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 2.0 then
+            self._keep_in_cluster_infos.refresh_ttl_last_sec = now_sec
+            self._keep_in_cluster_infos.is_keeping = true
             self._etcd_client:refresh_ttl(self._db_path_zone_server_data, Discovery_Service_Const.refresh_ttl_sec, false, function(op_id, op, ret)
-                self._keey_in_cluster_infos.is_keeping = false
-                -- log_print("DiscoveryService:_keep_in_cluster refresh ttl", ret)
+                self._keep_in_cluster_infos.is_keeping = false
+                -- log_print("DiscoveryService:_keep_in_cluster refresh ttl", ret:is_ok())
                 if ret:is_ok() then
-                    self._keey_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
-                    if ret.op_result.node.createdIndex ~= self._keey_in_cluster_infos.create_index then
+                    self._keep_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
+                    if ret.op_result.node.createdIndex ~= self._keep_in_cluster_infos.create_index then
                         self:_set_join_cluster(false)
                     end
                 else
@@ -351,8 +351,8 @@ function DiscoveryService:_on_event_zone_setting_allow_join_servers_diff(key, di
     local old_value = self._is_allow_join_cluster
     self._is_allow_join_cluster = self._zone_setting:is_server_allow_join(self._cluster_server_name)
     if old_value and old_value ~= self._is_allow_join_cluster then
-        if self._is_joined_cluster and self._keey_in_cluster_infos.modified_index then
-            self._etcd_client:cmp_delete(self._db_path_zone_server_data, self._keey_in_cluster_infos.modified_index, self._zone_server_data_json_str, false,
+        if self._is_joined_cluster and self._keep_in_cluster_infos.modified_index then
+            self._etcd_client:cmp_delete(self._db_path_zone_server_data, self._keep_in_cluster_infos.modified_index, self._zone_server_data_json_str, false,
                     function (op_id, op, ret)
                         if ret:is_ok() then
                             self:_set_join_cluster(false)
@@ -366,7 +366,7 @@ function DiscoveryService:_set_join_cluster(is_joined)
     local is_change = self._is_joined_cluster ~= is_joined
     self._is_joined_cluster = is_joined
     if not self._is_joined_cluster then
-        self._keey_in_cluster_infos.create_index = nil
+        self._keep_in_cluster_infos.create_index = nil
     end
     if is_change then
         log_print("DiscoveryService:_set_join_cluster ", is_joined)

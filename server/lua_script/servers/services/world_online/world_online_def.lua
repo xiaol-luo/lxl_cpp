@@ -4,8 +4,8 @@ World_Online_Const.redis_key_world_online_adjusting_version_format = "%s-online-
 World_Online_Const.redis_key_world_online_version_format = "%s-online-world-version"
 World_Online_Const.redis_key_world_online_servers_format = "%s-online-world-servers"
 
-World_Online_Const.lead_world_rehash_duration_sec = 10
-World_Online_Const.guarantee_data_valid_duration_sec = 60
+World_Online_Const.lead_world_rehash_duration_sec = 5
+World_Online_Const.guarantee_data_valid_duration_sec = 20
 
 World_Online_Const.parted_with_monitor_with_no_communication = 20
 World_Online_Const.parted_with_redis_with_no_communication = 20
