@@ -23,7 +23,7 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, match_session_id, role_id, join_ma
     local role_mgr = self.service.role_mgr
     local role = role_mgr:get_role(role_id)
     if role then
-        rpc_rsp:respone(Error.Join_Match.remote_is_matching)
+        rpc_rsp:response(Error.Join_Match.remote_is_matching)
         return
     end
 
@@ -36,13 +36,13 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, match_session_id, role_id, join_ma
         role.game_client = self.service:create_rpc_client(rpc_rsp.from_host)
         role.game_session_id = match_session_id
     end
-    rpc_rsp:respone(error_num, match_cell_id)
+    rpc_rsp:response(error_num, match_cell_id)
 end
 
 function MatchMgr:_on_rpc_quit_match(rpc_rsp, role_id)
     local role = self.service.role_mgr:get_role(role_id)
     if not role then
-        rpc_rsp:respone(Error_None, game_session_id)
+        rpc_rsp:response(Error_None, game_session_id)
         return
     end
     if role.match_room_id then
@@ -53,5 +53,5 @@ function MatchMgr:_on_rpc_quit_match(rpc_rsp, role_id)
     end
     self.service.match_mgr:quit(role_id)
     self.service.role_mgr:remove_role(role_id)
-    rpc_rsp:respone(Error_None, game_session_id)
+    rpc_rsp:response(Error_None, game_session_id)
 end

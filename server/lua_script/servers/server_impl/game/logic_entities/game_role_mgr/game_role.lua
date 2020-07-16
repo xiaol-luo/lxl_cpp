@@ -9,6 +9,7 @@ function GameRole:ctor(mgr, user_id, role_id)
     self._state = Game_Role_State.free
     self._gate_server_key = nil
     self._gate_netid = nil
+    self._world_server_key = nil
 
     self._db_ret = nil
     self._is_dirty = false
@@ -55,6 +56,14 @@ end
 
 function GameRole:get_gate()
     return self._gate_server_key, self._gate_netid
+end
+
+function GameRole:get_world_server_key()
+    return self._world_server_key
+end
+
+function GameRole:set_world_server_key(val)
+    self._world_server_key = val
 end
 
 

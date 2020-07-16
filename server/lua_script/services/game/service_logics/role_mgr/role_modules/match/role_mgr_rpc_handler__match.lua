@@ -25,11 +25,11 @@ function RoleMgr:_on_rpc_notify_confirm_join_match(rpc_rsp, role_id, session_id,
         role.match.state = Role_Match_State.wait_enter_room
         role.match:sync_match_state()
     until true
-    rpc_rsp:respone(is_accept)
+    rpc_rsp:response(is_accept)
 end
 
 function RoleMgr:_on_rpc_notify_terminate_match(rpc_rsp, role_id, session_id)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role = self:get_in_game_role(role_id)
     if role then
         if role.match.session_id and role.match.session_id == session_id then
@@ -40,7 +40,7 @@ function RoleMgr:_on_rpc_notify_terminate_match(rpc_rsp, role_id, session_id)
 end
 
 function RoleMgr:_on_rpc_notify_match_succ(rpc_rsp, role_id, session_id, join_match_type, room_service_key, room_id)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role = self:get_in_game_role(role_id)
     if role then
         if role.match.match_session_id and role.match.match_session_id == session_id then

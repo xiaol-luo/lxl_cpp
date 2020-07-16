@@ -48,7 +48,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
     if not role_state then
         local game_server_key = self.server.peer_net:random_server_key(Server_Role.Game)
         if not game_server_key then
-            rpc_rsp:respone(Error_Not_Available_Server)
+            rpc_rsp:response(Error_Not_Available_Server)
             return
         end
         role_state = WorldRoleState:new(self, rpc_rsp.from_host, gate_netid, auth_sn, user_id, role_id, self:_next_session_id())
@@ -62,7 +62,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         old_session_id = role_state.session_id
     else
         if World_Role_State.released == role_state.state or World_Role_State.inited == role_state.state then
-            rpc_rsp:respone(Error_Unknown)
+            rpc_rsp:response(Error_Unknown)
             return
         end
         if World_Role_State.releasing == role_state.state then
@@ -74,7 +74,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         -- 如果正在被使用，那么就顶号
         if World_Role_State.using == role_state.state then
             if role_state.gate_server_key == rpc_rsp.from_host and role_state.gate_netid == gate_netid then
-                rpc_rsp:respone(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
+                rpc_rsp:response(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
             else
                 if role_state.gate_server_key and role_state.gate_netid then
                     self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
@@ -82,7 +82,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
                     role_state.gate_netid = nil
                 end
                 role_state.session_id = self:_next_session_id()
-                rpc_rsp:respone(Error_None, role_state.game_server_key, role_state.session_id)
+                rpc_rsp:response(Error_None, role_state.game_server_key, role_state.session_id)
                 -- todo: 这里很可能game暂时和world断开连接，得想个修复策略，gate信息不一致，那么就向world请求下gate信息
                 self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.method.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
             end
@@ -91,10 +91,10 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         -- 如果正在launch过程中，用新的launch过程挤掉上一个launch过程。这么做相对简单
         if World_Role_State.launch == role_state.state then
             if role_state.gate_server_key == rpc_rsp.from_host and role_state.gate_netid == gate_netid then
-                rpc_rsp:respone(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
+                rpc_rsp:response(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
             else
                 if role_state.cached_rpc_rsp then
-                    role_state.cached_rpc_rsp:respone(Error.launch_role.another_launch)
+                    role_state.cached_rpc_rsp:response(Error.launch_role.another_launch)
                 end
                 role_state.cached_rpc_rsp = rpc_rsp
                 role_state.session_id = self:_next_session_id()
@@ -108,7 +108,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
             role_state.session_id = self:_next_session_id()
             role_state.state = World_Role_State.using
             role_state.idle_begin_sec = nil
-            rpc_rsp:respone(Error_None, role_state.game_server_key, role_state.session_id)
+            rpc_rsp:response(Error_None, role_state.game_server_key, role_state.session_id)
             -- todo: 这里很可能game暂时和world断开连接，得想个修复策略，gate信息不一致，那么就向world请求下gate信息
             self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.method.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
         end
@@ -148,7 +148,7 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
     if World_Role_State.launch ~= role_state.state then
         -- todo: 发生了意想不到的错误，让客户端断开连接,让game清理role数据
         if role_state.cached_rpc_rsp then
-            role_state.cached_rpc_rsp:respone(Error_Unknown)
+            role_state.cached_rpc_rsp:response(Error_Unknown)
         end
         role_state.cached_rpc_rsp = nil
 
@@ -166,7 +166,7 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
 
     if Error_None ~= picked_error then
         if role_state.cached_rpc_rsp then
-            role_state.cached_rpc_rsp:respone(picked_error)
+            role_state.cached_rpc_rsp:response(picked_error)
         end
         role_state.cached_rpc_rsp = nil
 
@@ -199,7 +199,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
     if World_Role_State.launch ~= role_state.state then
         -- todo: 发生了意想不到的错误，让客户端断开连接,让game清理role数据
         if role_state.cached_rpc_rsp then
-            role_state.cached_rpc_rsp:respone(Error_Unknown)
+            role_state.cached_rpc_rsp:response(Error_Unknown)
         end
         role_state.cached_rpc_rsp = nil
 
@@ -213,7 +213,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
     if Error_None == picked_error then
         role_state.state = World_Role_State.using
         if role_state.cached_rpc_rsp then
-            role_state.cached_rpc_rsp:respone(Error_None, role_state.gate_server_key, role_state.session_id)
+            role_state.cached_rpc_rsp:response(Error_None, role_state.gate_server_key, role_state.session_id)
         end
         role_state.cached_rpc_rsp = nil
     else
@@ -294,23 +294,23 @@ function RoleStateMgr:_handle_remote_call_reconnect_role(rpc_rsp, gate_netid, ro
     until true
 
     if Error_None ~= error_num then
-        rpc_rsp:respone(error_num)
+        rpc_rsp:response(error_num)
     end
 end
 
 function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_for_reconnect_role(rpc_rsp, session_id, role_id, rpc_error_num, error_num)
     local role_state = self._role_id_to_role_state[role_id]
     if not role_state or not role_state.session_id or session_id ~= role_state.session_id then
-        rpc_rsp:respone(Error_Unknown)
+        rpc_rsp:response(Error_Unknown)
         return
     end
     local picked_error = pick_error_num(rpc_error_num, error_num)
     if Error_None ~= picked_error or World_Role_State.using ~= role_state.state then
-        rpc_rsp:respone(picked_error)
+        rpc_rsp:response(picked_error)
         -- 执行try_release_role比较简单
         self:try_release_role(role_state.role_id)
     else
-        rpc_rsp:respone(Error_None, role_state.game_server_key, role_state.session_id)
+        rpc_rsp:response(Error_None, role_state.game_server_key, role_state.session_id)
     end
 end
 
@@ -329,11 +329,11 @@ function RoleStateMgr:_handle_remote_call_logout_role(rpc_rsp, session_id)
         role_state.gate_netid = nil
         self:try_release_role(role_state.role_id)
     until true
-    rpc_rsp:respone(error_num)
+    rpc_rsp:response(error_num)
 end
 
 function RoleStateMgr:_handle_remote_call_gate_client_quit(rpc_rsp, session_id)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role_state = self._session_id_to_role_state[session_id]
     if role_state then
         self._session_id_to_role_state[session_id] = nil

@@ -19,10 +19,10 @@ function ClientCnnMgr:on_rpc_query_state(rpc_rsp)
         client_connect_ip = self.client_connect_ip,
         client_connect_port = self.listen_port,
     }
-    rpc_rsp:respone(ret)
+    rpc_rsp:response(ret)
 end
 
 function ClientCnnMgr:on_kick_client(rpc_rsp, netid, kick_reason)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     Net.close(netid)
 end

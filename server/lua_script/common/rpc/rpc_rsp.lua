@@ -13,18 +13,18 @@ function RpcRsp:ctor(id, from_host, from_id, rpc_mgr)
     self.delay_execute_fns = {}
 end
 
-function RpcRsp:respone(...)
-    -- self.rpc_mgr:respone(self.id, self.from_host, self.from_id, Rpc_Const.Action_Return_Result, ...)
+function RpcRsp:response(...)
+    -- self.rpc_mgr:response(self.id, self.from_host, self.from_id, Rpc_Const.Action_Return_Result, ...)
     self:send_back(Rpc_Const.Action_Return_Result, ...)
 end
 
 function RpcRsp:report_error(error_str)
-    -- self.rpc_mgr:respone(self.id, self.from_host, self.from_id, Rpc_Const.Action_Report_Error, error_str)
+    -- self.rpc_mgr:response(self.id, self.from_host, self.from_id, Rpc_Const.Action_Report_Error, error_str)
     self:send_back(Rpc_Const.Action_Report_Error, error_str)
 end
 
 function RpcRsp:postpone_expire()
-    -- self.rpc_mgr:respone(self.id, self.from_host, self.from_id, Rpc_Const.Action_PostPone_Expire)
+    -- self.rpc_mgr:response(self.id, self.from_host, self.from_id, Rpc_Const.Action_PostPone_Expire)
     self:send_back(Rpc_Const.Action_PostPone_Expire)
 end
 
@@ -33,7 +33,7 @@ function RpcRsp:add_delay_execute(fn)
 end
 
 function RpcRsp:send_back(rpc_action, ...)
-    self.rpc_mgr:respone(self.id, self.from_host, self.from_id, rpc_action, ...)
+    self.rpc_mgr:response(self.id, self.from_host, self.from_id, rpc_action, ...)
 end
 
 function RpcRsp:create_rpc_client()

@@ -85,7 +85,7 @@ end
 
 ---@param rsp RpcRsp
 function OnlineWorldShadow:_on_rpc_notify_world_online_servers_data(rsp, msg)
-    rsp:respone()
+    rsp:response()
 
     self._world_monitor_rsp_last_sec = logic_sec()
 
@@ -246,7 +246,7 @@ function OnlineWorldShadow:find_available_server_address(val)
             break
         end
         if self:is_adjusting_version() then
-            error_num = Error_Server_Online_Shadow_Parted
+            error_num = Error_Consistent_Hash_Adjusting
             break
         end
         local is_find = false

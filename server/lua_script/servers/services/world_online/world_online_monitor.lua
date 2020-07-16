@@ -364,6 +364,6 @@ end
 
 ---@param rsp RpcRsp
 function OnlineWorldMonitor:_on_rpc_query_world_online_servers_data(rsp, is_simple_info)
-    rsp:respone()
+    rsp:response()
     self:_notify_world_online_data(rsp.from_host, is_simple_info)
 end

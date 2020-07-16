@@ -113,16 +113,16 @@ function RoleMgr:luanch_role(rpc_rsp, role_id, world_role_session_id)
         self._id_to_role[role_id] = role
     end
     if Game_Role_State.load_from_db == role.state then
-        rpc_rsp:respone(Error.Launch_Role.loading_from_db)
+        rpc_rsp:response(Error.Launch_Role.loading_from_db)
         return
     end
     if Game_Role_State.in_error == role.state then
-        rpc_rsp:respone(Error.Launch_Role.game_role_state_in_error)
+        rpc_rsp:response(Error.Launch_Role.game_role_state_in_error)
         return
     end
     if Game_Role_State.in_game == role.state then
         role:set_launch_sec()
-        rpc_rsp:respone(Error_None)
+        rpc_rsp:response(Error_None)
         return
     end
     if Game_Role_State.free == role.state then
@@ -139,23 +139,23 @@ function RoleMgr:_db_rsp_launch_role(rpc_rsp, role_id, db_ret)
     log_debug("RoleMgr:_db_rsp_launch_role %s", role_id)
     local role = self:get_role(role_id)
     if not role or Game_Role_State.load_from_db ~= role.state then
-        rpc_rsp:respone(Error.Launch_Role.unknown)
+        rpc_rsp:response(Error.Launch_Role.unknown)
     end
     if 0 ~= db_ret.error_num or db_ret.matched_count <= 0 then
         role.state = Game_Role_State.in_error
         self:remove_role(role_id)
-        rpc_rsp:respone(Error.Launch_Role.query_db_fail)
+        rpc_rsp:response(Error.Launch_Role.query_db_fail)
         return
     end
     local db_data = db_ret.val["0"]
     if db_data.role_id ~= role.role_id then
-        rpc_rsp:respone(Error.Launch_Role.unknown)
+        rpc_rsp:response(Error.Launch_Role.unknown)
         log_error("RoleMgr:_db_rsp_launch_role role_id not match %s != %s", db_data.role_id, role.role_id)
         return
     end
     role:init_from_db(db_data)
     role.state = Game_Role_State.in_game
-    rpc_rsp:respone(Error_None, role_id)
+    rpc_rsp:response(Error_None, role_id)
     if role:is_need_save() then
         role:save(self.db_client, self.query_db, self.query_coll)
     end
@@ -164,7 +164,7 @@ end
 
 function RoleMgr:client_change(rpc_rsp, role_id, is_disconnect, gate_service_key, gate_client_netid)
     log_debug("RoleMgr:client_change %s %s %s %s", role_id, is_disconnect, gate_service_key, gate_client_netid)
-    rpc_rsp:respone(Error_None)
+    rpc_rsp:response(Error_None)
     local role = self:get_role(role_id)
     if role then
         if is_disconnect then
@@ -180,7 +180,7 @@ end
 
 function RoleMgr:release_role(rpc_rsp, role_id)
     log_debug("RoleMgr:release_role %s", role_id)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role = self:get_role(role_id)
     if role then
         if role:is_dirty() then

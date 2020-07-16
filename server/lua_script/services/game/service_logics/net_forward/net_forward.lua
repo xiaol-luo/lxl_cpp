@@ -27,7 +27,7 @@ function NetForward:init()
 end
 
 function NetForward:_on_client_forward_msg(rpc_rsp, client_netid, role_id, pid, msg_bytes)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role = self.service.role_mgr:get_role(role_id)
     if not role or Game_Role_State.in_game ~= role.state then
         return

@@ -9,7 +9,7 @@ end
 
 
 function _RpcRoleRoom._on_rpc_notify_terminate_room(role_mgr, rpc_rsp, room_id, role_id, session_id)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role = role_mgr:get_in_game_role(role_id)
     if not role then
         return
@@ -29,7 +29,7 @@ function _RpcRoleRoom._on_rpc_notify_terminate_room(role_mgr, rpc_rsp, room_id, 
 end
 
 function _RpcRoleRoom._on_rpc_notify_end_room(role_mgr, rpc_rsp, room_id, role_id, session_id, fight_result)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role = role_mgr:get_in_game_role(role_id)
     if not role then
         return
@@ -51,7 +51,7 @@ function _RpcRoleRoom._on_rpc_notify_end_room(role_mgr, rpc_rsp, room_id, role_i
 end
 
 function _RpcRoleRoom._on_rpc_notify_fight_start(role_mgr, rpc_rsp, room_id, role_id, session_id)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local role = role_mgr:get_in_game_role(role_id)
     if not role then
         return

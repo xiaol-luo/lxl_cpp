@@ -56,16 +56,16 @@ function CreateRoleLogic:_handle_remote_call_create_role(rpc_rsp, user_id)
             if db_ret.matched_count < Const.role_count_per_user then
                 self._db_client:insert_one(user_id, self.server.zone_name, Const.mongo.collection_name.role, doc, function(db_ret)
                     if 0 == db_ret.error_num then
-                        rpc_rsp:respone(Error_None, doc.role_id)
+                        rpc_rsp:response(Error_None, doc.role_id)
                     else
-                        rpc_rsp:respone(db_ret.error_num, string.format("insert role fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg))
+                        rpc_rsp:response(db_ret.error_num, string.format("insert role fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg))
                     end
                 end)
             else
-                rpc_rsp:respone(20, string.format("user has role num is %s, more than %s", db_ret.matched_count, Const.role_count_per_user))
+                rpc_rsp:response(20, string.format("user has role num is %s, more than %s", db_ret.matched_count, Const.role_count_per_user))
             end
         else
-            rpc_rsp:respone(db_ret.error_num, string.format("query role count fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg))
+            rpc_rsp:response(db_ret.error_num, string.format("query role count fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg))
         end
     end)
 end
@@ -85,7 +85,7 @@ function CreateRoleLogic:_handle_remote_call_query_roles(rpc_rsp, user_id, role_
             for _, v in pairs(db_ret.val) do
                 table.insert(ret, { role_id = v.role_id })
             end
-            rpc_rsp:respone(Error_None, ret)
+            rpc_rsp:response(Error_None, ret)
         else
             rpc_rsp:report_error(db_ret.error_num, string.format("error_num:%s, error_msg:%s", db_ret.error_num, db_ret.error_msg))
         end

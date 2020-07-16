@@ -108,7 +108,7 @@ function RpcMgrBase:call(cb_fn, remote_host, remote_fn, ...)
     end
 end
 
-function RpcMgrBase:respone(rsp_id, remote_host, req_id, action, ...)
+function RpcMgrBase:response(rsp_id, remote_host, req_id, action, ...)
     local rpc_rsp = self.rsp_list[rsp_id]
     if not rpc_rsp then
         return
@@ -160,12 +160,12 @@ function RpcMgrBase:handle_req_msg(from_host, pid, msg)
     local rpc_rsp = RpcRsp:new(rsp_id, from_host, msg.req_id, self)
     self.rsp_list[rpc_rsp.id] = rpc_rsp
     if not msg.req_id or not msg.fn_name then
-        self:respone(rsp_id, from_host, msg.req_id, Rpc_Const.Action_Report_Error, "request miss req_id or fn_name")
+        self:response(rsp_id, from_host, msg.req_id, Rpc_Const.Action_Report_Error, "request miss req_id or fn_name")
         return
     end
     local fn = self.remote_call_handle_fn[msg.fn_name]
     if not fn then
-        self:respone(rsp_id, from_host, msg.req_id, Rpc_Const.Action_Report_Error, string.format("not found process function %s", msg.fn_name))
+        self:response(rsp_id, from_host, msg.req_id, Rpc_Const.Action_Report_Error, string.format("not found process function %s", msg.fn_name))
         return
     end
     fn(rpc_rsp, self:unpack_params(msg.fn_params))

@@ -27,7 +27,8 @@ function WorldAgentLogic:_on_stop()
     WorldAgentLogic.super._on_stop(self)
     self._rpc_svc_proxy:clear_remote_call()
     self._gate_client_mgr:set_msg_handler(Login_Pid.req_pull_role_digest, nil)
-    -- self._gate_client_mgr:set_msg_handler(Login_Pid.req_create_role, nil)
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_logout_role, nil)
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_reconnect_role, nil)
 end
 
 function WorldAgentLogic:_on_release()
@@ -202,6 +203,4 @@ function WorldAgentLogic:_rpc_rsp_reconnect_role(netid, role_id, rpc_error_num, 
     end
     gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num })
 end
-
-
 

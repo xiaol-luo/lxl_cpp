@@ -11,6 +11,8 @@ function GateClientMgr:ctor(logic_svc, logic_name)
     self._msg_handlers = {}
     ---@type ProtoParser
     self._pto_parser = self.server.pto_parser
+
+    self._delay_notify_gate_client_quits = {}
 end
 
 function GateClientMgr:_on_init()
@@ -30,6 +32,8 @@ function GateClientMgr:_on_start()
 
     local Tick_Span_Ms = 2 * 1000
     self._timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
+    self._event_binder:bind(self.server.world_online_shadow, World_Online_Event.adjusting_version_state_change,
+            Functional.make_closure(self._on_event_adjusting_version_state_change, self))
 
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.kick_client, Functional.make_closure(self._handle_remote_call_kick_client, self))
 end
@@ -75,13 +79,15 @@ function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error
         local find_error_num, selected_world_key = self.server.world_online_shadow:find_available_server_address(gate_client.role_id)
         if Error_None == find_error_num then
             self._rpc_svc_proxy:call(nil, selected_world_key, Rpc.world.method.gate_client_quit, gate_client.session_id)
+        else
+            if Error_Consistent_Hash_Adjusting == find_error_num then
+                table.insert(_delay_notify_gate_client_quits, {role_id=gate_client.role_id, session_id=session_id})
+            end
         end
     end
 end
 
 function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)
-    -- log_print("GateClientMgr:_client_net_svc_cnn_on_recv", netid, pid)
-
     local handle_fn = self._msg_handlers[pid]
     if not handle_fn then
         log_warn("GateClientMgr:_client_net_svc_cnn_on_recv not set handle function for pid %s", pid)
@@ -123,9 +129,22 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GateClientMgr:_handle_remote_call_kick_client(rpc_rsp, gate_netid, kick_reason)
-    rpc_rsp:respone()
+    rpc_rsp:response()
     local gate_client = self._gate_clients[gate_netid]
     if gate_client then
         Net.close(gate_netid)
+    end
+end
+
+function GateClientMgr._on_event_adjusting_version_state_change(is_adjusting)
+    if not is_adjusting then
+        local quits = self._delay_notify_gate_client_quits
+        self._delay_notify_gate_client_quits = {}
+        for _, v in pairs(quits) do
+            local server_key = self.server.world_online_shadow:cal_server_address(v.role_id)
+            if server_key then
+                self._rpc_svc_proxy:call(nil, server_key, Rpc.world.method.gate_client_quit, v.session_id)
+            end
+        end
     end
 end

@@ -26,7 +26,7 @@ end
 
 
 function NetForward:_on_game_forward_client(rpc_rsp, netid, pid, msg_bytes)
-    rpc_rsp:respone(Error_None)
+    rpc_rsp:response(Error_None)
     local client = self.service.client_mgr:get_client(netid)
     if not client or not client:is_ingame() then
         return

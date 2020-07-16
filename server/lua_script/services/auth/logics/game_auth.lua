@@ -103,7 +103,7 @@ function GameAuth:login_auth(from_cnn_id, method, req_url, kv_params, body)
         end
         local rsp_state, body_str = http_ret.state, http_ret.body
         if Gac.OK ~= rsp_state then
-            report_error(string.format("query platform fail http respone state: %s", rsp_state))
+            report_error(string.format("query platform fail http response state: %s", rsp_state))
             return
         end
         log_debug("main_logic 5")

@@ -23,16 +23,16 @@ function FightMgr:_on_rpc_apply_fight(rpc_rsp, room_id, match_type, match_cells)
             self._id_to_fight[fight_id] = fight
         end
     end
-    rpc_rsp:respone(error_num, fight_id, fight_session_id, self.service.service_cfg[Service_Const.Client_Ip], self.service.service_cfg[Service_Const.Client_Port])
+    rpc_rsp:response(error_num, fight_id, fight_session_id, self.service.service_cfg[Service_Const.Client_Ip], self.service.service_cfg[Service_Const.Client_Port])
 end
 
 function FightMgr:_on_rpc_start_fight(rpc_rsp, fight_battle_id)
     local fight = self._id_to_fight[fight_battle_id]
     if fight then
         fight:on_room_notify_start()
-        rpc_rsp:respone(Error_None)
+        rpc_rsp:response(Error_None)
     else
-        rpc_rsp:respone(Error.Start_Fight.no_fight_battle)
+        rpc_rsp:response(Error.Start_Fight.no_fight_battle)
     end
 end
 

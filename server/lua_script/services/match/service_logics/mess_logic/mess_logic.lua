@@ -25,7 +25,7 @@ end
 
 function MessLogic:_on_rpc_query_service_state(rpc_rsp)
     -- log_debug("MessLogic:_on_rpc_query_service_state")
-    rpc_rsp:respone()
+    rpc_rsp:response()
 end
 
 

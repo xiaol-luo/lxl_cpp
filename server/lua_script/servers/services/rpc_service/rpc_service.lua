@@ -20,7 +20,7 @@ function RpcService:_on_init()
 --[[    -- for test
     self:set_remote_call_handle_fn("hello", function(rpc_rsp, ...)
         log_print("handle remote call hello, params=", ...)
-        rpc_rsp:respone(Error_None, "test", ...)
+        rpc_rsp:response(Error_None, "test", ...)
     end)]]
 end
 

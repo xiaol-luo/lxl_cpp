@@ -39,6 +39,10 @@ function GameRoleMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.launch_role, Functional.make_closure(self._handle_remote_call_launch_role, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.change_gate_client, Functional.make_closure(self._handle_remote_call_change_gate_client, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.release_role, Functional.make_closure(self._handle_remote_call_release_role, self))
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.bind_world, Functional.make_closure(self._handle_remote_call_bind_world, self))
+
+    self._event_binder:bind(self._online_world_shadow, World_Online_Event.adjusting_version_state_change,
+            Functional.make_closure(self._on_event_adjusting_version_state_change, self))
 end
 
 function GameRoleMgr:_on_stop()
@@ -82,6 +86,15 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoleMgr:_handle_remote_call_launch_role(rpc_rsp, user_id, role_id)
+    if self._online_world_shadow:is_parted() then
+        rpc_rsp:response(Error_Server_Online_Shadow_Parted)
+        return
+    end
+    if self._online_world_shadow:is_adjusting_version() then
+        rpc_rsp:response(Error_Consistent_Hash_Adjusting)
+        return
+    end
+
     local game_role = self:get_role(role_id)
     if not game_role then
         game_role = GameRole:new(self, user_id, role_id)
@@ -103,16 +116,18 @@ function GameRoleMgr:_handle_remote_call_launch_role(rpc_rsp, user_id, role_id)
         end
     until true
     if Error_None ~= error_num then
-        rpc_rsp:respone(error_num)
+        rpc_rsp:response(error_num)
         return
     end
 
     if Game_Role_State.in_game == role_state then
-        rpc_rsp:respone(Error_None)
+        game_role:set_world_server_key(rpc_rsp.from_host)
+        rpc_rsp:response(Error_None)
         return
     end
 
     if Game_Role_State.load_from_db == role_state then
+        game_role:set_world_server_key(rpc_rsp.from_host)
         self._wait_launch_role_rpc_rsps[role_id] = self._wait_launch_role_rpc_rsps[role_id] or {}
         local wait_rpc_rsps = self._wait_launch_role_rpc_rsps[role_id]
         table.insert(wait_rpc_rsps, rpc_rsp)
@@ -132,6 +147,7 @@ function GameRoleMgr:_handle_remote_call_launch_role(rpc_rsp, user_id, role_id)
             Functional.make_closure(self._db_rsp_launch_role, self, role_id)
         )
         game_role:set_state(Game_Role_State.load_from_db)
+        game_role:set_world_server_key(rpc_rsp.from_host)
         return
     end
 end
@@ -166,7 +182,7 @@ function GameRoleMgr:_db_rsp_launch_role(role_id, db_ret)
     local wait_rpc_rsps = self._wait_launch_role_rpc_rsps[role_id]
     self._wait_launch_role_rpc_rsps[role_id] = nil
     for _, rpc_rsp in ipairs(wait_rpc_rsps or {}) do
-        rpc_rsp:respone(error_num)
+        rpc_rsp:response(error_num)
     end
 end
 
@@ -174,7 +190,7 @@ end
 function GameRoleMgr:_handle_remote_call_change_gate_client(rpc_rsp, role_id, is_disconnect, gate_server_key, gate_netid)
     local game_role = self:get_role_in_game(role_id)
     if not game_role then
-        rpc_rsp:respone(Error.change_game_role_gate_client.role_not_exist)
+        rpc_rsp:response(Error.change_game_role_gate_client.role_not_exist)
         return
     end
     if is_disconnect then
@@ -182,20 +198,46 @@ function GameRoleMgr:_handle_remote_call_change_gate_client(rpc_rsp, role_id, is
     else
         game_role:set_gate(gate_server_key, gate_netid)
     end
-    rpc_rsp:respone(Error_None)
+    rpc_rsp:response(Error_None)
 end
 
 ---@param rpc_rsp RpcRsp
 function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, role_id)
     local game_role = self:get_role_in_game(role_id)
     if not game_role then
-        rpc_rsp:respone(Error.release_game_role.role_not_exist)
+        rpc_rsp:response(Error.release_game_role.role_not_exist)
         return
     end
     if game_role:is_dirty() then
         game_role:save_to_db(self._db_client, self._query_db_name, self._query_coll_name)
     end
     self:remove_role(role_id)
-    rpc_rsp:respone(Error_None)
+    rpc_rsp:response(Error_None)
 end
 
+function GameRoleMgr:_handle_remote_call_bind_world(rpc_rsp, role_id)
+    local game_role = self:get_role_in_game(role_id)
+    if not game_role then
+        rpc_rsp:response(Error.game_role_bind_world.role_not_exist)
+        return
+    end
+    game_role:set_world_server_key(rpc_rsp.from_host)
+    rpc_rsp:response(Error_None)
+end
+
+function GameRoleMgr._on_event_adjusting_version_state_change(is_adjusting)
+    if is_adjusting then
+        local to_remove_role = {}
+        for role_id, game_role in pairs(self._id_to_role) do
+            if Game_Role_State.in_game ~= game_role:get_state() then
+                to_remove_role[role_id] = game_role
+            end
+        end
+        for role_id, game_role in pairs(to_remove_role) do
+            self._id_to_role[role_id] = nil
+            if game_role:is_dirty() then
+                game_role:save_to_db(self._db_client, self._query_db_name, self._query_coll_name)
+            end
+        end
+    end
+end
