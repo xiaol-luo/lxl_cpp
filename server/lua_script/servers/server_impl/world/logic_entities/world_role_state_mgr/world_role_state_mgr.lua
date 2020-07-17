@@ -27,6 +27,7 @@ function RoleStateMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.logout_role, Functional.make_closure(self._handle_remote_call_logout_role, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.reconnect_role, Functional.make_closure(self._handle_remote_call_reconnect_role, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.gate_client_quit, Functional.make_closure(self._handle_remote_call_gate_client_quit, self))
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.notify_release_game_roles, Functional.make_closure(self._handle_remote_call_notify_release_game_roles, self))
 end
 
 function RoleStateMgr:_on_stop()
@@ -250,8 +251,9 @@ function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num
         return
     end
     if Error_None ~= rpc_error_num then
-        self:try_release_role(role_id)
-        return
+        -- todo: 增加尝试次数
+        -- self:try_release_role(role_id)
+        -- return
     end
 
     role_state.state = World_Role_State.released
@@ -350,5 +352,12 @@ function RoleStateMgr:_handle_remote_call_gate_client_quit(rpc_rsp, session_id)
             self:try_release_role(role_state.role_id)
             log_error("RoleStateMgr:_handle_remote_call_gate_client_quit error: role_id %s role_state %", role_state.role_id, role_state.state)
         end
+    end
+end
+
+function RoleStateMgr:_handle_remote_call_notify_release_game_roles(rpc_rsp, role_ids)
+    rpc_rsp:response()
+    for _, role_id in pairs(role_ids or {}) do
+        self:try_release_role(role_id)
     end
 end

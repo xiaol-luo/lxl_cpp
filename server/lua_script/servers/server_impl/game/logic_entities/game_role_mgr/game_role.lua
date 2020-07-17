@@ -28,6 +28,13 @@ function GameRole:save_to_db(db_client, db_name, coll_name)
 
 end
 
+function GameRole:check_and_save(db_client, db_name, coll_name, is_force)
+    local need_save = is_force or self:is_dirty()
+    if need_save then
+        self:save_to_db(db_client, db_name, coll_name)
+    end
+end
+
 function GameRole:is_dirty()
     return self._is_dirty
 end

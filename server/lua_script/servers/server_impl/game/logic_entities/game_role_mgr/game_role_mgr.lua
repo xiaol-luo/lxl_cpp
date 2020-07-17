@@ -13,10 +13,12 @@ function GameRoleMgr:ctor(logic_svc, logic_name)
     self._query_db_name = self.server.zone_name
     self._query_coll_name = Const.mongo.collection_name.role
     ---@type table<number, GameRole>
-    self._id_to_role = {}
+    self._id_to_roles = {}
 
     self._next_save_role_id = nil
     self._wait_launch_role_rpc_rsps = {}
+
+    self._online_world_shadow_aprted_release_all_roles_tid = nil
 end
 
 function GameRoleMgr:_on_init()
@@ -43,6 +45,8 @@ function GameRoleMgr:_on_start()
 
     self._event_binder:bind(self._online_world_shadow, World_Online_Event.adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
+    self._event_binder:bind(self._online_world_shadow, World_Online_Event.shadow_parted_state_change,
+            Functional.make_closure(self._on_event_shadow_parted_state_change, self))
 end
 
 function GameRoleMgr:_on_stop()
@@ -59,14 +63,14 @@ end
 ---@param role_id number
 ---@return GameRole
 function GameRoleMgr:get_role(role_id)
-    return self._id_to_role[role_id]
+    return self._id_to_roles[role_id]
 end
 
 ---@param role_id number
 ---@return GameRole
 function GameRoleMgr:get_role_in_game(role_id)
     local ret = nil
-    local role = self._id_to_role[role_id]
+    local role = self._id_to_roles[role_id]
     if role and Game_Role_State.in_game then
         ret = role
     end
@@ -77,10 +81,10 @@ function GameRoleMgr:remove_role(role_id)
     if nil ~= role_id then
         if not self._next_save_role_id then
             if self._next_save_role_id == role_id then
-                self._next_save_role_id = next(self._id_to_role, self._next_save_role_id)
+                self._next_save_role_id = next(self._id_to_roles, self._next_save_role_id)
             end
         end
-        self._id_to_role[role_id] = nil
+        self._id_to_roles[role_id] = nil
     end
 end
 
@@ -99,7 +103,7 @@ function GameRoleMgr:_handle_remote_call_launch_role(rpc_rsp, user_id, role_id)
     if not game_role then
         game_role = GameRole:new(self, user_id, role_id)
         game_role:init()
-        self._id_to_role[role_id] = game_role
+        self._id_to_roles[role_id] = game_role
     end
 
     local role_state = game_role:get_state()
@@ -208,9 +212,7 @@ function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, role_id)
         rpc_rsp:response(Error.release_game_role.role_not_exist)
         return
     end
-    if game_role:is_dirty() then
-        game_role:save_to_db(self._db_client, self._query_db_name, self._query_coll_name)
-    end
+    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
     self:remove_role(role_id)
     rpc_rsp:response(Error_None)
 end
@@ -225,19 +227,68 @@ function GameRoleMgr:_handle_remote_call_bind_world(rpc_rsp, role_id)
     rpc_rsp:response(Error_None)
 end
 
-function GameRoleMgr._on_event_adjusting_version_state_change(is_adjusting)
+function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
     if is_adjusting then
         local to_remove_role = {}
-        for role_id, game_role in pairs(self._id_to_role) do
+        for role_id, game_role in pairs(self._id_to_roles) do
             if Game_Role_State.in_game ~= game_role:get_state() then
                 to_remove_role[role_id] = game_role
             end
         end
         for role_id, game_role in pairs(to_remove_role) do
-            self._id_to_role[role_id] = nil
-            if game_role:is_dirty() then
-                game_role:save_to_db(self._db_client, self._query_db_name, self._query_coll_name)
+            game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+            self:remove_role(role_id)
+        end
+    else
+        local to_remove_role = {}
+        for role_id, game_role in pairs(self._id_to_roles) do
+            local want_world_server_key = self._online_world_shadow:cal_server_address(role_id)
+            if want_world_server_key ~= game_role:get_world_server_key() then
+                to_remove_role[role_id] = game_role
             end
         end
+        for role_id, game_role in pairs(to_remove_role) do
+            game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+            self:remove_role(role_id)
+        end
+        -- todo: 广播被踢掉的人
+        local removed_role_ids = table.keys(to_remove_role)
+        for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
+            self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, removed_role_ids)
+        end
+    end
+end
+
+function GameRoleMgr:_on_event_shadow_parted_state_change(is_parted)
+    if is_parted then
+        if not _online_world_shadow_aprted_release_all_roles_tid then
+
+        end
+    else
+
+    end
+
+    self:_try_release_all_roles_for_online_world_shadow_parted(is_parted)
+end
+
+function GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted(need_release)
+    if self._online_world_shadow_aprted_release_all_roles_tid then
+        self._timer_proxy:remove(self._online_world_shadow_aprted_release_all_roles_tid)
+        self._online_world_shadow_aprted_release_all_roles_tid = nil
+    end
+    if need_release then
+        self._online_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
+            self._online_world_shadow_aprted_release_all_roles_tid = nil
+            local role_ids = {}
+            for role_id, game_role in pairs(self._id_to_roles) do
+                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+                table.insert(role_ids, role_id)
+            end
+            self._id_to_roles = {}
+            self._next_save_role_id = nil
+            for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
+                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, role_ids)
+            end
+        end, Game_Role_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
     end
 end
