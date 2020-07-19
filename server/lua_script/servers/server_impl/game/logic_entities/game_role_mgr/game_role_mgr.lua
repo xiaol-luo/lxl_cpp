@@ -260,14 +260,6 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
 end
 
 function GameRoleMgr:_on_event_shadow_parted_state_change(is_parted)
-    if is_parted then
-        if not _online_world_shadow_aprted_release_all_roles_tid then
-
-        end
-    else
-
-    end
-
     self:_try_release_all_roles_for_online_world_shadow_parted(is_parted)
 end
 

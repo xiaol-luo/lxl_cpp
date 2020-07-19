@@ -18,6 +18,8 @@ function RoleStateMgr:_on_init()
     self._next_session_id = make_sequence(0) -- 因为迁移需要，所以不能用自增id了
 
     self._next_opera_id = make_sequence(0)
+
+    self._online_world_shadow_aprted_release_all_roles_tid = nil
 end
 
 function RoleStateMgr:_on_start()
@@ -28,6 +30,11 @@ function RoleStateMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.reconnect_role, Functional.make_closure(self._handle_remote_call_reconnect_role, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.gate_client_quit, Functional.make_closure(self._handle_remote_call_gate_client_quit, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.notify_release_game_roles, Functional.make_closure(self._handle_remote_call_notify_release_game_roles, self))
+
+    self._event_binder:bind(self._online_world_shadow, World_Online_Event.adjusting_version_state_change,
+            Functional.make_closure(self._on_event_adjusting_version_state_change, self))
+    self._event_binder:bind(self._online_world_shadow, World_Online_Event.shadow_parted_state_change,
+            Functional.make_closure(self._on_event_shadow_parted_state_change, self))
 end
 
 function RoleStateMgr:_on_stop()
@@ -44,6 +51,15 @@ end
 
 ---@param rpc_rsp RpcRsp
 function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_sn, user_id, role_id)
+    if self._online_world_shadow:is_parted() then
+        rpc_rsp:response(Error_Server_Online_Shadow_Parted)
+        return
+    end
+    if self._online_world_shadow:is_adjusting() then
+        rpc_rsp:response(Error_Consistent_Hash_Adjusting)
+        return
+    end
+
     local old_session_id = nil
     local role_state = self._role_id_to_role_state[role_id]
     if not role_state then
@@ -264,8 +280,16 @@ function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num
 end
 
 function RoleStateMgr:_handle_remote_call_reconnect_role(rpc_rsp, gate_netid, role_id, auth_sn)
-    local error_num = Error_None
+    if self._online_world_shadow:is_parted() then
+        rpc_rsp:response(Error_Server_Online_Shadow_Parted)
+        return
+    end
+    if self._online_world_shadow:is_adjusting() then
+        rpc_rsp:response(Error_Consistent_Hash_Adjusting)
+        return
+    end
 
+    local error_num = Error_None
     repeat
         local role_state = self._role_id_to_role_state[role_id]
         if not role_state then
@@ -359,5 +383,48 @@ function RoleStateMgr:_handle_remote_call_notify_release_game_roles(rpc_rsp, rol
     rpc_rsp:response()
     for _, role_id in pairs(role_ids or {}) do
         self:try_release_role(role_id)
+    end
+end
+
+function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
+    if is_adjusting then
+        for _, role_state in pairs(table.values(self._id_to_roles)) do
+            if World_Role_State.using ~= role_state.state
+                    and World_Role_State.idle ~= role_state.state
+            then
+                self:try_release_role(role_state.role_id)
+            end
+        end
+    else
+        local self_server_key = self.server:get_cluster_server_key()
+        for role_id, _ in pairs(self._id_to_roles) do
+            local want_world_server_key = self._online_world_shadow:cal_server_address(role_id)
+            if want_world_server_key ~= self_server_key then
+                self:try_release_role(role_id)
+            end
+        end
+    end
+end
+
+function RoleStateMgr:_on_event_shadow_parted_state_change(is_parted)
+    self:_try_release_all_roles_for_online_world_shadow_parted(is_parted)
+end
+
+function RoleStateMgr:_try_release_all_roles_for_online_world_shadow_parted(need_release)
+    if self._online_world_shadow_aprted_release_all_roles_tid then
+        self._timer_proxy:remove(self._online_world_shadow_aprted_release_all_roles_tid)
+        self._online_world_shadow_aprted_release_all_roles_tid = nil
+    end
+    if need_release then
+        self._online_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
+            self._online_world_shadow_aprted_release_all_roles_tid = nil
+            for _, role_state in pairs(self._id_to_roles) do
+                if World_Role_State.using == role_state.state
+                        or World_Role_State.idle == role_state.state
+                        or World_Role_State.launch == role_state.state then
+                    self:try_release_role(role_state.role_id)
+                end
+            end
+        end, World_Role_State_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
     end
 end

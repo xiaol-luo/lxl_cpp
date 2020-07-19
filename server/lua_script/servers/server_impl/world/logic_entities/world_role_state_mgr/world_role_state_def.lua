@@ -1,6 +1,7 @@
 
 
-World_Role_State_Def = {}
+
+World_Role_State_Const.after_n_secondes_release_all_role = 10
 
 World_Role_State =
 {
