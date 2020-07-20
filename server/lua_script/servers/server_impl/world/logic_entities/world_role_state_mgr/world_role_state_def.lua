@@ -2,6 +2,8 @@
 
 
 World_Role_State_Const.after_n_secondes_release_all_role = 10
+World_Role_State_Const.transfer_role_try_max_times = 3
+World_Role_State_Const.transfer_role_try_span_ms = 2000
 
 World_Role_State =
 {

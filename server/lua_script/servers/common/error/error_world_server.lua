@@ -20,5 +20,9 @@ Error.reconnect_role.auth_sn_mismatch = 2
 Error.reconnect_role.role_not_idle = 3
 Error.reconnect_role.gate_client_state_not_fit = 4
 
+Error.transfer_world_role = {}
+Error.transfer_world_role.role_id_already_exist = 1
+Error.transfer_world_role.session_id_already_exist = 2
+
 
 
