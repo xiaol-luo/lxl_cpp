@@ -19,6 +19,8 @@ function GameRoleMgr:ctor(logic_svc, logic_name)
     self._wait_launch_role_rpc_rsps = {}
 
     self._online_world_shadow_aprted_release_all_roles_tid = nil
+
+    self._check_match_world_roles_last_sec = 0
 end
 
 function GameRoleMgr:_on_init()
@@ -42,6 +44,7 @@ function GameRoleMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.change_gate_client, Functional.make_closure(self._handle_remote_call_change_gate_client, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.release_role, Functional.make_closure(self._handle_remote_call_release_role, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.bind_world, Functional.make_closure(self._handle_remote_call_bind_world, self))
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.check_match_game_roles, Functional.make_closure(self._handle_remote_call_check_match_game_roles, self))
 
     self._event_binder:bind(self._online_world_shadow, World_Online_Event.adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
@@ -57,7 +60,9 @@ function GameRoleMgr:_on_release()
     GameRoleMgr.super._on_release(self)
 end
 
-function GameRoleMgr:_on_update()    -- log_print("GameRoleMgr:_on_update")
+function GameRoleMgr:_on_update()
+    local now_sec = logic_sec()
+    self:_check_match_world_roles(now_sec)
 end
 
 ---@param role_id number
@@ -227,6 +232,17 @@ function GameRoleMgr:_handle_remote_call_bind_world(rpc_rsp, role_id)
     rpc_rsp:response(Error_None)
 end
 
+function GameRoleMgr:_handle_remote_call_check_match_game_roles(rpc_rsp, role_ids)
+    local mismatch_role_ids = {}
+    for _, role_id in pairs(role_ids) do
+        local game_role = self._id_to_roles[role_id]
+        if not game_role or game_role:get_world_server_key() ~= rpc_rsp.from_host then
+            table.insert(mismatch_role_ids, role_id)
+        end
+    end
+    rpc_rsp:response(Error_None, mismatch_role_ids)
+end
+
 function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
     if is_adjusting then
         local to_remove_role = {}
@@ -278,9 +294,70 @@ function GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted(need_
             end
             self._id_to_roles = {}
             self._next_save_role_id = nil
+            -- todo: 广播被踢掉的人
             for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
                 self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, role_ids)
             end
         end, Game_Role_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
     end
+end
+
+function GameRoleMgr:_check_match_world_roles(now_sec)
+    if now_sec - self._check_match_world_roles_last_sec < Game_Role_Const.check_match_world_role_span_sec then
+        return
+    end
+    self._check_match_world_roles_last_sec = now_sec
+    local world_to_role_ids = {}
+    for role_id, game_role in pairs(self._id_to_roles) do
+        if Game_Role_State.in_game == game_role:get_state() then
+            local world_server_key = game_role:get_world_server_key()
+            local role_ids = world_to_role_ids[world_server_key]
+            if not role_ids then
+                role_ids = {}
+                world_to_role_ids[world_server_key] = role_ids
+            end
+            table.insert(role_ids, role_id)
+            if #role_ids >= Game_Role_Const.check_match_world_role_count_per_rpc_query then
+                self:_do_check_match_world_roles(1, world_server_key, role_ids)
+                world_to_role_ids[world_server_key] = {}
+            end
+        end
+    end
+    for world_server_key, role_ids in pairs(world_to_role_ids) do
+        if #role_ids > 0 then
+            self:_do_check_match_world_roles(1, world_server_key, role_ids)
+        end
+    end
+end
+
+function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, role_ids)
+    self._rpc_svc_proxy:call(function(rpc_error_num, logic_error_num, mismatch_role_ids)
+        local release_role_ids = mismatch_role_ids
+        if Error_None ~= pick_error_num(rpc_error_num, logic_error_num) then
+            local Max_Try_Times = 3
+            local Delay_Try_Ms = 2000
+            if try_times <= Max_Try_Times then
+                self._timer_proxy:delay(Functional.make_closure(self._do_check_match_world_roles,
+                        self, try_times + 1, world_server_key, role_ids), Delay_Try_Ms)
+                return
+            else
+                release_role_ids = role_ids
+            end
+        end
+        local removed_role_ids = {}
+        if release_role_ids then
+            for _, role_id in pairs(release_role_ids) do
+                local game_role = self._id_to_roles[role_id]
+                if game_role then
+                    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+                    self:remove_role(role_id)
+                    table.insert(removed_role_ids, role_id)
+                end
+            end
+            -- todo: 广播被踢掉的人
+            for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
+                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, removed_role_ids)
+            end
+        end
+    end, world_server_key, Rpc.game.method.check_match_game_roles, role_ids)
 end

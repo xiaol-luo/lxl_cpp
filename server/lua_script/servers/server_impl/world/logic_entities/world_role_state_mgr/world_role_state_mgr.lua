@@ -20,6 +20,9 @@ function RoleStateMgr:_on_init()
     self._next_opera_id = make_sequence(0)
 
     self._online_world_shadow_aprted_release_all_roles_tid = nil
+
+    self._check_idle_roles_last_sec = 0
+    self._check_match_game_roles_last_sec = 0
 end
 
 function RoleStateMgr:_on_start()
@@ -31,7 +34,7 @@ function RoleStateMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.gate_client_quit, Functional.make_closure(self._handle_remote_call_gate_client_quit, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.notify_release_game_roles, Functional.make_closure(self._handle_remote_call_notify_release_game_roles, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.transfer_world_role, Functional.make_closure(self._handle_remote_call_transfer_world_role, self))
-
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.check_match_world_roles, Functional.make_closure(self._handle_remote_call_check_match_world_roles, self))
     self._event_binder:bind(self._online_world_shadow, World_Online_Event.adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
     self._event_binder:bind(self._online_world_shadow, World_Online_Event.shadow_parted_state_change,
@@ -48,6 +51,25 @@ end
 
 function RoleStateMgr:_on_update()
     -- log_print("RoleStateMgr:_on_update")
+    local now_sec = logic_sec()
+    self:_check_and_release_idle_roles(now_sec)
+    self:_check_match_game_roles(now_sec)
+end
+
+function RoleStateMgr:_check_and_release_idle_roles(now_sec)
+    if now_sec - self._check_idle_roles_last_sec < World_Role_State_Const.check_idle_role_span_sec then
+        return
+    end
+    self._check_idle_roles_last_sec = now_sec
+
+    for role_id, role_state in pairs(self._role_id_to_role_state) do
+        if World_Role_State.idle == role_state.state then
+            if nil == role_state.idle_begin_sec
+                    or now_sec - role_state.idle_begin_sec >= World_Role_State_Const.release_idle_role_after_span_sec then
+                self:try_release_role(role_id)
+            end
+        end
+    end
 end
 
 ---@param rpc_rsp RpcRsp
@@ -422,6 +444,17 @@ function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_stat
         role_state.game_server_key, Rpc.game.method.bind_world, role_id)
 end
 
+function RoleStateMgr:_handle_remote_call_check_match_world_roles(rpc_rsp, role_ids)
+    local mismatch_role_ids = {}
+    for _, role_id in pairs(role_ids) do
+        local role_state = self._role_id_to_role_state[role_id]
+        if not role_state or role_state.game_server_key ~= rpc_rsp.from_host then
+            table.insert(mismatch_role_ids, role_id)
+        end
+    end
+    rpc_rsp:response(Error_None, mismatch_role_ids)
+end
+
 function RoleStateMgr:_rpc_rsp_bind_world(session_id, rpc_error_num, logic_error_num)
     local role_state = self._session_id_to_role_state[session_id]
     if not role_state then
@@ -521,4 +554,53 @@ function RoleStateMgr:_try_release_all_roles_for_online_world_shadow_parted(need
             end
         end, World_Role_State_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
     end
+end
+
+function RoleStateMgr:_check_match_game_roles(now_sec)
+    if now_sec - self._check_match_game_roles_last_sec < World_Role_State_Const.check_match_game_role_span_sec then
+        return
+    end
+    self._check_match_game_roles_last_sec = now_sec
+
+    local game_to_role_ids = {}
+    for role_id, role_state in pairs(self._role_id_to_role_state) do
+        if World_Role_State.idle == role_state.state or World_Role_State.using == role_state.state then
+            local game_server_key = role_state.game_server_key
+            local role_ids = game_to_role_ids[game_server_key]
+            if not role_ids then
+                role_ids = {}
+                game_to_role_ids[game_server_key] = role_ids
+            end
+            table.insert(role_ids, role_id)
+            if #role_ids >= World_Role_State_Const.check_match_game_role_count_per_rpc_query then
+                self:_do_check_match_game_roles(1, game_server_key, role_ids)
+                game_to_role_ids[game_server_key] = {}
+            end
+        end
+    end
+    for game_server_key, role_ids in pairs(game_to_role_ids) do
+        if #role_ids > 0 then
+            self:_do_check_match_game_roles(1, game_server_key, role_ids)
+        end
+    end
+end
+
+function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, role_ids)
+    self._rpc_svc_proxy:call(function(rpc_error_num, logic_error_num, mismatch_role_ids)
+        local release_role_ids = mismatch_role_ids
+        if Error_None ~= pick_error_num(rpc_error_num, logic_error_num) then
+            local Max_Try_Times = 3
+            local Delay_Try_Ms = 2000
+            if try_times <= Max_Try_Times then
+                self._timer_proxy:delay(Functional.make_closure(self._do_check_match_game_roles,
+                        self, try_times + 1, world_server_key, role_ids), Delay_Try_Ms)
+                return
+            else
+                release_role_ids = role_ids
+            end
+            for _, role_id in pairs(release_role_ids) do
+                self:try_release_role(role_id)
+            end
+        end
+    end, game_server_key, Rpc.world.method.check_match_world_roles, role_ids)
 end
