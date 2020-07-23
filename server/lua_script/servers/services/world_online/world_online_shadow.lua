@@ -27,9 +27,9 @@ function OnlineWorldShadow:ctor(service_mgr, service_name)
     self._query_world_online_monitor_last_sec = 0
     self._query_world_online_reids_last_sec = 0
 
-    self._redis_key_world_online_adjusting_version = string.format(World_Online_Const.redis_key_world_online_adjusting_version_format, self.server.zone_name)
-    self._redis_key_world_online_version = string.format(World_Online_Const.redis_key_world_online_version_format, self.server.zone_name)
-    self._redis_key_world_online_servers = string.format(World_Online_Const.redis_key_world_online_servers_format, self.server.zone_name)
+    self._redis_key_world_online_adjusting_version = string.format(Online_World_Const.redis_key_world_online_adjusting_version_format, self.server.zone_name)
+    self._redis_key_world_online_version = string.format(Online_World_Const.redis_key_world_online_version_format, self.server.zone_name)
+    self._redis_key_world_online_servers = string.format(Online_World_Const.redis_key_world_online_servers_format, self.server.zone_name)
 
     self._server_hash = ConsistentHash:new()
 end
@@ -49,14 +49,14 @@ function OnlineWorldShadow:_on_start()
         self._error_msg = "OnlineWorldShadow start redis client fail"
         return
     end
-    self.server.rpc:set_remote_call_handle_fn(World_Online_Rpc_Method.notify_world_online_servers_data,
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.notify_world_online_servers_data,
             Functional.make_closure(self._on_rpc_notify_world_online_servers_data, self))
 end
 
 function OnlineWorldShadow:_on_stop()
     OnlineWorldShadow.super._on_stop(self)
     self._redis_client:stop()
-    self.server.rpc:set_remote_call_handle_fn(World_Online_Rpc_Method.notify_world_online_servers_data, nil)
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.notify_world_online_servers_data, nil)
 end
 
 function OnlineWorldShadow:_on_release()
@@ -111,7 +111,7 @@ function OnlineWorldShadow:_query_world_online_monitor(is_simple_info)
             if Error_None == rpc_error_num then
                 self._world_monitor_rsp_last_sec = logic_sec()
             end
-        end, server_key, World_Online_Rpc_Method.query_world_online_servers_data, is_simple_info)
+        end, server_key, Online_World_Rpc_Method.query_world_online_servers_data, is_simple_info)
     end
 end
 
@@ -123,7 +123,7 @@ function OnlineWorldShadow:_query_world_online_redis()
             local adjusting_version = ret:get_reply():get_number()
             if adjusting_version then
                 if not self._adjusting_version or adjusting_version > self._adjusting_version then
-                    self:_set_adjusting_version(adjusting_version, World_Online_Const.lead_world_rehash_duration_sec)
+                    self:_set_adjusting_version(adjusting_version, Online_World_Const.lead_world_rehash_duration_sec)
                 end
             end
         end
@@ -187,7 +187,7 @@ function OnlineWorldShadow:_set_world_online_servers(version, servers)
         end
     end
 
-    self:fire(World_Online_Event.online_servers_version_change, self._version)
+    self:fire(Online_World_Event.online_servers_version_change, self._version)
     self:_check_adjust_version()
 
     --for i=1, 100 do
@@ -202,15 +202,15 @@ end
 function OnlineWorldShadow:_check_is_parted_change()
     local ret = true
     local now_sec = logic_sec()
-    if now_sec - self._world_monitor_rsp_last_sec <= World_Online_Const.parted_with_monitor_with_no_communication then
+    if now_sec - self._world_monitor_rsp_last_sec <= Online_World_Const.parted_with_monitor_with_no_communication then
         ret = false
     end
-    if now_sec - self._redis_rsp_last_sec <= World_Online_Const.parted_with_redis_with_no_communication then
+    if now_sec - self._redis_rsp_last_sec <= Online_World_Const.parted_with_redis_with_no_communication then
         ret = false
     end
     if ret ~= self._cached_is_parted then
         self._cached_is_parted = ret
-        self:fire(World_Online_Event.shadow_parted_state_change, self._cached_is_parted)
+        self:fire(Online_World_Event.shadow_parted_state_change, self._cached_is_parted)
     end
 end
 
@@ -228,7 +228,7 @@ function OnlineWorldShadow:_check_adjust_version()
     end
     if is_adjusting ~= self._cached_is_adjusting then
         self._cached_is_adjusting = is_adjusting
-        self:fire(World_Online_Event.adjusting_version_state_change, self._cached_is_adjusting)
+        self:fire(Online_World_Event.adjusting_version_state_change, self._cached_is_adjusting)
     end
 end
 

@@ -6,6 +6,7 @@ function RoleStateMgr:_on_init()
     RoleStateMgr.super._on_init(self)
     ---@type CreateRoleServiceMgr
     self.server = self.server
+    ---@type OnlineWorldShadow
     self._online_world_shadow = self.server.online_world_shadow
 
     ---@type table<number, WorldRoleState>
@@ -35,9 +36,9 @@ function RoleStateMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.notify_release_game_roles, Functional.make_closure(self._handle_remote_call_notify_release_game_roles, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.transfer_world_role, Functional.make_closure(self._handle_remote_call_transfer_world_role, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.check_match_world_roles, Functional.make_closure(self._handle_remote_call_check_match_world_roles, self))
-    self._event_binder:bind(self._online_world_shadow, World_Online_Event.adjusting_version_state_change,
+    self._event_binder:bind(self._online_world_shadow, Online_World_Event.adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
-    self._event_binder:bind(self._online_world_shadow, World_Online_Event.shadow_parted_state_change,
+    self._event_binder:bind(self._online_world_shadow, Online_World_Event.shadow_parted_state_change,
             Functional.make_closure(self._on_event_shadow_parted_state_change, self))
 end
 
@@ -78,7 +79,7 @@ function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_
         rpc_rsp:response(Error_Server_Online_Shadow_Parted)
         return
     end
-    if self._online_world_shadow:is_adjusting() then
+    if self._online_world_shadow:is_adjusting_version() then
         rpc_rsp:response(Error_Consistent_Hash_Adjusting)
         return
     end
@@ -307,7 +308,7 @@ function RoleStateMgr:_handle_remote_call_reconnect_role(rpc_rsp, gate_netid, ro
         rpc_rsp:response(Error_Server_Online_Shadow_Parted)
         return
     end
-    if self._online_world_shadow:is_adjusting() then
+    if self._online_world_shadow:is_adjusting_version() then
         rpc_rsp:response(Error_Consistent_Hash_Adjusting)
         return
     end
@@ -396,8 +397,8 @@ function RoleStateMgr:_handle_remote_call_gate_client_quit(rpc_rsp, session_id)
         elseif World_Role_State.launch == role_state then
             self:try_release_role(role_state.role_id)
         else
+            log_warn("RoleStateMgr:_handle_remote_call_gate_client_quit error: role_id %s role_state %s", role_state.role_id, role_state.state)
             self:try_release_role(role_state.role_id)
-            log_error("RoleStateMgr:_handle_remote_call_gate_client_quit error: role_id %s role_state %", role_state.role_id, role_state.state)
         end
     end
 end
@@ -410,6 +411,7 @@ function RoleStateMgr:_handle_remote_call_notify_release_game_roles(rpc_rsp, rol
 end
 
 function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_state_data)
+    log_print("RoleStateMgr:_handle_remote_call_transfer_world_role ", role_state_data.role_id, self.server:get_cluster_server_key())
     if self._online_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Online_Shadow_Parted)
         return
@@ -492,6 +494,8 @@ function RoleStateMgr:try_transfer_world_role(role_id, try_times)
 end
 
 function RoleStateMgr:rpc_rsp_transfer_world_role(session_id, try_times, rpc_error_num, logic_error_num)
+    log_print("RoleStateMgr:rpc_rsp_transfer_world_role ", self.server:get_cluster_server_key(), session_id, try_times, rpc_error_num, logic_error_num)
+
     local role_state = self._session_id_to_role_state[session_id]
     if not role_state then
         return
@@ -499,7 +503,7 @@ function RoleStateMgr:rpc_rsp_transfer_world_role(session_id, try_times, rpc_err
 
     local picked_error_num = pick_error_num(rpc_error_num, logic_error_num)
     if Error_None == picked_error_num then
-        if self._online_world_shadow:is_adjusting() and try_times < World_Role_State_Const.transfer_role_try_max_times then
+        if self._online_world_shadow:is_adjusting_version() and try_times < World_Role_State_Const.transfer_role_try_max_times then
             self._timer_proxy:delay(Functional.make_closure(self.try_release_role, self, role_state.role_id, try_times + 1),
                     World_Role_State_Const.transfer_role_try_span_ms)
         else
@@ -513,7 +517,7 @@ end
 
 function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
     if is_adjusting then
-        for role_id, role_state in pairs(table.values(self._id_to_roles)) do
+        for role_id, role_state in pairs(self._role_id_to_role_state) do
             if World_Role_State.using ~= role_state.state
                     and World_Role_State.idle ~= role_state.state
             then
@@ -524,7 +528,7 @@ function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
         end
     else
         local self_server_key = self.server:get_cluster_server_key()
-        for role_id, _ in pairs(self._id_to_roles) do
+        for role_id, _ in pairs(self._role_id_to_role_state) do
             local want_world_server_key = self._online_world_shadow:cal_server_address(role_id)
             if want_world_server_key ~= self_server_key then
                 self:try_release_role(role_id)
@@ -545,7 +549,7 @@ function RoleStateMgr:_try_release_all_roles_for_online_world_shadow_parted(need
     if need_release then
         self._online_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
             self._online_world_shadow_aprted_release_all_roles_tid = nil
-            for _, role_state in pairs(self._id_to_roles) do
+            for _, role_state in pairs(self._role_id_to_role_state) do
                 if World_Role_State.using == role_state.state
                         or World_Role_State.idle == role_state.state
                         or World_Role_State.launch == role_state.state then
@@ -561,6 +565,8 @@ function RoleStateMgr:_check_match_game_roles(now_sec)
         return
     end
     self._check_match_game_roles_last_sec = now_sec
+
+    log_print("RoleStateMgr:_check_match_game_roles ", table.size(self._role_id_to_role_state))
 
     local game_to_role_ids = {}
     for role_id, role_state in pairs(self._role_id_to_role_state) do
@@ -587,13 +593,14 @@ end
 
 function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, role_ids)
     self._rpc_svc_proxy:call(function(rpc_error_num, logic_error_num, mismatch_role_ids)
+        log_print("wwwww RoleStateMgr:_do_check_match_game_roles", rpc_error_num, logic_error_num, game_server_key, mismatch_role_ids, role_ids)
         local release_role_ids = mismatch_role_ids
         if Error_None ~= pick_error_num(rpc_error_num, logic_error_num) then
             local Max_Try_Times = 3
             local Delay_Try_Ms = 2000
             if try_times <= Max_Try_Times then
                 self._timer_proxy:delay(Functional.make_closure(self._do_check_match_game_roles,
-                        self, try_times + 1, world_server_key, role_ids), Delay_Try_Ms)
+                        self, try_times + 1, game_server_key, role_ids), Delay_Try_Ms)
                 return
             else
                 release_role_ids = role_ids
@@ -602,5 +609,5 @@ function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, rol
                 self:try_release_role(role_id)
             end
         end
-    end, game_server_key, Rpc.world.method.check_match_world_roles, role_ids)
+    end, game_server_key, Rpc.game.method.check_match_game_roles, role_ids)
 end

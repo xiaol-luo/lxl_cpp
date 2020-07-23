@@ -70,6 +70,7 @@ function GameRole:get_world_server_key()
 end
 
 function GameRole:set_world_server_key(val)
+    log_print("GameRole:set_world_server_key", val)
     self._world_server_key = val
 end
 

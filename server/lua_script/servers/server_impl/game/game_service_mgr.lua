@@ -7,7 +7,7 @@ function GameServiceMgr:ctor(server)
 end
 
 function GameServiceMgr:_on_init()
-    local world_online_shadown = OnlineWorldShadow:new(self, Service_Name.world_online_shadow)
+    local world_online_shadown = OnlineWorldShadow:new(self, Service_Name.online_world_shadow)
     world_online_shadown:init()
     self:add_service(world_online_shadown)
 

@@ -34,9 +34,9 @@ OnlineWorldMonitor = OnlineWorldMonitor or class("OnlineWorldMonitor", ServiceBa
 
 function OnlineWorldMonitor:ctor(service_mgr, service_name)
     OnlineWorldMonitor.super.ctor(self, service_mgr, service_name)
-    self._redis_key_world_online_adjusting_version = string.format(World_Online_Const.redis_key_world_online_adjusting_version_format, self.server.zone_name)
-    self._redis_key_world_online_version = string.format(World_Online_Const.redis_key_world_online_version_format, self.server.zone_name)
-    self._redis_key_world_online_servers = string.format(World_Online_Const.redis_key_world_online_servers_format, self.server.zone_name)
+    self._redis_key_world_online_adjusting_version = string.format(Online_World_Const.redis_key_world_online_adjusting_version_format, self.server.zone_name)
+    self._redis_key_world_online_version = string.format(Online_World_Const.redis_key_world_online_version_format, self.server.zone_name)
+    self._redis_key_world_online_servers = string.format(Online_World_Const.redis_key_world_online_servers_format, self.server.zone_name)
 
     log_print("self._redis_key_world_online_adjusting_version", self._redis_key_world_online_adjusting_version)
     log_print("self._redis_key_world_online_version", self._redis_key_world_online_version)
@@ -76,7 +76,7 @@ function OnlineWorldMonitor:_on_start()
         return
     end
 
-    self.server.rpc:set_remote_call_handle_fn(World_Online_Rpc_Method.query_world_online_servers_data,
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_world_online_servers_data,
             Functional.make_closure(self._on_rpc_query_world_online_servers_data, self))
 
     self:_set_logic_state(Logic_State.reset_all)
@@ -85,7 +85,7 @@ end
 function OnlineWorldMonitor:_on_stop()
     OnlineWorldMonitor.super._on_stop(self)
     self._redis_client:stop()
-    self.server.rpc:set_remote_call_handle_fn(World_Online_Rpc_Method.query_world_online_servers_data, nil)
+    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_world_online_servers_data, nil)
 end
 
 function OnlineWorldMonitor:_on_release()
@@ -142,7 +142,7 @@ function OnlineWorldMonitor:_tick_logic()
         else
             self:_set_logic_state(Logic_State.guarantee_data_valid)
         end
-        self._guarantee_data_valid_over_sec = now_sec + World_Online_Const.guarantee_data_valid_duration_sec
+        self._guarantee_data_valid_over_sec = now_sec + Online_World_Const.guarantee_data_valid_duration_sec
     end
 
     if Logic_State.persist_online_server_data == self._curr_logic_state then
@@ -152,7 +152,7 @@ function OnlineWorldMonitor:_tick_logic()
         local is_all_done = self:_persist_online_server_data()
         if is_all_done or now_sec >= self._guarantee_data_valid_over_sec then
             if is_all_done then
-                self._lead_world_rehash_state_over_sec = now_sec + World_Online_Const.lead_world_rehash_duration_sec
+                self._lead_world_rehash_state_over_sec = now_sec + Online_World_Const.lead_world_rehash_duration_sec
                 self._version = self._adjusting_version
                 self._world_online_servers = self._adjusting_world_online_servers
                 self._adjusting_version = nil
@@ -305,7 +305,7 @@ function OnlineWorldMonitor:_persist_online_server_data()
         else
             self:_set_opera_state(Opera_Name.set_db_adjusting_version, Opera_State.success)
         end
-    end, "SETEX %s %s %s ", self._redis_key_world_online_adjusting_version, World_Online_Const.lead_world_rehash_duration_sec, self._adjusting_version)
+    end, "SETEX %s %s %s ", self._redis_key_world_online_adjusting_version, Online_World_Const.lead_world_rehash_duration_sec, self._adjusting_version)
 
     local opera_state = self:_get_opera_state(Opera_Name.set_db_adjusting_version)
     if Opera_State.success == opera_state then
@@ -345,7 +345,10 @@ function OnlineWorldMonitor:_notify_world_online_data(to_server_key, is_simple_i
     if to_server_key then
         notify_servers = { to_server_key }
     else
-        notify_servers = self.server.peer_net:get_role_server_keys(Server_Role.World)
+        notify_servers ={}
+        table.append(notify_servers, self.server.peer_net:get_role_server_keys(Server_Role.World))
+        table.append(notify_servers, self.server.peer_net:get_role_server_keys(Server_Role.Game))
+        table.append(notify_servers, self.server.peer_net:get_role_server_keys(Server_Role.Gate))
     end
     local send_tb = {
         version = self._version,
@@ -358,7 +361,7 @@ function OnlineWorldMonitor:_notify_world_online_data(to_server_key, is_simple_i
     end
     -- log_print("OnlineWorldMonitor:_notify_world_online_data", notify_servers, send_tb)
     for _, v in pairs(notify_servers) do
-        self.server.rpc:call(nil, v, World_Online_Rpc_Method.notify_world_online_servers_data, send_tb)
+        self.server.rpc:call(nil, v, Online_World_Rpc_Method.notify_world_online_servers_data, send_tb)
     end
 end
 

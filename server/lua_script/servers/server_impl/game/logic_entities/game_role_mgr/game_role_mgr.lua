@@ -46,9 +46,9 @@ function GameRoleMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.bind_world, Functional.make_closure(self._handle_remote_call_bind_world, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.check_match_game_roles, Functional.make_closure(self._handle_remote_call_check_match_game_roles, self))
 
-    self._event_binder:bind(self._online_world_shadow, World_Online_Event.adjusting_version_state_change,
+    self._event_binder:bind(self._online_world_shadow, Online_World_Event.adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
-    self._event_binder:bind(self._online_world_shadow, World_Online_Event.shadow_parted_state_change,
+    self._event_binder:bind(self._online_world_shadow, Online_World_Event.shadow_parted_state_change,
             Functional.make_closure(self._on_event_shadow_parted_state_change, self))
 end
 
@@ -223,6 +223,8 @@ function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, role_id)
 end
 
 function GameRoleMgr:_handle_remote_call_bind_world(rpc_rsp, role_id)
+    print("GameRoleMgr:_handle_remote_call_bind_world ", role_id, rpc_rsp.from_host)
+
     local game_role = self:get_role_in_game(role_id)
     if not game_role then
         rpc_rsp:response(Error.game_role_bind_world.role_not_exist)
@@ -306,6 +308,8 @@ function GameRoleMgr:_check_match_world_roles(now_sec)
     if now_sec - self._check_match_world_roles_last_sec < Game_Role_Const.check_match_world_role_span_sec then
         return
     end
+    log_print("GameRoleMgr:_check_match_world_roles", table.size(self._id_to_roles))
+
     self._check_match_world_roles_last_sec = now_sec
     local world_to_role_ids = {}
     for role_id, game_role in pairs(self._id_to_roles) do
@@ -332,6 +336,7 @@ end
 
 function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, role_ids)
     self._rpc_svc_proxy:call(function(rpc_error_num, logic_error_num, mismatch_role_ids)
+        log_print("GameRoleMgr:_do_check_match_world_roles ret", rpc_error_num, logic_error_num, world_server_key, mismatch_role_ids, role_ids)
         local release_role_ids = mismatch_role_ids
         if Error_None ~= pick_error_num(rpc_error_num, logic_error_num) then
             local Max_Try_Times = 3
@@ -359,5 +364,5 @@ function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, ro
                 self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, removed_role_ids)
             end
         end
-    end, world_server_key, Rpc.game.method.check_match_game_roles, role_ids)
+    end, world_server_key, Rpc.world.method.check_match_world_roles, role_ids)
 end

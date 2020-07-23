@@ -10,7 +10,7 @@ end
 
 function GateServiceMgr:_on_init()
     do
-        local svc = OnlineWorldShadow:new(self, Service_Name.world_online_shadow)
+        local svc = OnlineWorldShadow:new(self, Service_Name.online_world_shadow)
         svc:init()
         self:add_service(svc)
     end
