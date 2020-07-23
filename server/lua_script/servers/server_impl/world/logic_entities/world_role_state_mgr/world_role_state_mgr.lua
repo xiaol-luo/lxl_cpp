@@ -516,8 +516,10 @@ function RoleStateMgr:rpc_rsp_transfer_world_role(session_id, try_times, rpc_err
 end
 
 function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
+    log_print("RoleStateMgr:_on_event_adjusting_version_state_change 11")
     if is_adjusting then
         for role_id, role_state in pairs(self._role_id_to_role_state) do
+            log_print("RoleStateMgr:_on_event_adjusting_version_state_change 22",  role_state.state)
             if World_Role_State.using ~= role_state.state
                     and World_Role_State.idle ~= role_state.state
             then
@@ -564,8 +566,11 @@ function RoleStateMgr:_check_match_game_roles(now_sec)
     if now_sec - self._check_match_game_roles_last_sec < World_Role_State_Const.check_match_game_role_span_sec then
         return
     end
-    self._check_match_game_roles_last_sec = now_sec
+    if self._online_world_shadow:is_adjusting_version() then
+        return
+    end
 
+    self._check_match_game_roles_last_sec = now_sec
     log_print("RoleStateMgr:_check_match_game_roles ", table.size(self._role_id_to_role_state))
 
     local game_to_role_ids = {}

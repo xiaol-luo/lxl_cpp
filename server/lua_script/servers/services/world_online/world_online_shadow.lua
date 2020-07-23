@@ -209,6 +209,7 @@ function OnlineWorldShadow:_check_is_parted_change()
         ret = false
     end
     if ret ~= self._cached_is_parted then
+        log_print("OnlineWorldShadow:_check_is_parted_change ", ret, self._cached_is_parted)
         self._cached_is_parted = ret
         self:fire(Online_World_Event.shadow_parted_state_change, self._cached_is_parted)
     end
@@ -227,6 +228,7 @@ function OnlineWorldShadow:_check_adjust_version()
         end
     end
     if is_adjusting ~= self._cached_is_adjusting then
+        log_print("OnlineWorldShadow:_check_adjust_version", self._cached_is_parted, is_adjusting, self._cached_is_adjusting, self._version, self._adjusting_version)
         self._cached_is_adjusting = is_adjusting
         self:fire(Online_World_Event.adjusting_version_state_change, self._cached_is_adjusting)
     end

@@ -308,6 +308,9 @@ function GameRoleMgr:_check_match_world_roles(now_sec)
     if now_sec - self._check_match_world_roles_last_sec < Game_Role_Const.check_match_world_role_span_sec then
         return
     end
+    if self._online_world_shadow:is_adjusting_version() then
+        return
+    end
     log_print("GameRoleMgr:_check_match_world_roles", table.size(self._id_to_roles))
 
     self._check_match_world_roles_last_sec = now_sec
