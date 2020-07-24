@@ -33,7 +33,7 @@ function RobotTestLogin:_on_init()
     self._gate_ip = gate_info.ip
     self._gate_port = tonumber(gate_info.port)
     self._robot_num = tonumber(self.init_setting.robot_num)
-    self._robot_num = 3
+    self._robot_num = 30
 
     self.pto_parser:load_files(Login_Pto.pto_files)
     self.pto_parser:setup_id_to_protos(Login_Pto.id_to_pto)
@@ -64,7 +64,7 @@ end
 function RobotTestLogin:_test_main_logic(co, logic_uuid)
     local co_ok, action_name, error_num, pid, msg = nil
 
-    ex_coroutine_expired(co,  10000)
+    ex_coroutine_expired(co,  1000000)
 
     local co_custom_data = {}
     co_custom_data.logic_uuid = logic_uuid

@@ -411,7 +411,7 @@ function RoleStateMgr:_handle_remote_call_notify_release_game_roles(rpc_rsp, rol
 end
 
 function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_state_data)
-    log_print("RoleStateMgr:_handle_remote_call_transfer_world_role ", role_state_data.role_id, self.server:get_cluster_server_key())
+    log_print("RoleStateMgr:_handle_remote_call_transfer_world_role ", role_state_data, self.server:get_cluster_server_key())
     if self._online_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Online_Shadow_Parted)
         return
@@ -442,7 +442,7 @@ function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_stat
     self._role_id_to_role_state[role_id] = role_state
     self._session_id_to_role_state[session_id] = role_state
     rpc_rsp:response(Error_None)
-    self._rpc_svc_proxy(Functional.make_closure(self._rpc_rsp_bind_world, self, session_id),
+    self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_bind_world, self, session_id),
         role_state.game_server_key, Rpc.game.method.bind_world, role_id)
 end
 
@@ -471,7 +471,7 @@ end
 function RoleStateMgr:try_transfer_world_role(role_id, try_times)
     local self_server_key = self.server:get_cluster_server_key()
     local target_server_key = self._online_world_shadow:cal_server_address(role_id)
-    if target_server_key or target_server_key == self_server_key then
+    if not target_server_key or target_server_key == self_server_key then
         return
     end
     local role_state = self._role_id_to_role_state[role_id]
@@ -489,7 +489,7 @@ function RoleStateMgr:try_transfer_world_role(role_id, try_times)
     role_state_data.auth_sn = role_state.auth_sn
     role_state_data.idle_begin_sec = role_state.idle_begin_sec
     self._rpc_svc_proxy:call(Functional.make_closure(self.rpc_rsp_transfer_world_role, self, role_state.session_id, try_times),
-            target_server_key, Rpc.game.method.transfer_world_role, role_state_data)
+            target_server_key, Rpc.world.method.transfer_world_role, role_state_data)
 
 end
 
@@ -516,7 +516,7 @@ function RoleStateMgr:rpc_rsp_transfer_world_role(session_id, try_times, rpc_err
 end
 
 function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
-    log_print("RoleStateMgr:_on_event_adjusting_version_state_change 11")
+    log_print("RoleStateMgr:_on_event_adjusting_version_state_change 11", is_adjusting)
     if is_adjusting then
         for role_id, role_state in pairs(self._role_id_to_role_state) do
             log_print("RoleStateMgr:_on_event_adjusting_version_state_change 22",  role_state.state)
