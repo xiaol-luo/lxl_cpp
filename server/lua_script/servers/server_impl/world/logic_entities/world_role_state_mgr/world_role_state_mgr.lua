@@ -482,6 +482,7 @@ function RoleStateMgr:try_transfer_world_role(role_id, try_times)
     local role_state_data = {}
     role_state_data.state = role_state.state
     role_state_data.role_id = role_state.role_id
+    role_state_data.game_server_key = role_state.game_server_key
     role_state_data.user_id = role_state.user_id
     role_state_data.session_id = role_state.session_id
     role_state_data.gate_server_key = role_state.gate_server_key
