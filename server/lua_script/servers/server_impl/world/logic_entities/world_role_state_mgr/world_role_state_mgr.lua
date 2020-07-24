@@ -15,8 +15,8 @@ function RoleStateMgr:_on_init()
     ---@type table<number, WorldRoleState>
     self._session_id_to_role_state = {}
 
-    -- self._next_session_id = gen_uuid -- 因为迁移需要，所以不能用自增id了
-    self._next_session_id = make_sequence(0) -- 因为迁移需要，所以不能用自增id了
+    self._next_session_id = gen_uuid -- 因为迁移需要，所以不能用自增id了
+    -- self._next_session_id = make_sequence(0) -- 因为迁移需要，所以不能用自增id了
 
     self._next_opera_id = make_sequence(0)
 
@@ -59,6 +59,9 @@ end
 
 function RoleStateMgr:_check_and_release_idle_roles(now_sec)
     if now_sec - self._check_idle_roles_last_sec < World_Role_State_Const.check_idle_role_span_sec then
+        return
+    end
+    if self._online_world_shadow:is_adjusting_version() then
         return
     end
     self._check_idle_roles_last_sec = now_sec
@@ -267,6 +270,9 @@ function RoleStateMgr:try_release_role(role_id)
     if not role_state then
         return
     end
+
+    log_debug("RoleStateMgr:try_release_role %s %s",  role_id, debug.traceback())
+
     role_state.state = World_Role_State.releasing
     role_state.release_try_times = role_state.release_try_times or 0
     role_state.release_try_times = role_state.release_try_times + 1
@@ -428,7 +434,7 @@ function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_stat
         return
     end
     local session_id = role_state_data.session_id
-    if self._session_id_to_role_state[session_id] then
+    if session_id and self._session_id_to_role_state[session_id] then
         rpc_rsp:response(Error.transfer_world_role.session_id_already_exist)
         return
     end
@@ -440,18 +446,23 @@ function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_stat
     role_state.state = role_state_data.state
     role_state.idle_begin_sec = role_state_data.idle_begin_sec
     self._role_id_to_role_state[role_id] = role_state
-    self._session_id_to_role_state[session_id] = role_state
+    if session_id then
+        self._session_id_to_role_state[session_id] = role_state
+    end
     rpc_rsp:response(Error_None)
+    log_print("RoleStateMgr:_handle_remote_call_transfer_world_role 22222")
     self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_bind_world, self, session_id),
         role_state.game_server_key, Rpc.game.method.bind_world, role_id)
 end
 
 function RoleStateMgr:_handle_remote_call_check_match_world_roles(rpc_rsp, role_ids)
     local mismatch_role_ids = {}
-    for _, role_id in pairs(role_ids) do
-        local role_state = self._role_id_to_role_state[role_id]
-        if not role_state or role_state.game_server_key ~= rpc_rsp.from_host then
-            table.insert(mismatch_role_ids, role_id)
+    if not self._online_world_shadow:is_adjusting_version() then
+        for _, role_id in pairs(role_ids) do
+            local role_state = self._role_id_to_role_state[role_id]
+            if not role_state or role_state.game_server_key ~= rpc_rsp.from_host then
+                table.insert(mismatch_role_ids, role_id)
+            end
         end
     end
     rpc_rsp:response(Error_None, mismatch_role_ids)
@@ -469,6 +480,7 @@ function RoleStateMgr:_rpc_rsp_bind_world(session_id, rpc_error_num, logic_error
 end
 
 function RoleStateMgr:try_transfer_world_role(role_id, try_times)
+    log_print("RoleStateMgr:try_transfer_world_role", role_id, try_times)
     local self_server_key = self.server:get_cluster_server_key()
     local target_server_key = self._online_world_shadow:cal_server_address(role_id)
     if not target_server_key or target_server_key == self_server_key then
@@ -495,25 +507,30 @@ function RoleStateMgr:try_transfer_world_role(role_id, try_times)
 end
 
 function RoleStateMgr:rpc_rsp_transfer_world_role(session_id, try_times, rpc_error_num, logic_error_num)
-    log_print("RoleStateMgr:rpc_rsp_transfer_world_role ", self.server:get_cluster_server_key(), session_id, try_times, rpc_error_num, logic_error_num)
+    log_print("RoleStateMgr:rpc_rsp_transfer_world_role 111", self.server:get_cluster_server_key(), session_id, try_times, rpc_error_num, logic_error_num)
 
     local role_state = self._session_id_to_role_state[session_id]
     if not role_state then
+        log_print("RoleStateMgr:rpc_rsp_transfer_world_role 222")
         return
     end
 
     local picked_error_num = pick_error_num(rpc_error_num, logic_error_num)
-    if Error_None == picked_error_num then
+    if Error_None ~= picked_error_num then
         if self._online_world_shadow:is_adjusting_version() and try_times < World_Role_State_Const.transfer_role_try_max_times then
             self._timer_proxy:delay(Functional.make_closure(self.try_release_role, self, role_state.role_id, try_times + 1),
                     World_Role_State_Const.transfer_role_try_span_ms)
+            log_print("RoleStateMgr:rpc_rsp_transfer_world_role 3332222222222")
         else
             self:try_release_role(role_state.role_id)
+            log_print("RoleStateMgr:rpc_rsp_transfer_world_role 33311111")
         end
+        log_print("RoleStateMgr:rpc_rsp_transfer_world_role 333", self._online_world_shadow:is_adjusting_version(), try_times < World_Role_State_Const.transfer_role_try_max_times)
         return
     end
     self._session_id_to_role_state[session_id] = nil
     self._role_id_to_role_state[role_state.role_id] = nil
+    log_print("RoleStateMgr:rpc_rsp_transfer_world_role 444")
 end
 
 function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
@@ -598,6 +615,10 @@ function RoleStateMgr:_check_match_game_roles(now_sec)
 end
 
 function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, role_ids)
+    if self._online_world_shadow:is_adjusting_version() then
+        return
+    end
+
     self._rpc_svc_proxy:call(function(rpc_error_num, logic_error_num, mismatch_role_ids)
         log_print("wwwww RoleStateMgr:_do_check_match_game_roles", rpc_error_num, logic_error_num, game_server_key, mismatch_role_ids, role_ids)
         local release_role_ids = mismatch_role_ids

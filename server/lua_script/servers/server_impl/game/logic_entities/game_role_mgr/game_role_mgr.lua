@@ -236,10 +236,12 @@ end
 
 function GameRoleMgr:_handle_remote_call_check_match_game_roles(rpc_rsp, role_ids)
     local mismatch_role_ids = {}
-    for _, role_id in pairs(role_ids) do
-        local game_role = self._id_to_roles[role_id]
-        if not game_role or game_role:get_world_server_key() ~= rpc_rsp.from_host then
-            table.insert(mismatch_role_ids, role_id)
+    if not self._online_world_shadow:is_adjusting_version() then
+        for _, role_id in pairs(role_ids) do
+            local game_role = self._id_to_roles[role_id]
+            if not game_role or game_role:get_world_server_key() ~= rpc_rsp.from_host then
+                table.insert(mismatch_role_ids, role_id)
+            end
         end
     end
     rpc_rsp:response(Error_None, mismatch_role_ids)
@@ -339,11 +341,11 @@ end
 
 function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, role_ids)
     self._rpc_svc_proxy:call(function(rpc_error_num, logic_error_num, mismatch_role_ids)
-        log_print("GameRoleMgr:_do_check_match_world_roles ret", rpc_error_num, logic_error_num, world_server_key, mismatch_role_ids, role_ids)
+        -- log_print("GameRoleMgr:_do_check_match_world_roles ret", rpc_error_num, logic_error_num, world_server_key, mismatch_role_ids, role_ids)
         local release_role_ids = mismatch_role_ids
         if Error_None ~= pick_error_num(rpc_error_num, logic_error_num) then
             local Max_Try_Times = 3
-            local Delay_Try_Ms = 2000
+            local Delay_Try_Ms = 500
             if try_times <= Max_Try_Times then
                 self._timer_proxy:delay(Functional.make_closure(self._do_check_match_world_roles,
                         self, try_times + 1, world_server_key, role_ids), Delay_Try_Ms)

@@ -5,7 +5,7 @@ local ConsistentHash_gc = function(self)
     end
 end
 
-local Virtual_Node_Num = 32
+local Virtual_Node_Num = 64
 
 ConsistentHash = ConsistentHash or class("ConsistentHash", nil, { __gc = ConsistentHash_gc })
 

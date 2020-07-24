@@ -33,7 +33,7 @@ function RobotTestLogin:_on_init()
     self._gate_ip = gate_info.ip
     self._gate_port = tonumber(gate_info.port)
     self._robot_num = tonumber(self.init_setting.robot_num)
-    self._robot_num = 30
+    self._robot_num = 10
 
     self.pto_parser:load_files(Login_Pto.pto_files)
     self.pto_parser:setup_id_to_protos(Login_Pto.id_to_pto)
@@ -64,7 +64,7 @@ end
 function RobotTestLogin:_test_main_logic(co, logic_uuid)
     local co_ok, action_name, error_num, pid, msg = nil
 
-    ex_coroutine_expired(co,  1000000)
+    ex_coroutine_expired(co,  10000)
 
     local co_custom_data = {}
     co_custom_data.logic_uuid = logic_uuid
@@ -84,7 +84,7 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
     end
     log_print("first cnn open", co_ok, action_name, error_num)
 
-    ex_coroutine_expired(co,  3000)
+    ex_coroutine_expired(co,  10000)
 
     local user_id = math.random(1, 100000)
     local auth_sn = gen_uuid()
@@ -97,7 +97,12 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         return
     end
 
-    ex_coroutine_expired(co,  30000)
+    if Error_None ~= error_num or Error_None ~= msg.error_num then
+        log_print("req_user_login fail")
+        return
+    end
+
+    ex_coroutine_expired(co,  10000)
     local role_digests = nil
     local loop_times = 10000
     while loop_times > 0 and not role_digests do
@@ -139,9 +144,9 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         -- log_print("===== try launch role ", user_id, role_id, role_digests)
 
         -- launch
-        ex_coroutine_expired(co,  3000)
+        ex_coroutine_expired(co,  10000)
         self:send_msg(gate_cnn, Login_Pid.req_launch_role, { role_id = role_id })
-        ex_coroutine_expired(co,  3000)
+        ex_coroutine_expired(co,  10000)
         co_ok, action_name, error_num, pid, msg = ex_coroutine_yield(co)
         if not co_ok or Action_Name.cnn_on_recv ~= action_name then
             ex_coroutine_report_error(co,"gate connection is over 20")
@@ -149,7 +154,7 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         end
         log_debug("222 recv msg userid %s opera %s co_ok %s action_time %s error_num %s pid %s msg %s",
                 user_id, "launch", co_ok, action_name, error_num, pid, msg)
-        if Error_None ~= error_num then
+        if Error_None ~= error_num or Error_None ~= msg.error_num then
             log_print("launch fail and exit")
             return
         end
@@ -238,7 +243,7 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
     local role_digests = nil
     local loop_times = math.random(1000, 3000)
     while loop_times > 0 do
-        ex_coroutine_expired(co,  3000)
+        ex_coroutine_expired(co,  10000)
         loop_times = loop_times - 1
 
         local opera_id = math.random(1, 1)
