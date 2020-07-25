@@ -18,11 +18,12 @@ function ClientNetCnn:reset()
 end
 
 function ClientNetCnn:touch(now_sec)
-    self._last_touch_sec = now_sec
+    self._last_touch_sec = now_sec or logic_sec()
 end
 
-function ClientNetCnn:idle_secs()
-    local ret = logic_sec() - self._last_touch_sec
+function ClientNetCnn:idle_secs(now_sec)
+    now_sec = now_sec or logic_sec()
+    local ret = now_sec - self._last_touch_sec
     return ret > 0 and ret or 0
 end
 

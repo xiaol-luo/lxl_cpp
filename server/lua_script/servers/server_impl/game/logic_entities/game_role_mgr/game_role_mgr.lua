@@ -223,7 +223,7 @@ function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, role_id)
 end
 
 function GameRoleMgr:_handle_remote_call_bind_world(rpc_rsp, role_id)
-    print("GameRoleMgr:_handle_remote_call_bind_world ", role_id, rpc_rsp.from_host)
+    print("------------ GameRoleMgr:_handle_remote_call_bind_world ", role_id, rpc_rsp.from_host)
 
     local game_role = self:get_role_in_game(role_id)
     if not game_role then
@@ -267,14 +267,16 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
                 to_remove_role[role_id] = game_role
             end
         end
-        for role_id, game_role in pairs(to_remove_role) do
-            game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
-            self:remove_role(role_id)
-        end
-        -- todo: 广播被踢掉的人
-        local removed_role_ids = table.keys(to_remove_role)
-        for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
-            self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, removed_role_ids)
+        if next(to_remove_role) then
+            for role_id, game_role in pairs(to_remove_role) do
+                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+                self:remove_role(role_id)
+            end
+            local removed_role_ids = table.keys(to_remove_role)
+            for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
+                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, removed_role_ids)
+            end
+            log_print("GameRoleMgr:_on_event_adjusting_version_state_change", removed_role_ids)
         end
     end
 end
@@ -302,6 +304,7 @@ function GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted(need_
             for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
                 self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, role_ids)
             end
+            log_print("GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted ")
         end, Game_Role_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
     end
 end
@@ -354,8 +357,8 @@ function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, ro
                 release_role_ids = role_ids
             end
         end
-        local removed_role_ids = {}
-        if release_role_ids then
+        if release_role_ids and next(release_role_ids) then
+            local removed_role_ids = {}
             for _, role_id in pairs(release_role_ids) do
                 local game_role = self._id_to_roles[role_id]
                 if game_role then

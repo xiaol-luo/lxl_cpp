@@ -70,7 +70,7 @@ function RoleStateMgr:_check_and_release_idle_roles(now_sec)
         if World_Role_State.idle == role_state.state then
             if nil == role_state.idle_begin_sec
                     or now_sec - role_state.idle_begin_sec >= World_Role_State_Const.release_idle_role_after_span_sec then
-                self:try_release_role(role_id)
+                self:try_release_role(role_id, "idle_too_loog")
             end
         end
     end
@@ -177,7 +177,7 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
     if not role_state.session_id then
         -- role_state没有被占用，若launch成功了直接释放role比较简单；若launch失败了，销毁数据
         if Error_None == picked_error then
-            self:try_release_role()
+            self:try_release_role(role_id, "launch_role_unexpected_error")
         else
             self._session_id_to_role_state[role_state.session_id] = nil
             self._role_id_to_role_state[role_state.role_id] = nil
@@ -200,7 +200,7 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
             self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
         end
         if Error_None == picked_error then
-            self:try_release_role()
+            self:try_release_role(role_id, "launch_role_unexpected_error")
         else
             self._session_id_to_role_state[role_state.session_id] = nil
             self._role_id_to_role_state[role_state.role_id] = nil
@@ -232,7 +232,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
     end
     if not role_state.session_id then
         -- role_state没有被占用,，此时launch已经成功了，那么执行try_release_role比较简单
-        self:try_release_role()
+        self:try_release_role(role_id, "after_launch_bind_game_fail")
         return
     end
     if role_state.session_id ~= session_id then
@@ -250,7 +250,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
         if role_state.gate_server_key and role_state.gate_netid then
             self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
         end
-        self:try_release_role()
+        self:try_release_role(role_id, "after_luanch_bind_game_fail")
         return
     end
 
@@ -261,17 +261,18 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
         end
         role_state.cached_rpc_rsp = nil
     else
-        self:try_release_role(role_state.role_id)
+        self:try_release_role(role_state.role_id, "after_luanch_bind_game_fail")
     end
 end
 
-function RoleStateMgr:try_release_role(role_id)
+function RoleStateMgr:try_release_role(role_id, reason)
     local role_state = self._role_id_to_role_state[role_id]
     if not role_state then
         return
     end
 
-    log_debug("RoleStateMgr:try_release_role %s %s",  role_id, debug.traceback())
+    assert(reason)
+    log_print("!!!!!!!!!!!!!!!!!!!!!!! RoleStateMgr:try_release_role",  role_id, reason or "unknown")
 
     role_state.state = World_Role_State.releasing
     role_state.release_try_times = role_state.release_try_times or 0
@@ -364,7 +365,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_for_reconnect_role(
     if Error_None ~= picked_error or World_Role_State.using ~= role_state.state then
         rpc_rsp:response(picked_error)
         -- 执行try_release_role比较简单
-        self:try_release_role(role_state.role_id)
+        self:try_release_role(role_state.role_id, "after_reconnect_role_bind_game_fail")
     else
         rpc_rsp:response(Error_None, role_state.game_server_key, role_state.session_id)
     end
@@ -383,7 +384,7 @@ function RoleStateMgr:_handle_remote_call_logout_role(rpc_rsp, session_id)
         role_state.session_id = nil
         role_state.gate_server_key = nil
         role_state.gate_netid = nil
-        self:try_release_role(role_state.role_id)
+        self:try_release_role(role_state.role_id, "logout_role")
     until true
     rpc_rsp:response(error_num)
 end
@@ -401,18 +402,19 @@ function RoleStateMgr:_handle_remote_call_gate_client_quit(rpc_rsp, session_id)
             role_state.idle_begin_sec = logic_sec()
             self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.method.change_gate_client, true, nil, nil)
         elseif World_Role_State.launch == role_state then
-            self:try_release_role(role_state.role_id)
+            self:try_release_role(role_state.role_id, "gate_client_quit_and_role_state_unexpecte")
         else
             log_warn("RoleStateMgr:_handle_remote_call_gate_client_quit error: role_id %s role_state %s", role_state.role_id, role_state.state)
-            self:try_release_role(role_state.role_id)
+            self:try_release_role(role_state.role_id, "gate_client_quit_and_role_state_unexpecte")
         end
     end
 end
 
 function RoleStateMgr:_handle_remote_call_notify_release_game_roles(rpc_rsp, role_ids)
+    log_print("RoleStateMgr:_handle_remote_call_notify_release_game_roles ", role_ids)
     rpc_rsp:response()
     for _, role_id in pairs(role_ids or {}) do
-        self:try_release_role(role_id)
+        self:try_release_role(role_id, "game_notify_release_game_roles")
     end
 end
 
@@ -474,7 +476,7 @@ function RoleStateMgr:_rpc_rsp_bind_world(session_id, rpc_error_num, logic_error
         return
     end
     if Error_None ~= pick_error_num(rpc_error_num, logic_error_num) then
-        self:try_release_role(role_state.role_id)
+        self:try_release_role(role_state.role_id, "rpc_game_bind_world_key_fail")
         return
     end
 end
@@ -518,14 +520,11 @@ function RoleStateMgr:rpc_rsp_transfer_world_role(session_id, try_times, rpc_err
     local picked_error_num = pick_error_num(rpc_error_num, logic_error_num)
     if Error_None ~= picked_error_num then
         if self._online_world_shadow:is_adjusting_version() and try_times < World_Role_State_Const.transfer_role_try_max_times then
-            self._timer_proxy:delay(Functional.make_closure(self.try_release_role, self, role_state.role_id, try_times + 1),
+            self._timer_proxy:delay(Functional.make_closure(self.try_transfer_world_role, self, role_state.role_id, try_times + 1),
                     World_Role_State_Const.transfer_role_try_span_ms)
-            log_print("RoleStateMgr:rpc_rsp_transfer_world_role 3332222222222")
         else
-            self:try_release_role(role_state.role_id)
-            log_print("RoleStateMgr:rpc_rsp_transfer_world_role 33311111")
+            self:try_release_role(role_state.role_id, "transfer_world_fail")
         end
-        log_print("RoleStateMgr:rpc_rsp_transfer_world_role 333", self._online_world_shadow:is_adjusting_version(), try_times < World_Role_State_Const.transfer_role_try_max_times)
         return
     end
     self._session_id_to_role_state[session_id] = nil
@@ -541,7 +540,7 @@ function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
             if World_Role_State.using ~= role_state.state
                     and World_Role_State.idle ~= role_state.state
             then
-                self:try_release_role(role_state.role_id)
+                self:try_release_role(role_state.role_id,  "world_adjusting_version_begin_release_role_not_idle_and_using")
             else
                 self:try_transfer_world_role(role_id, 1)
             end
@@ -551,7 +550,7 @@ function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
         for role_id, _ in pairs(self._role_id_to_role_state) do
             local want_world_server_key = self._online_world_shadow:cal_server_address(role_id)
             if want_world_server_key ~= self_server_key then
-                self:try_release_role(role_id)
+                self:try_release_role(role_id, "world_adjusting_version_end_release_role_server_key_not_fit")
             end
         end
     end
@@ -573,7 +572,7 @@ function RoleStateMgr:_try_release_all_roles_for_online_world_shadow_parted(need
                 if World_Role_State.using == role_state.state
                         or World_Role_State.idle == role_state.state
                         or World_Role_State.launch == role_state.state then
-                    self:try_release_role(role_state.role_id)
+                    self:try_release_role(role_state.role_id, "world_shadow_aparted")
                 end
             end
         end, World_Role_State_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
@@ -620,7 +619,7 @@ function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, rol
     end
 
     self._rpc_svc_proxy:call(function(rpc_error_num, logic_error_num, mismatch_role_ids)
-        log_print("wwwww RoleStateMgr:_do_check_match_game_roles", rpc_error_num, logic_error_num, game_server_key, mismatch_role_ids, role_ids)
+        -- log_print("wwwww RoleStateMgr:_do_check_match_game_roles", rpc_error_num, logic_error_num, game_server_key, mismatch_role_ids, role_ids)
         local release_role_ids = mismatch_role_ids
         if Error_None ~= pick_error_num(rpc_error_num, logic_error_num) then
             local Max_Try_Times = 3
@@ -633,7 +632,7 @@ function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, rol
                 release_role_ids = role_ids
             end
             for _, role_id in pairs(release_role_ids) do
-                self:try_release_role(role_id)
+                self:try_release_role(role_id, "game_role_mismatch_world_server_key")
             end
         end
     end, game_server_key, Rpc.game.method.check_match_game_roles, role_ids)

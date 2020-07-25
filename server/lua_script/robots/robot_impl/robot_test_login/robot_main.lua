@@ -33,7 +33,7 @@ function RobotTestLogin:_on_init()
     self._gate_ip = gate_info.ip
     self._gate_port = tonumber(gate_info.port)
     self._robot_num = tonumber(self.init_setting.robot_num)
-    self._robot_num = 10
+    self._robot_num = 400
 
     self.pto_parser:load_files(Login_Pto.pto_files)
     self.pto_parser:setup_id_to_protos(Login_Pto.id_to_pto)
@@ -240,7 +240,6 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         end
     end
 
-    local role_digests = nil
     local loop_times = math.random(1000, 3000)
     while loop_times > 0 do
         ex_coroutine_expired(co,  10000)
@@ -260,8 +259,9 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
             return
         end
         if Login_Pid.rsp_pull_role_digest == pid then
-            if Error_None == msg.error_num then
-                role_digests = msg.role_digests
+            if Error_None ~= msg.error_num then
+                log_print("keep connect rsp_pull_role_digest ret is", msg)
+                return
             end
         end
     end

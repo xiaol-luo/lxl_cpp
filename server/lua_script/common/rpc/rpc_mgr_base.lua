@@ -9,7 +9,7 @@ RpcMgrBase = RpcMgrBase or class("RpcMgrBase")
 function RpcMgrBase:ctor()
     self.req_list = {}
     self.last_check_expired_ms = 0
-    self.Check_Expired_Span_ms = 15 * 1000
+    self.Check_Expired_Span_ms = 5 * 1000
     self.rsp_list = {}
     ---@type table<string, Fn_RpcRemoteCallHandleFn>
     self.remote_call_handle_fn = {}
@@ -177,7 +177,7 @@ function RpcMgrBase:on_frame()
         self.last_check_expired_ms = now_ms
         local expired_req_ids = {}
         for id, req in pairs(self.req_list) do
-            if req.expired_ms > now_ms then
+            if now_ms > req.expired_ms then
                 table.insert(expired_req_ids, id)
             end
         end

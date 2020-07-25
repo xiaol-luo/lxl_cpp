@@ -52,10 +52,28 @@ function ClientNetService:_on_stop()
         Net.close(self._listen_handler:netid())
         self._listen_handler = nil
     end
+    for _, client_net_cnn in pairs(self._cnn_map) do
+        client_net_cnn:reset()
+    end
 end
 
 function ClientNetService:_on_update()
     ClientNetService.super._on_update(self)
+end
+
+function ClientNetService:_check_expire_client_net_cnns()
+    local now_sec = logic_sec()
+    local check_span = math.ceil(self._tolerate_cnn_idle_secs / 3.0)
+    if now_sec - self._last_check_cnn_expire_sec < check_span then
+        return
+    end
+    self._last_check_cnn_expire_sec = now_sec
+
+    for _, client_net_cnn in pairs(self._cnn_map) do
+        if client_net_cnn:idle_secs(now_sec) >= self._tolerate_cnn_idle_secs then
+            client_net_cnn:reset()
+        end
+    end
 end
 
 ---@return ClientNetCnn
@@ -64,13 +82,21 @@ function ClientNetService:get_cnn(netid)
     return ret
 end
 
+function ClientNetService:close_cnn(netid)
+    local cnn = self._cnn_map[netid]
+    if cnn then
+        cnn:reset()
+    end
+end
+
 ---@param cnn PidBinCnn
 function ClientNetService:_cnn_handler_on_open(cnn, error_num)
     local netid = cnn:netid()
     if Error_None == error_num then
-
         local client_net_cnn = ClientNetCnn:new(self, cnn)
         self._cnn_map[netid] = client_net_cnn
+        client_net_cnn:touch()
+
         if self._cnn_cbs and self._cnn_cbs.on_open then
             self._cnn_cbs.on_open(self, netid)
         end
@@ -86,7 +112,10 @@ function ClientNetService:_cnn_handler_on_close(cnn, error_num)
     if client_net_cnn then
         self._cnn_map[netid] = nil
         client_net_cnn:reset()
-        self._cnn_cbs.on_close(self, netid, error_num)
+
+        if self._cnn_cbs and self._cnn_cbs.on_close then
+            self._cnn_cbs.on_close(self, netid, error_num)
+        end
     end
     cnn:reset()
     -- log_debug("ClientNetService:_cnn_handler_on_close netid %s error_num %s", netid, error_num)
@@ -94,9 +123,13 @@ end
 
 ---@param cnn PidBinCnn
 function ClientNetService:_cnn_handler_on_recv(cnn, pid, bin)
-    if self._cnn_cbs and self._cnn_cbs.on_open then
-        local netid = cnn:netid()
-        self._cnn_cbs.on_recv(self, netid, pid, bin)
+    local netid = cnn:netid()
+    local client_net_cnn = self._cnn_map[netid]
+    if client_net_cnn then
+        client_net_cnn:touch()
+        if self._cnn_cbs and self._cnn_cbs.on_recv then
+            self._cnn_cbs.on_recv(self, netid, pid, bin)
+        end
     end
 end
 

@@ -72,6 +72,7 @@ end
 
 ---@param rpc_rsp RpcRsp
 function CreateRoleLogic:_handle_remote_call_query_roles(rpc_rsp, user_id, role_id)
+    -- log_print("CreateRoleLogic:_handle_remote_call_query_roles",  user_id, role_id)
     local find_opt = MongoOptFind:new()
     find_opt:set_max_time(5 * 1000)
     local filter = {}
