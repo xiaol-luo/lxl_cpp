@@ -172,7 +172,7 @@ function OnlineWorldShadow:_set_world_online_servers(version, servers)
     local old_world_online_servers = self._world_online_servers
     self._version = version
     self._world_online_servers = servers
-    log_print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! _set_world_online_servers", version, servers)
+    -- log_print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! _set_world_online_servers", version, servers)
 
     local is_changed = false
     for new_k, _ in pairs(self._world_online_servers) do

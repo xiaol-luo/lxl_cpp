@@ -11,6 +11,11 @@ local files = {
     "servers.server_impl.game.logic_entities.game_role_mgr.game_role_def",
     "servers.server_impl.game.logic_entities.game_role_mgr.game_role",
     "servers.server_impl.game.logic_entities.game_role_mgr.game_role_mgr",
+
+    "servers.server_impl.game.logic_entities.forward_msg.game_forward_msg",
+
+    "servers.server_impl.game.logic_entities.game_role_mgr.game_role_module.game_role_module",
+    "servers.server_impl.game.logic_entities.game_role_mgr.game_role_module.base_info.role_base_info",
 }
 
 return files

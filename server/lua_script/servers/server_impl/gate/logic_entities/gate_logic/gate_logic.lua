@@ -36,7 +36,7 @@ end
 function GateLogic:_on_msg_user_login(gate_client, pid, msg)
     if Gate_Client_State.free ~= gate_client.state or gate_client.user_id then
         gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = 1})
-        gate_client:Disconnect()
+        gate_client:disconnect()
         return
     end
     gate_client.user_id = msg.user_id

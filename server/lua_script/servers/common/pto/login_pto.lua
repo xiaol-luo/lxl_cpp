@@ -1,7 +1,7 @@
 
 Login_Pto = {}
 Login_Pto.pto_files = {
-    { [Pto_Const.pto_path]="client_gate.pb", [Pto_Const.pto_type]=Pto_Const.Pb },
+    { [Pto_Const.pto_path]="login_logic.pb", [Pto_Const.pto_type]=Pto_Const.Pb },
 }
 
 Login_Pto.id_to_pto = {}

@@ -292,7 +292,7 @@ function OnlineWorldMonitor:_check_online_server_diff()
             end
         end
     end
-    log_print("OnlineWorldMonitor:_check_online_server_diff", has_diff, allow_join_world_servers, self._world_online_servers)
+    -- log_print("OnlineWorldMonitor:_check_online_server_diff", has_diff, allow_join_world_servers, self._world_online_servers)
     return has_diff, allow_join_world_servers
 end
 

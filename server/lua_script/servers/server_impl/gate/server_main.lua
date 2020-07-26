@@ -34,6 +34,8 @@ function GateServer:_on_init()
 
     self.pto_parser:load_files(Login_Pto.pto_files)
     self.pto_parser:setup_id_to_protos(Login_Pto.id_to_pto)
+    self.pto_parser:load_files(Forward_Msg_Pto.pto_files)
+    self.pto_parser:setup_id_to_protos(Forward_Msg_Pto.id_to_pto)
 
     return true
 end

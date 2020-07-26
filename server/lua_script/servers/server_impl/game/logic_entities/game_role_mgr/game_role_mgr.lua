@@ -217,7 +217,7 @@ function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, role_id)
         rpc_rsp:response(Error.release_game_role.role_not_exist)
         return
     end
-    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
     self:remove_role(role_id)
     rpc_rsp:response(Error_None)
 end
@@ -256,7 +256,7 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
             end
         end
         for role_id, game_role in pairs(to_remove_role) do
-            game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+            game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
             self:remove_role(role_id)
         end
     else
@@ -269,7 +269,7 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
         end
         if next(to_remove_role) then
             for role_id, game_role in pairs(to_remove_role) do
-                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
                 self:remove_role(role_id)
             end
             local removed_role_ids = table.keys(to_remove_role)
@@ -295,7 +295,7 @@ function GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted(need_
             self._online_world_shadow_aprted_release_all_roles_tid = nil
             local role_ids = {}
             for role_id, game_role in pairs(self._id_to_roles) do
-                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
                 table.insert(role_ids, role_id)
             end
             self._id_to_roles = {}
@@ -316,7 +316,7 @@ function GameRoleMgr:_check_match_world_roles(now_sec)
     if self._online_world_shadow:is_adjusting_version() then
         return
     end
-    log_print("GameRoleMgr:_check_match_world_roles", table.size(self._id_to_roles))
+    log_print("GameRoleMgr:_check_match_world_roles", self.server:get_cluster_server_key(), table.size(self._id_to_roles))
 
     self._check_match_world_roles_last_sec = now_sec
     local world_to_role_ids = {}
@@ -362,7 +362,7 @@ function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, ro
             for _, role_id in pairs(release_role_ids) do
                 local game_role = self._id_to_roles[role_id]
                 if game_role then
-                    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name)
+                    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
                     self:remove_role(role_id)
                     table.insert(removed_role_ids, role_id)
                 end

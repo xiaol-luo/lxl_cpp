@@ -37,7 +37,8 @@ function RobotTestLogin:_on_init()
 
     self.pto_parser:load_files(Login_Pto.pto_files)
     self.pto_parser:setup_id_to_protos(Login_Pto.id_to_pto)
-
+    self.pto_parser:load_files(Forward_Msg_Pto.pto_files)
+    self.pto_parser:setup_id_to_protos(Forward_Msg_Pto.id_to_pto)
     return true
 end
 
@@ -240,7 +241,7 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         end
     end
 
-    local loop_times = math.random(1000, 3000)
+    local loop_times = math.random(1, 30)
     while loop_times > 0 do
         ex_coroutine_expired(co,  10000)
         loop_times = loop_times - 1
@@ -249,10 +250,17 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         -- log_print("loop opera_id loop_times ", user_id, opera_id, loop_times)
 
         if 1 == opera_id then
-            self:send_msg(gate_cnn, Login_Pid.req_pull_role_digest, {})
+            -- self:send_msg(gate_cnn, Login_Pid.req_pull_role_digest, {})
+            local _, pto_bytes = self.pto_parser:encode(Forward_Msg_Pid.req_forward_game_msg, {pto_id = 1})
+            self:send_msg(gate_cnn, Forward_Msg_Pid.req_forward_game_msg, { msg = {
+                pto_id = Login_Pid.req_forward_game_msg,
+                pto_bytes = pto_bytes,
+                further_forward = 1,
+            }})
         end
 
         co_ok, action_name, error_num, pid, msg = ex_coroutine_yield(co)
+        log_print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",  co_ok, action_name, error_num, pid, msg)
         if not co_ok or Action_Name.cnn_on_recv ~= action_name then
             log_print("keep connect recv msg", user_id, opera_id, co_ok, action_name, error_num, pid, msg)
             ex_coroutine_report_error(co, "gate connection is over 44")

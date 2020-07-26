@@ -257,7 +257,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
     if Error_None == picked_error then
         role_state.state = World_Role_State.using
         if role_state.cached_rpc_rsp then
-            role_state.cached_rpc_rsp:response(Error_None, role_state.gate_server_key, role_state.session_id)
+            role_state.cached_rpc_rsp:response(Error_None, role_state.game_server_key, role_state.session_id)
         end
         role_state.cached_rpc_rsp = nil
     else
@@ -272,7 +272,7 @@ function RoleStateMgr:try_release_role(role_id, reason)
     end
 
     assert(reason)
-    log_print("!!!!!!!!!!!!!!!!!!!!!!! RoleStateMgr:try_release_role",  role_id, reason or "unknown")
+    -- log_print("!!!!!!!!!!!!!!!!!!!!!!! RoleStateMgr:try_release_role",  role_id, reason or "unknown")
 
     role_state.state = World_Role_State.releasing
     role_state.release_try_times = role_state.release_try_times or 0
@@ -588,7 +588,7 @@ function RoleStateMgr:_check_match_game_roles(now_sec)
     end
 
     self._check_match_game_roles_last_sec = now_sec
-    log_print("RoleStateMgr:_check_match_game_roles ", table.size(self._role_id_to_role_state))
+    log_print("RoleStateMgr:_check_match_game_roles ", self.server:get_cluster_server_key(), table.size(self._role_id_to_role_state))
 
     local game_to_role_ids = {}
     for role_id, role_state in pairs(self._role_id_to_role_state) do

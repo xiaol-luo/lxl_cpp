@@ -29,4 +29,10 @@ function GateLogicService:_on_init()
         self:add_logic(logic)
     end
 
+    do
+        local logic = GateForwardMsg:new(self, Gate_Logic_Name.forward_msg)
+        logic:init()
+        self:add_logic(logic)
+    end
+
 end

@@ -11,4 +11,10 @@ function GameLogicService:_on_init()
         self:add_logic(logic)
     end
 
+    do
+        local logic = GameForwardMsg:new(self, Game_Logic_Name.forward_msg)
+        logic:init()
+        self:add_logic(logic)
+    end
+
 end

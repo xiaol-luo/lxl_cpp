@@ -27,11 +27,11 @@ function GateClient:send_msg(pid, msg)
     return false
 end
 
-function GateClient:Disconnect()
+function GateClient:disconnect()
     if self.cnn then
         Net.close(self.netid)
     end
-    log_print("GateClient:Disconnect ", debug.traceback())
+    log_print("GateClient:disconnect ", debug.traceback())
 end
 
 function GateClient:is_authed()
@@ -42,7 +42,7 @@ function GateClient:is_alive()
     return self.state < Gate_Client_State.releasing
 end
 
-function GateClient:is_ingame()
+function GateClient:is_in_game()
     return Gate_Client_State.in_game == self.state
 end
 

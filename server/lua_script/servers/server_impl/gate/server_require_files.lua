@@ -8,6 +8,7 @@ local files = {
 
     "servers.server_impl.gate.logic_entities.logic_entity_def",
     "servers.server_impl.gate.logic_entities.gate_logic.gate_logic",
+    "servers.server_impl.gate.logic_entities.forward_msg.gate_forward_msg",
     "servers.server_impl.gate.logic_entities.create_role_agent.create_role_agent_logic",
 
     "servers.server_impl.gate.logic_entities.gate_client_mgr.gate_client_def",

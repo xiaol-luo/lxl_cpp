@@ -7,8 +7,8 @@ World_Role_State_Const.transfer_role_try_span_ms = 500
 World_Role_State_Const.release_idle_role_after_span_sec = 30
 World_Role_State_Const.check_idle_role_span_sec = 5
 
-World_Role_State_Const.check_match_game_role_span_sec = 3
-World_Role_State_Const.check_match_game_role_count_per_rpc_query = 30
+World_Role_State_Const.check_match_game_role_span_sec = 5
+World_Role_State_Const.check_match_game_role_count_per_rpc_query = 100
 
 World_Role_State =
 {
