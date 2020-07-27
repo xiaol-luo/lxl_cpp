@@ -1,9 +1,7 @@
-using AppEventMgr = Utopia.EventMgr<string>;
-using AppEventSubscriber = Utopia.EventSubscriber<string>;
 
 namespace Utopia
 {
-    public class CoreModule
+    public class CoreModule : Utopia.EventMgr<string>
     {
         public enum EStage
         {
@@ -33,18 +31,11 @@ namespace Utopia
         }
 
         public Core core { get; }
-        protected EventMgr<string> m_eventMgr = null;
 
         public CoreModule(Core _core, int moduleId)
         {
             core = _core;
             m_moduleId = moduleId;
-            m_eventMgr = new AppEventMgr();
-        }
-
-        public AppEventSubscriber CreateEventSubcriber()
-        {
-            return new AppEventSubscriber(m_eventMgr);
         }
 
         delegate ERet FnToCall();

@@ -61,9 +61,8 @@ namespace Utopia.Resource
             else
             {
                 {
-                    ResourceLoader.instance.AsyncLoadAsset(assetPath, (string ap, ResourceObserver ob) =>
+                    ResourceLoader.ins.AsyncLoadAsset(assetPath, (string ap, ResourceObserver ob) =>
                     {
-                        ResourceObserver xxx = ob;
                         if (ai.setOperaSeq == setOperaSeq)
                         {
                             R res = null;

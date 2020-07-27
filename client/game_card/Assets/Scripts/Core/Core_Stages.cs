@@ -9,6 +9,38 @@ namespace Utopia
 {
     public partial class Core
     {
+        public void Awake()
+        {
+            bool ret = ExecuteStageFnUtil(CoreModule.EStage.Inited, CoreModule.EStage.Awaking, CoreModule.EStage.Awaked);
+            if (ret)
+            {
+                ForeachModule((CoreModule module) =>
+                {
+                    module.stage = CoreModule.EStage.Updating;
+                });
+                currStage = CoreModule.EStage.Updating;
+            }
+            else
+            {
+                this.Release();
+            }
+                
+        }
+
+        public void Release()
+        {
+            if (CoreModule.EStage.Releasing != currStage && CoreModule.EStage.Released != currStage)
+                ExecuteStageFnUtil(currStage, CoreModule.EStage.Releasing, CoreModule.EStage.Released);
+        }
+
+        public void Update()
+        {
+            foreach (CoreModule module in m_modules)
+            {
+                module.Update();
+            }
+        }
+
         public void ForeachModule(System.Action<CoreModule> _fn)
         {
             System.Action<CoreModule, object, object> fn = (CoreModule module, object p1, object p2) => { _fn(module); };
@@ -17,6 +49,7 @@ namespace Utopia
                 fn(module, null, null);
             }
         }
+
         public void ForeachModule(System.Action<CoreModule, object, object> fn, object inParam, ref object outParam)
         {
             foreach (CoreModule module in m_modules)
@@ -24,6 +57,7 @@ namespace Utopia
                 fn(module, inParam, outParam);
             }
         }
+
         bool ExecuteStageFnUtil(CoreModule.EStage preStage, CoreModule.EStage fromStage, CoreModule.EStage toStage)
         {
             this.currStage = fromStage;
@@ -85,37 +119,6 @@ namespace Utopia
             if (returnVal)
                 this.currStage = toStage;
             return returnVal;
-        }
-
-        public void Awake()
-        {
-            bool ret = ExecuteStageFnUtil(CoreModule.EStage.Inited, CoreModule.EStage.Awaking, CoreModule.EStage.Awaked);
-            if (ret)
-            {
-                ForeachModule((CoreModule module) =>
-                {
-                    module.stage = CoreModule.EStage.Updating;
-                });
-                currStage = CoreModule.EStage.Updating;
-            }
-            else
-            {
-                this.Release();
-            }
-                
-        }
-        public void Release()
-        {
-            if (CoreModule.EStage.Releasing != currStage && CoreModule.EStage.Released != currStage)
-                ExecuteStageFnUtil(currStage, CoreModule.EStage.Releasing, CoreModule.EStage.Released);
-        }
-
-        public void Update()
-        {
-            foreach (CoreModule module in m_modules)
-            {
-                module.Update();
-            }
         }
     }
 }

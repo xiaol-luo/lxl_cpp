@@ -11,15 +11,15 @@ namespace Utopia
         Action<bool> m_openCb = null;
         Action<int, string> m_closeCb = null;
         Action<int, byte[], int, int> m_recvMsgCb = null;
-        AppEventSubscriber m_netModuleSubcriber = null;
+        Utopia.EventProxy<string> m_netModuleEventProxy = null;
 
         public GameNet()
         {
             m_netAgent = new MsgNetAgent();
             m_msgHandler = new GameMsgNetAgentHandler(this);
             m_netAgent.SetHandler(m_msgHandler);
-            m_netModuleSubcriber = App.ins.net.CreateEventSubcriber();
-            m_netModuleSubcriber.Subscribe<NetAgentBase>(NetModuleEventDef.Remove_NetAgent, this.OnRemoveNetAgent);
+            m_netModuleEventProxy = App.ins.net.CreateEventProxy();
+            m_netModuleEventProxy.Bind<NetAgentBase>(NetModuleEventDef.Remove_NetAgent, this.OnRemoveNetAgent);
         }
 
         public void SetCallbacks(Action<bool> openCb, Action<int, string> closeCb, Action<int, byte[], int, int> onRecvMsgCb)

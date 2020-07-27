@@ -7,14 +7,14 @@ namespace Utopia
 {
     public class ResourceLoader
     {
-        static ResourceLoader _instance = null;
-        public static ResourceLoader instance
+        static ResourceLoader _ins = null;
+        public static ResourceLoader ins
         {
             get
             {
-                if (null == _instance)
-                    _instance = new ResourceLoader();
-                return _instance;
+                if (null == _ins)
+                    _ins = new ResourceLoader();
+                return _ins;
             }
         }
         protected ResourceLoader() {}
@@ -198,12 +198,11 @@ namespace Utopia
             ResourceScene resScene = this.GetResScene(path);
             if (null != resScene) 
             {
-                resScene.isAddition = isAddition;
-
                 // 不存在Fail和Released的情况，因为函数逻辑会马上把这些情况的resScene移出m_resScenes
                 // 不存在Inited的情况，因为所有的resScene一创建马上就TryLoadAssset了
                 if (resScene.isLoading)
                 {
+                    // resScene.isAddition = isAddition; // 这里是否允许改？暂时不允许
                     if (null != resScene.cb)
                     {
                         resScene.cb(ResourceScene.LoadResult.Cancel, resScene.sceneName);
@@ -221,6 +220,7 @@ namespace Utopia
                 ulong reqId = this.GenReqId();
                 resState.req = ResourceRequest.CreateAsyncRequest(m_resLoader, path, this.ResLoadSceneEndCall, reqId);
                 resScene = new ResourceScene(resState);
+                resScene.isAddition = isAddition;
                 resScene.SetCb(cb);
                 m_resScenes.Add(resScene.sceneName, resScene);
                 resScene.TryLoadAsset();

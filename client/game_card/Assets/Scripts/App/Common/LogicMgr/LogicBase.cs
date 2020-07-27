@@ -3,21 +3,20 @@ using UnityEditor;
 
 namespace Utopia
 {
-    public abstract class LogicBase
+    public abstract class LogicBase : Utopia.EventMgr<string>
     {
-        protected AppEventMgr m_eventMgr = new AppEventMgr();
         protected TimerProxy m_timerProxy = Core.ins.timer.CreateTimerProxy();
-        protected LogicMgr m_owner = null;
+        protected LogicMgr m_logicMgr = null;
 
         public LogicBase()
         {
         }
 
-        public void SetOwner(LogicMgr owner)
+        public void SetLogicMgr(LogicMgr owner)
         {
-            UnityEngine.Debug.Assert(null == m_owner);
+            UnityEngine.Debug.Assert(null == m_logicMgr);
             UnityEngine.Debug.Assert(null != owner);
-            m_owner = owner;
+            m_logicMgr = owner;
         }
 
         public abstract EAppLogicName GetModuleName();
@@ -44,12 +43,8 @@ namespace Utopia
         public void Release()
         {
             this.OnRelease();
-            m_eventMgr.ClearAll();
+            this.ClearAll();
             m_timerProxy.ClearAll();
-        }
-        public AppEventSubscriber CreateEventSubcriber()
-        {
-            return new AppEventSubscriber(m_eventMgr);
         }
     }
 }

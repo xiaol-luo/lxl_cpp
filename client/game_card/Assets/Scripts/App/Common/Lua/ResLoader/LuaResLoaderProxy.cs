@@ -13,7 +13,7 @@ namespace Lua
 
         public ResourceObserver GetLoadedResState(string path)
         {
-            return m_loaderProxy.GetLoadedResState(path);
+            return m_loaderProxy.GetLoadedResObserver(path);
         }
         public ResourceObserver LoadAsset(string path)
         {

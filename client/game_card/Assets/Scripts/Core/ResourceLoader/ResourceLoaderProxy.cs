@@ -9,7 +9,7 @@ namespace Utopia
     {
         public static ResourceLoaderProxy Create()
         {
-            return new ResourceLoaderProxy(ResourceLoader.instance);
+            return new ResourceLoaderProxy(ResourceLoader.ins);
         }
 
         ResourceLoader m_loader;
@@ -31,7 +31,7 @@ namespace Utopia
             }
             return ret;
         }
-        public ResourceObserver GetLoadedResState(string path)
+        public ResourceObserver GetLoadedResObserver(string path)
         {
             ResourceObserver resState = this.GetResObserver(path);
             if (null == resState || !resState.isLoaded)
@@ -40,7 +40,7 @@ namespace Utopia
         }
         public ResourceObserver LoadAsset(string path)
         {
-            ResourceObserver ret = this.GetLoadedResState(path);
+            ResourceObserver ret = this.GetLoadedResObserver(path);
             if (null == ret)
             {
                 ret = m_loader.LoadAsset(path);
@@ -51,14 +51,14 @@ namespace Utopia
                 else
                 {
                     ret.Release();
-                    ret = this.GetLoadedResState(path);
+                    ret = this.GetLoadedResObserver(path);
                 }
             }
             return ret;
         }
         public ResourceObserver AsyncLoadAsset(string path, System.Action<string, ResourceObserver> cb)
         {
-            ResourceObserver ret = this.GetLoadedResState(path);
+            ResourceObserver ret = this.GetLoadedResObserver(path);
             if (null == ret)
             {
                 ret = m_loader.AsyncLoadAsset(path, (string resPath, ResourceObserver resOb) => {

@@ -10,7 +10,7 @@ function setup_lua_logics(arg)
     print("setup_lua_logics ", arg)
     Functional.error_handler = error_handler
     ParseArgs.append_lua_search_path("main_logic")
-    require("main_logic_impl.main_logic")
+    require("main_logic_impl.fake_main_logic")
     g_ins = MainLogic:new()
     g_ins:init(arg)
     g_ins:on_start()

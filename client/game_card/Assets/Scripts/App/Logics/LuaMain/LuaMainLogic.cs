@@ -14,14 +14,14 @@ namespace Utopia
         }
         protected override void OnInit()
         {
-            m_lua = m_owner.app.lua;
+            m_lua = m_logicMgr.app.lua;
         }
 
         protected override void OnStart()
         {
             m_lua.AddLoader(LuaFileLoader);
             object[] ret = null;
-            ret = m_lua.DoString(string.Format("entrance_arg_str = '{0}' ", m_owner.app.root.lua_main_args));
+            ret = m_lua.DoString(string.Format("entrance_arg_str = '{0}' ", m_logicMgr.app.core.lua_main_args));
             ret = m_lua.DoString(" require  'prepare_env' ");
             // ret = m_lua.DoString(string.Format(" {0}('{1}') ", m_owner.app.root.lua_main_fn, m_owner.app.root.lua_main_args));
         }

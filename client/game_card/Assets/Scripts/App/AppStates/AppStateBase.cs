@@ -31,6 +31,11 @@ namespace Utopia
         public override void Update()
         {
         }
+
+        public override void FixedUpdate()
+        {
+            
+        }
     }
 }
 

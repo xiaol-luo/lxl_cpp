@@ -21,7 +21,7 @@ namespace Utopia
         protected void AddModuleHelper<T>() where T : LogicBase, new()
         {
             T module = new T();
-            module.SetOwner(this);
+            module.SetLogicMgr(this);
             EAppLogicName moduleName = module.GetModuleName();
             AppLog.Assert(null == m_modules[(int)moduleName], "Repeated Module {0}", moduleName);
             m_modules[(int)moduleName] = module;

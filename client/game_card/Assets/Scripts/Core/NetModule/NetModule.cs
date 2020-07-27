@@ -26,7 +26,7 @@ namespace Utopia
             m_netAgents.Remove(id);
             if (null != na)
             {
-                m_eventMgr.Fire(NetModuleEventDef.Remove_NetAgent, na);
+                this.Fire(NetModuleEventDef.Remove_NetAgent, na);
             }
         }
 

@@ -7,18 +7,16 @@ using UnityEngine;
 
 namespace Utopia
 {
-    public partial class Core
+    public partial class Core : Utopia.EventMgr<string>
     {
         public CoreMain root { get; protected set; }
         public CoreModule.EStage currStage { get; protected set; }
         const int EModuleCount = (int)CoreModule.EModule.Count;
         CoreModule[] m_modules = new CoreModule[EModuleCount];
-        protected AppEventMgr m_eventMgr = null;
 
         protected Core(CoreMain _root)
         {
             root = _root;
-            m_eventMgr = new AppEventMgr();
 
             m_modules[CoreModule.EModule.TimerModule] = new TimerModule(this);
             m_modules[CoreModule.EModule.NetModule] = new NetModule(this);
@@ -31,11 +29,6 @@ namespace Utopia
                 module.Init();
             });
             currStage = CoreModule.EStage.Inited;
-        }
-
-        public AppEventSubscriber CreateEventSubcriber()
-        {
-            return new AppEventSubscriber(m_eventMgr);
         }
 
         public TimerModule timer

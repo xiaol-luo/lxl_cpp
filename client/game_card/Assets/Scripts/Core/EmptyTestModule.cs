@@ -17,7 +17,17 @@ namespace Utopia
         {
             base.OnInit();
         }
-        
+
+        protected override ERet OnAwake()
+        {
+            ResourceLoader.ins.AsyncLoadScene("Assets/Res/Scene/OtherTest/OtherTest.unity", true, (ResourceScene.LoadResult ret, string path) =>
+            {
+                AppLog.Debug("ResourceLoader.ins.AsyncLoadScene {0}, {1}", path, ret);
+            });
+
+            return base.OnAwake();
+        }
+
         protected override void OnUpdate()
         {
             base.OnUpdate();

@@ -76,7 +76,7 @@ namespace Lua
         {
             bool needAdd = true;
             string tmpPath = path.Replace('\\', '/');
-            foreach (string item in App.ins.root.lua_search_paths)
+            foreach (string item in App.ins.core.lua_search_paths)
             {
                 if (tmpPath == item.Replace('\\', '/'))
                 {
@@ -86,7 +86,7 @@ namespace Lua
             }
             if (needAdd)
             {
-                App.ins.root.lua_search_paths.Add(path);
+                App.ins.core.lua_search_paths.Add(path);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Lua
 #if UNITY_EDITOR
             string scriptRootDir = ScriptRootDir();
             List<string> rets = new List<string>();
-            foreach(string item in App.ins.root.lua_search_paths)
+            foreach(string item in App.ins.core.lua_search_paths)
             {
                 string searchDir = string.Format("{0}/{1}", scriptRootDir, item).Replace('\\', '/');
                 rets.Add(searchDir);

@@ -2,30 +2,31 @@ using System.Collections.Generic;
 
 namespace Utopia
 {
-    public class EventSubscriber<EventKeyType>
+    public class EventProxy<EventKeyType>
     {
         HashSet<EventId<EventKeyType>> m_eventIdSet = new HashSet<EventId<EventKeyType>>();
         System.WeakReference m_mgr = null;
 
-        public EventSubscriber(EventMgr<EventKeyType> mgr)
+        public EventProxy(EventMgr<EventKeyType> mgr)
         {
             m_mgr = new System.WeakReference(mgr);
         }
 
-        public void ClearAll()
+        public void CancelAll()
         {
             if (m_mgr.IsAlive)
             {
                 EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
                 foreach (var eventId in m_eventIdSet)
                 {
-                    mgr.Remove(eventId);
+                    mgr.Cancel(eventId);
                 }
                 m_eventIdSet.Clear();
             }
+            this.CheckAlive();
         }
 
-        public void Remove(EventId<EventKeyType> eventId)
+        public void Cancel(EventId<EventKeyType> eventId)
         {
             if (m_mgr.IsAlive)
             {
@@ -33,38 +34,55 @@ namespace Utopia
                 if (m_eventIdSet.Contains(eventId))
                 {
                     m_eventIdSet.Remove(eventId);
-                    mgr.Remove(eventId);
+                    mgr.Cancel(eventId);
                 }
+            }
+            this.CheckAlive();
+        }
+
+        public EventId<EventKeyType> Bind(EventKeyType eventKey, System.Action<EventKeyType> cb)
+        {
+            if (m_mgr.IsAlive)
+            {
+                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
+                EventId<EventKeyType> ret = mgr.Bind(eventKey, cb);
+                if (ret.IsValid())
+                {
+                    m_eventIdSet.Add(ret);
+                }
+                return ret;
+            }
+            this.CheckAlive();
+            return new EventId<EventKeyType>();
+        }
+        public EventId<EventKeyType> Bind<T>(EventKeyType eventKey, System.Action<EventKeyType, T> cb)
+        {
+            if (m_mgr.IsAlive)
+            {
+                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
+                EventId<EventKeyType> ret = mgr.Bind(eventKey, cb);
+                if (ret.IsValid())
+                {
+                    m_eventIdSet.Add(ret);
+                }
+                return ret;
+            }
+            this.CheckAlive();
+            return new EventId<EventKeyType>();
+        }
+
+        protected void CheckAlive()
+        {
+            if (!m_mgr.IsAlive)
+            {
+                m_eventIdSet.Clear();
             }
         }
 
-        public EventId<EventKeyType> Subscribe(EventKeyType eventKey, System.Action<EventKeyType> cb)
+        public int EventIdCount()
         {
-            if (m_mgr.IsAlive)
-            {
-                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
-                EventId<EventKeyType> ret = mgr.Subscribe(eventKey, cb);
-                if (ret.IsValid())
-                {
-                    m_eventIdSet.Add(ret);
-                }
-                return ret;
-            }
-            return new EventId<EventKeyType>();
-        }
-        public EventId<EventKeyType> Subscribe<T>(EventKeyType eventKey, System.Action<EventKeyType, T> cb)
-        {
-            if (m_mgr.IsAlive)
-            {
-                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
-                EventId<EventKeyType> ret = mgr.Subscribe(eventKey, cb);
-                if (ret.IsValid())
-                {
-                    m_eventIdSet.Add(ret);
-                }
-                return ret;
-            }
-            return new EventId<EventKeyType>();
+            this.CheckAlive();
+            return m_eventIdSet.Count;
         }
     }
 }
