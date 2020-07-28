@@ -49,12 +49,12 @@ function MainLogic:init(arg)
     self.gate_cnn_logic = GateCnnLogic:new(self)
     self.fight_cnn_logic = FightCnnLogic:new(self)
 
-    self.state_mgr = MainLogicStateMgr:new(self)
+    self.state_mgr = AppStateMgr:new(self)
     self.state_mgr:init()
 end
 
 function MainLogic:on_start()
-    self.state_mgr:change_state(Main_Logic_State_Name.init_game)
+    self.state_mgr:change_state(App_State_Name.init_game)
 end
 
 function MainLogic:on_update()
