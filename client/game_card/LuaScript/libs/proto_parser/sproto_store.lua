@@ -45,10 +45,10 @@ function SprotoStore:load_files(files)
     return ret
 end
 
-function SprotoStore:get_sp(proto_name)
+function SprotoStore:get_sp(pto_name)
     local sp = nil
     for _, v in pairs(self.sps) do -- todo: 提高效率
-        if v:exist_type(proto_name) then
+        if v:exist_type(pto_name) then
             sp = v
             break
         end
@@ -56,29 +56,29 @@ function SprotoStore:get_sp(proto_name)
     return sp
 end
 
-function SprotoStore:encode(proto_name, param)
+function SprotoStore:encode(pto_name, param)
     local is_ok = false
-    local ret = "proto_type not found"
-    local sp = self:get_sp(proto_name)
+    local ret = "pto_type not found"
+    local sp = self:get_sp(pto_name)
     if sp then
         param = param or {}
-        is_ok, ret = safe_call(sp.encode, sp, proto_name, param)
+        is_ok, ret = safe_call(sp.encode, sp, pto_name, param)
     end
     return is_ok, ret
 end
 
-function SprotoStore:decode(proto_name, blob)
+function SprotoStore:decode(pto_name, blob)
     local is_ok = false
-    local ret = "proto_type not found"
-    local sp = self:get_sp(proto_name)
+    local ret = "pto_type not found"
+    local sp = self:get_sp(pto_name)
     if sp then
-        local default_val_mt = self.default_value_mts[proto_name]
+        local default_val_mt = self.default_value_mts[pto_name]
         if not default_val_mt then
             default_val_mt = {}
-            default_val_mt.__index = sp:default(proto_name)
-            self.default_value_mts[proto_name] = default_val_mt
+            default_val_mt.__index = sp:default(pto_name)
+            self.default_value_mts[pto_name] = default_val_mt
         end
-        is_ok, ret = safe_call(sp.decode, sp, proto_name, blob)
+        is_ok, ret = safe_call(sp.decode, sp, pto_name, blob)
         if is_ok then
             setmetatable(ret, default_val_mt)
         end

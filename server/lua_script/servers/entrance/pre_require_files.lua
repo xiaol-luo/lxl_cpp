@@ -1,23 +1,20 @@
 local files = {
-    "common.log",
-    "common.error_handler",
+    "libs.log",
+    "libs.error_handler",
     "libs.class",
     "rapidjson",
     "pb",
     "lpeg",
     "lfs",
 
-    "common.date_time",
-    "common.timer.timer",
-    "common.timer.timer_proxy",
-    "common.event.event_mgr",
-    "common.event.event_proxy",
-    "common.event.event_binder",
-    "common.consistent_hash.consistent_hash",
+    "libs.timer.timer",
+    "libs.timer.timer_proxy",
+    "libs.event.event_mgr",
+    "libs.event.event_proxy",
+    "libs.event.event_binder",
+    "libs.consistent_hash.consistent_hash",
 
     "libs.functional",
-    "libs.serpent",
-    "libs.print_ext",
     "libs.string_ext",
     "libs.table_ext",
     "libs.type_check",
@@ -80,23 +77,16 @@ local files = {
 
     "libs.data_struct.random_hash",
 
-    "common.zone_service_mgr.zone_service_mgr_def",
-    "common.zone_service_mgr.zone_service_mgr",
-    "common.zone_service_mgr.zone_service_state",
-    "common.zone_service_mgr.zone_service_mgr__peer_connect",
-    "common.zone_service_mgr.zone_service_mgr__accept_connect",
+    "libs.date_time",
 
-    "common.msg_handler.msg_handler_base",
-    "common.msg_handler.zone_service_msg_handler_base",
+    "libs.rpc.rpc_def",
+    "libs.rpc.rpc_mgr_base",
+    "libs.rpc.rpc_req",
+    "libs.rpc.rpc_rsp",
+    "libs.rpc.rpc_client",
 
-    "common.rpc.rpc_def",
-    "common.rpc.rpc_mgr_base",
-    "common.rpc.rpc_req",
-    "common.rpc.rpc_rsp",
-    "common.rpc.rpc_client",
-    "common.rpc.zone_service.zone_service_rpc_mgr",
+    "libs.json_data",
 
-    "common.json_data",
     "common.init_global_vars",
 }
 return files

@@ -5,9 +5,7 @@ lua_json = require("libs.json")
 rapidjson = require('rapidjson')
 
 -- global sequence
-gen_next_seq = make_sequence()
-
--- print("reach init global_vars", gen_next_seq())
+gen_next_seq = make_sequence
 
 --lua下谷歌的pb
 pb = require("pb")

@@ -70,11 +70,17 @@ function print(...)
     for _, arg in pairs({...}) do
         if "table" ~= type(arg) then
             table.insert(str_list, tostring(arg))
+
         else
-            table.insert(str_list, string.toprint(arg))
+            table.insert(str_list, string.to_print(arg, 3))
         end
     end
     local ret = table.concat(str_list, ' ')
     -- old_print(ret)
     log_debug(ret)
 end
+
+function log_print(...)
+    print(...)
+end
+

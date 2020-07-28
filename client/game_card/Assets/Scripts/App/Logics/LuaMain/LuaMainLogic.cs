@@ -28,7 +28,11 @@ namespace Utopia
 
         protected override void OnRelease()
         {
-            
+            XLua.LuaFunction lua_fn = m_lua.Global.Get<XLua.LuaFunction>("release_lua_logics");
+            if (null != lua_fn)
+            {
+                lua_fn.Call();
+            }
         }
 
         protected override void OnUpdate()

@@ -3,8 +3,8 @@
 random = random or {}
 
 function random.pick_one(t)
-    assert(IsTable(t))
-    local t_array = table.ConvertToArray(t)
+    assert(is_table(t))
+    local t_array = table.to_array(t)
     if #t_array <= 0 then
         return nil, nil
     end

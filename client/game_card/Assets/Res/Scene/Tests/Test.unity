@@ -308,6 +308,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6856612240994947582, guid: 0e6080f22771682478e7ec67a0020545,
+        type: 3}
+      propertyPath: lua_main_args
+      value: -require_files app/main_entrance -execute_fns setup_lua_logics
+      objectReference: {fileID: 0}
     - target: {fileID: 6856612240994947583, guid: 0e6080f22771682478e7ec67a0020545,
         type: 3}
       propertyPath: m_Name

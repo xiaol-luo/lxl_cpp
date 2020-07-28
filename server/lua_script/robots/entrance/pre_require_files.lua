@@ -3,8 +3,6 @@ local files = {
     "common.error_handler",
 
     "libs.functional",
-    "libs.serpent",
-    "libs.print_ext",
     "libs.class",
     "libs.string_ext",
     "libs.table_ext",
@@ -105,6 +103,7 @@ local files = {
     "common.rpc.zone_service.zone_service_rpc_mgr",
 
     "common.json_data",
+
     "common.init_global_vars",
 
     "servers.server_impl.server_def",

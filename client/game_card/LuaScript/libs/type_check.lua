@@ -1,50 +1,49 @@
-require "libs.math_ext"
 
-function IsNil(v)
+function is_nil(v)
 	return type(v) == "nil"
 end
 
-function IsBoolean(v)
+function is_boolean(v)
 	return type(v) == "boolean"
 end
 
-function IsNumber(v)
-	return math.finite(v)
+function is_number(v)
+	return type(v) == "number"
 end
 
-function IsString(v)
+function is_string(v)
 	return type(v) == "string"
 end
 
-function IsTable(v)
+function is_table(v)
 	return type(v) == "table"
 end
 
-function IsFunction(v)
+function is_function(v)
 	return type(v) == "function"
 end
 
-function IsThread(v)
+function is_thread(v)
 	return type(v) == "thread"
 end
 
-function IsUserData(v)
+function is_userdata(v)
 	return type(v) == "userdata"
 end
 
-function IsClass(Cls)
-	if not IsTable(Cls) then return false end
+function is_class(Cls)
+	if not is_table(Cls) then return false end
 
 	local __index = rawget(Cls, "__index")
 	local __cname = rawget(Cls, "__cname")
 	return __index ~= nil and __index == Cls and __cname ~= nil
 end
 
-function IsClassInstance(ins, Cls) -- TODO:之后要研究下class.lua，写得更严谨，暂时先这么用
-	if not IsTable(ins) then return false end
-	if not IsClass(Cls) then return false end
+function is_class_instance(ins, Cls) -- TODO:之后要研究下class.lua，写得更严谨，暂时先这么用
+	if not is_table(ins) then return false end
+	if not is_class(Cls) then return false end
 	local _class_type = rawget(ins, "_class_type")
-	if not IsTable(_class_type) then return false end
+	if not is_table(_class_type) then return false end
 	local ins_cname = rawget(_class_type, "__cname")
 	if not ins_cname then return false end
 	local cls_cname = rawget(Cls, "__cname")
@@ -52,49 +51,4 @@ function IsClassInstance(ins, Cls) -- TODO:之后要研究下class.lua，写得�
 		return false
 	end
 	return true
-end
-
-function AssertNotNil(v, ...)
-	assert(type(v) ~= "nil", ...)
-	return v
-end
-
-function AssertNil(v, ...)
-	assert(type(v) == "nil", ...)
-	return v
-end
-
-function AssertBoolean(v, ...)
-	assert(type(v) == "boolean", ...)
-	return v
-end
-
-function AssertNumber(v, ...)
-	assert(math.finite(v), ...)
-	return v
-end
-
-function AssertString(v, ...)
-	 assert(type(v) == "string", ...)
-	 return v
-end
-
-function AssertTable(v, ...)
-	assert(type(v) == "table", ...)
-	return v
-end
-
-function AssertFunction(v, ...)
-	assert(type(v) == "function", ...)
-	return v
-end
-
-function AssertThread(v, ...)
-	assert(type(v) == "thread", ...)
-	return v
-end
-
-function AssertUserData(v, ...)
-	assert(type(v) == "userdata", ...)
-	return v
 end

@@ -1,4 +1,9 @@
 
+local is_enable_traceback = false
+function log_set_enable_traceback(is_enable)
+    is_enable_traceback = is_enable
+end
+
 function string_format(fmt_str, ...)
     local str_list = {}
     local tb = {...}
@@ -15,6 +20,9 @@ function string_format(fmt_str, ...)
     local ret = fmt_str
     if #str_list > 0 then
         ret = string.format(fmt_str, table.unpack(str_list))
+    end
+    if is_enable_traceback then
+        ret = debug.traceback(ret)
     end
     return ret
 end
@@ -44,6 +52,23 @@ function log_assert(is_ok, fmt_str, ...)
         log_error(fmt_str, ...)
         assert(false)
     end
+end
+
+old_print = print
+
+function print(...)
+    local str_list = {}
+    for _, arg in pairs({...}) do
+        if "table" ~= type(arg) then
+            table.insert(str_list, tostring(arg))
+
+        else
+            table.insert(str_list, string.to_print(arg, 3))
+        end
+    end
+    local ret = table.concat(str_list, ' ')
+    -- old_print(ret)
+    log_debug(ret)
 end
 
 function log_print(...)

@@ -3,10 +3,10 @@ ProtobufStore = ProtobufStore or class("ProtobufStore", ProtoStoreBase)
 
 function ProtobufStore:ctor()
     self.pb = pb -- init_globala_vars:pb
-    self.pb.option("use_default_metatable")
-    -- self.pb.option("use_default_values")
+    -- self.pb.option("use_default_metatable") -- 默认值作为新table的metatable （这个性能好）
+    self.pb.option("use_default_values") -- 默认值拷贝到新table （这个调试方便）
     self.pb_loader = pb_protoc:new()
-    -- self.default_tb = {}
+    self.default_tb = {}
 end
 
 function ProtobufStore:add_search_dirs(search_dirs)
@@ -26,18 +26,18 @@ function ProtobufStore:load_files(files)
     end
     for name, basename, type in self.pb.types() do
         -- log_debug("ProtobufStore:load_files name:%s basename:%s type:%s", name, basename, type)
-        -- self.default_tb[name] = self.pb.defaults(name)
+        self.default_tb[name] = self.pb.defaults(name)
     end
     return ret
 end
 
-function ProtobufStore:encode(proto_name, param)
-    local is_ok, ret = safe_call(self.pb.encode, proto_name, param or {})
+function ProtobufStore:encode(pto_name, param)
+    local is_ok, ret = safe_call(self.pb.encode, pto_name, param or {})
     return is_ok, ret
 end
 
-function ProtobufStore:decode(proto_name, blob)
+function ProtobufStore:decode(pto_name, blob)
     blob = blob or ""
-    local is_ok, ret = safe_call(self.pb.decode, proto_name, blob)
+    local is_ok, ret = safe_call(self.pb.decode, pto_name, blob)
     return is_ok, ret
 end
