@@ -1,13 +1,14 @@
 
+---@class AppStateInitGame:AppStateBase
 AppStateInitGame = AppStateInitGame or class("AppStateInitGame", AppStateBase)
 
-function AppStateInitGame:ctor(state_mgr, main_logic)
-    AppStateInitGame.super.ctor(self, state_mgr, App_State_Name.init_game, main_logic)
+function AppStateInitGame:ctor(state_mgr, app)
+    AppStateInitGame.super.ctor(self, state_mgr, App_State_Name.init_game, app)
 end
 
 function AppStateInitGame:on_enter(params)
     AppStateInitGame.super.on_enter(self, params)
-    self.main_logic.ui_panel_mgr:prepare_assets()
+    self.app.panel_mgr:prepare_assets()
 end
 
 function AppStateInitGame:on_update()

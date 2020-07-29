@@ -1,9 +1,13 @@
 
+---@class InGameStateMgr:StateMgr
+---@field in_game_state AppStateInGame
+---@field app LuaApp
 InGameStateMgr = InGameStateMgr or class("InGameStateMgr", StateMgr)
 
 function InGameStateMgr:ctor(in_game_state)
     InGameStateMgr.super.ctor(self)
     self.in_game_state = in_game_state
+    self.app = self.in_game_state.app
 end
 
 function InGameStateMgr:_prepare_all_states()

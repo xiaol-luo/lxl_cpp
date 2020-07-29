@@ -1,12 +1,14 @@
 
+---@class UIPanelBase:UIPanelInterface
 UIPanelBase = UIPanelBase or class("UIPanelBase", UIPanelInterface)
 
 function UIPanelBase:ctor(panel_wrapper, panel_setting, root_go)
+    UIPanelBase.super.ctor(self)
     self.panel_wrapper = panel_wrapper
     self.panel_setting = panel_setting
     self.root_go = root_go
     self.panel_mgr = self.panel_wrapper.panel_mgr
-    self.event_mgr = self.panel_wrapper.event_mgr
+    self._internal_event_mgr = self.panel_wrapper._internal_event_mgr
 end
 
 function UIPanelBase:init()
@@ -20,9 +22,9 @@ function UIPanelBase:show(panel_data)
     if self:get_state() == UI_Panel_State.showed then
         return
     end
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_showed, self, panel_data)
+    self._internal_event_mgr:fire(UI_Panel_Event.pre_show, self, panel_data)
     self:on_show(true, panel_data)
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.showed, self, panel_data)
+    self._internal_event_mgr:fire(UI_Panel_Event.show, self, panel_data)
 end
 
 function UIPanelBase:reshow()
@@ -32,9 +34,9 @@ function UIPanelBase:reshow()
     if self:get_state() == UI_Panel_State.showed then
         return
     end
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_reshow, self)
+    self._internal_event_mgr:fire(UI_Panel_Event.pre_reshow, self)
     self:on_show(false, nil)
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.reshowed, self)
+    self._internal_event_mgr:fire(UI_Panel_Event.reshow, self)
 end
 
 function UIPanelBase:hide()
@@ -44,9 +46,9 @@ function UIPanelBase:hide()
     if self:get_state() == UI_Panel_State.hided then
         return
     end
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_hide, self)
+    self._internal_event_mgr:fire(UI_Panel_Event.pre_hide, self)
     self:on_hide()
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.hided, self)
+    self._internal_event_mgr:fire(UI_Panel_Event.hide, self)
 end
 
 function UIPanelBase:release()
@@ -54,9 +56,9 @@ function UIPanelBase:release()
         return
     end
     self:hide()
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.pre_release, self)
+    self._internal_event_mgr:fire(UI_Panel_Event.pre_release, self)
     self:on_release()
-    self.panel_wrapper.wrapper_event_mgr:fire(UI_Panel_Event.released, self)
+    self._internal_event_mgr:fire(UI_Panel_Event.release, self)
 end
 
 function UIPanelBase:get_setting()
@@ -99,8 +101,5 @@ function UIPanelBase:on_release()
     -- log_debug("UIPanelBase:on_release")
 end
 
-function UIPanelBase:get_event_mgr()
-    return self.event_mgr
-end
 
 

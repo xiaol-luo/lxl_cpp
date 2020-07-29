@@ -1,9 +1,10 @@
 
+---@class InGameStateRun:InGameStateBase
 InGameStateRun = InGameStateRun or class("InGameStateRun", InGameStateBase)
 
 function InGameStateRun:ctor(state_mgr, in_game_state)
     InGameStateRun.super.ctor(self, state_mgr, In_Game_State_Name.run, in_game_state)
-    self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
+    -- self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
     self.gate_last_reconnect_sec = 0
     self.fight_last_reconnect_sec = 0
 end

@@ -1,8 +1,11 @@
 
-UIPanelInterface = UIPanelInterface or class("UIPanelInterface")
+---@class UIPanelInterface:EventMgr
+UIPanelInterface = UIPanelInterface or class("UIPanelInterface", EventMgr)
 
 function UIPanelInterface:ctor()
-
+    UIPanelInterface.super.ctor(self)
+    ---@type EventBinder
+    self._event_binder = EventBinder:new()
 end
 
 function UIPanelInterface:init()
@@ -22,7 +25,7 @@ function UIPanelInterface:hide()
 end
 
 function UIPanelInterface:release()
-
+    self._event_binder:release_all()
 end
 
 function UIPanelInterface:get_setting()
@@ -50,10 +53,6 @@ function UIPanelInterface:is_released()
 end
 
 function UIPanelInterface:get_root()
-
-end
-
-function UIPanelInterface:get_event_mgr()
 
 end
 

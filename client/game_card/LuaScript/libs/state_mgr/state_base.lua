@@ -1,9 +1,14 @@
 
+---@class StateBase
+---@field state_mgr StateMgr
+---@field state_name string
+---@field event_binder EventBinder
 StateBase = StateBase or class("StateBase")
 
 function StateBase:ctor(state_mgr, state_name)
     self.state_mgr = state_mgr
     self.state_name = state_name
+    self.event_binder = EventBinder:new()
 end
 
 function StateBase:init()
@@ -26,6 +31,7 @@ end
 function StateBase:exit()
     self:on_exit()
     log_debug("exit state %s", self:get_name())
+    self.event_binder:release_all()
 end
 
 function StateBase:update()

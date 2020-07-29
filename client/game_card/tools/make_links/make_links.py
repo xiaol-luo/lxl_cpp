@@ -50,7 +50,8 @@ if __name__ == "__main__":
             if os.path.islink(abs_file_path):
                 exist_links.append(abs_file_path)
     for exist_link in exist_links:
-        os.remove(exist_link)
+        # os.remove(exist_link)
+        pass
     if is_unlink:
         sys.exit(0)
     all_ok = True
@@ -58,10 +59,13 @@ if __name__ == "__main__":
         try:
             real_path = os.path.join(root_dir_path, val)
             link_path = os.path.join(root_dir_path, key)
-            if (not os.path.exists(os.path.dirname(link_path))):
-                os.makedirs(os.path.dirname(link_path))
-            is_dir = os.path.isdir(real_path)
-            os.symlink(real_path, link_path, is_dir)
+            if os.path.islink(link_path):
+                os.remove(link_path)
+            if not is_unlink:
+                if (not os.path.exists(os.path.dirname(link_path))):
+                    os.makedirs(os.path.dirname(link_path))
+                is_dir = os.path.isdir(real_path)
+                os.symlink(real_path, link_path, is_dir)
         except FileExistsError as e:
             log.error(e)
         except FileNotFoundError as e:

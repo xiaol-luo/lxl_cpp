@@ -8,7 +8,7 @@ MainUser = MainUser or class("MainUser")
 function MainUser:ctor(main_logic)
     self.main_logic = main_logic
     self.msg_event_subscriber = self.main_logic.msg_event_mgr:create_subscriber()
-    self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
+    -- self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
     self.user_info = nil
     self.role_digests = {}
     self.launch_role_id = nil

@@ -55,8 +55,8 @@ function EventMgr:create_proxy()
 end
 
 function declare_event_set(event_set_name, event_set_tb)
-    assert(IsString(event_set_name))
-    assert(IsTable(event_set_tb))
+    assert(is_string(event_set_name))
+    assert(is_table(event_set_tb))
 
     local event_set = _G[event_set_name]
     if not event_set then

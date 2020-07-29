@@ -1,4 +1,7 @@
 
+---@class StateMgr
+---@field active_state StateBase
+---@field last_state string
 StateMgr = StateMgr or class("StateMgr")
 
 function StateMgr:ctor()

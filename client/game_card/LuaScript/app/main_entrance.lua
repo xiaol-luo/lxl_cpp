@@ -11,8 +11,11 @@ end
 
 function setup_lua_logics(arg)
     Functional.error_handler = error_handler
-    ParseArgs.append_lua_search_path("app")
-    require("lua_app")
+    local server_lua_script_dir = path.combine(CS.UnityEngine.Application.dataPath, "../LuaScriptServer")
+    log_print("server_lua_script_dir ", server_lua_script_dir)
+    ParseArgs.append_lua_search_path("../LuaScript")
+    ParseArgs.append_lua_search_path("../LuaScriptServer")
+    require("app.app_impl.lua_app")
     g_ins = LuaApp:new()
     g_ins:init(arg)
     g_ins:start()

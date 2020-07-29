@@ -1,11 +1,15 @@
 
+---@class CompositeStateBase:StateBase
+---@field child_state_mgr StateMgr
 CompositeStateBase = CompositeStateBase or class("CompositeStateBase", StateBase)
 
 function CompositeStateBase:ctor(state_mgr, state_name)
     CompositeStateBase.super.ctor(self, state_mgr, state_name)
-    self.child_state_mgr = nil
-    self.enter_state_name = nil
-    self.exit_state_name = nil
+    -- 进入此状态时，默认进入子状态enter_state_name
+    -- 退出此状态时，默认进入子状态exit_state_name
+    self.child_state_mgr = nil  -- 子状态管理器
+    self.enter_state_name = nil -- 进入此状态，先进入这个子状态
+    self.exit_state_name = nil  -- 退出此状态，进入此子状态
 end
 
 function CompositeStateBase:init()

@@ -1,4 +1,5 @@
 
+---@class UIPanelMgr
 UIPanelMgr = UIPanelMgr or class("UIPanelMgr")
 
 UIPanelMgr.Const = UIPanelMgr.Const or {
@@ -46,6 +47,7 @@ function UIPanelMgr:prepare_assets()
 end
 
 function UIPanelMgr:show_panel(panel_name, panel_data)
+    ---@type UIPanelWrapper
     local panel_wrapper = self:_get_cached_panel(panel_name)
     if not panel then
         local panel_setting = UI_Panel_Setting[panel_name]

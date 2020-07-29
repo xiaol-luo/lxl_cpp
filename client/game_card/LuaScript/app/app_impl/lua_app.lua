@@ -1,4 +1,9 @@
 ---@class LuaApp
+---@field state_mgr AppStateMgr
+---@field panel_mgr UIPanelMgr
+---@field net_mgr NetMgr
+---@field data_mgr DataMgr
+---@field pto_parser ProtoParser
 LuaApp = LuaApp or class("LuaApp", EventMgr)
 
 function LuaApp:ctor()
@@ -8,10 +13,10 @@ function LuaApp:ctor()
     self.login_net = nil
     self.login_rsp_msg = nil
 
-    self.ui_panel_mgr = nil
+    self.panel_mgr = nil
     self.msg_event_mgr = nil
     self.state_mgr = nil
-    self.proto_parser = nil
+    self.pto_parser = nil
     self.login_cnn_logic = nil
     self.gate_cnn_logic = nil
     self.fight_cnn_logic = nil
@@ -21,24 +26,41 @@ function LuaApp:ctor()
 end
 
 function LuaApp:init(arg)
-    local pre_require_files = require("app.pre_require_files")
+    local pre_require_files = require("app.app_impl.pre_require_server_files")
     for _, v in pairs(pre_require_files) do
         require(v)
     end
 
-    self.ui_panel_mgr = UIPanelMgr:new()
-    self.state_mgr = LuaAppStateMgr:new(self)
+    local pre_require_files = require("app.app_impl.pre_require_files")
+    for _, v in pairs(pre_require_files) do
+        require(v)
+    end
+
+    UI_Panel_Setting_Help.adjust_setting()
+    log_assert(self:init_proto_parser(), "init_proto_parser fail")
+
+    local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
+    log_assert(CSharpHelp.not_null(ui_root), "not found CS.Utopia.UIRoot")
+    self.panel_mgr = UIPanelMgr:new()
+    self.panel_mgr:init(ui_root.gameObject)
+
+    self.net_mgr = NetMgr:new(self)
+    self.net_mgr:init()
+
+    self.data_mgr = DataMgr:new()
+    self.data_mgr:init()
+
+    self.state_mgr = AppStateMgr:new(self)
     self.state_mgr:init()
 
     --[[
-    log_assert(self:init_proto_parser(), "init_proto_parser fail")
     UI_Panel_Setting_Help.adjust_setting()
 
     self.event_mgr = EventMgr:new()
     self.msg_event_mgr = EventMgr:new()
     local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
     log_assert(CSharpHelp.not_null(ui_root), "not found CS.Utopia.UIRoot")
-    self.ui_panel_mgr:init(ui_root.gameObject)
+
 
     self.role_mgr = RoleMgr:new(self)
     self.role_mgr:init()
@@ -56,11 +78,11 @@ function LuaApp:init(arg)
 end
 
 function LuaApp:_on_start()
-    --self.state_mgr:change_state(App_State_Name.init_game)
+    self.state_mgr:change_state(App_State_Name.init_game)
 end
 
 function LuaApp:_on_update()
-    -- self.state_mgr:update_state()
+    self.state_mgr:update_state()
 end
 
 function LuaApp:_on_stop()
@@ -88,9 +110,22 @@ function LuaApp:stop()
 end
 
 function LuaApp:init_proto_parser()
+    self.pto_parser = ProtoParser:new()
+    self.pto_parser:add_search_dirs({
+        path.combine(CS.UnityEngine.Application.dataPath, "../ServerData", "proto")
+    })
+
+    assert(self.pto_parser:load_files(Login_Pto.pto_files))
+    self.pto_parser:setup_id_to_protos(Login_Pto.id_to_pto)
+
+    assert(self.pto_parser:load_files(Forward_Msg_Pto.pto_files))
+    self.pto_parser:setup_id_to_protos(Forward_Msg_Pto.id_to_pto)
+    return true
+    --[[
     local proto_dir = path.combine(CS.Application.dataPath, "../GameData/proto")
     local proto_files  = get_game_proto_files()
     local pid_proto_map = get_game_pid_proto_map()
     self.proto_parser = parse_proto({ proto_dir }, proto_files, pid_proto_map)
     return nil ~= self.proto_parser
+    ]]
 end

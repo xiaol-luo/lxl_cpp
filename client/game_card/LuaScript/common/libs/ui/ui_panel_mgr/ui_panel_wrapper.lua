@@ -1,16 +1,15 @@
-
+---@class UIPanelWrapper:UIPanelInterface
 UIPanelWrapper = UIPanelWrapper or class("UIPanelWrapper", UIPanelInterface)
 
 function UIPanelWrapper:ctor(panel_mgr, panel_setting)
+    UIPanelWrapper.super.ctor(self)
     self.panel_mgr = panel_mgr
     self.panel_setting = panel_setting
     assert(self.panel_setting)
     self.panel_state = UI_Panel_State.free
     self.want_panel_state = UI_Panel_State.free
     self.res_loader = CS.Lua.LuaResLoaderProxy.Create()
-    self.event_mgr = EventMgr:new()
-    self.wrapper_event_mgr = EventMgr:new()
-    self.wrapper_event_subcriber = self.wrapper_event_mgr:create_subscriber()
+    self._internal_event_mgr = EventMgr:new()
     self.timer_proxy = TimerProxy:new()
     self.wrapper_root_go = nil
     self.ui_root_go = nil
@@ -35,15 +34,14 @@ function UIPanelWrapper:init()
     self.wrapper_root_go.transform.localScale = CS.UnityEngine.Vector3.one
     self.wrapper_root_go.transform.localPosition = CS.UnityEngine.Vector3.zero
 
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.pre_showed, Functional.make_closure(self._on_event_panel_pre_show, self))
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.showed, Functional.make_closure(self._on_event_panel_showed, self))
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.pre_reshow, Functional.make_closure(self._on_event_panel_pre_reshow, self))
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.reshowed, Functional.make_closure(self._on_event_panel_reshowd, self))
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.pre_hide, Functional.make_closure(self._on_event_panel_pre_hide, self))
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.hided, Functional.make_closure(self._on_event_panel_hided, self))
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.pre_release, Functional.make_closure(self._on_event_panel_pre_release, self))
-    self.wrapper_event_subcriber:subscribe(UI_Panel_Event.released, Functional.make_closure(self._on_event_panel_released, self))
-
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.pre_show, Functional.make_closure(self._on_event_panel_pre_show, self))
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.show, Functional.make_closure(self._on_event_panel_show, self))
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.pre_reshow, Functional.make_closure(self._on_event_panel_pre_reshow, self))
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.reshow, Functional.make_closure(self._on_event_panel_reshow, self))
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.pre_hide, Functional.make_closure(self._on_event_panel_pre_hide, self))
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.hide, Functional.make_closure(self._on_event_panel_hide, self))
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.pre_release, Functional.make_closure(self._on_event_panel_pre_release, self))
+    self._event_binder:bind(self._internal_event_mgr, UI_Panel_Event.release, Functional.make_closure(self._on_event_panel_release, self))
 end
 
 function UIPanelWrapper:get_root()
@@ -129,8 +127,8 @@ function UIPanelWrapper:show(panel_data)
     if self:is_ready() then
         self.panel_logic:show(panel_data)
     else -- loading
-        self.wrapper_event_mgr:fire(UI_Panel_Event.pre_showed, nil, panel_data)
-        self.wrapper_event_mgr:fire(UI_Panel_Event.showed, nil, panel_data)
+        self._internal_event_mgr:fire(UI_Panel_Event.pre_show, nil, panel_data)
+        self._internal_event_mgr:fire(UI_Panel_Event.show, nil, panel_data)
     end
 end
 
@@ -148,8 +146,8 @@ function UIPanelWrapper:reshow()
         if self:is_ready() then
             self.panel_logic:reshow()
         else
-            self.wrapper_event_mgr:fire(UI_Panel_Event.pre_reshow, nil)
-            self.wrapper_event_mgr:fire(UI_Panel_Event.reshowed, nil)
+            self._internal_event_mgr:fire(UI_Panel_Event.pre_reshow, nil)
+            self._internal_event_mgr:fire(UI_Panel_Event.reshow, nil)
         end
     end
 end
@@ -165,8 +163,8 @@ function UIPanelWrapper:hide()
     if self:is_ready() then
         self.panel_logic:hide()
     else
-        self.wrapper_event_mgr:fire(UI_Panel_Event.pre_hide, nil)
-        self.wrapper_event_mgr:fire(UI_Panel_Event.hided, nil)
+        self._internal_event_mgr:fire(UI_Panel_Event.pre_hide, nil)
+        self._internal_event_mgr:fire(UI_Panel_Event.hide, nil)
     end
 end
 
@@ -178,8 +176,8 @@ function UIPanelWrapper:release()
     if self:is_ready() then
         self.panel_logic:release()
     else
-        self.wrapper_event_mgr:fire(UI_Panel_Event.pre_release, nil)
-        self.wrapper_event_mgr:fire(UI_Panel_Event.released, nil)
+        self._internal_event_mgr:fire(UI_Panel_Event.pre_release, nil)
+        self._internal_event_mgr:fire(UI_Panel_Event.release, nil)
     end
 end
 
@@ -189,17 +187,17 @@ function UIPanelWrapper:_on_event_panel_pre_show(panel_logic, panel_data)
     if panel_logic then
         self.is_new_show = false
         self.want_show_panel_data = nil
-        self.event_mgr:fire(UI_Panel_Event.pre_showed, panel_logic, panel_data)
+        self:fire(UI_Panel_Event.pre_show, panel_logic, panel_data)
     else
         self.is_new_show = true
         self.want_show_panel_data = panel_data
     end
 end
 
-function UIPanelWrapper:_on_event_panel_showed(panel_logic, panel_data)
+function UIPanelWrapper:_on_event_panel_show(panel_logic, panel_data)
     if panel_logic then
         self.panel_state = UI_Panel_State.showed
-        self.event_mgr:fire(UI_Panel_Event.showed, panel_logic, panel_data)
+        self:fire(UI_Panel_Event.show, panel_logic, panel_data)
     else
         self.want_panel_state = UI_Panel_State.showed
     end
@@ -211,17 +209,17 @@ function UIPanelWrapper:_on_event_panel_pre_reshow(panel_logic)
             self:show(self.want_show_panel_data)
         else
             self.ui_root_go:SetActive(true)
-            self.event_mgr:fire(UI_Panel_Event.pre_reshow, panel_logic)
+            self:fire(UI_Panel_Event.pre_reshow, panel_logic)
         end
     else
         self.ui_root_go:SetActive(true)
     end
 end
 
-function UIPanelWrapper:_on_event_panel_reshowd(panel_logic)
+function UIPanelWrapper:_on_event_panel_reshow(panel_logic)
     if panel_logic then
         self.panel_state = UI_Panel_State.showed
-        self.event_mgr:fire(UI_Panel_Event.reshowed, panel_logic)
+        self:fire(UI_Panel_Event.reshow, panel_logic)
     else
         self.want_panel_state = UI_Panel_State.showed
     end
@@ -229,14 +227,14 @@ end
 
 function UIPanelWrapper:_on_event_panel_pre_hide(panel_logic)
     if panel_logic then
-        self.event_mgr:fire(UI_Panel_Event.pre_hide, panel_logic)
+        self:fire(UI_Panel_Event.pre_hide, panel_logic)
     end
 end
 
-function UIPanelWrapper:_on_event_panel_hided(panel_logic)
+function UIPanelWrapper:_on_event_panel_hide(panel_logic)
     if panel_logic then
         self.panel_state = UI_Panel_State.hided
-        self.event_mgr:fire(UI_Panel_Event.hided, panel_logic)
+        self:fire(UI_Panel_Event.hide, panel_logic)
     else
         self.want_panel_state = UI_Panel_State.hided
     end
@@ -244,21 +242,16 @@ function UIPanelWrapper:_on_event_panel_hided(panel_logic)
 end
 
 function UIPanelWrapper:_on_event_panel_pre_release(panel_logic)
-    self.event_mgr:fire(UI_Panel_Event.pre_release, panel_logic)
+    self:fire(UI_Panel_Event.pre_release, panel_logic)
 end
 
-function UIPanelWrapper:_on_event_panel_released(panel_logic)
+function UIPanelWrapper:_on_event_panel_release(panel_logic)
     self.panel_state = UI_Panel_State.released
-    self.event_mgr:fire(UI_Panel_Event.released, panel_logic)
+    self:fire(UI_Panel_Event.release, panel_logic)
     self.wrapper_root_go.transform:SetParent(nil)
     self.res_loader:Release()
     self.timer_proxy:release_all()
-    self.wrapper_event_subcriber:release_all()
-    self.wrapper_event_mgr:cancel_all()
-    self.event_mgr:cancel_all()
+    self._internal_event_mgr:cancel_all()
+    self:cancel_all()
     CS.UnityEngine.GameObject.Destroy(self.wrapper_root_go)
-end
-
-function UIPanelWrapper:get_event_mgr()
-    return self.event_mgr
 end

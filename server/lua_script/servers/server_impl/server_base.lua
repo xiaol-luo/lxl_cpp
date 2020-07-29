@@ -5,7 +5,7 @@
 ---@field server_role Server_Role
 ---@field server_name string
 ---@field etcd_service_discovery_setting EtcdServerConfig
----@field pto_parser Proto
+---@field pto_parser ProtoParser
 ---@field discovery DiscoveryService
 ---@field peer_net PeerNetService
 ---@field zone_name string
