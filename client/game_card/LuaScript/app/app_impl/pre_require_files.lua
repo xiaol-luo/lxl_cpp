@@ -1,13 +1,10 @@
 
 return {
     "common.libs.ui.ui_help",
-    "common.libs.ui.ui_panel_mgr.ui_panel.ui_panel_def",
-    "common.libs.ui.ui_panel_mgr.ui_panel.ui_panel_event_def",
-    "common.libs.ui.ui_panel_mgr.ui_panel.ui_panel_setting_help",
-    "common.libs.ui.ui_panel_mgr.ui_panel_interface",
-    "common.libs.ui.ui_panel_mgr.ui_panel_base",
-    "common.libs.ui.ui_panel_mgr.ui_panel_mgr",
-    "common.libs.ui.ui_panel_mgr.ui_panel_wrapper",
+    "common.libs.ui.ui_panel.ui_panel_def",
+    "common.libs.ui.ui_panel.ui_panel_event",
+    "common.libs.ui.ui_panel.ui_panel_base",
+    "common.libs.ui.ui_panel.ui_panel_mgr",
     "common.libs.ui.ui_component.ui_component",
     "common.libs.ui.ui_component.ui_text",
     "common.libs.ui.ui_component.ui_image",

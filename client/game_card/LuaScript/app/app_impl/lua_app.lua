@@ -36,7 +36,6 @@ function LuaApp:init(arg)
         require(v)
     end
 
-    UI_Panel_Setting_Help.adjust_setting()
     log_assert(self:init_proto_parser(), "init_proto_parser fail")
 
     local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
@@ -54,7 +53,6 @@ function LuaApp:init(arg)
     self.state_mgr:init()
 
     --[[
-    UI_Panel_Setting_Help.adjust_setting()
 
     self.event_mgr = EventMgr:new()
     self.msg_event_mgr = EventMgr:new()

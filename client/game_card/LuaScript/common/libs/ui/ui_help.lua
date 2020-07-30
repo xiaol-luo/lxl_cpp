@@ -92,4 +92,22 @@ function UIHelp.set_image_sprite(image, asset_path, cb_fn, is_set_size)
     CS.Lua.LuaHelp.SetImageSprite(image, asset_path, cb_fn, is_set_size)
 end
 
+function UIHelp.set_parent(comp_or_go, parent_comp_or_go, is_active, local_pos, local_scale)
+    local ts = UIHelp.extract_transform(comp_or_go)
+    local parent_ts = UIHelp.extract_transform(parent_comp_or_go)
+    assert(CSharpHelp.not_null(ts) and CSharpHelp.not_null(parent_ts))
+    if nil == is_active then
+        is_active = true
+    end
+    if nil == local_scale then
+        local_scale = CS.UnityEngine.Vector3.one
+    end
+    if nil == local_pos then
+        local_pos = CS.UnityEngine.Vector3.zero
+    end
+    ts:SetParent(parent_ts, false)
+    ts.gameObject:SetActive(is_active)
+    ts.localScale = local_scale
+    ts.localPosition = local_pos
+end
 

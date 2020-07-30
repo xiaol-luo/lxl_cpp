@@ -26,7 +26,6 @@ function MainLogic:init(arg)
     end
 
     log_assert(self:init_proto_parser(), "init_proto_parser fail")
-    UI_Panel_Setting_Help.adjust_setting()
 
     self.event_mgr = EventMgr:new()
     self.msg_event_mgr = EventMgr:new()

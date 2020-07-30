@@ -8,5 +8,7 @@ Temp
 *.csproj
 *.sln
 GameData
+ServerData
+LuaScriptServer
 Logs
 LuaScript/share

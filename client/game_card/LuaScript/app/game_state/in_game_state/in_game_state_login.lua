@@ -15,7 +15,9 @@ function InGameStateLogin:on_enter(params)
     -- self.main_logic.gate_cnn_logic:close()
     -- self.main_logic.login_cnn_logic:reset("", 0)
     -- self.event_subscriber:subscribe(Event_Set__Login_Cnn_Logic.login_done, Functional.make_closure(self._on_event_login_cnn_done, self))
-    self.app.panel_mgr:show_panel(UI_Panel_Name.login_panel, {})
+    self.app.panel_mgr:open_panel(UI_Panel_Name.login_panel, {})
+    self.app.panel_mgr:disable_panel(UI_Panel_Name.login_panel)
+    self.app.panel_mgr:enable_panel(UI_Panel_Name.login_panel)
 end
 
 function InGameStateLogin:on_update()
@@ -24,7 +26,7 @@ function InGameStateLogin:on_update()
     if Error_None == self.launch_error_num then
         self.state_mgr:change_state(In_Game_State_Name.launch_role)
     end
-    log_print("InGameStateLogin:on_update")
+    -- log_print("InGameStateLogin:on_update")
 end
 
 function InGameStateLogin:on_exit()
