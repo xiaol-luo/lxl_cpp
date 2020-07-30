@@ -1,0 +1,2 @@
+
+GamePlatformNetBase = class("GamePlatformNetBase", NetMgr)
