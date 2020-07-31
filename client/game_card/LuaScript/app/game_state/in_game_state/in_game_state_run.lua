@@ -15,7 +15,7 @@ function InGameStateRun:on_enter(params)
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.login_gate_result, Functional.make_closure(self._on_event_login_gate_result, self))
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.relogin_gate_result, Functional.make_closure(self._on_event_relogin_gate_result, self))
-    self.event_subscriber:subscribe(Event_Set__Main_User.launch_role_result, Functional.make_closure(self._on_event_launch_role_result, self))
+    self.event_subscriber:subscribe(Game_User_Event.launch_role_result, Functional.make_closure(self._on_event_launch_role_result, self))
 
 
     self.main_logic.gate_cnn_logic:send_msg_to_game(ProtoId.pull_role_data, { pull_type = 0 })

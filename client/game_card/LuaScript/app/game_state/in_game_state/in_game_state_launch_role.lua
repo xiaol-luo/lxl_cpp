@@ -15,7 +15,7 @@ function InGameStateLaunchRole:on_enter(params)
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))
     self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.login_gate_result, Functional.make_closure(self._on_event_login_gate_result, self))
 
-    self.event_subscriber:subscribe(Event_Set__Main_User.launch_role_result, Functional.make_closure(self._on_event_launch_role_result, self))
+    self.event_subscriber:subscribe(Game_User_Event.launch_role_result, Functional.make_closure(self._on_event_launch_role_result, self))
     self.launch_error_num = nil
 
     local user_info = self.main_logic.main_user.user_info

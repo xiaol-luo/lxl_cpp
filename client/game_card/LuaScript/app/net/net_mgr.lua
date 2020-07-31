@@ -15,27 +15,48 @@ function NetMgr:init()
 
 end
 
-function NetMgr:login_game()
+function NetMgr:game_login()
 
 end
 
-function NetMgr:reconnect_game()
+function NetMgr:game_reconnect()
 
 end
 
-function NetMgr:logout_game()
+function NetMgr:game_logout()
 
 end
 
-function NetMgr:login_fight()
+function NetMgr:account_logout()
 
 end
 
-function NetMgr:reconnect_fight()
+function NetMgr:game_is_ready()
 
 end
 
-function NetMgr:logout_fight()
+function NetMgr:_game_reset()
 
 end
+
+function NetMgr:fight_login()
+
+end
+
+function NetMgr:fight_reconnect()
+
+end
+
+function NetMgr:fight_logout()
+
+end
+
+function NetMgr:fight_is_ready()
+
+end
+
+function NetMgr:_fight_reset()
+
+end
+
 

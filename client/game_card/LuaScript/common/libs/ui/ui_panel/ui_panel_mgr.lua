@@ -18,6 +18,7 @@ function UIPanelMgr:ctor()
     self.panel_wrapper_res_obs = nil
     self.layers = {}
     self._event_binder = EventBinder:new()
+    self._cached_forward_panel_event_closure = {}
 end
 
 function UIPanelMgr:init(_root_go)
@@ -57,7 +58,7 @@ function UIPanelMgr:open_panel(panel_name, open_param)
         panel_data = {
             panel_name = panel:get_name(),
             panel = panel,
-            event_bind_keys = {},
+            event_bind_ids = {},
         }
         self:_bind_panel_events(panel_data, true)
         self._cached_panel_datas[panel_name] = panel_data
@@ -113,6 +114,7 @@ function UIPanelMgr:release_self()
     self:release_all_panel()
     self._res_loader:Release()
     self._timer_proxy:release_all()
+    self._cached_forward_panel_event_closure = {}
 end
 
 function UIPanelMgr:_get_cached_panel_data(panel_name)
@@ -123,23 +125,26 @@ end
 function UIPanelMgr:_forward_panel_events(combine_event_name, event_name, panel, ...)
     self:fire(event_name, panel, ...)
     self:fire(combine_event_name, panel, ...)
-    -- log_print("UIPanelMgr:_forward_panel_events ", combine_event_name, event_name, ...)
+    log_print("UIPanelMgr:_forward_panel_events ", combine_event_name, event_name, ...)
 end
 
 function UIPanelMgr:_bind_panel_events(panel_data, is_bind)
-    for _, v in pairs(panel_data.event_bind_keys) do
-        self._event_binder:cancel(v)
-    end
-    panel_data.event_bind_keys = {}
+    self._event_binder:batch_cancel(panel_data.event_bind_ids)
+    panel_data.event_bind_ids = {}
 
     if is_bind then
+        local ev_name_fns = {}
         for _, event_name in pairs(Panel_Event) do
             local fire_combine_event_name = combine_panel_event_name(event_name, panel_data.panel_name)
             local fire_event_name = event_name
-            local bind_key = self._event_binder:bind(panel_data.panel, event_name,
-                    Functional.make_closure(self._forward_panel_events, self, fire_combine_event_name, fire_event_name))
-            table.insert(panel_data.event_bind_keys, bind_key)
+            local event_closure = self._cached_forward_panel_event_closure[fire_combine_event_name]
+            if not event_closure then
+                event_closure = Functional.make_closure(self._forward_panel_events, self, fire_combine_event_name, fire_event_name)
+                self._cached_forward_panel_event_closure[fire_combine_event_name] = event_closure
+            end
+            ev_name_fns[event_name] = event_closure
         end
+        panel_data.event_bind_ids = self._event_binder:batch_bind(panel_data.panel, ev_name_fns)
     end
 end
 

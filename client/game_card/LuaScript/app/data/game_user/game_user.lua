@@ -1,11 +1,7 @@
 
-declare_event_set("Game_User_Event", {
-    "launch_role_result",
-})
+GameUser = GameUser or class("GameUser")
 
-MainUser = MainUser or class("MainUser")
-
-function MainUser:ctor(main_logic)
+function GameUser:ctor(main_logic)
     self.main_logic = main_logic
     self.msg_event_subscriber = self.main_logic.msg_event_mgr:create_subscriber()
     -- self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
@@ -14,36 +10,36 @@ function MainUser:ctor(main_logic)
     self.launch_role_id = nil
 end
 
-function MainUser:init()
+function GameUser:init()
     self.msg_event_subscriber:subscribe(ProtoId.rsp_pull_role_digest, Functional.make_closure(self.on_msg_rsp_pull_role_digest, self))
     self.msg_event_subscriber:subscribe(ProtoId.rsp_create_role, Functional.make_closure(self.on_msg_rsp_create_role, self))
     self.msg_event_subscriber:subscribe(ProtoId.rsp_launch_role, Functional.make_closure(self.on_msg_rsp_launch_role, self))
 end
 
-function MainUser:pull_role_digest(role_id)
+function GameUser:pull_role_digest(role_id)
     return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_pull_role_digest, {role_id = role_id })
 end
 
-function MainUser:on_msg_rsp_pull_role_digest(proto_id, msg)
-    log_debug("MainUser:on_msg_rsp_pull_role_digest %s %s", proto_id, msg)
+function GameUser:on_msg_rsp_pull_role_digest(proto_id, msg)
+    log_debug("GameUser:on_msg_rsp_pull_role_digest %s %s", proto_id, msg)
     self.role_digests = msg.role_digests
     -- self.main_logic.event_mgr:fire(Event_Set__Gate_Cnn_Logic.rsp_role_digests, self, msg)
 end
 
-function MainUser:create_role(params)
+function GameUser:create_role(params)
     return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_create_role, { params = params })
 end
 
-function MainUser:on_msg_rsp_create_role(proto_id, msg)
-    log_debug("MainUser:on_msg_rsp_create_role %s %s", proto_id, msg)
+function GameUser:on_msg_rsp_create_role(proto_id, msg)
+    log_debug("GameUser:on_msg_rsp_create_role %s %s", proto_id, msg)
     self:pull_role_digest(nil)
 end
 
-function MainUser:launch_role(role_id)
+function GameUser:launch_role(role_id)
     return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_launch_role, { role_id = role_id } )
 end
 
-function MainUser:reconnect_role(role_id)
+function GameUser:reconnect_role(role_id)
     return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_reconnect, {
         role_id = role_id,
         {
@@ -53,8 +49,8 @@ function MainUser:reconnect_role(role_id)
 end
 
 
-function MainUser:on_msg_rsp_launch_role(proto_id, msg)
-    log_debug("MainUser:on_msg_rsp_launch_role %s %s", proto_id, msg)
+function GameUser:on_msg_rsp_launch_role(proto_id, msg)
+    log_debug("GameUser:on_msg_rsp_launch_role %s %s", proto_id, msg)
     self.launch_role_error_num = msg.error_num
     if 0 == msg.error_num then
         self.is_launched_role = true
@@ -67,7 +63,7 @@ function MainUser:on_msg_rsp_launch_role(proto_id, msg)
     -- self:send_msg_to_game(ProtoId.pull_remote_room_state)
 end
 
-function MainUser:set_user_info(user_info)
+function GameUser:set_user_info(user_info)
     self.user_info = {}
     self.user_info.gate_ip = user_info.gate_ip
     self.user_info.gate_port = user_info.gate_port

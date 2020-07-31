@@ -46,3 +46,24 @@ function EventBinder:release_all()
     end
     self._id_to_bind_datas = {}
 end
+
+function EventBinder:batch_bind(event_mgr, ev_name_fns)
+    local ret = {}
+    if event_mgr and is_table(ev_name_fns) then
+        for ev_name, fn in pairs(ev_name_fns) do
+            local id = self:bind(event_mgr, ev_name, fn)
+            if id then
+                table.insert(ret, id)
+            end
+        end
+    end
+    return ret
+end
+
+function EventBinder:batch_cancel(ids)
+    if ids then
+        for _, id in pairs(ids) do
+            self:cancel(id)
+        end
+    end
+end
