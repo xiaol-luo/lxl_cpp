@@ -22,8 +22,8 @@ end
 
 function AppStateInGame:on_enter(params)
     AppStateInGame.super.on_enter(self, params)
-    self.event_binder:bind(self.app, Event_Set__State_InGame.try_enter_login_state, Functional.make_closure(self._on_event_try_enter_login_state, self))
-    self.event_binder:bind(self.app, Event_Set__State_InGame.try_enter_logout_state, Functional.make_closure(self._on_event_try_enter_logout_state, self))
+    -- self.event_binder:bind(self.app, Event_Set__State_InGame.try_enter_login_state, Functional.make_closure(self._on_event_try_enter_login_state, self))
+    -- self.event_binder:bind(self.app, Event_Set__State_InGame.try_enter_logout_state, Functional.make_closure(self._on_event_try_enter_logout_state, self))
 end
 
 function AppStateInGame:on_exit()
@@ -31,12 +31,12 @@ function AppStateInGame:on_exit()
     -- self.event_subscriber:release_all()
 end
 
-function AppStateInGame:_on_event_try_enter_login_state(params)
-    log_debug("AppStateInGame:_on_event_try_enter_login_state")
-    self.child_state_mgr:change_state(In_Game_State_Name.login)
-end
-
-function AppStateInGame:_on_event_try_enter_logout_state(params)
-    self.child_state_mgr:change_state(In_Game_State_Name.logout)
-end
+--function AppStateInGame:_on_event_try_enter_login_state(params)
+--    log_debug("AppStateInGame:_on_event_try_enter_login_state")
+--    self.child_state_mgr:change_state(In_Game_State_Name.login)
+--end
+--
+--function AppStateInGame:_on_event_try_enter_logout_state(params)
+--    self.child_state_mgr:change_state(In_Game_State_Name.logout)
+--end
 

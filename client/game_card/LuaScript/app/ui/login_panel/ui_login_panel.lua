@@ -4,13 +4,13 @@ UILoginPanel = UILoginPanel or class("UILoginPanel", UIPanelBase)
 
 function UILoginPanel:ctor(panel_mgr, panel_setting)
     self.super.ctor(self, panel_mgr, panel_setting)
-    self.ip_txt = nil
-    self.port_txt = nil
-    self.cnn_btn = nil
-    self.reset_btn = nil
-    self.notify_txt = nil
-    self.user_info = nil
-    self.account_id_txt = nil
+    self._ip_txt = nil
+    self._port_txt = nil
+    self._cnn_btn = nil
+    self._reset_btn = nil
+    self._notify_txt = nil
+    self._user_info = nil
+    self._account_id_txt = nil
 end
 
 function UILoginPanel:on_init()
@@ -20,14 +20,21 @@ end
 
 function UILoginPanel:_on_attach_panel()
     UILoginPanel.super._on_attach_panel(self)
-    self.ip_txt = UIHelp.attach_ui(UIText, self._panel_root, "LoginView/Ip/Text")
-    self.port_txt = UIHelp.attach_ui(UIText, self._panel_root, "LoginView/Port/Text")
-    self.account_id_txt = UIHelp.attach_ui(UIText, self._panel_root, "LoginView/AccountId/Text")
-    self.cnn_btn = UIHelp.attach_ui(UIButton, self._panel_root, "LoginView/ConnectBtn")
-    self.cnn_btn:set_onclick(Functional.make_closure(self.on_click_cnn_btn, self))
-    self.reset_btn = UIHelp.attach_ui(UIButton, self._panel_root, "LoginView/ResetBtn")
-    self.reset_btn:set_onclick(Functional.make_closure(self.on_click_reset_btn, self))
-    self.notify_txt = UIHelp.attach_ui(UIText, self._panel_root, "NotifyTxt")
+    self._gate_ip_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/gate_ip")
+    self._gate_port_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/gate_port")
+    self._account_id_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/account_id")
+    self._confirm_btn = UIHelp.attach_ui(UIButton, self._panel_root, "login_view/confirm_btn")
+
+    self._confirm_btn:set_onclick(Functional.make_closure(self.on_click_confirm_btn, self))
+    self._notify_txt = UIHelp.attach_ui(UIText, self._panel_root, "notify_txt")
+
+    self._advise_gates_content_ts = UIHelp.find_transform(self._panel_root, "advise_gates/advise_gates_scroll_view/Viewport/Content")
+    self._advise_gates_item_prefab = UIHelp.find_gameobject(self._panel_root, "advise_gates/advise_gates_scroll_view/Viewport/Content/item")
+
+    for i=1, 20 do
+        local item = CS.Lua.LuaHelp.InstantiateGameObject(self._advise_gates_item_prefab)
+        UIHelp.set_parent(item, self._advise_gates_content_ts)
+    end
 end
 
 function UILoginPanel:_on_open(panel_data)
@@ -58,7 +65,7 @@ function UILoginPanel:on_release()
     -- self.ml_event_subscriber:release_all()
 end
 
-function UILoginPanel:on_click_cnn_btn()
+function UILoginPanel:on_click_confirm_btn()
     log_print("UILoginPanel:on_click_cnn_btn")
     --local login_cnn_logic = g_ins.login_cnn_logic
     --local cnn_state = login_cnn_logic:get_state()

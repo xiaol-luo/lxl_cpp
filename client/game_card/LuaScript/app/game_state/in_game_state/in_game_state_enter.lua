@@ -7,7 +7,7 @@ end
 
 function InGameStateEnter:on_enter(params)
     InGameStateEnter.super.on_enter(params)
-    self.state_mgr:change_state(In_Game_State_Name.login)
+    self.state_mgr:change_state(In_Game_State_Name.manage_role)
 end
 
 

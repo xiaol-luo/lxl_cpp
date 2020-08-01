@@ -26,7 +26,7 @@ UI_Panel_Setting = {
     },
     [UI_Panel_Name.login_panel]= {
         belong_layer = Panel_Layer.coexist_0,
-        res_path = "Assets/Res/UI/PanelMgr/LoginPanel/LoginPanel.prefab",
+        res_path = "Assets/Res/UI/PanelMgr/LoginPanel/EditorLoginPanel.prefab",
         panel_cls = UILoginPanel,
     },
     [UI_Panel_Name.launch_role_panel] = {

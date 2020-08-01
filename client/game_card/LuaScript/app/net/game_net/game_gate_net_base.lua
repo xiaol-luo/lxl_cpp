@@ -4,6 +4,23 @@ GameGateNetBase = class("GameGateNetBase", EventMgr)
 function GameGateNetBase:ctor(net_mgr)
     GameGateNetBase.super.ctor(self)
     self.net_mgr = net_mgr
+    self.app = self.net_mgr.app
+end
+
+function GameGateNetBase:init()
+    self:_on_init()
+end
+
+function GameGateNetBase:release()
+    self:_on_release()
+end
+
+function GameGateNetBase:_on_init()
+
+end
+
+function GameGateNetBase:_on_release()
+
 end
 
 function GameGateNetBase:connect()

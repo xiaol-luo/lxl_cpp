@@ -53,7 +53,7 @@ function MainLogic:init(arg)
 end
 
 function MainLogic:on_start()
-    self.state_mgr:change_state(App_State_Name.init_game)
+    self.state_mgr:change_state(App_State_Name.init)
 end
 
 function MainLogic:on_update()

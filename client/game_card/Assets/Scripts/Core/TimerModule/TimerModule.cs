@@ -50,7 +50,7 @@ namespace Utopia
             m_timerMgr.Remove(id);
         }
 
-        public void ClearAll()
+        public void ReleaseAll()
         {
             m_timerMgr.ClearAll();
         }

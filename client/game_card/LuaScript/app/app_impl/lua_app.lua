@@ -26,12 +26,12 @@ function LuaApp:ctor()
 end
 
 function LuaApp:init(arg)
-    local pre_require_files = require("app.app_impl.pre_require_server_files")
+    local pre_require_files = require("app.app_impl.lua_app_pre_require_server_files")
     for _, v in pairs(pre_require_files) do
         require(v)
     end
 
-    local pre_require_files = require("app.app_impl.pre_require_files")
+    local pre_require_files = require("app.app_impl.lua_app_pre_require_files")
     for _, v in pairs(pre_require_files) do
         require(v)
     end
@@ -76,7 +76,7 @@ function LuaApp:init(arg)
 end
 
 function LuaApp:_on_start()
-    self.state_mgr:change_state(App_State_Name.init_game)
+    self.state_mgr:change_state(App_State_Name.init)
 end
 
 function LuaApp:_on_update()

@@ -5,6 +5,23 @@ GameLoginNetBase = class("GameLoginNetBase", EventMgr)
 function GameLoginNetBase:ctor(net_mgr)
     GameLoginNetBase.super.ctor(self)
     self.net_mgr = net_mgr
+    self.app = self.net_mgr.app
+end
+
+function GameLoginNetBase:init()
+    self:_on_init()
+end
+
+function GameLoginNetBase:release()
+    self:_on_release()
+end
+
+function GameLoginNetBase:_on_init()
+
+end
+
+function GameLoginNetBase:_on_release()
+
 end
 
 function GameLoginNetBase:login()

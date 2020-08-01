@@ -91,6 +91,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Utopia.UIRoot), UtopiaUIRootWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Utopia.SystemInfo), UtopiaSystemInfoWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(LuaUIComponent), LuaUIComponentWrap.__Register);
         
         

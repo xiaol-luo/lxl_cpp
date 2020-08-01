@@ -40,6 +40,8 @@ namespace Lua
 
             typeof(Utopia.ResourceObserver),
 
+            typeof(Utopia.SystemInfo),
+
             typeof(LuaUIComponent),
             typeof(Utopia.Resource.ResourceRefMonitorMono),
         };
