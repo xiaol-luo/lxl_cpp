@@ -1,3 +1,3 @@
 
 Game_User_Event = {}
-Game_User_Event.launch_role_result = "launch_role_result"
+Game_User_Event.role_digiests_change = "Game_User_Event.role_digiests_change"

@@ -115,6 +115,7 @@ function UIPanelMgr:release_self()
     self._res_loader:Release()
     self._timer_proxy:release_all()
     self._cached_forward_panel_event_closure = {}
+    self:cancel_all()
 end
 
 function UIPanelMgr:_get_cached_panel_data(panel_name)

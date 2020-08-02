@@ -219,7 +219,7 @@ end
 
 function hotfix_read_file(file_path)
     local file_content = nil
-    local tmp_paths = string.split(file_path, "%.")
+    local tmp_paths = string.split(file_path, ".")
     local real_file_path = table.concat(tmp_paths, "/")
     local search_paths = CS.Lua.LuaHelp.ScriptSearchDirs()
     for i=0, search_paths.Length - 1 do

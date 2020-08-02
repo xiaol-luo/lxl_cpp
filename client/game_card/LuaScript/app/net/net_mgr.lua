@@ -1,29 +1,34 @@
 
 ---@class NetMgr:EventMgr
+---@field game_platform_net GamePlatformNetBase
+---@field game_login_net GameLoginNetBase
+---@field game_gate_net GameGateNetBase
 NetMgr = NetMgr or class("NetMgr", EventMgr)
 
 function NetMgr:ctor(_app)
     NetMgr.super.ctor(self)
+    ---@type LuaApp
     self._app = _app
-    self._game_platform_net = nil
-    self._game_login_net = nil
-    self._game_gate_net = nil
-    self._fight_net = nil
+    self._pto_parser = self._app.pto_parser
+    self.game_platform_net = nil
+    self.game_login_net = nil
+    self.game_gate_net = nil
+    self.fight_net = nil
 end
 
 function NetMgr:init()
 
     if SystemInfo.is_editor then
-        self._game_platform_net = GamePlatformNetEditor:new(self)
-        self._game_login_net = GameLoginNetEditor:new(self)
-        self._game_gate_net = GameGateNetEditor:new(self)
+        self.game_platform_net = GamePlatformNetEditor:new(self)
+        self.game_login_net = GameLoginNetEditor:new(self)
+        self.game_gate_net = GameGateNetEditor:new(self)
     else
 
     end
 
-    self._game_platform_net:init()
-    self._game_login_net:init()
-    self._game_gate_net:init()
+    self.game_platform_net:init()
+    self.game_login_net:init()
+    self.game_gate_net:init()
 end
 
 function NetMgr:game_login()
@@ -74,6 +79,7 @@ function NetMgr:release()
     self._game_platform_net:release()
     self._game_login_net:release()
     self._game_gate_net:release()
+    self:cancel_all()
 end
 
 

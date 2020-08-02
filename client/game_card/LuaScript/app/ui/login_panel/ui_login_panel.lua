@@ -11,11 +11,29 @@ function UILoginPanel:ctor(panel_mgr, panel_setting)
     self._notify_txt = nil
     self._user_info = nil
     self._account_id_txt = nil
+
+    ---@type GamePlatformNetEditor
+    self._game_platform_net = self._app.net_mgr.game_platform_net
+    ---@type GameLoginNetEditor
+    self._game_login_net = self._app.net_mgr.game_login_net
 end
 
-function UILoginPanel:on_init()
+function UILoginPanel:_on_init()
     log_debug("UILoginPanel:init")
-    UILoginPanel.super.on_init(self)
+    UILoginPanel.super._on_init(self)
+
+    self._gate_data_list = {
+        {
+            name = "win本地",
+            gate_ip = "127.0.0.1",
+            gate_port = 35001,
+        },
+        {
+            name = "linux虚拟机",
+            gate_ip = "192.168.0.11",
+            gate_port = 35001,
+        },
+    }
 end
 
 function UILoginPanel:_on_attach_panel()
@@ -30,10 +48,18 @@ function UILoginPanel:_on_attach_panel()
 
     self._advise_gates_content_ts = UIHelp.find_transform(self._panel_root, "advise_gates/advise_gates_scroll_view/Viewport/Content")
     self._advise_gates_item_prefab = UIHelp.find_gameobject(self._panel_root, "advise_gates/advise_gates_scroll_view/Viewport/Content/item")
+    UIHelp.set_active(self._advise_gates_item_prefab, false)
 
-    for i=1, 20 do
-        local item = CS.Lua.LuaHelp.InstantiateGameObject(self._advise_gates_item_prefab)
-        UIHelp.set_parent(item, self._advise_gates_content_ts)
+    -- for i=1, 20
+    do
+        for _, v in pairs(self._gate_data_list) do
+            local item = UIHelp.clone_gameobject(self._advise_gates_item_prefab)
+            UIHelp.set_parent(item, self._advise_gates_content_ts)
+            local btn = UIHelp.attach_ui(UIButton, item, "")
+            btn:set_onclick(Functional.make_closure(self._on_click_gate_data_item, self, v))
+            UIHelp.attach_ui(UIText, item, "gate_name"):set_text(v.name)
+            UIHelp.attach_ui(UIText, item,"gate_host"):set_text(string.format("%s:%s", v.gate_ip, v.gate_port))
+        end
     end
 end
 
@@ -59,14 +85,20 @@ function UILoginPanel:_on_disable()
     -- self.ml_event_subscriber:release_all()
 end
 
-function UILoginPanel:on_release()
-    UILoginPanel.super.on_release(self)
+function UILoginPanel:_on_release()
+    UILoginPanel.super._on_release(self)
     log_info("UILoginPanel:on_release")
     -- self.ml_event_subscriber:release_all()
 end
 
+function UILoginPanel:_on_click_gate_data_item(gate_data)
+    log_print("UILoginPanel:_on_click_gate_data_item", gate_data)
+    self._gate_ip_if:set_text(gate_data.gate_ip)
+    self._gate_port_if:set_text(gate_data.gate_port)
+end
+
 function UILoginPanel:on_click_confirm_btn()
-    log_print("UILoginPanel:on_click_cnn_btn")
+    log_print("UILoginPanel:on_click_confirm_btn")
     --local login_cnn_logic = g_ins.login_cnn_logic
     --local cnn_state = login_cnn_logic:get_state()
     --log_debug("UILoginPanel:on_click_cnn_btn state is %s", cnn_state)
@@ -77,13 +109,44 @@ function UILoginPanel:on_click_confirm_btn()
     --else
     --    log_error("login_cnn_logic in state %s", cnn_state)
     --end
+
+    local account_id = tonumber(self._account_id_if:get_text())
+    if not account_id then
+        self:_notify_error(string.format("account is not valid, %s", self._account_id_if:get_text()))
+        return
+    end
+    local gate_port = tonumber(self._gate_port_if:get_text())
+    if not gate_port then
+        self:_notify_error(string.format("gate_port is not valid, %s", self._gate_port_if:get_text()))
+        return
+    end
+    local gate_ip = self._gate_ip_if:get_text()
+    if not is_string(gate_ip) or  #gate_ip <= 0 then
+        self:_notify_error(string.format("gate_ip is not valid, %s", gate_ip))
+        return
+    end
+
+    self._game_platform_net:logout()
+    self._game_platform_net._account_id = account_id
+    self._game_platform_net:login()
+
+    self._game_login_net:logout()
+    self._game_login_net._user_id = account_id
+    self._game_login_net._gate_hosts = { {ip = gate_ip, port = gate_port} }
+    self._game_login_net:login()
+
+    log_print("______________", self._game_login_net:is_ready(), self._game_platform_net:is_ready())
+end
+
+function UILoginPanel:_notify_error(error_msg)
+    self._notify_txt:set_text(error_msg)
 end
 
 function UILoginPanel:on_click_reset_btn()
     --log_info("UILoginPanel:on_click_reset_btn")
     --local login_cnn_logic = g_ins.login_cnn_logic
     --login_cnn_logic:reset(self.ip_txt:get_text(), tonumber(self.port_txt:get_text()))
-    --self.notify_txt:set_text("")
+    --self.notify_txt:set_text
 end
 
 function UILoginPanel:on_event_login_cnn_done(cnn_logic, error_code, user_info)

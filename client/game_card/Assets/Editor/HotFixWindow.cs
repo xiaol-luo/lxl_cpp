@@ -69,7 +69,7 @@ namespace UtopiaEditor
             // Debug.Log("HotFixWindow::OnProjectChange");
         }
 
-        string m_hotfixFile = "main_logic/hotfix/hotfix_logic.lua";
+        string m_hotfixFile = "app/hotfix/hotfix_logic.lua";
 
         void DrawUI()
         {

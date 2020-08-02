@@ -1,4 +1,5 @@
 
+---@class GameNet
 GameNet = GameNet or class("GameNet")
 
 function GameNet:ctor(open_cb, close_cb, recv_msg_cb)
@@ -17,6 +18,7 @@ function GameNet:close()
     self.native_game_net:Close()
 end
 
+---@return Net_Agent_State
 function GameNet:get_state()
     return self.native_game_net:GetState()
 end

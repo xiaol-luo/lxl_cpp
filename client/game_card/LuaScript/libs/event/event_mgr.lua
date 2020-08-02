@@ -42,10 +42,17 @@ end
 function EventMgr:cancel(id)
     local node = self.id_to_node[id]
     self.id_to_node[id] = nil
-    local ev_map = self.event_map[node.name]
-    if ev_map then
-        ev_map[node.id] = nil
+    if node then
+        local ev_map = self.event_map[node.name]
+        if ev_map then
+            ev_map[node.id] = nil
+        end
     end
+end
+
+function EventMgr:cancel_all()
+    self.id_to_node = {}
+    self.event_map = {}
 end
 
 ---@return EventProxySet

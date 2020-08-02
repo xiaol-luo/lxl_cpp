@@ -57,6 +57,7 @@ end
 
 function ServerBase:release()
     self:_on_release()
+    self:cancel_all()
 end
 
 function ServerBase:_on_init()

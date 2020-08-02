@@ -4,8 +4,10 @@ GamePlatformNetBase = class("GamePlatformNetBase", EventMgr)
 
 function GamePlatformNetBase:ctor(net_mgr)
     GamePlatformNetBase.super.ctor(self)
-    self.net_mgr = net_mgr
-    self.app = self.net_mgr.app
+    ---@type NetMgr
+    self._net_mgr = net_mgr
+    ---@type LuaApp
+    self._app = self._net_mgr.app
 end
 
 function GamePlatformNetBase:init()
@@ -14,6 +16,7 @@ end
 
 function GamePlatformNetBase:release()
     self:_on_release()
+    self:cancel_all()
 end
 
 function GamePlatformNetBase:_on_init()
@@ -41,7 +44,7 @@ function GamePlatformNetBase:get_error_msg()
 end
 
 function GamePlatformNetBase:notify_login_done()
-    self.net_mgr:fire(Game_Net_Event.platform_login_done, self, self:is_ready(), self:get_error_msg())
+    self._net_mgr:fire(Game_Net_Event.platform_login_done, self:is_ready(), self:get_error_msg())
 end
 
 function GamePlatformNetBase:get_platform_name()

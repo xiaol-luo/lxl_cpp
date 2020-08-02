@@ -8,7 +8,7 @@ print("reach hotfix_logic start")
 -- require("role.role")
 
 
-local hotfix_files = require("main_logic.main_logic_impl.pre_require_files")
+local hotfix_files = require("app.app_impl.lua_app_pre_require_files")
 batch_hotfix_files(hotfix_files, _G)
 
 print("reach hotfix_logic end")

@@ -1,11 +1,11 @@
 
-UI_Panel_Name = {
-    main_panel = "main_panel",
-    loading_panel = "loading_panel",
-    confirm_panel = "confirm_panel",
-    login_panel = "login_panel",
-    launch_role_panel = "launch_role_panel",
-}
+---@class UI_Panel_Name
+UI_Panel_Name = {}
+UI_Panel_Name.main_panel = "main_panel"
+UI_Panel_Name.loading_panel = "loading_panel"
+UI_Panel_Name.confirm_panel = "confirm_panel"
+UI_Panel_Name.login_panel = "login_panel"
+UI_Panel_Name.manage_role_panel = "manage_role_panel"
 
 UI_Panel_Setting = {
     [UI_Panel_Name.main_panel]= {
@@ -29,10 +29,10 @@ UI_Panel_Setting = {
         res_path = "Assets/Res/UI/PanelMgr/LoginPanel/EditorLoginPanel.prefab",
         panel_cls = UILoginPanel,
     },
-    [UI_Panel_Name.launch_role_panel] = {
+    [UI_Panel_Name.manage_role_panel] = {
         belong_layer = Panel_Layer.coexist_0,
-        res_path = "Assets/Res/UI/PanelMgr/LaunchRolePanel/LaunchRolePanel.prefab",
-        panel_cls = UILaunchRolePanel,
+        res_path = "Assets/Res/UI/PanelMgr/ManageRolePanel/ManageRolePanel.prefab",
+        panel_cls = UIManageRolePanel,
     }
 }
 

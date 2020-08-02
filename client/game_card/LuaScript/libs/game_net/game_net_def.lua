@@ -1,4 +1,5 @@
 
+---@class Net_Agent_State
 Net_Agent_State = {
     free = CS.Utopia.NetAgentState.Free,
     connecting = CS.Utopia.NetAgentState.Connecting,

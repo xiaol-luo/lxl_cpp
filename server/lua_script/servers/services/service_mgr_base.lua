@@ -92,6 +92,7 @@ function ServiceMgrBase:release()
         svc:release()
     end
     self:fire(Service_Event.State_Released, self)
+    self:cancel_all()
 end
 
 function ServiceMgrBase:get_error()

@@ -33,7 +33,8 @@ return {
 
     "app.ui.main_panel.ui_main_panel",
     "app.ui.login_panel.ui_login_panel",
-    "app.ui.launch_role_panel.launch_role_panel",
+    "app.ui.manage_role_panel.ui_manage_role_panel",
+
     "app.ui.ui_panel_setting",
 
     "app.logic.role.role",
@@ -56,6 +57,7 @@ return {
     "app.net.game_net.editor_impl.game_login_net_editor",
     "app.net.game_net.editor_impl.game_gate_net_editor",
 
+    "app.data.data_base",
     "app.data.data_mgr",
     "app.data.game_user.game_user_def",
     "app.data.game_user.game_user",

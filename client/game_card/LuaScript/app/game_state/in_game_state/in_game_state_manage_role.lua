@@ -6,11 +6,18 @@ function InGameStateManageRole:ctor(state_mgr, in_game_state)
     InGameStateManageRole.super.ctor(self, state_mgr, In_Game_State_Name.manage_role, in_game_state)
     self.launch_error_num = nil
     -- self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
+    ---@type GamePlatformNetEditor
+    self._game_platform_net = self.app.net_mgr.game_platform_net
+    ---@type GameLoginNetEditor
+    self._game_login_net = self.app.net_mgr.game_login_net
+    ---@type GameGateNetEditor
+    self._game_gate_net = self.app.net_mgr._game_gate_net
 end
 
 
 function InGameStateManageRole:on_enter(params)
     InGameStateManageRole.super.on_enter(self, params)
+
     --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.open, Functional.make_closure(self._on_event_gate_cnn_open, self))
     --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))
     --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.login_gate_result, Functional.make_closure(self._on_event_login_gate_result, self))
@@ -23,11 +30,14 @@ function InGameStateManageRole:on_enter(params)
     --        user_info.auth_sn, user_info.auth_ip, user_info.auth_port, user_info.account_id, user_info.app_id)
     --self.main_logic.gate_cnn_logic:connect()
     --
-    --self.app.panel_mgr:show_panel(UI_Panel_Name.launch_role_panel, user_info)
+    self.app.panel_mgr:open_panel(UI_Panel_Name.manage_role_panel)
+
+
 end
 
 function InGameStateManageRole:on_update()
     InGameStateManageRole.super.on_update(self)
+    -- log_print("InGameStateManageRole.super.on_update")
     --self.app.gate_cnn_logic:update()
     --if Error_None == self.launch_error_num then
     --    self.state_mgr:change_state(In_Game_State_Name.run, nil)
@@ -36,8 +46,9 @@ end
 
 function InGameStateManageRole:on_exit()
     InGameStateManageRole.super.on_exit(self)
+    self.app.panel_mgr:release_panel(UI_Panel_Name.manage_role_panel)
     --self.event_subscriber:release_all()
-    --self.in_game_state.app.panel_mgr:release_panel(UI_Panel_Name.launch_role_panel)
+    --self.in_game_state.app.panel_mgr:release_panel(UI_Panel_Name.manage_role_panel)
 end
 --
 --function InGameStateManageRole:_on_event_gate_cnn_open(cnn_logic, is_succ)

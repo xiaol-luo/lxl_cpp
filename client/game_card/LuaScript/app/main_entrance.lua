@@ -22,8 +22,8 @@ function setup_lua_logics(arg)
 end
 
 function on_native_drive_update()
-    -- print("reach on_native_drive_update")
     if g_ins then
+        -- print("reach on_native_drive_update")
         g_ins:update()
     end
 end

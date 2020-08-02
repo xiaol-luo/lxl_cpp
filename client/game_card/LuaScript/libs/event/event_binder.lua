@@ -12,8 +12,9 @@ end
 ---@param event_mgr EventMgr
 ---@param ev_name string
 function EventBinder:bind(event_mgr, ev_name, fn)
+    assert(event_mgr and ev_name and is_function(fn))
     local ret = nil
-    if event_mgr and is_string(ev_name) and is_function(fn) then
+    if event_mgr and is_string(ev_name) or is_number(ev_name) and is_function(fn) then
         ---@type EventProxy
         local proxy = self._mgr_to_proxy[event_mgr]
         if not proxy then

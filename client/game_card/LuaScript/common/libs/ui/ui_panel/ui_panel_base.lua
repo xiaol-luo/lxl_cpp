@@ -6,6 +6,8 @@ function UIPanelBase:ctor(panel_mgr, panel_setting)
     UIPanelBase.super.ctor(self)
     ---@type UIPanelMgr
     self._panel_mgr = panel_mgr
+    ---@type LuaApp
+    self._app = g_ins
     self._panel_setting = panel_setting
     self._panel_state = Panel_State.free
 
@@ -101,12 +103,13 @@ function UIPanelBase:release()
         return
     end
 
-    self:hide()
+    self:disable()
     self._panel_state = Panel_State.released
     self:fire(Panel_Event.pre_release, self)
-    self:on_release()
+    self:_on_release()
     self:fire(Panel_Event.release, self)
     self._res_loader:Release()
+    self:cancel_all()
 end
 
 function UIPanelBase:get_setting()

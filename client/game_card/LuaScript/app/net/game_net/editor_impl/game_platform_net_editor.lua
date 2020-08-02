@@ -1,5 +1,5 @@
 
----@class GamePlatformNetEditor:EventMgr
+---@class GamePlatformNetEditor:GamePlatformNetBase
 GamePlatformNetEditor = class("GamePlatformNetEditor", GamePlatformNetBase)
 
 function GamePlatformNetEditor:ctor(net_mgr)
@@ -21,12 +21,11 @@ function GamePlatformNetEditor:_on_release()
 end
 
 function GamePlatformNetEditor:login()
-    self:logout()
-    self._is_ready = false
     if is_number(self._account_id) then
         self._is_ready = true
+        self._token = string.format("%9d", math.random(1, 999999999))
+        self:notify_login_done()
     end
-    self._token = string.format("%9d", math.random(1, 999999999))
     -- self._timer_proxy:delay(Functional.make_closure(self.notify_login_done, self), 1)
 end
 
@@ -42,10 +41,6 @@ end
 
 function GamePlatformNetEditor:get_error_msg()
     return ""
-end
-
-function GamePlatformNetEditor:notify_login_done()
-    self.net_mgr:fire(Game_Net_Event.platform_login_done, self, self:is_ready(), self:get_error_msg())
 end
 
 function GamePlatformNetEditor:get_platform_name()

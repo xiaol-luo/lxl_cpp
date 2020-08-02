@@ -63,10 +63,11 @@ function UIHelp.find_gameobject(root_comp_or_go, relative_path)
 end
 
 function UIHelp.attach_ui(ui_type, root_comp_or_go, relative_path)
+    assert(ui_type and CSharpHelp.not_null(root_comp_or_go))
     local ret = nil
     local go = UIHelp.find_gameobject(root_comp_or_go, relative_path)
     if not go then
-        log_error("UIHelp.create_ui %s fail, can not find the game object:[%s:%s]",
+        log_error("UIHelp.attach_ui %s fail, can not find the game object:[%s:%s]",
                 tostring(ui_type.__cname), tostring(root_comp_or_go), tostring(relative_path))
     else
         ret = ui_type:new(go)
@@ -111,3 +112,35 @@ function UIHelp.set_parent(comp_or_go, parent_comp_or_go, is_active, local_pos, 
     ts.localPosition = local_pos
 end
 
+function UIHelp.set_active(root_comp_or_go, is_active)
+    local ts = UIHelp.extract_transform(root_comp_or_go)
+    if ts.gameObject.activeSelf ~= is_active then
+        ts.gameObject:SetActive(is_active)
+    end
+end
+
+function UIHelp.is_active(root_comp_or_go)
+    local ret = false
+    local ts = UIHelp.extract_transform(root_comp_or_go)
+    if ts and ts.active then
+        ret = true
+    end
+    return ret
+end
+
+function UIHelp.clone_gameobject(root_comp_or_go)
+    local ret = nil
+    local ts = UIHelp.extract_transform(root_comp_or_go)
+    if CSharpHelp.not_null(ts) then
+        ret = CS.Lua.LuaHelp.InstantiateGameObject(ts.gameObject)
+    end
+    return ret
+end
+
+function UIHelp.destroy_gameobject(go)
+    if CSharpHelp.not_null(go) then
+        if CSharpType.GameObject == CSharpHelp.get_type(go) then
+            CS.UnityEngine.GameObject.Destroy(go)
+        end
+    end
+end

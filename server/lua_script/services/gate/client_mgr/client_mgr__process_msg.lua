@@ -249,7 +249,11 @@ function ClientMgr:process_req_pull_role_digest(netid, pid, msg)
                 msg_role_digests = role_digests
             end
             log_debug("process_req_pull_role_digest rpc result %s", msg_role_digests)
-            self.client_cnn_mgr:send(netid, ProtoId.rsp_pull_role_digest, { error_num=msg_error_num, role_digests=msg_role_digests })
+            self.client_cnn_mgr:send(netid, ProtoId.rsp_pull_role_digest, {
+                error_num = msg_error_num,
+                role_id = msg.role_id,
+                role_digests = msg_role_digests
+            })
         end, WorldRpcFn.get_role_digest, client.user_id, msg.role_id)
     until true
     if ErrorNum.None ~= error_num then

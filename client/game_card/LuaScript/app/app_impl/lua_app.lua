@@ -1,4 +1,4 @@
----@class LuaApp
+---@class LuaApp:EventMgr
 ---@field state_mgr AppStateMgr
 ---@field panel_mgr UIPanelMgr
 ---@field net_mgr NetMgr
@@ -46,7 +46,7 @@ function LuaApp:init(arg)
     self.net_mgr = NetMgr:new(self)
     self.net_mgr:init()
 
-    self.data_mgr = DataMgr:new()
+    self.data_mgr = DataMgr:new(self)
     self.data_mgr:init()
 
     self.state_mgr = AppStateMgr:new(self)
@@ -80,7 +80,9 @@ function LuaApp:_on_start()
 end
 
 function LuaApp:_on_update()
-    self.state_mgr:update_state()
+    if self.state_mgr then
+        self.state_mgr:update_state()
+    end
 end
 
 function LuaApp:_on_stop()
@@ -101,6 +103,7 @@ end
 
 function LuaApp:release()
     self:_on_release()
+    self:cancel_all()
 end
 
 function LuaApp:stop()

@@ -117,14 +117,14 @@ end
 
 function UIMainPanel:_on_msg_sync_roll_point_result(proto_id, msg)
     self:refresh_ui()
-    self.roll_msg_txt:set_text(string.format("roll result: %s", string.toprint(msg)))
+    self.roll_msg_txt:set_text(string.format("roll result: %s", string.to_print(msg)))
 end
 
 function UIMainPanel:refresh_ui()
     self.role_id_txt:set_text(g_ins.main_role.role_id)
     self.role_name_txt:set_text(g_ins.main_role.role_name)
-    self.match_msg_txt:set_text(string.format("match msg : %s", string.toprint(g_ins.main_role.data_match_msg)))
-    self.room_msg_txt:set_text(string.format("room_msg : %s", string.toprint(g_ins.main_role.data_room_msg)))
+    self.match_msg_txt:set_text(string.format("match msg : %s", string.to_print(g_ins.main_role.data_match_msg)))
+    self.room_msg_txt:set_text(string.format("room_msg : %s", string.to_print(g_ins.main_role.data_room_msg)))
 end
 
 

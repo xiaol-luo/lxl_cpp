@@ -29,7 +29,8 @@ message ReqPullRoleDigest
 message RspPullRoleDigest
 {
 	int32 error_num = 1;
-    repeated RoleDigest role_digests = 2;
+	int64 role_id = 2; // empty means pull all
+    repeated RoleDigest role_digests = 3;
 }
 
 message ReqCreateRole
