@@ -110,6 +110,7 @@ function UIPanelBase:release()
     self:fire(Panel_Event.release, self)
     self._res_loader:Release()
     self:cancel_all()
+    UIHelp.destroy_gameobject(self._root)
 end
 
 function UIPanelBase:get_setting()

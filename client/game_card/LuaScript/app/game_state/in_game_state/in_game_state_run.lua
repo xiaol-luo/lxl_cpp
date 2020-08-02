@@ -22,6 +22,8 @@ function InGameStateRun:on_enter(params)
     --self.main_logic.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
     --self.gate_last_reconnect_sec = 0
     --self.fight_last_reconnect_sec = 0
+
+    self.app.panel_mgr:open_panel(UI_Panel_Name.main_panel, {})
 end
 
 function InGameStateRun:on_update()
@@ -50,6 +52,7 @@ end
 
 function InGameStateRun:on_exit()
     InGameStateRun.super.on_exit(self)
+    self.app.panel_mgr:release_all_panel()
 end
 --
 --function InGameStateRun:_on_event_gate_cnn_open(cnn_logic, is_succ)
