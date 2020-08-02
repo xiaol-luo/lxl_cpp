@@ -64,7 +64,7 @@ function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
     until true
 
     if Error_None ~= error_num then
-        gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = error_num })
+        gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = error_num, role_id = msg.role_id })
     end
 end
 
@@ -95,7 +95,7 @@ function WorldAgentLogic:_rpc_rsp_req_launch_role(gate_netid, role_id, rpc_error
             gate_client.state = Gate_Client_State.manage_role
         end
     end
-    gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = error_num })
+    gate_client:send_msg(Login_Pid.rsp_launch_role, { error_num = error_num, role_id = role_id })
 end
 
 function WorldAgentLogic:_on_msg_logout_role(gate_client, pid, msg)
@@ -173,7 +173,7 @@ function WorldAgentLogic:_on_msg_reconnect_role(gate_client, pid, msg)
     until true
 
     if Error_None ~= error_num then
-        gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num })
+        gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num, role_id = msg.role_id })
     end
 end
 
@@ -201,6 +201,6 @@ function WorldAgentLogic:_rpc_rsp_reconnect_role(netid, role_id, rpc_error_num, 
             error_num = Error.reconnect_role.gate_client_state_not_fit
         end
     end
-    gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num })
+    gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num, role_id = role_id })
 end
 

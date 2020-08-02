@@ -54,7 +54,7 @@ function UILaunchRolePanel:on_show(is_new_show, panel_data)
 
 
     self.ml_event_subscriber:subscribe(ProtoId.rsp_pull_role_digest, Functional.make_closure(self.on_msg_rsp_role_digests, self))
-    self.ml_event_subscriber:subscribe(Game_User_Event.launch_role_result, Functional.make_closure(self.on_event_launch_role_result, self))
+    self.ml_event_subscriber:subscribe(Game_User_Event.launch_role, Functional.make_closure(self.on_event_launch_role_result, self))
 
 end
 

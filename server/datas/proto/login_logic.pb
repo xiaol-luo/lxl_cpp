@@ -52,6 +52,7 @@ message ReqLaunchRole
 message RspLaunchRole
 {
     int32 error_num = 1;
+	int64 role_id = 2;
 }
 
 message ReqLogoutRole
@@ -73,4 +74,5 @@ message ReqReconnectRole
 message RspReconnectRole
 {
 	int32 error_num = 1;
+	int64 role_id = 2;
 }

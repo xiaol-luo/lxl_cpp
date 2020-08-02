@@ -8,7 +8,9 @@ function GameUser:ctor(data_mgr)
     self._net_mgr = self._app.net_mgr
     self._user_id = -1
     self._launch_role_id = -1
+    self._last_try_launch_role_id = -1
     self._role_digests = {}
+    self._is_role_reachable = false
 end
 
 function GameUser:_on_init()
@@ -17,9 +19,18 @@ function GameUser:_on_init()
             Functional.make_closure(self._on_event_game_login_done, self))
     self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_done,
             Functional.make_closure(self._on_event_gate_connect_done, self))
-    log_print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", Login_Pid.rsp_pull_role_digest)
+    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_ready_change,
+            Functional.make_closure(self._on_event_gate_connect_ready_change, self))
     self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_pull_role_digest,
             Functional.make_closure(self._on_msg_rsp_pull_role_digest, self))
+    self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_create_role,
+            Functional.make_closure(self._on_msg_rsp_create_role, self))
+    self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_launch_role,
+            Functional.make_closure(self._on_msg_rsp_launch_role, self))
+    self._event_binder:bind(self._app.net_mgr, Login_Pid.req_logout_role,
+            Functional.make_closure(self._on_msg_rsp_logout_role, self))
+    self._event_binder:bind(self._app.net_mgr, Login_Pid.req_reconnect_role,
+            Functional.make_closure(self._on_msg_rsp_reconnect_role, self))
 end
 
 function GameUser:_on_release()
@@ -56,6 +67,12 @@ function GameUser:_on_event_gate_connect_done(is_ready, error_msg)
     end
 end
 
+function GameUser:_on_event_gate_connect_ready_change(is_ready)
+    if not is_ready then
+        self:_set_role_reachable(false)
+    end
+end
+
 function GameUser:pull_role_digest(role_id)
     return self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_pull_role_digest, {role_id = role_id })
 end
@@ -79,7 +96,7 @@ function GameUser:create_role(params)
     return self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_create_role, { params = params })
 end
 
-function GameUser:on_msg_rsp_create_role(pto_id, msg)
+function GameUser:_on_msg_rsp_create_role(pto_id, msg)
     log_debug("GameUser:on_msg_rsp_create_role %s %s", pto_id, msg)
     self:pull_role_digest(nil)
 end
@@ -88,43 +105,71 @@ function GameUser:launch_role(role_id)
     if self._launch_role_id then
         return false
     end
-    if self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_launch_role, { role_id = role_id } ) then
-        self._launch_role_id = role_id
+
+    local ret = self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_launch_role, { role_id = role_id } )
+    if ret then
+        self._last_try_launch_role_id = role_id
     end
+    return ret
 end
 
-function GameUser:reconnect_role(role_id)
-    return self._app.net_mgr.game_gate_net:send_msg(ProtoId.req_reconnect, {
-        role_id = role_id,
-        {
-
-        }
-    } )
-end
-
-
-function GameUser:on_msg_rsp_launch_role(pto_id, msg)
+function GameUser:_on_msg_rsp_launch_role(pto_id, msg)
     log_debug("GameUser:on_msg_rsp_launch_role %s %s", pto_id, msg)
-    self.launch_role_error_num = msg.error_num
-    if 0 == msg.error_num then
-        self.is_launched_role = true
+    if self._last_try_launch_role_id and self._last_try_launch_role_id == msg.role_id then
+        if Error_None == msg.error_num then
+            self._launch_role_id = self._last_try_launch_role_id
+            self:_set_role_reachable(true)
+        end
+        self._last_try_launch_role_id = nil
+        self:fire(Game_User_Event.launch_role, msg.error_num)
     end
-
-    self._app.event_mgr:fire(Game_User_Event.launch_role_result, msg.error_num)
-    -- self._app.event_mgr:fire(Event_Set__Gate_Cnn_Logic.rsp_launch_role, self, msg)
-    -- self:send_msg_to_game(ProtoId.pull_match_state)
-    -- self:send_msg_to_game(ProtoId.pull_room_state)
-    -- self:send_msg_to_game(ProtoId.pull_remote_room_state)
 end
 
-function GameUser:set_user_info(user_info)
-    self.user_info = {}
-    self.user_info.gate_ip = user_info.gate_ip
-    self.user_info.gate_port = user_info.gate_port
-    self.user_info.user_id = user_info.user_id
-    self.user_info.auth_sn = user_info.auth_sn
-    self.user_info.auth_ip = user_info.auth_ip
-    self.user_info.auth_port = user_info.auth_port
-    self.user_info.account_id = user_info.account_id
-    self.user_info.app_id = user_info.app_id
+function GameUser:logout_role(role_id, is_force)
+    if not is_force and self._launch_role_id ~= role_id then
+        return
+    end
+    self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_logout_role, role_id)
+    self._launch_role_id = nil
+    self:_set_role_reachable(false)
+    self:fire(Game_User_Event.logout_role)
+end
+
+function GameUser:_on_msg_rsp_logout_role(pto_id, msg)
+
+end
+
+function GameUser:reconnect_role()
+    if self._launch_role_id and self:get_role_reachable() then
+        return false
+    end
+    local ret = self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_reconnect_role, {
+        role_id = self._launch_role_id, user_login_msg = {} })
+    return ret
+end
+
+function GameUser:_on_msg_rsp_reconnect_role(pto_id, msg)
+    if self._launch_role_id == msg.role_id then
+        if Error_None == msg.error_num then
+            self:_set_role_reachable(true)
+        end
+    end
+end
+
+function GameUser:_set_role_reachable(val)
+    local old_val = self:get_role_reachable()
+    self._is_role_reachable = val
+    if old_val ~= self:get_role_reachable() then
+        self:fire(Game_User_Event.role_reachable_change, self._is_role_reachable)
+    end
+end
+
+function GameUser:get_role_reachable()
+    if not self._launch_role_id then
+        return false
+    end
+    if not self._is_role_reachable then
+        return false
+    end
+    return true
 end

@@ -58,6 +58,7 @@ function UIManageRolePanel:_on_attach_panel()
     self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_done, Functional.make_closure(self._update_gate_state_txt, self))
     self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_ready_change, Functional.make_closure(self._update_gate_state_txt, self))
     self._event_binder:bind(self._app.data_mgr.game_user, Game_User_Event.role_digiests_change, Functional.make_closure(self._update_role_digiests, self))
+    self._event_binder:bind(self._app.data_mgr.game_user, Game_User_Event.role_reachable_change, Functional.make_closure(self._on_event_role_reachable_change, self))
 
     self:_update_ui()
 end
@@ -173,6 +174,11 @@ function UIManageRolePanel:_update_role_digiests()
                 go = go,
             })
         end
+    end
+end
+
+function UIManageRolePanel:_on_event_role_reachable_change(is_role_reachable)
+    if is_role_reachable then
     end
 end
 

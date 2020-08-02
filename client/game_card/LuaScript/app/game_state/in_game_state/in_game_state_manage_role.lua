@@ -22,7 +22,7 @@ function InGameStateManageRole:on_enter(params)
     --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))
     --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.login_gate_result, Functional.make_closure(self._on_event_login_gate_result, self))
     --
-    --self.event_subscriber:subscribe(Game_User_Event.launch_role_result, Functional.make_closure(self._on_event_launch_role_result, self))
+    --self.event_subscriber:subscribe(Game_User_Event.launch_role, Functional.make_closure(self._on_event_launch_role_result, self))
     --self.launch_error_num = nil
     --
     --local user_info = self.main_logic.main_user.user_info
@@ -30,9 +30,11 @@ function InGameStateManageRole:on_enter(params)
     --        user_info.auth_sn, user_info.auth_ip, user_info.auth_port, user_info.account_id, user_info.app_id)
     --self.main_logic.gate_cnn_logic:connect()
     --
+    self.event_binder:bind(self.app.data_mgr.game_user, Game_User_Event.role_reachable_change,
+            Functional.make_closure(self._on_event_role_reachable_change, self))
+
     self.app.panel_mgr:open_panel(UI_Panel_Name.manage_role_panel)
-
-
+    self.app.net_mgr.game_gate_net:connect()
 end
 
 function InGameStateManageRole:on_update()
@@ -50,6 +52,13 @@ function InGameStateManageRole:on_exit()
     --self.event_subscriber:release_all()
     --self.in_game_state.app.panel_mgr:release_panel(UI_Panel_Name.manage_role_panel)
 end
+
+function InGameStateManageRole:_on_event_role_reachable_change(is_role_reachable)
+    if is_role_reachable then
+        self.app.state_mgr.in_game_state_mgr:change_state(In_Game_State_Name.run)
+    end
+end
+
 --
 --function InGameStateManageRole:_on_event_gate_cnn_open(cnn_logic, is_succ)
 --    -- todo:

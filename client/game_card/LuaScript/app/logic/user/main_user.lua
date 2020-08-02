@@ -60,7 +60,7 @@ function MainUser:on_msg_rsp_launch_role(proto_id, msg)
         self.is_launched_role = true
     end
 
-    self.main_logic.event_mgr:fire(Game_User_Event.launch_role_result, msg.error_num)
+    self.main_logic.event_mgr:fire(Game_User_Event.launch_role, msg.error_num)
     -- self.main_logic.event_mgr:fire(Event_Set__Gate_Cnn_Logic.rsp_launch_role, self, msg)
     -- self:send_msg_to_game(ProtoId.pull_match_state)
     -- self:send_msg_to_game(ProtoId.pull_room_state)
