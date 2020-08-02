@@ -41,6 +41,7 @@ function CreateRoleAgentLogic:_on_msg_query_roles(gate_client, pid, msg)
             local msg = {}
             if Error_None == rpc_error_num then
                 msg.error_num = error_num
+                msg.role_id = msg.role_id
                 if Error_None == error_num then
                     msg.role_digests = role_digests
                 end
