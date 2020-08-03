@@ -15,47 +15,47 @@ function ProtoParser:add_search_dirs(search_dirs)
     end
 end
 
- function ProtoParser:load_file(pto_type, file)
-     local ret = false
-     local store = self.stores[pto_type]
-     if store and store:load_files({file}) then
-         ret = true
-     else
-         log_error("ProtoParser:load_files fail, file=%s", v)
-     end
-     return ret
- end
+function ProtoParser:load_file(pto_type, file)
+    local ret = false
+    local store = self.stores[pto_type]
+    if store and store:load_files({file}) then
+        ret = true
+    else
+        log_error("ProtoParser:load_files fail, file=%s", v)
+    end
+    return ret
+end
 
- function ProtoParser:load_files(file_list)
-     local ret = true
-     for _, v in pairs(file_list) do
-         if not self:load_file(v[Pto_Const.pto_type], v[Pto_Const.pto_path]) then
-             ret = false
-         end
-     end
-     return ret
- end
+function ProtoParser:load_files(file_list)
+    local ret = true
+    for _, v in pairs(file_list) do
+        if not self:load_file(v[Pto_Const.pto_type], v[Pto_Const.pto_path]) then
+            ret = false
+        end
+    end
+    return ret
+end
 
- function ProtoParser:setup_id_to_proto(pto_id, pto_type, pto_name)
-     assert(pto_type and pto_id and pto_name)
-     local store = self.stores[pto_type]
-     assert(store)
-     assert(not self.id2proto_detail[pto_id])
-     self.id2proto_detail[pto_id] = { [Pto_Const.pto_id] = pto_id, [Pto_Const.pto_type] = store, [Pto_Const.pto_name] = pto_name }
- end
+function ProtoParser:setup_id_to_proto(pto_id, pto_type, pto_name)
+    assert(pto_type and pto_id and pto_name)
+    local store = self.stores[pto_type]
+    assert(store)
+    assert(not self.id2proto_detail[pto_id], string.format("pto_id %s is already exist", pto_id))
+    self.id2proto_detail[pto_id] = { [Pto_Const.pto_id] = pto_id, [Pto_Const.pto_type] = store, [Pto_Const.pto_name] = pto_name }
+end
 
- function ProtoParser:setup_id_to_protos(pto_list)
-     for _, v in pairs(pto_list) do
-         self:setup_id_to_proto(v[Pto_Const.pto_id], v[Pto_Const.pto_type], v[Pto_Const.pto_name])
-     end
- end
+function ProtoParser:setup_id_to_protos(pto_list)
+    for _, v in pairs(pto_list) do
+        self:setup_id_to_proto(v[Pto_Const.pto_id], v[Pto_Const.pto_type], v[Pto_Const.pto_name])
+    end
+end
 
- function ProtoParser:exist(pto_id)
-     if self.id2proto_detail[pto_id] then
-         return true
-     end
-     return false
- end
+function ProtoParser:exist(pto_id)
+    if self.id2proto_detail[pto_id] then
+        return true
+    end
+    return false
+end
 
 function ProtoParser:encode(pto_id, param)
     local is_ok, ret = false, nil

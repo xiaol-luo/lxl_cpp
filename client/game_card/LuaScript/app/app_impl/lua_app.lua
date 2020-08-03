@@ -121,6 +121,10 @@ function LuaApp:init_proto_parser()
 
     assert(self.pto_parser:load_files(Forward_Msg_Pto.pto_files))
     self.pto_parser:setup_id_to_protos(Forward_Msg_Pto.id_to_pto)
+
+    assert(self.pto_parser:load_files(Main_Role_Pto.pto_files))
+    self.pto_parser:setup_id_to_protos(Main_Role_Pto.id_to_pto)
+
     return true
     --[[
     local proto_dir = path.combine(CS.Application.dataPath, "../GameData/proto")

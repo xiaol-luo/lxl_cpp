@@ -1,6 +1,7 @@
 
 ---@class DataMgr:EventMgr
 ---@field game_user GameUser
+---@field main_role MainRole
 DataMgr = DataMgr or class("DataMgr", EventMgr)
 
 function DataMgr:ctor(_app)
@@ -11,6 +12,7 @@ end
 
 function DataMgr:init()
     self:_add_data_base_help(GameUser)
+    self:_add_data_base_help(MainRole)
 
     for _, v in pairs(self._data_list) do
         v:init()

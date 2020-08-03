@@ -21,7 +21,7 @@ function MainUser:init()
 end
 
 function MainUser:pull_role_digest(role_id)
-    return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_pull_role_digest, {role_id = role_id })
+    return self.main_logic.gate_cnn_logic:send_msg_to_gate(ProtoId.req_pull_role_digest, {role_id = role_id })
 end
 
 function MainUser:on_msg_rsp_pull_role_digest(proto_id, msg)
@@ -31,7 +31,7 @@ function MainUser:on_msg_rsp_pull_role_digest(proto_id, msg)
 end
 
 function MainUser:create_role(params)
-    return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_create_role, { params = params })
+    return self.main_logic.gate_cnn_logic:send_msg_to_gate(ProtoId.req_create_role, { params = params })
 end
 
 function MainUser:on_msg_rsp_create_role(proto_id, msg)
@@ -40,11 +40,11 @@ function MainUser:on_msg_rsp_create_role(proto_id, msg)
 end
 
 function MainUser:launch_role(role_id)
-    return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_launch_role, { role_id = role_id } )
+    return self.main_logic.gate_cnn_logic:send_msg_to_gate(ProtoId.req_launch_role, { role_id = role_id } )
 end
 
 function MainUser:reconnect_role(role_id)
-    return self.main_logic.gate_cnn_logic:send_msg(ProtoId.req_reconnect, {
+    return self.main_logic.gate_cnn_logic:send_msg_to_gate(ProtoId.req_reconnect, {
         role_id = role_id,
         {
 

@@ -3,6 +3,7 @@
 GameUser = GameUser or class("GameUser", DataBase)
 
 function GameUser:ctor(data_mgr)
+    log_print("mainrole !!!!!!!!!!!!!!!!!", GameUser, DataBase)
     GameUser.super.ctor(self, data_mgr, "game_user")
     ---@type NetMgr
     self._net_mgr = self._app.net_mgr
@@ -74,7 +75,7 @@ function GameUser:_on_event_gate_connect_ready_change(is_ready)
 end
 
 function GameUser:pull_role_digest(role_id)
-    return self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_pull_role_digest, {role_id = role_id })
+    return self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_pull_role_digest, {role_id = role_id })
 end
 
 function GameUser:_on_msg_rsp_pull_role_digest(pto_id, msg)
@@ -85,7 +86,7 @@ function GameUser:_on_msg_rsp_pull_role_digest(pto_id, msg)
         else
             self.role_digests[msg.role_id] = {}
         end
-        for _, v in pairs(msg.role_digests) do
+        for _, v in pairs(msg.role_digests or {}) do
             self._role_digests[v.role_id] = v
         end
         self:fire(Game_User_Event.role_digiests_change, self)
@@ -93,7 +94,7 @@ function GameUser:_on_msg_rsp_pull_role_digest(pto_id, msg)
 end
 
 function GameUser:create_role(params)
-    return self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_create_role, { params = params })
+    return self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_create_role, { params = params })
 end
 
 function GameUser:_on_msg_rsp_create_role(pto_id, msg)
@@ -106,7 +107,7 @@ function GameUser:launch_role(role_id)
         return false
     end
 
-    local ret = self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_launch_role, { role_id = role_id } )
+    local ret = self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_launch_role, { role_id = role_id } )
     if ret then
         self._last_try_launch_role_id = role_id
     end
@@ -125,11 +126,8 @@ function GameUser:_on_msg_rsp_launch_role(pto_id, msg)
     end
 end
 
-function GameUser:logout_role(role_id, is_force)
-    if not is_force and self._launch_role_id ~= role_id then
-        return
-    end
-    self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_logout_role, role_id)
+function GameUser:logout_role()
+    self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_logout_role, role_id)
     self._launch_role_id = nil
     self:_set_role_reachable(false)
     self:fire(Game_User_Event.logout_role)
@@ -143,7 +141,7 @@ function GameUser:reconnect_role()
     if self._launch_role_id and self:get_role_reachable() then
         return false
     end
-    local ret = self._app.net_mgr.game_gate_net:send_msg(Login_Pid.req_reconnect_role, {
+    local ret = self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_reconnect_role, {
         role_id = self._launch_role_id, user_login_msg = {} })
     return ret
 end

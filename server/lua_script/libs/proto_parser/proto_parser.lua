@@ -40,7 +40,7 @@ end
      assert(pto_type and pto_id and pto_name)
      local store = self.stores[pto_type]
      assert(store)
-     assert(not self.id2proto_detail[pto_id])
+     assert(not self.id2proto_detail[pto_id], string.format("pto_id %s is already exist", pto_id))
      self.id2proto_detail[pto_id] = { [Pto_Const.pto_id] = pto_id, [Pto_Const.pto_type] = store, [Pto_Const.pto_name] = pto_name }
  end
 

@@ -38,7 +38,6 @@ return {
     "app.ui.ui_panel_setting",
 
     "app.logic.role.role",
-    "app.logic.role.main_role",
     "app.logic.role.role_mgr",
     "app.logic.user.main_user",
 
@@ -61,4 +60,7 @@ return {
     "app.data.data_mgr",
     "app.data.game_user.game_user_def",
     "app.data.game_user.game_user",
+
+    "app.data.main_role.main_role_def",
+    "app.data.main_role.main_role",
 }

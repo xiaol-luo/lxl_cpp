@@ -21,6 +21,7 @@ function GameGateNetEditor:_on_release()
 end
 
 function GameGateNetEditor:connect()
+    log_print("GameGateNetEditor:connect 1")
     local old_is_ready = self:is_ready()
     if self._net then
         self._net:close()
@@ -37,8 +38,10 @@ function GameGateNetEditor:connect()
     if not all_gate_host or not next(all_gate_host) then
         self._error_msg = "not valid gate host can use"
         self:notify_connect_done()
+        log_print("GameGateNetEditor:connect 2")
         return false
     end
+    log_print("GameGateNetEditor:connect 3")
     local gate_ip, gate_port = all_gate_host[1].ip, all_gate_host[1].port
     if not gate_ip or #gate_ip <= 0 or not gate_port then
         self._error_msg = string.format("gate_ip %s or gate_port %s, is not valid", gate_ip, gate_port)
@@ -103,7 +106,7 @@ function GameGateNetEditor:_on_event_net_open(connect_op_seq, is_succ)
     if is_succ then
         local user_id = self._net_mgr.game_login_net:get_user_id()
         local auth_sn = self._net_mgr.game_login_net:get_auth_sn()
-        self:send_msg(Login_Pid.req_user_login, { user_id = user_id, auth_sn = auth_sn })
+        self:send_msg_to_gate(Login_Pid.req_user_login, { user_id = user_id, auth_sn = auth_sn })
     else
         self:notify_connect_done()
     end
@@ -145,15 +148,35 @@ function GameGateNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes, 
     self._net_mgr:fire(pto_id, pto_id, msg)
 end
 
-function GameGateNetEditor:send_msg(pid, msg)
+function GameGateNetEditor:send_msg_to_gate(pto_id, msg)
     if not self._net or self._net:get_state() ~= Net_Agent_State.connected then
         return false
     end
-    local is_ok, bin = self._pto_parser:encode(pid, msg)
+    local is_ok, bin = self._pto_parser:encode(pto_id, msg)
     if is_ok then
-        return self._net:send(pid, bin)
+        return self._net:send(pto_id, bin)
     end
     return false
+end
+
+function GameGateNetEditor:send_msg(pto_id, msg)
+    local is_ok, bytes = true, nil
+    if is_table(msg) then
+        is_ok, bytes = self._pto_parser:encode(pto_id, msg)
+    else
+        is_ok = false
+    end
+    if not is_ok then
+        log_error("GameGateNetEditor:send_msg encode fail, pid %s, msg %s", pto_id, msg)
+        return false
+    end
+
+    is_ok = self:send_msg_to_gate(Forward_Msg_Pid.req_forward_game_msg, { msg = {
+        pto_id = pto_id,
+        pto_bytes = bytes,
+        further_forward = 0,
+    }})
+    return is_ok
 end
 
 

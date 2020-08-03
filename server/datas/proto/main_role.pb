@@ -14,7 +14,6 @@ message RoleDataBaseInfo
 message SyncRoleData
 {
 	int32 pull_type = 1
-	int64 user_id = 2;
-	int64 role_id = 3;
-	RoleDataBaseInfo base_info = 4;
+	int64 role_id = 2;
+	RoleDataBaseInfo base_info = 3;
 }

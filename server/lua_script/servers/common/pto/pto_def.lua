@@ -35,10 +35,12 @@ Pto_Const.peer_net_min_pto_id = 2000
 Pto_Const.rpc_min_pto_id = 3000
 Pto_Const.login_min_pto_id = 4000
 Pto_Const.forward_msg_min_pto_id = 5000
+Pto_Const.main_role_min_pto_id = 6000
 
 
 require("servers.common.pto.peer_net_pto")
 require("servers.common.pto.rpc_pto")
 require("servers.common.pto.login_pto")
 require("servers.common.pto.forward_msg_pto")
+require("servers.common.pto.main_role_pto")
 

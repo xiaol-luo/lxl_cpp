@@ -61,12 +61,13 @@ function GameForwardMsg:_handle_remote_call_forward_msg_to_game(rpc_rsp, gate_ne
         end
     end
 
+    -- for test
+    --[[
     self._rpc_svc_proxy:call(function(...)
 
     end, rpc_rsp.from_host, Rpc.gate.method.forward_msg_to_client, gate_netid, Login_Pid.rsp_pull_role_digest, { error_num = 0 })
-
-    -- for test
     game_role.base_info:set_role_name("rand_role_name" .. tostring(math.random(1, 1000000)))
+    ]]
 end
 
 

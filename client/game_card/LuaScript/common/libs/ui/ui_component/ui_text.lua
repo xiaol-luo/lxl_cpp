@@ -1,4 +1,5 @@
 
+---@class UIText
 UIText = UIText or class("UIText", UIComponent)
 
 function UIText:ctor(go)

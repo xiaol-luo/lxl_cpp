@@ -11,43 +11,11 @@ end
 
 function InGameStateRun:on_enter(params)
     InGameStateRun.super.on_enter(self, params)
-    --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.open, Functional.make_closure(self._on_event_gate_cnn_open, self))
-    --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))
-    --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.login_gate_result, Functional.make_closure(self._on_event_login_gate_result, self))
-    --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.relogin_gate_result, Functional.make_closure(self._on_event_relogin_gate_result, self))
-    --self.event_subscriber:subscribe(Game_User_Event.launch_role, Functional.make_closure(self._on_event_launch_role_result, self))
-    --
-    --
-    --self.main_logic.gate_cnn_logic:send_msg_to_game(ProtoId.pull_role_data, { pull_type = 0 })
-    --self.main_logic.ui_panel_mgr:show_panel(UI_Panel_Name.main_panel, {})
-    --self.gate_last_reconnect_sec = 0
-    --self.fight_last_reconnect_sec = 0
-
     self.app.panel_mgr:open_panel(UI_Panel_Name.main_panel, {})
 end
 
 function InGameStateRun:on_update()
     InGameStateRun.super.on_update(self)
-    --self.main_logic.gate_cnn_logic:update()
-    --local cnn_state = self.main_logic.gate_cnn_logic:get_state()
-    --if Net_Agent_State.closed == cnn_state or Net_Agent_State.free == cnn_state then
-    --    local now_sec = logic_sec()
-    --    if now_sec - self.gate_last_reconnect_sec >= 10 then
-    --       self.gate_last_reconnect_sec = now_sec
-    --        self.main_logic.gate_cnn_logic:connect()
-    --    end
-    --end
-    ---- log_debug("is_active = %s", self.main_logic.fight_cnn_logic:get_is_active())
-    --if self.main_logic.fight_cnn_logic:get_is_active() then
-    --    local cnn_state = self.main_logic.fight_cnn_logic:get_state()
-    --    if Net_Agent_State.closed == cnn_state or Net_Agent_State.free == cnn_state then
-    --        local now_sec = logic_sec()
-    --        if now_sec - self.gate_last_reconnect_sec >= 3 then
-    --            self.gate_last_reconnect_sec = now_sec
-    --            self.main_logic.fight_cnn_logic:connect()
-    --        end
-    --    end
-    --end
 end
 
 function InGameStateRun:on_exit()

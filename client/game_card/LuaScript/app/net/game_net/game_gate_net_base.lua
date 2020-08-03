@@ -64,6 +64,13 @@ function GameGateNetBase:notify_ready_change()
     self._net_mgr:fire(Game_Net_Event.gate_connect_ready_change, self, self:is_ready())
 end
 
+-- to gate
+function GameGateNetBase:send_msg_to_gate(pid, msg)
+
+end
+
+-- 由于client大多协议是发往game的，所以更精简的函数名，send_msg默认是指代发往game
+-- to game
 function GameGateNetBase:send_msg(pid, msg)
 
 end
