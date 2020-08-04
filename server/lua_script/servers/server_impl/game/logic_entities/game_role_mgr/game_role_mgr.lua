@@ -380,9 +380,10 @@ end
 --- 客户端函数
 function GameRoleMgr:_on_map_client_msg_handle_fns()
     GameRoleMgr.super._on_map_client_msg_handle_fns(self)
-    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = self._handle_client_msg_pull_role_data
+    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = GameRoleMgrHandleClientMsgFns.handle_client_msg_pull_role_data
 end
 
+--[[
 function GameRoleMgr:_handle_client_msg_pull_role_data(role_id, pid, msg)
     local role = self:get_role(role_id)
     if not role then
@@ -396,3 +397,4 @@ function GameRoleMgr:_handle_client_msg_pull_role_data(role_id, pid, msg)
         }
     })
 end
+--]]
