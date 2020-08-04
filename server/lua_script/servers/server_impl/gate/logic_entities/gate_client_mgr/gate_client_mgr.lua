@@ -2,8 +2,8 @@
 ---@class GateClientMgr:LogicEntity
 GateClientMgr = GateClientMgr or class("GateClientMgr", LogicEntity)
 
-function GateClientMgr:ctor(logic_svc, logic_name)
-    GateClientMgr.super.ctor(self, logic_svc, logic_name)
+function GateClientMgr:ctor(logics, logic_name)
+    GateClientMgr.super.ctor(self, logics, logic_name)
     ---@type table<number, GateClient>
     self._gate_clients = {}
     ---@type ClientNetService

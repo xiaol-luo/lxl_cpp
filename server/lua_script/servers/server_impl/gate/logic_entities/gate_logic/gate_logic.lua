@@ -2,8 +2,8 @@
 ---@class GateLogic:LogicEntity
 GateLogic = GateLogic or class("GateLogic", LogicEntity)
 
-function GateLogic:ctor(logic_svc, logic_name)
-    GateLogic.super.ctor(self, logic_svc, logic_name)
+function GateLogic:ctor(logics, logic_name)
+    GateLogic.super.ctor(self, logics, logic_name)
     ---@type GateClientMgr
     self._gate_client_mgr = nil
 end
@@ -11,7 +11,7 @@ end
 
 function GateLogic:_on_init()
     GateLogic.super._on_init(self)
-    self._gate_client_mgr = self.logic_svc.gate_client_mgr
+    self._gate_client_mgr = self.logics.gate_client_mgr
 end
 
 function GateLogic:_on_start()

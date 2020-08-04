@@ -4,6 +4,7 @@
 GameRole = GameRole or class("GameRole")
 
 function GameRole:ctor(mgr, user_id, role_id)
+    ---@type GameRoleMgr
     self._mgr = mgr
     self._user_id = user_id
     self._role_id = role_id
@@ -203,6 +204,32 @@ end
 function GameRole:set_world_server_key(val)
     -- log_print("GameRole:set_world_server_key", val)
     self._world_server_key = val
+end
+
+-- send msg to client，
+-- 因为最经常发往客户端，所以send_msg这个简短的函数名默认指发给客户但
+function GameRole:send_msg(pid, msg)
+    if not self._gate_server_key or not self._gate_netid then
+        return false
+    end
+    if not self._mgr then
+        return false
+    end
+    if not is_number(pid) then
+        return false
+    end
+
+    local is_ok, bytes = true, nil
+    if msg then
+        is_ok, bytes = self._mgr.server.pto_parser:encode(pid, msg)
+    end
+    if not is_ok then
+        log_warn("GameRole:send_msg encode fail, pid %s and msg %s", is_ok, msg)
+        return
+    end
+    self._mgr.server.rpc:call(nil, self._gate_server_key,
+            Rpc.gate.method.forward_msg_to_client, self._gate_netid, pid, bytes)
+    return true
 end
 
 

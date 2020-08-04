@@ -1,5 +1,7 @@
 
 ---@class GameLogicService:LogicServiceBase
+---@field role_mgr GameRoleMgr
+---@field forward_msg GameForwardMsg
 GameLogicService = GameLogicService or class("LogicService", LogicServiceBase)
 
 function GameLogicService:_on_init()

@@ -14,8 +14,6 @@ end
 function RpcServiceProxy:set_remote_call_handle_fn(fn_name, fn)
     if fn then
         assert(not self._set_remote_call_record[fn_name])
-    else
-        assert(self._set_remote_call_record[fn_name])
     end
     self._rpc_svc:set_remote_call_handle_fn(fn_name, fn)
     self._set_remote_call_record[fn_name] = fn and true or nil

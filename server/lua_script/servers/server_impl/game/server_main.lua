@@ -8,6 +8,7 @@ ServiceMgr = GameServiceMgr
 ---@class GameServer : ServerBase
 ---@field redis_setting_online_servers RedisServerConfig
 ---@field mongo_setting_game MongoServerConfig
+---@field logics GameLogicService
 GameServer = GameServer or class("GameServer", ServerBase)
 
 function create_server_main(init_setting, init_args)
