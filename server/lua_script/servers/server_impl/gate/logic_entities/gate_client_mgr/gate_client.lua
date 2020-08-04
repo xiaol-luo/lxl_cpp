@@ -20,7 +20,7 @@ function GateClient:send_bin(pid, bin)
     return false
 end
 
-function GateClient:send_msg(pid, msg
+function GateClient:send_msg(pid, msg)
     if self.cnn then
         return self.cnn:send_msg(pid, msg)
     end
