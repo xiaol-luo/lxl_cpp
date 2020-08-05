@@ -9,13 +9,13 @@ function ZoneSettingService:ctor(service_mgr, service_name)
     self._event_binder = EventBinder:new()
     self._etcd_client = nil
 
-    self._is_setting_ready = false
+    self._is_setting_ready = false -- 当这个值为true，集群配置设置完毕
     ---@type table<string, number>
-    self._zone_role_min_nums = {}
+    self._zone_role_min_nums = {} -- 集群状态ready，需要满足每种server_role最少拥有的数量
     ---@type table<string, boolean>
-    self._zone_allow_join_servers = {} -- key=name
+    self._zone_allow_join_servers = {} -- 允许加入集群的server
     ---@type table<string, boolean>
-    self._zone_allow_work_servers = {} -- 特定server_role会有限制，比如world，根据具体实现来
+    self._zone_allow_work_servers = {} -- 允许加入集群的server中，允许参与工作，提供服务的，只针对特定server_role
 
     self._db_path_zone_setting = nil
     self._db_path_zone_allow_join_servers = nil

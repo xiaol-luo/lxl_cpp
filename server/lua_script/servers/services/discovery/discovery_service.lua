@@ -77,6 +77,7 @@ end
 
 function DiscoveryService:_on_update()
     DiscoveryService.super._on_update(self)
+
     self:_try_apply_cluster_server_id()
     self:_watch_servers_data()
     self:_keep_in_cluster()
@@ -92,6 +93,7 @@ function DiscoveryService:_try_apply_cluster_server_id()
     end
     self._apply_cluster_id_last_sec = now_sec
 
+    -- 先获取最新的cluster_server_id，然后通过cmp_swap的方式来保证得到的cluster_server_id是唯一的
     if not self._cluster_id_prev_info then
         self._is_applying_cluster_id = true
         self._etcd_client:get(self._db_path_apply_cluster_id, false, function(op_id, op, ret)
@@ -144,6 +146,7 @@ function DiscoveryService:_try_apply_cluster_server_id()
 end
 
 function DiscoveryService:_watch_servers_data()
+    -- 监视集群内server变化
     if self._servers_infos.is_watching then
         return
     end

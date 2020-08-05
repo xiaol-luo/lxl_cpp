@@ -27,7 +27,8 @@ namespace Utopia
             m_idToMgr.Clear();
 
             var eventMgrSetIt = eventMgrSet.GetEnumerator();
-            while(null != eventMgrSetIt.Current)
+            eventMgrSetIt.MoveNext();
+            while (null != eventMgrSetIt.Current)
             {
                 EventMgr<EventKeyType> eventMgr = eventMgrSetIt.Current;
                 EventProxy<EventKeyType> eventProxy = null;
