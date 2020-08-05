@@ -18,9 +18,9 @@ function CreateRoleServiceMgr:_on_init()
             DB_Uuid_Const.query_db, DB_Uuid_Const.query_coll, { [DB_Uuid_Names.role_id]=true })
     self:add_service(db_uuid)
 
-    local logic_svc = CreateRoleLogicService:new(self, Service_Name.logics)
-    logic_svc:init()
-    self:add_service(logic_svc)
+    local logics = CreateRoleLogicService:new(self, Service_Name.logics)
+    logics:init()
+    self:add_service(logics)
 
     return true
 end

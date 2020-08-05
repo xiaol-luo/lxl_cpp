@@ -2,15 +2,15 @@
 ---@class CreateRoleAgentLogic:LogicEntity
 CreateRoleAgentLogic = CreateRoleAgentLogic or class("CreateRoleAgentLogic", LogicEntity)
 
-function CreateRoleAgentLogic:ctor(logic_svc, logic_name)
-    CreateRoleAgentLogic.super.ctor(self, logic_svc, logic_name)
+function CreateRoleAgentLogic:ctor(logics, logic_name)
+    CreateRoleAgentLogic.super.ctor(self, logics, logic_name)
     ---@type GateClientMgr
     self._gate_client_mgr = nil
 end
 
 function CreateRoleAgentLogic:_on_init()
     CreateRoleAgentLogic.super._on_init(self)
-    self._gate_client_mgr = self.logic_svc.gate_client_mgr
+    self._gate_client_mgr = self.logics.gate_client_mgr
 end
 
 function CreateRoleAgentLogic:_on_start()

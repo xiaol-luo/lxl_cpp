@@ -1,9 +1,10 @@
 
 ---@class GameRoleMgr:LogicEntity
+---@field logics GameLogicService
 GameRoleMgr = GameRoleMgr or class("GameRoleMgr", LogicEntity)
 
-function GameRoleMgr:ctor(logic_svc, logic_name)
-    GameRoleMgr.super.ctor(self, logic_svc, logic_name)
+function GameRoleMgr:ctor(logics, logic_name)
+    GameRoleMgr.super.ctor(self, logics, logic_name)
     ---@type GameServer
     self.server = self.server
     ---@type OnlineWorldShadow
@@ -30,6 +31,15 @@ function GameRoleMgr:_on_init()
     self._db_client = MongoClient:new(db_setting.thread_num, db_setting.host, db_setting.auth_db,  db_setting.user, db_setting.pwd)
 end
 
+function GameRoleMgr:_on_map_remote_call_handle_fns()
+    GameRoleMgr.super._on_map_remote_call_handle_fns(self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.launch_role] = self._handle_remote_call_launch_role
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.change_gate_client] = self._handle_remote_call_change_gate_client
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.release_role] = self._handle_remote_call_release_role
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.bind_world] = self._handle_remote_call_bind_world
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.check_match_game_roles] = self._handle_remote_call_check_match_game_roles
+end
+
 function GameRoleMgr:_on_start()
     GameRoleMgr.super._on_start(self)
 
@@ -37,14 +47,6 @@ function GameRoleMgr:_on_start()
         self:set_error(-1, "GameRoleMgr:_on_start start mongo client fail")
         return
     end
-
-    self:get_role(1)
-
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.launch_role, Functional.make_closure(self._handle_remote_call_launch_role, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.change_gate_client, Functional.make_closure(self._handle_remote_call_change_gate_client, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.release_role, Functional.make_closure(self._handle_remote_call_release_role, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.bind_world, Functional.make_closure(self._handle_remote_call_bind_world, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.check_match_game_roles, Functional.make_closure(self._handle_remote_call_check_match_game_roles, self))
 
     self._event_binder:bind(self._online_world_shadow, Online_World_Event.adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
@@ -374,3 +376,25 @@ function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, ro
         end
     end, world_server_key, Rpc.world.method.check_match_world_roles, role_ids)
 end
+
+--- 客户端函数
+function GameRoleMgr:_on_map_client_msg_handle_fns()
+    GameRoleMgr.super._on_map_client_msg_handle_fns(self)
+    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = GameRoleMgrHandleClientMsgFns.handle_client_msg_pull_role_data
+end
+
+--[[
+function GameRoleMgr:_handle_client_msg_pull_role_data(role_id, pid, msg)
+    local role = self:get_role(role_id)
+    if not role then
+        return
+    end
+    role:send_msg(Main_Role_Pid.sync_role_data, {
+        role_id = role:get_role_id(),
+        pull_type = msg.pull_type,
+        base_info = {
+            role_name = role.base_info:get_role_name(),
+        }
+    })
+end
+--]]

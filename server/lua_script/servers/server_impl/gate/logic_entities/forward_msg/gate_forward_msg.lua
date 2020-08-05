@@ -2,8 +2,8 @@
 ---@class GateForwardMsg:LogicEntity
 GateForwardMsg = GateForwardMsg or class("GateForwardMsg", LogicEntity)
 
-function GateForwardMsg:ctor(logic_svc, logic_name)
-    GateForwardMsg.super.ctor(self, logic_svc, logic_name)
+function GateForwardMsg:ctor(logics, logic_name)
+    GateForwardMsg.super.ctor(self, logics, logic_name)
     ---@type GateClientMgr
     self._gate_client_mgr = nil
 end
@@ -11,7 +11,7 @@ end
 
 function GateForwardMsg:_on_init()
     GateForwardMsg.super._on_init(self)
-    self._gate_client_mgr = self.logic_svc.gate_client_mgr
+    self._gate_client_mgr = self.logics.gate_client_mgr
 end
 
 function GateForwardMsg:_on_start()
@@ -42,15 +42,15 @@ function GateForwardMsg:_on_msg_forward_game_msg(gate_client, pid, msg)
     if not gate_client:is_in_game() or not gate_client.game_server_key or not gate_client.role_id then
         return
     end
-    self._rpc_svc_proxy:call(nil, gate_client.game_server_key, Rpc.game.method.forward_msg_to_game, gate_client.netid, gate_client.role_id, msg.msg)
+    self._rpc_svc_proxy:call(nil, gate_client.game_server_key, Rpc.game.method.forward_client_msg_to_game, gate_client.netid, gate_client.role_id, msg.msg)
 end
 
 ---@param rpc_rsp RpcRsp
-function GateForwardMsg:_handle_remote_call_forward_msg_to_client(rpc_rsp, gate_netid, pid, msg)
+function GateForwardMsg:_handle_remote_call_forward_msg_to_client(rpc_rsp, gate_netid, pid, bytes)
     rpc_rsp:response()
     local gate_client = self._gate_client_mgr:get_client(gate_netid)
     if gate_client then
-        gate_client:send_msg(pid, msg)
+        gate_client:send_bin(pid, bytes)
     end
 end
 

@@ -2,8 +2,8 @@
 ---@class WorldAgentLogic:LogicEntity
 WorldAgentLogic = WorldAgentLogic or class("WorldAgentLogic", LogicEntity)
 
-function WorldAgentLogic:ctor(logic_svc, logic_name)
-    WorldAgentLogic.super.ctor(self, logic_svc, logic_name)
+function WorldAgentLogic:ctor(logics, logic_name)
+    WorldAgentLogic.super.ctor(self, logics, logic_name)
     ---@type GateClientMgr
     self._gate_client_mgr = nil
     ---@type OnlineWorldShadow
@@ -12,7 +12,7 @@ end
 
 function WorldAgentLogic:_on_init()
     WorldAgentLogic.super._on_init(self)
-    self._gate_client_mgr = self.logic_svc.gate_client_mgr
+    self._gate_client_mgr = self.logics.gate_client_mgr
     self._online_world_shadow = self.server.online_world_shadow
 end
 
