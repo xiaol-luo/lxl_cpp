@@ -42,7 +42,7 @@ function PeerNetService:_on_start()
         log_info("PeerNetService listen advertise_peer_port %s", advertise_peer_port)
     end
 
-    self._event_binder:bind(self.server, Discovery_Service_Event.cluster_join_state_change,
+    self._event_binder:bind(self.server, Join_Cluster_Service_Event.cluster_join_state_change,
             Functional.make_closure(self._on_event_cluster_join_state_change, self))
     self._event_binder:bind(self.server, Discovery_Service_Event.cluster_server_change,
             Functional.make_closure(self._on_event_cluster_server_change, self))

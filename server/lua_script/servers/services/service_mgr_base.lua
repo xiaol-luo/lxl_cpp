@@ -39,6 +39,12 @@ function ServiceMgrBase:init()
     zone_setting_svc:init()
     self:add_service(zone_setting_svc)
 
+    do
+        local svc = JoinClusterService:new(self, Service_Name.join_cluster)
+        svc:init()
+        self:add_service(svc)
+    end
+
     local discovery = DiscoveryService:new(self, Service_Name.discovery)
     discovery:init()
     self:add_service(discovery)

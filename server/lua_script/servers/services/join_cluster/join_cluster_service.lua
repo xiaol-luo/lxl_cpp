@@ -27,6 +27,7 @@ function JoinClusterService:ctor(service_mgr, service_name)
         refresh_ttl_last_sec = 0,
         set_value_last_sec = 0,
         create_index = nil,
+        modified_index = nil,
     }
 
     ---@type ZoneSettingService
@@ -137,7 +138,6 @@ function JoinClusterService:_try_apply_cluster_server_id()
     end
 end
 
-
 function JoinClusterService:_keep_in_cluster()
     if self._keep_in_cluster_infos.is_keeping or not self._cluster_server_id then
         return
@@ -159,7 +159,6 @@ function JoinClusterService:_keep_in_cluster()
                     self._keep_in_cluster_infos.create_index = ret.op_result.node.createdIndex
                     self._keep_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
                     self._keep_in_cluster_infos.refresh_ttl_last_sec = 0
-                    self._servers_infos.wait_idx = nil -- 使得执行一次全量pull
                 else
                     self:_set_join_cluster(false)
                 end
@@ -190,13 +189,12 @@ function JoinClusterService:_on_event_zone_setting_allow_join_servers_diff(key, 
     local old_value = self._is_allow_join_cluster
     self._is_allow_join_cluster = self._zone_setting:is_server_allow_join(self._cluster_server_name)
     if old_value and old_value ~= self._is_allow_join_cluster then
-        if self._is_joined_cluster and self._keep_in_cluster_infos.modified_index then
-            self._etcd_client:cmp_delete(self._db_path_zone_server_data, self._keep_in_cluster_infos.modified_index, self._zone_server_data_json_str, false,
-                    function (op_id, op, ret)
-                        if ret:is_ok() then
-                            self:_set_join_cluster(false)
-                        end
-                    end)
+        if self._is_joined_cluster then
+            if self._keep_in_cluster_infos.modified_index then
+                self._etcd_client:cmp_delete(self._db_path_zone_server_data, self._keep_in_cluster_infos.modified_index,
+                        self._zone_server_data_json_str, false)
+                self:_set_join_cluster(false)
+            end
         end
     end
 end

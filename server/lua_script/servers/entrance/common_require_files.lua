@@ -19,9 +19,12 @@ return {
     "servers.services.service_mgr_base",
     "servers.services.hotfix_service",
 
+    "servers.services.join_cluster.join_cluster_service_def",
+    "servers.services.join_cluster.join_cluster_service",
+    "servers.services.join_cluster.zone_server_json_data",
+
     "servers.services.discovery.discovery_service_def",
     "servers.services.discovery.discovery_service",
-    "servers.services.discovery.zone_server_json_data",
     "servers.services.discovery.discovery_server_data",
 
     "servers.services.peer_net.peer_net_def",

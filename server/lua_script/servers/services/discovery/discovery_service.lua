@@ -4,22 +4,11 @@ DiscoveryService = DiscoveryService or class("DiscoveryService", ServiceBase)
 
 function DiscoveryService:ctor(service_mgr, service_name)
     DiscoveryService.super.ctor(self, service_mgr, service_name)
-
-    self._etcd_setting = nil
-    self._is_joined_cluster = false
-
-    self._db_path_apply_cluster_id = nil
-    self._cluster_server_id = nil
-
-    self._db_path_zone_server_data = nil
-    self._zone_server_data_json_str = nil
-    self._zone_server_data = ZoneServerJsonData:new()
-
     ---@type EtcdClient
     self._etcd_client = nil
-    self._cluster_id_prev_info = nil
-    self._is_applying_cluster_id = false
-    self._apply_cluster_id_last_sec = 0
+    self._db_path_watch_server_dir = nil
+    ---@type ZoneSettingService
+    self._zone_setting = nil
 
     self._servers_infos = {
         is_watching = false,
@@ -27,48 +16,19 @@ function DiscoveryService:ctor(service_mgr, service_name)
         ---@type table<string, ZoneServerJsonData>
         server_datas = {},
     }
-
-    self._keep_in_cluster_infos = {
-        is_keeping = false,
-        refresh_ttl_last_sec = 0,
-        set_value_last_sec = 0,
-        create_index = nil,
-    }
-
-    ---@type ZoneSettingService
-    self._zone_setting = nil
-
-    self._is_allow_join_cluster = false
-    self._cluster_server_name = nil
 end
 
 function DiscoveryService:_on_init()
     DiscoveryService.super._on_init(self)
     self._db_path_watch_server_dir = string.format(Discovery_Service_Const.db_path_format_zone_server_dir, self.server.zone_name)
-    self._db_path_apply_cluster_id = string.format(Discovery_Service_Const.db_path_format_apply_cluster_id, self.server.zone_name)
-    self._db_path_zone_server_data = string.format(Discovery_Service_Const.db_path_format_zone_server_data,
-            self.server.zone_name, self.server.server_role, self.server.server_name)
-    self._etcd_setting = self.server.etcd_service_discovery_setting
-    self._zone_server_data[ZoneServerJsonDataField.zone] = self.server.zone_name
-    self._zone_server_data[ZoneServerJsonDataField.server_role] = self.server.server_role
-    self._zone_server_data[ZoneServerJsonDataField.server_name] = self.server.server_name
-    self._zone_server_data[ZoneServerJsonDataField.advertise_client_ip] = self.server.init_setting.advertise_client_ip
-    self._zone_server_data[ZoneServerJsonDataField.advertise_client_port] = self.server.init_setting.advertise_client_port
-    self._zone_server_data[ZoneServerJsonDataField.advertise_peer_ip] = self.server.init_setting.advertise_peer_ip
-    self._zone_server_data[ZoneServerJsonDataField.advertise_peer_port] = self.server.init_setting.advertise_peer_port
-    self._zone_server_data[ZoneServerJsonDataField.db_path] = self._db_path_zone_server_data
-
-    self._etcd_client = EtcdClient:new(self._etcd_setting.host, self._etcd_setting.user, self._etcd_setting.pwd)
+    local etcd_setting = self.server.etcd_service_discovery_setting
+    self._etcd_client = EtcdClient:new(etcd_setting.host, etcd_setting.user, etcd_setting.pwd)
     self._zone_setting = self.server.zone_setting
-    self._cluster_server_name = gen_cluster_server_name(self.server.server_role, self.server.server_name)
 end
 
 function DiscoveryService:_on_start()
     DiscoveryService.super._on_start(self)
     self._etcd_client:set(self._db_path_watch_server_dir, nil, nil, true)
-    self._is_allow_join_cluster = self._zone_setting:is_server_allow_join(self._cluster_server_name)
-    self._event_binder:bind(self._zone_setting, Zone_Setting_Event.zone_setting_allow_join_servers_diff,
-            Functional.make_closure(self._on_event_zone_setting_allow_join_servers_diff, self))
 end
 
 function DiscoveryService:_on_stop()
@@ -77,73 +37,9 @@ end
 
 function DiscoveryService:_on_update()
     DiscoveryService.super._on_update(self)
-
-    self:_try_apply_cluster_server_id()
     self:_watch_servers_data()
-    self:_keep_in_cluster()
 end
 
-function DiscoveryService:_try_apply_cluster_server_id()
-    if self._cluster_server_id then
-        return
-    end
-    local now_sec = logic_sec()
-    if now_sec - self._apply_cluster_id_last_sec < 1 then
-        return
-    end
-    self._apply_cluster_id_last_sec = now_sec
-
-    -- 先获取最新的cluster_server_id，然后通过cmp_swap的方式来保证得到的cluster_server_id是唯一的
-    if not self._cluster_id_prev_info then
-        self._is_applying_cluster_id = true
-        self._etcd_client:get(self._db_path_apply_cluster_id, false, function(op_id, op, ret)
-            self._is_applying_cluster_id = false
-            if ret:is_ok() then
-                self._cluster_id_prev_info = {
-                    prev_idx = ret.op_result.node.modifiedIndex,
-                    prev_value = ret.op_result.node.value
-                }
-            else
-                local Error_Key_Not_Found = 100
-                if 0 == ret.fail_code and Error_Key_Not_Found == ret.op_result.errorCode then
-                    self._cluster_id_prev_info = {
-                        prev_idx = nil,
-                        prev_value = nil,
-                    }
-                end
-                if ret:fail_msg() then
-                    log_warn("DiscoveryService:_try_apply_cluster_server_id get fail, because %s", ret:fail_msg())
-                end
-            end
-            -- log_print("get cluster_id op ret", op_id, ret)
-        end)
-        return
-    end
-
-    if self._cluster_id_prev_info then
-        self._is_applying_cluster_id = true
-        local prev_value = self._cluster_id_prev_info.prev_value and tonumber(self._cluster_id_prev_info.prev_value) or 0
-        local next_value = 1 +  (prev_value and tonumber(prev_value) or 0)
-        self._etcd_client:cmp_swap(self._db_path_apply_cluster_id, self._cluster_id_prev_info.prev_idx,
-                prev_value, next_value, nil, function(op_id, op, ret)
-                    self._is_applying_cluster_id = false
-                    -- log_print("set cluster_id op ret",  op_id, self._db_path_apply_cluster_id, ret)
-                    if ret:is_ok() then
-                        self._cluster_server_id = ret.op_result.node.value
-                        self._zone_server_data[ZoneServerJsonDataField.cluster_server_id] = self._cluster_server_id
-                        self._zone_server_data_json_str = self._zone_server_data:to_json()
-                    else
-                        self._cluster_id_prev_info = nil
-                    end
-                    if ret:fail_msg() then
-                        log_warn("DiscoveryService apply cluster id ret=%s, fail_msg=%s", ret:is_ok(), ret:fail_msg())
-                    else
-                        log_info("DiscoveryService apply cluster id ret=%s", ret:is_ok())
-                    end
-                end)
-        return
-    end
-end
 
 function DiscoveryService:_watch_servers_data()
     -- 监视集群内server变化
@@ -183,7 +79,6 @@ function DiscoveryService:_watch_servers_data()
     end
 end
 
-
 ---@return ZoneServerJsonData
 function DiscoveryService:_create_server_data(node)
     local server_data = nil
@@ -213,11 +108,6 @@ function DiscoveryService:_process_servers_pull_ret(etcd_ret)
         end
     end
     self._servers_infos.server_datas = new_server_datas
-
-    local this_server_data = new_server_datas[self._db_path_zone_server_data]
-    if not this_server_data or this_server_data.create_index ~= self._keep_in_cluster_infos.create_index then
-        self:_set_join_cluster(false)
-    end
 
     local change_servers = {}
 
@@ -250,14 +140,10 @@ function DiscoveryService:_process_servers_watch_ret(etcd_ret)
     if not etcd_ret:is_ok() then
         return
     end
-    if self._keep_in_cluster_infos.create_index and etcd_ret.op_result.node.createdIndex < self._keep_in_cluster_infos.create_index then
-        return
-    end
     local action = etcd_ret.op_result.action
     local key = etcd_ret.op_result.node.key
     local change_ret = nil
-    if Etcd_Const.Expire == action or Etcd_Const.Delete == action or Etcd_Const.CompareAndDelete == action
-    then
+    if Etcd_Const.Expire == action or Etcd_Const.Delete == action or Etcd_Const.CompareAndDelete == action then
         local old_v = self._servers_infos.server_datas[key]
         if old_v.modified_index < etcd_ret.op_result.node.modifiedIndex then -- watch到的数据必须比缓存的数据更新
             change_ret = { old=old_v, new=nil }
@@ -303,108 +189,10 @@ function DiscoveryService:_fire_server_data_change(change_ret)
     self.server:fire(Discovery_Service_Event.cluster_server_change, action, change_ret.old, change_ret.new)
 end
 
-function DiscoveryService:_keep_in_cluster()
-    if self._keep_in_cluster_infos.is_keeping or not self._cluster_server_id then
-        return
-    end
-    if not self._is_allow_join_cluster or not self._zone_setting:is_ready() then
-        return
-    end
-    local now_sec = logic_sec()
-    if not self._is_joined_cluster then
-        if now_sec - self._keep_in_cluster_infos.set_value_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 4.0 then
-            self._keep_in_cluster_infos.set_value_last_sec = now_sec
-            self._keep_in_cluster_infos.is_keeping = true
-            self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_data_json_str, Discovery_Service_Const.refresh_ttl_sec, function(op_id, op, ret)
-                self._keep_in_cluster_infos.is_keeping = false
-                -- log_print("DiscoveryService:_keep_in_cluster set", ret:is_ok())
-                if ret:is_ok() then
-                    self:_set_join_cluster(true)
-                    self._keep_in_cluster_infos.create_index = ret.op_result.node.createdIndex
-                    self._keep_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
-                    self._keep_in_cluster_infos.refresh_ttl_last_sec = 0
-                    self._servers_infos.wait_idx = nil -- 使得执行一次全量pull
-                else
-                    self:_set_join_cluster(false)
-                end
-            end)
-        end
-    end
-    if self._is_joined_cluster then
-        if now_sec - self._keep_in_cluster_infos.refresh_ttl_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 2.0 then
-            self._keep_in_cluster_infos.refresh_ttl_last_sec = now_sec
-            self._keep_in_cluster_infos.is_keeping = true
-            self._etcd_client:refresh_ttl(self._db_path_zone_server_data, Discovery_Service_Const.refresh_ttl_sec, false, function(op_id, op, ret)
-                self._keep_in_cluster_infos.is_keeping = false
-                -- log_print("DiscoveryService:_keep_in_cluster refresh ttl", ret:is_ok())
-                if ret:is_ok() then
-                    self._keep_in_cluster_infos.modified_index = ret.op_result.node.modifiedIndex
-                    if ret.op_result.node.createdIndex ~= self._keep_in_cluster_infos.create_index then
-                        self:_set_join_cluster(false)
-                    end
-                else
-                    self:_set_join_cluster(false)
-                end
-            end)
-        end
-    end
-end
-
-function DiscoveryService:_on_event_zone_setting_allow_join_servers_diff(key, diff_type, value)
-    local old_value = self._is_allow_join_cluster
-    self._is_allow_join_cluster = self._zone_setting:is_server_allow_join(self._cluster_server_name)
-    if old_value and old_value ~= self._is_allow_join_cluster then
-        if self._is_joined_cluster and self._keep_in_cluster_infos.modified_index then
-            self._etcd_client:cmp_delete(self._db_path_zone_server_data, self._keep_in_cluster_infos.modified_index, self._zone_server_data_json_str, false,
-                    function (op_id, op, ret)
-                        if ret:is_ok() then
-                            self:_set_join_cluster(false)
-                        end
-                    end)
-        end
-    end
-end
-
-function DiscoveryService:_set_join_cluster(is_joined)
-    local is_change = self._is_joined_cluster ~= is_joined
-    self._is_joined_cluster = is_joined
-    if not self._is_joined_cluster then
-        self._keep_in_cluster_infos.create_index = nil
-    end
-    if is_change then
-        log_print("DiscoveryService:_set_join_cluster ", is_joined)
-        self.server:fire(Discovery_Service_Event.cluster_join_state_change, self._is_joined_cluster)
-    end
-end
-
-function DiscoveryService:is_joined_cluster()
-    return self._is_joined_cluster
-end
-
 ---@return table<string, ZoneServerJsonData>
 function DiscoveryService:get_server_datas()
     return self._servers_infos.server_datas
 end
 
-function DiscoveryService:get_cluster_server_id()
-    return self._cluster_server_id
-end
-
-function DiscoveryService:get_self_server_key()
-    return self._db_path_zone_server_data
-end
-
----@return ZoneServerJsonData
-function DiscoveryService:get_self_server_data()
-    return self._zone_server_data
-end
-
-function DiscoveryService:get_self_server_data_str()
-    return self._zone_server_data_json_str
-end
-
-function DiscoveryService:get_self_cluster_server_name()
-    return self._cluster_server_name
-end
 
 

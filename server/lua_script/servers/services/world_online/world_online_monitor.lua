@@ -99,7 +99,7 @@ function OnlineWorldMonitor:_on_update()
 end
 
 function OnlineWorldMonitor:_tick_logic()
-    if not self.server.discovery:is_joined_cluster() then
+    if not self.server:is_joined_cluster() then
         return
     end
 
@@ -116,7 +116,7 @@ function OnlineWorldMonitor:_tick_logic()
     end
 
     if Logic_State.wait_join_cluster == self._curr_logic_state then
-        if self.server.discovery:is_joined_cluster() then
+        if self.server:is_joined_cluster() then
             self:_set_logic_state(Logic_State.joined_cluster)
         end
     end

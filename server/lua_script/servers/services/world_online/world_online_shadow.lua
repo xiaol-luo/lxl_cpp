@@ -66,7 +66,7 @@ end
 function OnlineWorldShadow:_on_update()
     OnlineWorldShadow.super._on_update(self)
 
-    local is_joined_cluster = self.server.discovery:is_joined_cluster()
+    local is_joined_cluster = self.server:is_joined_cluster()
     local now_sec = logic_sec()
     if is_joined_cluster and now_sec >= self._query_world_online_monitor_last_sec + 3 then
         self._query_world_online_monitor_last_sec = now_sec
