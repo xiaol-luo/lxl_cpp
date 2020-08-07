@@ -33,7 +33,12 @@ function EtcdWatcher:stop()
         self._etcd_client:cancel(self._op_id)
         self._op_id = nil
     end
+    self._wait_idx = nil
     self:cancel_all()
+end
+
+function EtcdWatcher:force_pull()
+    self:_do_watch(true)
 end
 
 function EtcdWatcher:_do_watch(is_force_pull)
