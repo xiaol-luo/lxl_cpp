@@ -98,7 +98,7 @@ namespace Utopia
             else
             {
                 // Ä£ÄâÒì²½
-                Core.ins.timer.Add(() => { this.ResLoadEndCall(resState.req); }, 0); 
+                Core.ins.timer.Delay(() => { this.ResLoadEndCall(resState.req); }, 0); 
             }
             ResourceObserver ret = resState.AddObserver(cb);
             return ret;

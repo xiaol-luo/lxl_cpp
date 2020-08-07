@@ -3,42 +3,60 @@ using System.Collections.Generic;
 
 namespace Utopia
 {
-    public class EventMgr<EventKeyType>
+    public class EventMgr
     {
-        Dictionary<EventKeyType, EventCallbackMgr<EventKeyType> > m_eventCbMgrs = new Dictionary<EventKeyType, EventCallbackMgr<EventKeyType> >();
+        Dictionary<string, EventCallbackMgr > m_eventCbMgrs = new Dictionary<string, EventCallbackMgr >();
 
-        public EventId<EventKeyType> Bind(EventKeyType eventKey, System.Action<EventKeyType> cb)
+        public EventId Bind(string eventKey, System.Action cb)
         {
-            EventCallback<EventKeyType> ecb = new EventCallback<EventKeyType>(cb);
-            EventId<EventKeyType> ret = this.DoBind(eventKey, ecb);
+            EventCallbackBase ecb = new EventCallback(cb);
+            EventId ret = this.DoBind(eventKey, ecb);
             return ret;
         }
-        public EventId<EventKeyType> Bind<T>(EventKeyType eventKey, System.Action<EventKeyType, T > cb)
+        public EventId Bind<T0>(string eventKey, System.Action<T0> cb)
         {
-            EventCallback<EventKeyType> ecb = new EventCallback<EventKeyType, T>(cb); ;
-            EventId<EventKeyType> ret = this.DoBind(eventKey, ecb);
+            EventCallbackBase ecb = new EventCallback<T0>(cb); ;
+            EventId ret = this.DoBind(eventKey, ecb);
+            return ret;
+        }
+        public EventId Bind<T0, T1>(string eventKey, System.Action<T0, T1> cb)
+        {
+            EventCallbackBase ecb = new EventCallback<T0, T1>(cb); ;
+            EventId ret = this.DoBind(eventKey, ecb);
+            return ret;
+        }
+        public EventId Bind<T0, T1, T2>(string eventKey, System.Action<T0, T1, T2> cb)
+        {
+            EventCallbackBase ecb = new EventCallback<T0, T1, T2>(cb); ;
+            EventId ret = this.DoBind(eventKey, ecb);
+            return ret;
+        }
+        public EventId Bind<T0, T1, T2, T3>(string eventKey, System.Action<T0, T1, T2, T3> cb)
+        {
+            EventCallbackBase ecb = new EventCallback<T0, T1, T2, T3>(cb); ;
+            EventId ret = this.DoBind(eventKey, ecb);
             return ret;
         }
 
-        protected EventId<EventKeyType> DoBind(EventKeyType eventKey, EventCallback<EventKeyType> ecb)
+        protected EventId DoBind(string eventKey, EventCallbackBase ecb)
         {
-            EventCallbackMgr<EventKeyType> cbMgr = null;
+            EventCallbackMgr cbMgr = null;
             if (!m_eventCbMgrs.TryGetValue(eventKey, out cbMgr))
             {
-                cbMgr = new EventCallbackMgr<EventKeyType>(eventKey);
+                cbMgr = new EventCallbackMgr(eventKey);
                 m_eventCbMgrs.Add(eventKey, cbMgr);
             }
             ulong eid = cbMgr.AddCallback(ecb);
-            EventId<EventKeyType> ret = new EventId<EventKeyType>();
+            EventId ret = new EventId();
             ret.key = eventKey;
             ret.idx = eid;
             ret.mgr = new WeakReference(this);
             return ret;
         }
 
-        public void Cancel(EventId<EventKeyType> eventId)
+        public void Cancel(EventId eventId)
         {
-            EventCallbackMgr<EventKeyType> cbMgr = null;
+            EventCallbackMgr cbMgr = null;
             if (m_eventCbMgrs.TryGetValue(eventId.key, out cbMgr))
             {
                 cbMgr.RemoveCallback(eventId.idx);
@@ -50,26 +68,18 @@ namespace Utopia
             m_eventCbMgrs.Clear();
         }
 
-        public void Fire(EventKeyType eventKey)
+        public void Fire(string eventKey, params object[] param)
         {
-            EventCallbackMgr<EventKeyType> cbMgr = null;
-            if (m_eventCbMgrs.TryGetValue(eventKey, out cbMgr))
-            {
-                cbMgr.FireCallbacks();
-            }
-        }
-        public void Fire(EventKeyType eventKey, object param)
-        {
-            EventCallbackMgr<EventKeyType> cbMgr = null;
+            EventCallbackMgr cbMgr = null;
             if (m_eventCbMgrs.TryGetValue(eventKey, out cbMgr))
             {
                 cbMgr.FireCallbacks(param);
             }
         }
 
-        public EventProxy<EventKeyType> CreateEventProxy()
+        public EventProxy CreateEventProxy()
         {
-            return new EventProxy<EventKeyType>(this);
+            return new EventProxy(this);
         }
     }
 }

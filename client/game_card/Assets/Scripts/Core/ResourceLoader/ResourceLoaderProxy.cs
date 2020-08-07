@@ -80,7 +80,7 @@ namespace Utopia
             {
                 if (null != cb)
                 {
-                    Core.ins.timer.Add(() => {
+                    Core.ins.timer.Delay(() => {
                         cb(path, ret);
                     }, 0);
                 }

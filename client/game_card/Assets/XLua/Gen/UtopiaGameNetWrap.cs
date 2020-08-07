@@ -455,10 +455,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    string _evString = LuaAPI.lua_tostring(L, 2);
-                    Utopia.NetAgentBase _netAgent = (Utopia.NetAgentBase)translator.GetObject(L, 3, typeof(Utopia.NetAgentBase));
+                    Utopia.NetAgentBase _netAgent = (Utopia.NetAgentBase)translator.GetObject(L, 2, typeof(Utopia.NetAgentBase));
                     
-                    gen_to_be_invoked.OnRemoveNetAgent( _evString, _netAgent );
+                    gen_to_be_invoked.OnRemoveNetAgent( _netAgent );
                     
                     
                     

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Utopia
 {
-    public class App : EventMgr<string>
+    public class App : EventMgr
     {        
         bool m_isQuited = false;
         public CoreMain core { get; protected set; }

@@ -1,7 +1,7 @@
 
 namespace Utopia
 {
-    public class CoreModule : Utopia.EventMgr<string>
+    public class CoreModule : Utopia.EventMgr
     {
         public enum EStage
         {

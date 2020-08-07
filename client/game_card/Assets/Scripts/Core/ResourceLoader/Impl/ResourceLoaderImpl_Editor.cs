@@ -8,7 +8,7 @@ namespace Utopia
     {
         public void AsyncLoad(string path, Action<string, UnityEngine.Object> cb)
         {
-            Core.ins.timer.Add(() =>
+            Core.ins.timer.Delay(() =>
             {
                 UnityEngine.Object res = this.Load(path);
                 cb(path, res);
@@ -17,7 +17,7 @@ namespace Utopia
 
         public void AsyncLoadScene(string path, Action<string, bool> cb)
         {
-            Core.ins.timer.Add(() =>
+            Core.ins.timer.Delay(() =>
             {
                 bool ret = this.Load(path);
                 cb(path, ret);

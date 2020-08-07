@@ -11,7 +11,7 @@ namespace Utopia
         Action<bool> m_openCb = null;
         Action<int, string> m_closeCb = null;
         Action<int, byte[], int, int> m_recvMsgCb = null;
-        Utopia.EventProxy<string> m_netModuleEventProxy = null;
+        Utopia.EventProxy m_netModuleEventProxy = null;
 
         public GameNet()
         {
@@ -101,7 +101,7 @@ namespace Utopia
             return m_netAgent.Send(protocolId, data, offset, len);
         }
 
-        public void OnRemoveNetAgent(string evString, NetAgentBase netAgent)
+        public void OnRemoveNetAgent(NetAgentBase netAgent)
         {
             // AppLog.Debug("OnRemoveNetAgent {0}", netAgent.id);
         }

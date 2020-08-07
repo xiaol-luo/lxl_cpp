@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace Utopia
 {
-    public class EventBinder<EventKeyType>
+    public class EventBinder
     {
-        ConditionalWeakTable<EventMgr<EventKeyType>, EventProxy<EventKeyType>> m_mgrToProxy = new ConditionalWeakTable<EventMgr<EventKeyType>, EventProxy<EventKeyType>>();
-        Dictionary<EventId<EventKeyType>, System.WeakReference> m_idToMgr = new Dictionary<EventId<EventKeyType>, System.WeakReference>();
+        ConditionalWeakTable<EventMgr, EventProxy> m_mgrToProxy = new ConditionalWeakTable<EventMgr, EventProxy>();
+        Dictionary<EventId, System.WeakReference> m_idToMgr = new Dictionary<EventId, System.WeakReference>();
 
         public EventBinder()
         {
@@ -15,12 +15,12 @@ namespace Utopia
 
         public void CancelAll()
         {
-            HashSet<EventMgr<EventKeyType>> eventMgrSet = new HashSet<EventMgr<EventKeyType>>();
+            HashSet<EventMgr> eventMgrSet = new HashSet<EventMgr>();
             foreach (System.WeakReference wkEventMgr in m_idToMgr.Values)
             {
                 if (wkEventMgr.IsAlive)
                 {
-                    EventMgr<EventKeyType> eventMgr = wkEventMgr.Target as EventMgr<EventKeyType>;
+                    EventMgr eventMgr = wkEventMgr.Target as EventMgr;
                     eventMgrSet.Add(eventMgr);
                 }
             }
@@ -30,8 +30,8 @@ namespace Utopia
             eventMgrSetIt.MoveNext();
             while (null != eventMgrSetIt.Current)
             {
-                EventMgr<EventKeyType> eventMgr = eventMgrSetIt.Current;
-                EventProxy<EventKeyType> eventProxy = null;
+                EventMgr eventMgr = eventMgrSetIt.Current;
+                EventProxy eventProxy = null;
                 if (m_mgrToProxy.TryGetValue(eventMgr, out eventProxy))
                 {
                     m_mgrToProxy.Remove(eventMgr);
@@ -43,7 +43,7 @@ namespace Utopia
             // 这里通过m_idToMgr的key release掉事件监听， 然后创建一个新的m_mgrToProxy更简单
         }
 
-        public void Cancel(EventId<EventKeyType> eventId)
+        public void Cancel(EventId eventId)
         {
             System.WeakReference wkEventMgr = null;
             if (m_idToMgr.TryGetValue(eventId, out wkEventMgr))
@@ -51,8 +51,8 @@ namespace Utopia
                 m_idToMgr.Remove(eventId);
                 if (wkEventMgr.IsAlive)
                 {
-                    EventMgr<EventKeyType> eventMgr = wkEventMgr.Target as EventMgr<EventKeyType>;
-                    EventProxy<EventKeyType> eventProxy = null;
+                    EventMgr eventMgr = wkEventMgr.Target as EventMgr;
+                    EventProxy eventProxy = null;
                     if (m_mgrToProxy.TryGetValue(eventMgr, out eventProxy))
                     {
                         eventProxy.Cancel(eventId);
@@ -66,29 +66,58 @@ namespace Utopia
             // eventId.Release(); // 多次释放不回有问题的
         }
 
-        public EventId<EventKeyType> Bind(EventMgr<EventKeyType> eventMgr, EventKeyType eventKey, System.Action<EventKeyType> cb)
+        public EventId Bind(EventMgr eventMgr, string eventKey, System.Action cb)
         {
-            EventProxy<EventKeyType> eventProxy = null;
-            if (!m_mgrToProxy.TryGetValue(eventMgr, out eventProxy))
-            {
-                eventProxy = eventMgr.CreateEventProxy();
-                m_mgrToProxy.Add(eventMgr, eventProxy);
-            }
-            EventId<EventKeyType> ret = eventProxy.Bind(eventKey, cb);
-            m_idToMgr.Add(ret, new System.WeakReference(eventMgr));
-            return ret;
+            EventProxy eventProxy = this.GetProxy(eventMgr, true);
+            EventId id = eventProxy.Bind(eventKey, cb);
+            if (id.IsValid())
+                m_idToMgr.Add(id, new System.WeakReference(eventMgr));
+            return id;
         }
-        public EventId<EventKeyType> Bind<T>(EventMgr<EventKeyType> eventMgr, EventKeyType eventKey, System.Action<EventKeyType, T> cb)
+        public EventId Bind<T>(EventMgr eventMgr, string eventKey, System.Action<T> cb)
         {
-            EventProxy<EventKeyType> eventProxy = null;
+            EventProxy eventProxy = this.GetProxy(eventMgr, true);
+            EventId  id = eventProxy.Bind(eventKey, cb);
+            if (id.IsValid())
+                m_idToMgr.Add(id, new System.WeakReference(eventMgr));
+            return id;
+        }
+        public EventId Bind<T0, T1>(EventMgr eventMgr, string eventKey, System.Action<T0, T1> cb)
+        {
+            EventProxy eventProxy = this.GetProxy(eventMgr, true);
+            EventId id = eventProxy.Bind(eventKey, cb);
+            if (id.IsValid())
+                m_idToMgr.Add(id, new System.WeakReference(eventMgr));
+            return id;
+        }
+        public EventId Bind<T0, T1, T2>(EventMgr eventMgr, string eventKey, System.Action<T0, T1, T2> cb)
+        {
+            EventProxy eventProxy = this.GetProxy(eventMgr, true);
+            EventId id = eventProxy.Bind(eventKey, cb);
+            if (id.IsValid())
+                m_idToMgr.Add(id, new System.WeakReference(eventMgr));
+            return id;
+        }
+        public EventId Bind<T0, T1, T2, T3>(EventMgr eventMgr, string eventKey, System.Action<T0, T1, T2, T3> cb)
+        {
+            EventProxy eventProxy = this.GetProxy(eventMgr, true);
+            EventId id = eventProxy.Bind(eventKey, cb);
+            m_idToMgr.Add(id, new System.WeakReference(eventMgr));
+            return id;
+        }
+
+        protected EventProxy GetProxy(EventMgr eventMgr, bool is_create)
+        {
+            EventProxy eventProxy = null;
             if (!m_mgrToProxy.TryGetValue(eventMgr, out eventProxy))
             {
-                eventProxy = eventMgr.CreateEventProxy();
-                m_mgrToProxy.Add(eventMgr, eventProxy);
+                if (is_create)
+                {
+                    eventProxy = eventMgr.CreateEventProxy();
+                    m_mgrToProxy.Add(eventMgr, eventProxy);
+                }
             }
-            EventId<EventKeyType>  ret = eventProxy.Bind(eventKey, cb);
-            m_idToMgr.Add(ret, new System.WeakReference(eventMgr));
-            return ret;
+            return eventProxy;
         }
     }
 }

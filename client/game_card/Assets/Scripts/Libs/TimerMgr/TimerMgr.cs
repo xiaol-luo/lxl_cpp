@@ -38,7 +38,7 @@ namespace Utopia
             }
         }
 
-        SortedList<Item, Item> m_items = new SortedList<Item, Item>(new ItemSortWay());
+        SortedSet<Item> m_sortedItems = new SortedSet<Item>(new ItemSortWay());
         ulong m_lastId = 0;
         Dictionary<ulong, Item> m_id2Item = new Dictionary<ulong, Item>();
 
@@ -65,17 +65,17 @@ namespace Utopia
                     item.spanTicks = 1;
             }
             m_id2Item.Add(item.id, item);
-            m_items.Add(item, item);
+            m_sortedItems.Add(item);
             return m_lastId;
         }
 
-        public ulong Add(System.Action cb, float delaySec)
+        public ulong Delay(System.Action cb, float delaySec)
         {
             ulong ret = this.Add(cb, delaySec, 1, 0);
             return ret;
         }
 
-        public ulong Add(System.Action cb, int callTimes, float spanSec)
+        public ulong Firm(System.Action cb, int callTimes, float spanSec)
         {
             ulong ret = this.Add(cb, 0, callTimes, spanSec);
             return ret;
@@ -83,17 +83,18 @@ namespace Utopia
 
         public void Remove(ulong id)
         {
-            if (m_isCheckingTrigger)
-            {
-                m_waitRemoveTimerIds.Add(id);
-                return;
-            }
-
             Item item;
             if (m_id2Item.TryGetValue(id, out item))
             {
-                m_items.Remove(item);
-                m_id2Item.Remove(id);
+                if (m_isCheckingTrigger)
+                {
+                    m_waitRemoveTimerIds.Add(item);
+                }
+                else
+                {
+                    m_id2Item.Remove(id);
+                    m_sortedItems.Remove(item);
+                }
             }
         }
 
@@ -101,62 +102,70 @@ namespace Utopia
         {
             if (m_isCheckingTrigger)
             {
-                m_waitRemoveTimerIds.UnionWith(m_id2Item.Keys);
-                return;
+                m_waitRemoveTimerIds.UnionWith(m_id2Item.Values);
             }
-            m_id2Item.Clear();
-            m_items.Clear();
+            else
+            {
+                m_id2Item.Clear();
+                m_sortedItems.Clear();
+                m_waitRemoveTimerIds.Clear();
+            }
         }
 
         bool m_isCheckingTrigger = false;
-        HashSet<ulong> m_waitRemoveTimerIds = new HashSet<ulong>();
+        HashSet<Item> m_waitRemoveTimerIds = new HashSet<Item>();
         public void CheckTrigger()
         {
-            // 这里写得超级挫
             m_isCheckingTrigger = true;
-
             long nowTicks = (long)Math.Ceiling(TimeSpan.TicksPerSecond * this.nowSec);
-            List<Item> hitItems = new List<Item>();
-            foreach (Item item in m_items.Values)
-            {
-                if (item.nextTick > nowTicks)
-                    break;
-                hitItems.Add(item);
-            }
 
-            List<Item> toRemoveItems = new List<Item>();
-            List<Item> toReAddItems = new List<Item>();
-            foreach (Item item in hitItems)
+            if (m_sortedItems.Count > 0 && nowTicks >= m_sortedItems.Min.nextTick)
             {
-                m_items.Remove(item);
-                item.callFn();
+                List<Item> hitItems = new List<Item>();
+                foreach (Item item in m_sortedItems)
+                {
+                    if (item.nextTick > nowTicks)
+                        break;
+                    hitItems.Add(item);
+                }
+                m_sortedItems.ExceptWith(hitItems);
 
-                bool willRemove = item.callTimes >= 0 && item.callTimes <= 1;
-                if (willRemove)
+                List<Item> toRemoveItems = new List<Item>();
+                List<Item> toReAddItems = new List<Item>();
+                foreach (Item item in hitItems)
                 {
-                    toRemoveItems.Add(item);
+                    try { item.callFn(); } catch (System.Exception){}
+
+                    bool willRemove = item.callTimes >= 0 && item.callTimes <= 1;
+                    if (willRemove)
+                    {
+                        toRemoveItems.Add(item);
+                    }
+                    else
+                    {
+                        if (item.callTimes > 0)
+                            --item.callTimes;
+                        item.nextTick = nowTicks + item.spanTicks;
+                        toReAddItems.Add(item);
+                    }
                 }
-                else
+
+                m_sortedItems.UnionWith(toReAddItems);
+                foreach (Item elem in toRemoveItems)
                 {
-                    if (item.callTimes > 0)
-                        --item.callTimes;
-                    item.nextTick = nowTicks + item.spanTicks;
-                    toReAddItems.Add(item);
+                    this.Remove(elem.id);
                 }
-            }
-            foreach (Item item in toRemoveItems)
-            {
-                m_id2Item.Remove(item.id);
-            }
-            foreach (Item item in toReAddItems)
-            {
-                m_items.Add(item, item);
             }
 
             m_isCheckingTrigger = false;
-            foreach (ulong id in m_waitRemoveTimerIds)
+            if (m_waitRemoveTimerIds.Count > 0)
             {
-                this.Remove(id);
+                foreach (Item elem in m_waitRemoveTimerIds)
+                {
+                    m_id2Item.Remove(elem.id);
+                    m_sortedItems.Remove(elem);
+                }
+                m_waitRemoveTimerIds.Clear();
             }
         }
     }

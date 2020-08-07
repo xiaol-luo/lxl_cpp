@@ -2,12 +2,12 @@ using System.Collections.Generic;
 
 namespace Utopia
 {
-    public class EventProxy<EventKeyType>
+    public class EventProxy
     {
-        HashSet<EventId<EventKeyType>> m_eventIdSet = new HashSet<EventId<EventKeyType>>();
+        HashSet<EventId> m_eventIdSet = new HashSet<EventId>();
         System.WeakReference m_mgr = null;
 
-        public EventProxy(EventMgr<EventKeyType> mgr)
+        public EventProxy(EventMgr mgr)
         {
             m_mgr = new System.WeakReference(mgr);
         }
@@ -16,7 +16,7 @@ namespace Utopia
         {
             if (m_mgr.IsAlive)
             {
-                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
+                EventMgr mgr = m_mgr.Target as EventMgr;
                 foreach (var eventId in m_eventIdSet)
                 {
                     mgr.Cancel(eventId);
@@ -26,11 +26,11 @@ namespace Utopia
             this.CheckAlive();
         }
 
-        public void Cancel(EventId<EventKeyType> eventId)
+        public void Cancel(EventId eventId)
         {
             if (m_mgr.IsAlive)
             {
-                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
+                EventMgr mgr = m_mgr.Target as EventMgr;
                 if (m_eventIdSet.Contains(eventId))
                 {
                     m_eventIdSet.Remove(eventId);
@@ -40,35 +40,70 @@ namespace Utopia
             this.CheckAlive();
         }
 
-        public EventId<EventKeyType> Bind(EventKeyType eventKey, System.Action<EventKeyType> cb)
+        public EventId Bind(string eventKey, System.Action cb)
         {
             if (m_mgr.IsAlive)
             {
-                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
-                EventId<EventKeyType> ret = mgr.Bind(eventKey, cb);
+                EventMgr mgr = m_mgr.Target as EventMgr;
+                EventId ret = mgr.Bind(eventKey, cb);
                 if (ret.IsValid())
-                {
                     m_eventIdSet.Add(ret);
-                }
                 return ret;
             }
             this.CheckAlive();
-            return new EventId<EventKeyType>();
+            return new EventId();
         }
-        public EventId<EventKeyType> Bind<T>(EventKeyType eventKey, System.Action<EventKeyType, T> cb)
+        public EventId Bind<T>(string eventKey, System.Action<T> cb)
         {
             if (m_mgr.IsAlive)
             {
-                EventMgr<EventKeyType> mgr = m_mgr.Target as EventMgr<EventKeyType>;
-                EventId<EventKeyType> ret = mgr.Bind(eventKey, cb);
+                EventMgr mgr = m_mgr.Target as EventMgr;
+                EventId ret = mgr.Bind(eventKey, cb);
                 if (ret.IsValid())
-                {
                     m_eventIdSet.Add(ret);
-                }
                 return ret;
             }
             this.CheckAlive();
-            return new EventId<EventKeyType>();
+            return new EventId();
+        }
+        public EventId Bind<T0, T1>(string eventKey, System.Action<T0, T1> cb)
+        {
+            if (m_mgr.IsAlive)
+            {
+                EventMgr mgr = m_mgr.Target as EventMgr;
+                EventId ret = mgr.Bind(eventKey, cb);
+                if (ret.IsValid())
+                    m_eventIdSet.Add(ret);
+                return ret;
+            }
+            this.CheckAlive();
+            return new EventId();
+        }
+        public EventId Bind<T0, T1, T2>(string eventKey, System.Action<T0, T1, T2> cb)
+        {
+            if (m_mgr.IsAlive)
+            {
+                EventMgr mgr = m_mgr.Target as EventMgr;
+                EventId ret = mgr.Bind(eventKey, cb);
+                if (ret.IsValid())
+                    m_eventIdSet.Add(ret);
+                return ret;
+            }
+            this.CheckAlive();
+            return new EventId();
+        }
+        public EventId Bind<T0, T1, T2, T3>(string eventKey, System.Action<T0, T1, T2, T3> cb)
+        {
+            if (m_mgr.IsAlive)
+            {
+                EventMgr mgr = m_mgr.Target as EventMgr;
+                EventId ret = mgr.Bind(eventKey, cb);
+                if (ret.IsValid())
+                    m_eventIdSet.Add(ret);
+                return ret;
+            }
+            this.CheckAlive();
+            return new EventId();
         }
 
         protected void CheckAlive()

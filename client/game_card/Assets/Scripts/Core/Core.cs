@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Utopia
 {
-    public partial class Core : Utopia.EventMgr<string>
+    public partial class Core : Utopia.EventMgr
     {
         public CoreMain root { get; protected set; }
         public CoreModule.EStage currStage { get; protected set; }

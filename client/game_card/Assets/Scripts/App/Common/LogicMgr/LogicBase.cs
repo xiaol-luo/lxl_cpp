@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Utopia
 {
-    public abstract class LogicBase : Utopia.EventMgr<string>
+    public abstract class LogicBase : Utopia.EventMgr
     {
         protected TimerProxy m_timerProxy = Core.ins.timer.CreateTimerProxy();
         protected LogicMgr m_logicMgr = null;

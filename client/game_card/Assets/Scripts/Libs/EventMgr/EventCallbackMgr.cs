@@ -3,45 +3,68 @@ using System.Collections.Generic;
 
 namespace Utopia
 {
-    public class EventCallbackMgr<EventKeyType>
+    public class EventCallbackMgr
     {
-        public EventCallbackMgr(EventKeyType eventKey)
+        public EventCallbackMgr(string eventKey)
         {
             m_eventKey = eventKey;
         }
 
-        EventKeyType m_eventKey;
+        string m_eventKey;
         public const ulong Invalid_Id = 0;
 
         protected ulong lastId = 0;
-        public Dictionary<ulong, EventCallback<EventKeyType> > cbs = new Dictionary<ulong, EventCallback<EventKeyType> >();
+        protected Dictionary<ulong, EventCallbackBase> m_cbs = new Dictionary<ulong, EventCallbackBase>();
+        protected HashSet<EventCallbackBase> m_toRemoveCbs = new HashSet<EventCallbackBase>();
+        protected int m_fireDeep = 0;
+        protected HashSet<ulong> m_toRemoveIds = new HashSet<ulong>();
+        
 
-        public ulong AddCallback(EventCallback<EventKeyType> cb)
+        public ulong AddCallback(EventCallbackBase cb)
         {
             if (null == cb)
                 return Invalid_Id;
-            cbs.Add(++lastId, cb);
+            m_cbs.Add(++lastId, cb);
             return lastId;
         }
         public void RemoveCallback(ulong id)
         {
-            cbs.Remove(id);
-        }
-
-        public void FireCallbacks()
-        {
-            List<EventCallback<EventKeyType> > tmp = new List<EventCallback<EventKeyType> >(cbs.Values);
-            foreach (EventCallback<EventKeyType> cb in tmp)
+            if (m_fireDeep > 0)
             {
-                cb.Fire(m_eventKey);
+                m_toRemoveIds.Add(id);
+            }
+            else
+            {
+                m_cbs.Remove(id);
             }
         }
-        public void FireCallbacks(object param)
+
+        public void FireCallbacks(params object[] args)
         {
-            List<EventCallback<EventKeyType>> tmp = new List<EventCallback<EventKeyType>>(cbs.Values);
-            foreach (EventCallback<EventKeyType> cb in tmp)
+            ++this.m_fireDeep;
+
+            List<EventCallbackBase> tmp = new List<EventCallbackBase>(m_cbs.Values);
+            foreach (var kv in m_cbs)
             {
-                cb.Fire(m_eventKey, param);
+                if (!m_toRemoveIds.Contains(kv.Key))
+                {
+                    kv.Value.Fire(m_eventKey, args);
+                }
+                else
+                {
+                    int a = 0;
+                    ++a;
+                }
+            }
+            --this.m_fireDeep;
+
+            if (this.m_fireDeep <= 0 && m_toRemoveIds.Count > 0)
+            {
+                foreach (ulong id in m_toRemoveIds)
+                {
+                    m_cbs.Remove(id);
+                }
+                m_toRemoveIds.Clear();
             }
         }
     }

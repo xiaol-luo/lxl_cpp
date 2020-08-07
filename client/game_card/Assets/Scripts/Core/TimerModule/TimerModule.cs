@@ -35,14 +35,14 @@ namespace Utopia
             return m_timerMgr.Add(cb, delaySec, callTimes, callSpanSec);
         }
 
-        public ulong Add(System.Action cb, float delaySec)
+        public ulong Delay(System.Action cb, float delaySec=0)
         {
-            return m_timerMgr.Add(cb, delaySec);
+            return m_timerMgr.Delay(cb, delaySec);
         }
 
-        public ulong Add(System.Action cb, int callTimes, float spanSec)
+        public ulong Firm(System.Action cb, int callTimes, float spanSec)
         {
-            return m_timerMgr.Add(cb, callTimes, spanSec);
+            return m_timerMgr.Firm(cb, callTimes, spanSec);
         }
 
         public void Remove(ulong id)
