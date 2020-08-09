@@ -1,5 +1,5 @@
 
----@class GateServiceMgr: GateServiceMgrBase
+---@class GateServiceMgr: ServiceMgrBase
 ---@field logics GateLogicService
 ---@field world_online_shadow OnlineWorldShadow
 GateServiceMgr = class("GateServiceMgr", ServiceMgrBase)
@@ -11,6 +11,12 @@ end
 function GateServiceMgr:_on_init()
     do
         local svc = OnlineWorldShadow:new(self, Service_Name.online_world_shadow)
+        svc:init()
+        self:add_service(svc)
+    end
+
+    do
+        local svc = ServerRoleShadow:new(self, Service_Name.work_world_shadow, self.server:get_zone_name(), Server_Role.World)
         svc:init()
         self:add_service(svc)
     end

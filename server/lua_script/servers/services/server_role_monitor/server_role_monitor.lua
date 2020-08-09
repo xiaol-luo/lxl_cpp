@@ -5,8 +5,8 @@ local Logic_State = {
     wait_join_cluster = "wait_join_cluster",
     joined_cluster = "joined_cluster",
     pull_persistent_data = "pull_persistent_data",
-    diff_online_server_data = "diff_online_server_data",
-    persist_online_server_data = "persist_online_server_data",
+    diff_work_server_data = "diff_work_server_data",
+    persist_work_server_data = "persist_work_server_data",
     lead_world_rehash = "lead_world_rehash",
     guarantee_data_valid = "guarantee_data_valid",
     released = "released",
@@ -15,11 +15,11 @@ local Logic_State = {
 local Opera_Name = {
     query_db_version = "query_db_version",
     query_db_adjusting_version = "query_db_adjusting_version",
-    query_db_online_servers = "query_db_online_servers",
+    query_db_work_servers = "query_db_work_servers",
 
     set_db_version = "set_db_version",
     set_db_adjusting_version = "set_db_adjusting_version",
-    set_db_online_servers = "set_db_online_servers",
+    set_db_work_servers = "set_db_work_servers",
 }
 
 local Opera_State = {
@@ -29,18 +29,21 @@ local Opera_State = {
     fail = "fail",
 }
 
----@class OnlineWorldMonitor: ServiceBase
-OnlineWorldMonitor = OnlineWorldMonitor or class("OnlineWorldMonitor", ServiceBase)
+---@class ServerRoleMonitor: ServiceBase
+ServerRoleMonitor = ServerRoleMonitor or class("ServerRoleMonitor", ServiceBase)
 
-function OnlineWorldMonitor:ctor(service_mgr, service_name)
-    OnlineWorldMonitor.super.ctor(self, service_mgr, service_name)
-    self._redis_key_world_online_adjusting_version = string.format(Online_World_Const.redis_key_world_online_adjusting_version_format, self.server.zone_name)
-    self._redis_key_world_online_version = string.format(Online_World_Const.redis_key_world_online_version_format, self.server.zone_name)
-    self._redis_key_world_online_servers = string.format(Online_World_Const.redis_key_world_online_servers_format, self.server.zone_name)
+function ServerRoleMonitor:ctor(service_mgr, service_name, zone_name, server_role_name)
+    ServerRoleMonitor.super.ctor(self, service_mgr, service_name)
+    self._zone_name = zone_name
+    self._role_name = server_role_name
+    ---@type ServerRoleMonitorSetting
+    self._monitor_setting = ServerRoleMonitorSetting:new(self._zone_name, self._role_name)
+    ---@type RpcServiceProxy
+    self._rpc_svc_proxy = nil
 
-    log_print("self._redis_key_world_online_adjusting_version", self._redis_key_world_online_adjusting_version)
-    log_print("self._redis_key_world_online_version", self._redis_key_world_online_version)
-    log_print("self._redis_key_world_online_servers", self._redis_key_world_online_servers)
+    log_print("self._monitor_setting.redis_key_adjusting_version", self._monitor_setting.redis_key_adjusting_version)
+    log_print("self._monitor_setting.redis_key_version", self._monitor_setting.redis_key_version)
+    log_print("self._monitor_setting.redis_key_servers", self._monitor_setting.redis_key_servers)
 
     ---@type RedisClient
     self._redis_client = nil
@@ -48,67 +51,75 @@ function OnlineWorldMonitor:ctor(service_mgr, service_name)
 
     self._curr_logic_state = Logic_State.free
     self._has_pulled_from_db = false
-    self._world_online_servers = {}
+    self._world_work_servers = {}
     self._version = nil
     self._adjusting_version = nil
     self._opera_states = {}
 
-    self._adjusting_world_online_servers = nil
+    self._adjusting_world_work_servers = nil
     self._lead_world_rehash_state_over_sec = nil
     self._guarantee_data_valid_over_sec = 0
     self._last_tick_logic_sec = 0
     self._is_never_lead_rehash = true
 end
 
-function OnlineWorldMonitor:_on_init()
-    OnlineWorldMonitor.super:_on_init(self)
+function ServerRoleMonitor:_on_init()
+    ServerRoleMonitor.super:_on_init(self)
+    self._rpc_svc_proxy = self.server.rpc:create_svc_proxy()
     ---@type RedisServerConfig
     local redis_cfg = self.server.redis_setting_work_servers
     self._redis_client = RedisClient:new(redis_cfg.is_cluster, redis_cfg.host, redis_cfg.pwd, redis_cfg.thread_num, redis_cfg.cnn_timeout_ms, redis_cfg.cmd_timeout_ms)
 end
 
-function OnlineWorldMonitor:_on_start()
-    OnlineWorldMonitor.super._on_start(self)
+function ServerRoleMonitor:_on_start()
+    ServerRoleMonitor.super._on_start(self)
     local ret = self._redis_client:start()
     if not ret then
         self._error_num = -1
-        self._error_msg = "OnlineWorldMonitor start redis client fail"
+        self._error_msg = "ServerRoleMonitor start redis client fail"
         return
     end
 
-    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_world_online_servers_data,
-            Functional.make_closure(self._on_rpc_query_world_online_servers_data, self))
+    --self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_world_work_servers_data,
+    --        Functional.make_closure(self._on_rpc_query_world_work_servers_data, self))
+
+    self._rpc_svc_proxy:set_remote_call_handle_fn(self._monitor_setting.rpc_method_query_server_data,
+            Functional.make_closure(self._on_rpc_query_work_server_data, self))
 
     self:_set_logic_state(Logic_State.reset_all)
 end
 
-function OnlineWorldMonitor:_on_stop()
-    OnlineWorldMonitor.super._on_stop(self)
+function ServerRoleMonitor:_on_stop()
+    ServerRoleMonitor.super._on_stop(self)
     self._redis_client:stop()
-    self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_world_online_servers_data, nil)
+    self._rpc_svc_proxy:clear_remote_call()
 end
 
-function OnlineWorldMonitor:_on_release()
-    OnlineWorldMonitor.super._on_release(self)
+function ServerRoleMonitor:_on_release()
+    ServerRoleMonitor.super._on_release(self)
     self._curr_logic_state = Logic_State.released
 end
 
-function OnlineWorldMonitor:_on_update()
-    OnlineWorldMonitor.super._on_update(self)
+function ServerRoleMonitor:_on_update()
+    ServerRoleMonitor.super._on_update(self)
     self:_tick_logic()
 end
 
-function OnlineWorldMonitor:_tick_logic()
-    if not self.server:is_joined_cluster() then
-        return
-    end
-
+function ServerRoleMonitor:_tick_logic()
     local now_sec = logic_sec()
     if now_sec - self._last_tick_logic_sec < 1 then
         return
     end
-
     self._last_tick_logic_sec = now_sec
+
+    if not self.server:is_joined_cluster() then
+        return
+    end
+    if self._zone_setting:is_ready() then
+        return
+    end
+
+    -- log_print("ServerRoleMonitor:_tick_logic", self._curr_logic_state)
 
     if Logic_State.reset_all == self._curr_logic_state then
         self:_reset_datas()
@@ -128,39 +139,39 @@ function OnlineWorldMonitor:_tick_logic()
     if Logic_State.pull_persistent_data == self._curr_logic_state then
         local is_all_done = self:_check_query_db_logic()
         if is_all_done then
-            self:_set_logic_state(Logic_State.diff_online_server_data)
+            self:_set_logic_state(Logic_State.diff_work_server_data)
         end
     end
 
-    if Logic_State.diff_online_server_data == self._curr_logic_state then
-        local has_diff, allow_join_world_servers = self:_check_online_server_diff()
+    if Logic_State.diff_work_server_data == self._curr_logic_state then
+        local has_diff, allow_join_world_servers = self:_check_work_server_diff()
         if has_diff or self._is_never_lead_rehash then
-            self._adjusting_world_online_servers = allow_join_world_servers
+            self._adjusting_world_work_servers = allow_join_world_servers
             self._adjusting_version = self._version + 1
-            self._redis_client:command(1, nil, "del %s", self._redis_key_world_online_servers)
-            self:_set_logic_state(Logic_State.persist_online_server_data)
+            self._redis_client:command(1, nil, "del %s", self._monitor_setting.redis_key_servers)
+            self:_set_logic_state(Logic_State.persist_work_server_data)
         else
             self:_set_logic_state(Logic_State.guarantee_data_valid)
         end
-        self._guarantee_data_valid_over_sec = now_sec + Online_World_Const.guarantee_data_valid_duration_sec
+        self._guarantee_data_valid_over_sec = now_sec + self._monitor_setting.guarantee_data_valid_duration_sec
     end
 
-    if Logic_State.persist_online_server_data == self._curr_logic_state then
+    if Logic_State.persist_work_server_data == self._curr_logic_state then
         -- 当如果redis集群不可达时，要想给个容错策略，
         -- 最简单的就是超时就放弃持久化，且放弃应用新配置
         -- 暂时以now_sec >= self._guarantee_data_valid_over_sec 定为超时
-        local is_all_done = self:_persist_online_server_data()
+        local is_all_done = self:_persist_work_server_data()
         if is_all_done or now_sec >= self._guarantee_data_valid_over_sec then
             if is_all_done then
-                self._lead_world_rehash_state_over_sec = now_sec + Online_World_Const.lead_world_rehash_duration_sec
+                self._lead_world_rehash_state_over_sec = now_sec + self._monitor_setting.lead_rehash_duration_sec
                 self._version = self._adjusting_version
-                self._world_online_servers = self._adjusting_world_online_servers
+                self._world_work_servers = self._adjusting_world_work_servers
                 self._adjusting_version = nil
-                self._adjusting_world_online_servers = nil
+                self._adjusting_world_work_servers = nil
                 self:_set_logic_state(Logic_State.lead_world_rehash)
             else
                 self._adjusting_version = nil
-                self._adjusting_world_online_servers = nil
+                self._adjusting_world_work_servers = nil
                 self:_set_logic_state(Logic_State.guarantee_data_valid)
             end
         end
@@ -173,47 +184,47 @@ function OnlineWorldMonitor:_tick_logic()
         else
             -- todo:尽其所能全力通知所有关联的server，rehash
             self._is_never_lead_rehash = false
-            self:_notify_world_online_data(nil, false)
+            self:_notify_world_work_data(nil, false)
         end
     end
 
     if Logic_State.guarantee_data_valid == self._curr_logic_state then
         -- 提前10秒去检查配置是否有变动,如果有变动，
-        -- 在Logic_State.persist_online_server_data中等等时间走完，然后设置新值
+        -- 在Logic_State.persist_work_server_data中等等时间走完，然后设置新值
         if now_sec >= self._guarantee_data_valid_over_sec then
-            self:_set_logic_state(Logic_State.diff_online_server_data)
+            self:_set_logic_state(Logic_State.diff_work_server_data)
         end
     end
 end
 
-function OnlineWorldMonitor:_set_logic_state(state)
+function ServerRoleMonitor:_set_logic_state(state)
     self._curr_logic_state = state
 end
 
-function OnlineWorldMonitor:_get_opera_state(opera_name)
+function ServerRoleMonitor:_get_opera_state(opera_name)
     assert(opera_name)
     local ret = Opera_State.free
     if self._opera_states[opera_name] then
         ret = self._opera_states[opera_name]
     end
-    -- log_print("OnlineWorldMonitor:_get_opera_state ", opera_name, ret)
+    -- log_print("ServerRoleMonitor:_get_opera_state ", opera_name, ret)
     return ret
 end
 
-function OnlineWorldMonitor:_set_opera_state(opera_name, opera_state)
+function ServerRoleMonitor:_set_opera_state(opera_name, opera_state)
     self._opera_states[opera_name] = opera_state
 end
 
-function OnlineWorldMonitor:_reset_datas()
+function ServerRoleMonitor:_reset_datas()
     self._curr_logic_state = Logic_State.Free
     self._has_pulled_from_db = false
-    self._world_online_servers = {}
+    self._world_work_servers = {}
     self._version = nil
     self._adjusting_version = nil
     self._opera_states = {}
 end
 
-function OnlineWorldMonitor:_check_query_db_logic()
+function ServerRoleMonitor:_check_query_db_logic()
     local opera_state = Opera_State.free
     opera_state = self:_get_opera_state(Opera_Name.query_db_adjusting_version)
     if Opera_State.success ~= opera_state and Opera_State.acting ~= opera_state then
@@ -225,19 +236,19 @@ function OnlineWorldMonitor:_check_query_db_logic()
                 self:_set_opera_state(Opera_Name.query_db_adjusting_version, Opera_State.success)
                 self._adjusting_version = ret:get_reply():get_number()
             end
-        end, "get " .. self._redis_key_world_online_adjusting_version)
+        end, "get " .. self._monitor_setting.redis_key_adjusting_version)
     end
 
-    opera_state = self:_get_opera_state(Opera_Name.query_db_online_servers)
+    opera_state = self:_get_opera_state(Opera_Name.query_db_work_servers)
     if Opera_State.success ~= opera_state and Opera_State.acting ~= opera_state then
-        self:_set_opera_state(Opera_Name.query_db_online_servers, Opera_State.acting)
+        self:_set_opera_state(Opera_Name.query_db_work_servers, Opera_State.acting)
         self._redis_client:command(1, function(ret)
             if Error_None ~= ret:get_error() then
-                self:_set_opera_state(Opera_Name.query_db_online_servers, Opera_State.fail)
+                self:_set_opera_state(Opera_Name.query_db_work_servers, Opera_State.fail)
             else
                 local is_ok = false
                 if Error_None == ret:get_error() and not ret:get_reply():get_error() then
-                    self._world_online_servers = {}
+                    self._world_work_servers = {}
                     local reply_array = ret:get_reply():get_array()
                     if reply_array and #reply_array >= 1 then
                         self._version = reply_array[1]:get_number()
@@ -245,21 +256,21 @@ function OnlineWorldMonitor:_check_query_db_logic()
                             table.remove(reply_array, 1)
                         end
                         for _, v in pairs(reply_array) do
-                            self._world_online_servers[v:get_str()] = true
+                            self._world_work_servers[v:get_str()] = true
                         end
                     end
                     is_ok = true
                     self._version = self._version or 1
                 end
-                self:_set_opera_state(Opera_Name.query_db_online_servers, is_ok and Opera_State.success or Opera_State.fail)
+                self:_set_opera_state(Opera_Name.query_db_work_servers, is_ok and Opera_State.success or Opera_State.fail)
             end
-        end, "LRANGE %s 0 -1", self._redis_key_world_online_servers)
+        end, "LRANGE %s 0 -1", self._monitor_setting.redis_key_servers)
     end
 
     local is_all_done = true
     for _, v in pairs({
         Opera_Name.query_db_adjusting_version,
-        Opera_Name.query_db_online_servers,
+        Opera_Name.query_db_work_servers,
     }) do
         if Opera_State.success ~= self:_get_opera_state(v) then
             is_all_done = false
@@ -268,35 +279,34 @@ function OnlineWorldMonitor:_check_query_db_logic()
     return is_all_done
 end
 
-function OnlineWorldMonitor:_check_online_server_diff()
+function ServerRoleMonitor:_check_work_server_diff()
     local has_diff = false
     local allow_join_world_servers = {}
     local allow_join_servers = self._zone_setting:get_allow_join_servers()
     for db_path, is_allow_join in pairs(allow_join_servers) do
         if is_allow_join then
-            local _, server_role, server_name = extract_cluster_server_name(db_path)
-            if Server_Role.World == server_role and self._zone_setting:is_server_allow_work(string.format("%s.%s", server_role, server_name)) then
-                local server_key = string.format(Discovery_Service_Const.db_path_format_zone_server_data,
-                        self.server.zone_name, server_role, server_name)
+            local cluster_server_name, server_role, server_name = extract_cluster_server_name(db_path)
+            if Server_Role.World == server_role and self._zone_setting:is_server_allow_work(cluster_server_name) then
+                local server_key = gen_cluster_server_key(self.server.zone_name, server_role, server_name)
                 allow_join_world_servers[server_key] = true
-                if not self._world_online_servers[server_key] then
+                if not self._world_work_servers[server_key] then
                     has_diff = true
                 end
             end
         end
     end
     if not has_diff then
-        for server_key, _ in pairs(self._world_online_servers) do
+        for server_key, _ in pairs(self._world_work_servers) do
             if not allow_join_world_servers[server_key] then
                 has_diff = true
             end
         end
     end
-    -- log_print("OnlineWorldMonitor:_check_online_server_diff", has_diff, allow_join_world_servers, self._world_online_servers)
+    -- log_print("ServerRoleMonitor:_check_work_server_diff", has_diff, allow_join_world_servers, self._world_work_servers)
     return has_diff, allow_join_world_servers
 end
 
-function OnlineWorldMonitor:_persist_online_server_data()
+function ServerRoleMonitor:_persist_work_server_data()
 
     self._redis_client:command(1, function(ret)
         self:_set_opera_state(Opera_Name.set_db_adjusting_version, Opera_State.acting)
@@ -305,23 +315,23 @@ function OnlineWorldMonitor:_persist_online_server_data()
         else
             self:_set_opera_state(Opera_Name.set_db_adjusting_version, Opera_State.success)
         end
-    end, "SETEX %s %s %s ", self._redis_key_world_online_adjusting_version, Online_World_Const.lead_world_rehash_duration_sec, self._adjusting_version)
+    end, "SETEX %s %s %s ", self._monitor_setting.redis_key_adjusting_version, self._monitor_setting.lead_rehash_duration_sec, self._adjusting_version)
 
     local opera_state = self:_get_opera_state(Opera_Name.set_db_adjusting_version)
     if Opera_State.success == opera_state then
-        opera_state = self:_get_opera_state(Opera_Name.set_db_online_servers)
+        opera_state = self:_get_opera_state(Opera_Name.set_db_work_servers)
         if Opera_State.success ~= opera_state and Opera_State.acting ~= opera_state then
-            self:_set_opera_state(Opera_Name.set_db_online_servers, Opera_State.acting)
-            if not self._adjusting_world_online_servers or not next(self._adjusting_world_online_servers) then
-                self:_set_opera_state(Opera_Name.set_db_online_servers, Opera_State.success)
+            self:_set_opera_state(Opera_Name.set_db_work_servers, Opera_State.acting)
+            if not self._adjusting_world_work_servers or not next(self._adjusting_world_work_servers) then
+                self:_set_opera_state(Opera_Name.set_db_work_servers, Opera_State.success)
             else
-                local cmd = string.format("rpush %s %s %s", self._redis_key_world_online_servers, self._adjusting_version,
-                        table.concat(table.keys(self._adjusting_world_online_servers), " "))
+                local cmd = string.format("rpush %s %s %s", self._monitor_setting.redis_key_servers, self._adjusting_version,
+                        table.concat(table.keys(self._adjusting_world_work_servers), " "))
                 self._redis_client:command(1, function(ret)
                     if Error_None ~= ret:get_error() or ret:get_reply():get_error() then
-                        self:_set_opera_state(Opera_Name.set_db_online_servers, Opera_State.fail)
+                        self:_set_opera_state(Opera_Name.set_db_work_servers, Opera_State.fail)
                     else
-                        self:_set_opera_state(Opera_Name.set_db_online_servers, Opera_State.success)
+                        self:_set_opera_state(Opera_Name.set_db_work_servers, Opera_State.success)
                     end
                 end, cmd)
             end
@@ -331,7 +341,7 @@ function OnlineWorldMonitor:_persist_online_server_data()
     local is_all_done = true
     for _, v in pairs({
         Opera_Name.set_db_adjusting_version,
-        Opera_Name.set_db_online_servers,
+        Opera_Name.set_db_work_servers,
     }) do
         if Opera_State.success ~= self:_get_opera_state(v) then
             is_all_done = false
@@ -340,33 +350,37 @@ function OnlineWorldMonitor:_persist_online_server_data()
     return is_all_done
 end
 
-function OnlineWorldMonitor:_notify_world_online_data(to_server_key, is_simple_info)
+function ServerRoleMonitor:_notify_world_work_data(to_server_key, is_simple_info)
     local notify_servers = nil
     if to_server_key then
         notify_servers = { to_server_key }
     else
-        notify_servers ={}
-        table.append(notify_servers, self.server.peer_net:get_role_server_keys(Server_Role.World))
-        table.append(notify_servers, self.server.peer_net:get_role_server_keys(Server_Role.Game))
-        table.append(notify_servers, self.server.peer_net:get_role_server_keys(Server_Role.Gate))
+        notify_servers = self._monitor_setting.observer_server_roles
     end
-    local send_tb = {
-        version = self._version,
-    }
-    if self._lead_world_rehash_state_over_sec then
-        send_tb.lead_rehash_left_sec = self._lead_world_rehash_state_over_sec - logic_sec()
-    end
-    if not is_simple_info then
-        send_tb.servers = self._world_online_servers
-    end
-    -- log_print("OnlineWorldMonitor:_notify_world_online_data", notify_servers, send_tb)
-    for _, v in pairs(notify_servers) do
-        self.server.rpc:call(nil, v, Online_World_Rpc_Method.notify_world_online_servers_data, send_tb)
+    if next(notify_servers) then
+        local send_tb = {
+            version = self._version,
+        }
+        if self._lead_world_rehash_state_over_sec then
+            send_tb.lead_rehash_left_sec = self._lead_world_rehash_state_over_sec - logic_sec()
+        end
+        if not is_simple_info then
+            send_tb.servers = self._world_work_servers
+        end
+        -- log_print("ServerRoleMonitor:_notify_world_work_data", notify_servers, send_tb)
+        for _, v in pairs(notify_servers) do
+            self.server.rpc:call(nil, v, self._monitor_setting.rpc_method_notify_server_data, send_tb)
+        end
     end
 end
 
 ---@param rsp RpcRsp
-function OnlineWorldMonitor:_on_rpc_query_world_online_servers_data(rsp, is_simple_info)
+function ServerRoleMonitor:_on_rpc_query_work_server_data(rsp, is_simple_info)
     rsp:response()
-    self:_notify_world_online_data(rsp.from_host, is_simple_info)
+    self:_notify_world_work_data(rsp.from_host, is_simple_info)
+end
+
+---@return ServerRoleMonitorSetting
+function ServerRoleMonitor:get_settting()
+    return self._monitor_setting
 end

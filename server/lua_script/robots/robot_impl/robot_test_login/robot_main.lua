@@ -7,7 +7,7 @@ Action_Name.cnn_on_recv = "cnn_on_recv"
 local Error_None = 0
 
 ---@class RobotTestLogin : RobotBase
----@field redis_setting_online_servers RedisServerConfig
+---@field redis_setting_work_servers RedisServerConfig
 ---@field mongo_setting_game MongoServerConfig
 RobotTestLogin = RobotTestLogin or class("RobotTestLogin", RobotBase)
 

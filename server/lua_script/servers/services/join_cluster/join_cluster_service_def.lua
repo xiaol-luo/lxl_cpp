@@ -16,10 +16,10 @@ function gen_cluster_server_name(server_role, server_name)
     return ret
 end
 
-function extract_from_cluster_server_name(cluster_server_name)
-    local server_role, server_name = nil, nil
-    if cluster_server_name or #cluster_server_name > 0 then
-        local tmps = string.split(cluster_server_name, "/")
+function extract_cluster_server_name(server_key_or_cluster_server_name)
+    local cluster_server_name, server_role, server_name = nil, nil, nil
+    if server_key_or_cluster_server_name or #server_key_or_cluster_server_name > 0 then
+        local tmps = string.split(server_key_or_cluster_server_name, "/")
         if #tmps > 0 then
             local strs = string.split(tmps[#tmps], ".")
             if 2 == #strs and #strs[1] > 0 and #strs[2] > 0 then
@@ -28,7 +28,10 @@ function extract_from_cluster_server_name(cluster_server_name)
             end
         end
     end
-    return server_role, server_name
+    if server_role and #server_role > 0 and server_name and #server_name > 0 then
+        cluster_server_name = gen_cluster_server_name(server_role, server_name)
+    end
+    return cluster_server_name, server_role, server_name
 end
 
 

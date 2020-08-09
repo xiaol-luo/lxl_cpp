@@ -98,7 +98,7 @@ end
 ---@param rpc_rsp RpcRsp
 function GameRoleMgr:_handle_remote_call_launch_role(rpc_rsp, user_id, role_id)
     if self._online_world_shadow:is_parted() then
-        rpc_rsp:response(Error_Server_Online_Shadow_Parted)
+        rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
     if self._online_world_shadow:is_adjusting_version() then
@@ -318,7 +318,7 @@ function GameRoleMgr:_check_match_world_roles(now_sec)
     if self._online_world_shadow:is_adjusting_version() then
         return
     end
-    log_print("GameRoleMgr:_check_match_world_roles", self.server:get_cluster_server_key(), table.size(self._id_to_roles))
+    -- log_print("GameRoleMgr:_check_match_world_roles", self.server:get_cluster_server_key(), table.size(self._id_to_roles))
 
     self._check_match_world_roles_last_sec = now_sec
     local world_to_role_ids = {}

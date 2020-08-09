@@ -79,7 +79,7 @@ end
 ---@param rpc_rsp RpcRsp
 function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_sn, user_id, role_id)
     if self._online_world_shadow:is_parted() then
-        rpc_rsp:response(Error_Server_Online_Shadow_Parted)
+        rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
     if self._online_world_shadow:is_adjusting_version() then
@@ -312,7 +312,7 @@ end
 
 function RoleStateMgr:_handle_remote_call_reconnect_role(rpc_rsp, gate_netid, role_id, auth_sn)
     if self._online_world_shadow:is_parted() then
-        rpc_rsp:response(Error_Server_Online_Shadow_Parted)
+        rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
     if self._online_world_shadow:is_adjusting_version() then
@@ -421,7 +421,7 @@ end
 function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_state_data)
     log_print("RoleStateMgr:_handle_remote_call_transfer_world_role ", role_state_data, self.server:get_cluster_server_key())
     if self._online_world_shadow:is_parted() then
-        rpc_rsp:response(Error_Server_Online_Shadow_Parted)
+        rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
     local role_id = role_state_data.role_id
@@ -588,7 +588,7 @@ function RoleStateMgr:_check_match_game_roles(now_sec)
     end
 
     self._check_match_game_roles_last_sec = now_sec
-    log_print("RoleStateMgr:_check_match_game_roles ", self.server:get_cluster_server_key(), table.size(self._role_id_to_role_state))
+    -- log_print("RoleStateMgr:_check_match_game_roles ", self.server:get_cluster_server_key(), table.size(self._role_id_to_role_state))
 
     local game_to_role_ids = {}
     for role_id, role_state in pairs(self._role_id_to_role_state) do

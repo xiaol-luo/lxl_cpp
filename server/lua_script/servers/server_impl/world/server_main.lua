@@ -5,7 +5,7 @@ batch_require(require("servers.server_impl.world.server_require_files"))
 ServiceMgr = WorldServiceMgr
 
 ---@class WorldServer : ServerBase
----@field redis_setting_online_servers RedisServerConfig
+---@field redis_setting_work_servers RedisServerConfig
 ---@field mongo_setting_game MongoServerConfig
 WorldServer = WorldServer or class("WorldServer", ServerBase)
 
@@ -15,19 +15,19 @@ end
 
 function WorldServer:ctor(init_setting, init_args)
     WorldServer.super.ctor(self, Server_Role.World, init_setting, init_args)
-    self.redis_setting_online_servers = nil
+    self.redis_setting_work_servers = nil
     self.mongo_setting_game = nil
 end
 
 function WorldServer:_on_init()
     -- 一致性哈希使用redis server的配置
     for _, v in ipairs(self.init_setting.redis_service.element) do
-        if is_table(v) and v.name == Const.redis_setting_name_online_servers then
-            self.redis_setting_online_servers = RedisServerConfig:new()
-            self.redis_setting_online_servers:parse_from(v)
+        if is_table(v) and v.name == Const.redis_setting_name_work_servers then
+            self.redis_setting_work_servers = RedisServerConfig:new()
+            self.redis_setting_work_servers:parse_from(v)
         end
     end
-    if not self.redis_setting_online_servers or not self.redis_setting_online_servers.host then
+    if not self.redis_setting_work_servers or not self.redis_setting_work_servers.host then
         return false
     end
 

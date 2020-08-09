@@ -17,3 +17,4 @@ Zone_Setting_Event.zone_setting_is_ready = "Zone_Setting_Event.zone_setting_is_r
 Zone_Setting_Diff = {}
 Zone_Setting_Diff.upsert = "Zone_Setting_Diff.upsert"
 Zone_Setting_Diff.delete = "Zone_Setting_Diff.delete"
+

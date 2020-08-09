@@ -16,6 +16,8 @@ function DiscoveryService:ctor(service_mgr, service_name)
         ---@type table<string, ZoneServerJsonData>
         server_datas = {},
     }
+    self._is_cluster_can_work = false
+
 end
 
 function DiscoveryService:_on_init()
@@ -29,6 +31,10 @@ end
 function DiscoveryService:_on_start()
     DiscoveryService.super._on_start(self)
     self._etcd_client:set(self._db_path_watch_server_dir, nil, nil, true)
+    self._event_binder:bind(self._zone_setting, Zone_Setting_Event.zone_setting_allow_join_servers_diff,
+            Functional.make_closure(self.on_event_allow_join_server_diff, self))
+    self._event_binder:bind(self._zone_setting, Zone_Setting_Event.zone_setting_role_min_nums_diff,
+            Functional.make_closure(self._on_event_role_min_nums_diff, self))
 end
 
 function DiscoveryService:_on_stop()
@@ -187,6 +193,7 @@ function DiscoveryService:_fire_server_data_change(change_ret)
         action = Discovery_Service_Const.cluster_server_join
     end
     self.server:fire(Discovery_Service_Event.cluster_server_change, action, change_ret.old, change_ret.new)
+    self:_check_cluster_can_work()
 end
 
 ---@return table<string, ZoneServerJsonData>
@@ -195,4 +202,52 @@ function DiscoveryService:get_server_datas()
 end
 
 
+function DiscoveryService:on_event_allow_join_server_diff(key, diff_type, value)
+    self:_check_cluster_can_work()
+end
+
+function DiscoveryService:_on_event_role_min_nums_diff(key, diff_type, value)
+    self:_check_cluster_can_work()
+end
+
+
+function DiscoveryService:_check_cluster_can_work()
+    self._zone_setting:get_allow_join_servers()
+    local now_role_nums = {}
+    for server_key, _ in pairs(self._servers_infos.server_datas) do
+        local cluster_server_name, role, _ = extract_cluster_server_name(server_key)
+        if self._zone_setting:is_server_allow_join(cluster_server_name) then
+            if role then
+                now_role_nums[role] = now_role_nums[role] or 0
+                now_role_nums[role] = now_role_nums[role] + 1
+            end
+        end
+    end
+
+    local is_can_work = true
+    for db_path, num in pairs(self._zone_setting:get_role_min_nums()) do
+        local str_array = string.split(db_path, "/")
+        if #str_array > 0 then
+            local role = string.lrtrim(str_array[#str_array], " ")
+            local joined_num = now_role_nums[role] or 0
+            if num > joined_num then
+                is_can_work = false
+                break
+            end
+        else
+            log_warn("DiscoveryService:_check_cluster_can_work zone_setting:get_role_min_nums(), db_path is invalid: %s", db_path)
+            -- _is_cluster_can_work = false
+        end
+    end
+
+    local old_value = self._is_cluster_can_work
+    self._is_cluster_can_work = is_can_work
+    if old_value ~= self._is_cluster_can_work then
+        self:fire(Discovery_Service_Event.cluster_can_work_change, self._is_cluster_can_work)
+    end
+end
+
+function DiscoveryService:is_cluster_can_work()
+    return self._is_cluster_can_work
+end
 

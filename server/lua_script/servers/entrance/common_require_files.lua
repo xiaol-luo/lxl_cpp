@@ -41,9 +41,6 @@ return {
     "servers.services.zone_setting.zone_setting_def",
     "servers.services.zone_setting.zone_setting_service",
 
-    "servers.services.cluster_state.cluster_state_def",
-    "servers.services.cluster_state.cluster_state_service",
-
     "servers.services.logic_service.logic_service_def",
     "servers.services.logic_service.logic_service_base",
     "servers.services.logic_service.logic_entity",

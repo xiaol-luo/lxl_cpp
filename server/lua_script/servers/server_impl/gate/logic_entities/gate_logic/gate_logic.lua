@@ -34,10 +34,15 @@ end
 
 ---@param gate_client GateClient
 function GateLogic:_on_msg_user_login(gate_client, pid, msg)
+    -- todo: 定义错误码
     if Gate_Client_State.free ~= gate_client.state or gate_client.user_id then
         gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = 1})
         gate_client:disconnect()
         return
+    end
+    if not self.server.discovery:is_cluster_can_work() then
+        gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = 2})
+        gate_client:disconnect()
     end
     gate_client.user_id = msg.user_id
     gate_client.auth_sn = msg.auth_sn

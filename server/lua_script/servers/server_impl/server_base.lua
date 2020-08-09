@@ -10,7 +10,6 @@
 ---@field peer_net PeerNetService
 ---@field zone_name string
 ---@field zone_setting ZoneSettingService
----@field cluster_state ClusterStateService
 ---@field rpc RpcService
 ---@field join_cluster JoinClusterService
 ServerBase = ServerBase or class("ServerBase", EventMgr)

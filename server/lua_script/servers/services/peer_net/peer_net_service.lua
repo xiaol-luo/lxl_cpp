@@ -84,7 +84,8 @@ function PeerNetService:_on_event_cluster_server_change(action, old_server_data,
         server_state = PeerNetServerState:new()
         self._culster_server_states[server_key] = server_state
         server_state.server_key = server_key
-        server_state.server_role, server_state.server_name = extract_from_cluster_server_name(server_key)
+        local _ = nil
+        _, server_state.server_role, server_state.server_name = extract_cluster_server_name(server_key)
         server_state.cluster_server_name = gen_cluster_server_name(server_state.server_role, server_state.server_role)
         if not server_state.server_role or #server_state.server_name <= 0
                 or not server_state.server_name or not #server_state.server_name then

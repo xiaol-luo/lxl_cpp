@@ -1,6 +1,6 @@
 
 Const.service_discovery = "service_discovery"
-Const.redis_setting_name_online_servers = "online_servers"
+Const.redis_setting_name_work_servers = "online_servers"
 Const.for_make_array = "for_make_array"
 Const.mongo_setting_name_uuid = "uuid"
 Const.mongo_setting_name_game = "game"

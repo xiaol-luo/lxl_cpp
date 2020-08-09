@@ -311,11 +311,11 @@ function ZoneSettingService:get_allow_work_servers()
     return ret
 end
 
-function ZoneSettingService:is_server_allow_work(server_name)
+function ZoneSettingService:is_server_allow_work(cluster_server_name)
     local ret = false
     if self._zone_allow_work_servers then
-        if is_string(server_name) and #server_name > 0 then
-            local key = string.format("%s/%s", self._db_path_zone_allow_work_servers, server_name)
+        if is_string(cluster_server_name) and #cluster_server_name > 0 then
+            local key = string.format("%s/%s", self._db_path_zone_allow_work_servers, cluster_server_name)
             ret = self._zone_allow_work_servers[key] or false
         end
     end
