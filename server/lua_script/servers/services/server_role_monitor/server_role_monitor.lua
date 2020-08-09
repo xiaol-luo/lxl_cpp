@@ -7,7 +7,7 @@ local Logic_State = {
     pull_persistent_data = "pull_persistent_data",
     diff_work_server_data = "diff_work_server_data",
     persist_work_server_data = "persist_work_server_data",
-    lead_world_rehash = "lead_world_rehash",
+    lead_rehash = "lead_rehash",
     guarantee_data_valid = "guarantee_data_valid",
     released = "released",
 }
@@ -41,23 +41,19 @@ function ServerRoleMonitor:ctor(service_mgr, service_name, zone_name, server_rol
     ---@type RpcServiceProxy
     self._rpc_svc_proxy = nil
 
-    log_print("self._monitor_setting.redis_key_adjusting_version", self._monitor_setting.redis_key_adjusting_version)
-    log_print("self._monitor_setting.redis_key_version", self._monitor_setting.redis_key_version)
-    log_print("self._monitor_setting.redis_key_servers", self._monitor_setting.redis_key_servers)
-
     ---@type RedisClient
     self._redis_client = nil
     self._zone_setting = self.server.zone_setting
 
     self._curr_logic_state = Logic_State.free
     self._has_pulled_from_db = false
-    self._world_work_servers = {}
+    self._work_servers = {}
     self._version = nil
     self._adjusting_version = nil
     self._opera_states = {}
 
-    self._adjusting_world_work_servers = nil
-    self._lead_world_rehash_state_over_sec = nil
+    self._adjusting_work_servers = nil
+    self._lead_rehash_state_over_sec = nil
     self._guarantee_data_valid_over_sec = 0
     self._last_tick_logic_sec = 0
     self._is_never_lead_rehash = true
@@ -80,8 +76,8 @@ function ServerRoleMonitor:_on_start()
         return
     end
 
-    --self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_world_work_servers_data,
-    --        Functional.make_closure(self._on_rpc_query_world_work_servers_data, self))
+    --self.server.rpc:set_remote_call_handle_fn(Online_World_Rpc_Method.query_work_servers_data,
+    --        Functional.make_closure(self._on_rpc_query_work_servers_data, self))
 
     self._rpc_svc_proxy:set_remote_call_handle_fn(self._monitor_setting.rpc_method_query_server_data,
             Functional.make_closure(self._on_rpc_query_work_server_data, self))
@@ -115,7 +111,7 @@ function ServerRoleMonitor:_tick_logic()
     if not self.server:is_joined_cluster() then
         return
     end
-    if self._zone_setting:is_ready() then
+    if not self._zone_setting:is_ready() then
         return
     end
 
@@ -144,9 +140,9 @@ function ServerRoleMonitor:_tick_logic()
     end
 
     if Logic_State.diff_work_server_data == self._curr_logic_state then
-        local has_diff, allow_join_world_servers = self:_check_work_server_diff()
+        local has_diff, allow_join_servers = self:_check_work_server_diff()
         if has_diff or self._is_never_lead_rehash then
-            self._adjusting_world_work_servers = allow_join_world_servers
+            self._adjusting_work_servers = allow_join_servers
             self._adjusting_version = self._version + 1
             self._redis_client:command(1, nil, "del %s", self._monitor_setting.redis_key_servers)
             self:_set_logic_state(Logic_State.persist_work_server_data)
@@ -163,28 +159,28 @@ function ServerRoleMonitor:_tick_logic()
         local is_all_done = self:_persist_work_server_data()
         if is_all_done or now_sec >= self._guarantee_data_valid_over_sec then
             if is_all_done then
-                self._lead_world_rehash_state_over_sec = now_sec + self._monitor_setting.lead_rehash_duration_sec
+                self._lead_rehash_state_over_sec = now_sec + self._monitor_setting.lead_rehash_duration_sec
                 self._version = self._adjusting_version
-                self._world_work_servers = self._adjusting_world_work_servers
+                self._work_servers = self._adjusting_work_servers
                 self._adjusting_version = nil
-                self._adjusting_world_work_servers = nil
-                self:_set_logic_state(Logic_State.lead_world_rehash)
+                self._adjusting_work_servers = nil
+                self:_set_logic_state(Logic_State.lead_rehash)
             else
                 self._adjusting_version = nil
-                self._adjusting_world_work_servers = nil
+                self._adjusting_work_servers = nil
                 self:_set_logic_state(Logic_State.guarantee_data_valid)
             end
         end
     end
 
-    if Logic_State.lead_world_rehash == self._curr_logic_state then
-        if now_sec >= self._lead_world_rehash_state_over_sec then
-            self._lead_world_rehash_state_over_sec = nil
+    if Logic_State.lead_rehash == self._curr_logic_state then
+        if now_sec >= self._lead_rehash_state_over_sec then
+            self._lead_rehash_state_over_sec = nil
             self:_set_logic_state(Logic_State.guarantee_data_valid)
         else
             -- todo:尽其所能全力通知所有关联的server，rehash
             self._is_never_lead_rehash = false
-            self:_notify_world_work_data(nil, false)
+            self:_notify_work_data(nil, false)
         end
     end
 
@@ -218,7 +214,7 @@ end
 function ServerRoleMonitor:_reset_datas()
     self._curr_logic_state = Logic_State.Free
     self._has_pulled_from_db = false
-    self._world_work_servers = {}
+    self._work_servers = {}
     self._version = nil
     self._adjusting_version = nil
     self._opera_states = {}
@@ -248,7 +244,7 @@ function ServerRoleMonitor:_check_query_db_logic()
             else
                 local is_ok = false
                 if Error_None == ret:get_error() and not ret:get_reply():get_error() then
-                    self._world_work_servers = {}
+                    self._work_servers = {}
                     local reply_array = ret:get_reply():get_array()
                     if reply_array and #reply_array >= 1 then
                         self._version = reply_array[1]:get_number()
@@ -256,7 +252,7 @@ function ServerRoleMonitor:_check_query_db_logic()
                             table.remove(reply_array, 1)
                         end
                         for _, v in pairs(reply_array) do
-                            self._world_work_servers[v:get_str()] = true
+                            self._work_servers[v:get_str()] = true
                         end
                     end
                     is_ok = true
@@ -281,29 +277,28 @@ end
 
 function ServerRoleMonitor:_check_work_server_diff()
     local has_diff = false
-    local allow_join_world_servers = {}
-    local allow_join_servers = self._zone_setting:get_allow_join_servers()
-    for db_path, is_allow_join in pairs(allow_join_servers) do
+    local allow_join_servers = {}
+    for db_path, is_allow_join in pairs(self._zone_setting:get_allow_join_servers() or {}) do
         if is_allow_join then
             local cluster_server_name, server_role, server_name = extract_cluster_server_name(db_path)
-            if Server_Role.World == server_role and self._zone_setting:is_server_allow_work(cluster_server_name) then
+            if self._role_name == server_role and self._zone_setting:is_server_allow_work(cluster_server_name) then
                 local server_key = gen_cluster_server_key(self.server.zone_name, server_role, server_name)
-                allow_join_world_servers[server_key] = true
-                if not self._world_work_servers[server_key] then
+                allow_join_servers[server_key] = true
+                if not self._work_servers[server_key] then
                     has_diff = true
                 end
             end
         end
     end
     if not has_diff then
-        for server_key, _ in pairs(self._world_work_servers) do
-            if not allow_join_world_servers[server_key] then
+        for server_key, _ in pairs(self._work_servers) do
+            if not allow_join_servers[server_key] then
                 has_diff = true
             end
         end
     end
-    -- log_print("ServerRoleMonitor:_check_work_server_diff", has_diff, allow_join_world_servers, self._world_work_servers)
-    return has_diff, allow_join_world_servers
+    -- log_print("ServerRoleMonitor:_check_work_server_diff", has_diff, allow_join_servers, self._work_servers)
+    return has_diff, allow_join_servers
 end
 
 function ServerRoleMonitor:_persist_work_server_data()
@@ -322,11 +317,11 @@ function ServerRoleMonitor:_persist_work_server_data()
         opera_state = self:_get_opera_state(Opera_Name.set_db_work_servers)
         if Opera_State.success ~= opera_state and Opera_State.acting ~= opera_state then
             self:_set_opera_state(Opera_Name.set_db_work_servers, Opera_State.acting)
-            if not self._adjusting_world_work_servers or not next(self._adjusting_world_work_servers) then
+            if not self._adjusting_work_servers or not next(self._adjusting_work_servers) then
                 self:_set_opera_state(Opera_Name.set_db_work_servers, Opera_State.success)
             else
                 local cmd = string.format("rpush %s %s %s", self._monitor_setting.redis_key_servers, self._adjusting_version,
-                        table.concat(table.keys(self._adjusting_world_work_servers), " "))
+                        table.concat(table.keys(self._adjusting_work_servers), " "))
                 self._redis_client:command(1, function(ret)
                     if Error_None ~= ret:get_error() or ret:get_reply():get_error() then
                         self:_set_opera_state(Opera_Name.set_db_work_servers, Opera_State.fail)
@@ -350,7 +345,8 @@ function ServerRoleMonitor:_persist_work_server_data()
     return is_all_done
 end
 
-function ServerRoleMonitor:_notify_world_work_data(to_server_key, is_simple_info)
+function ServerRoleMonitor:_notify_work_data(to_server_key, is_simple_info)
+    -- log_print("ServerRoleMonitor:_notify_work_data", to_server_key, is_simple_info, "1111", self._version, "222", self._work_servers)
     local notify_servers = nil
     if to_server_key then
         notify_servers = { to_server_key }
@@ -361,13 +357,13 @@ function ServerRoleMonitor:_notify_world_work_data(to_server_key, is_simple_info
         local send_tb = {
             version = self._version,
         }
-        if self._lead_world_rehash_state_over_sec then
-            send_tb.lead_rehash_left_sec = self._lead_world_rehash_state_over_sec - logic_sec()
+        if self._lead_rehash_state_over_sec then
+            send_tb.lead_rehash_left_sec = self._lead_rehash_state_over_sec - logic_sec()
         end
         if not is_simple_info then
-            send_tb.servers = self._world_work_servers
+            send_tb.servers = self._work_servers
         end
-        -- log_print("ServerRoleMonitor:_notify_world_work_data", notify_servers, send_tb)
+        -- log_print("ServerRoleMonitor:_notify_work_data", notify_servers, send_tb)
         for _, v in pairs(notify_servers) do
             self.server.rpc:call(nil, v, self._monitor_setting.rpc_method_notify_server_data, send_tb)
         end
@@ -377,7 +373,7 @@ end
 ---@param rsp RpcRsp
 function ServerRoleMonitor:_on_rpc_query_work_server_data(rsp, is_simple_info)
     rsp:response()
-    self:_notify_world_work_data(rsp.from_host, is_simple_info)
+    self:_notify_work_data(rsp.from_host, is_simple_info)
 end
 
 ---@return ServerRoleMonitorSetting

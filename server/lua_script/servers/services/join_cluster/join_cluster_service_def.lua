@@ -34,7 +34,9 @@ function extract_cluster_server_name(server_key_or_cluster_server_name)
     return cluster_server_name, server_role, server_name
 end
 
-
+function gen_cluster_server_key(zone_name, server_role, server_name)
+    return string.format(Join_Cluster_Service_Const.db_path_format_zone_server_data, zone_name, server_role, server_name)
+end
 
 ---@class Join_Cluster_Service_Event
 Join_Cluster_Service_Event = {}

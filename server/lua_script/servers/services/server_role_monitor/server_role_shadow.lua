@@ -69,12 +69,13 @@ function ServerRoleShadow:_on_update()
     ServerRoleShadow.super._on_update(self)
 
     local is_joined_cluster = self.server:is_joined_cluster()
+    local is_zone_setting_ready = self.server.zone_setting:is_ready()
     local now_sec = logic_sec()
-    if is_joined_cluster and now_sec >= self._query_monitor_last_sec + 3 then
+    if is_zone_setting_ready and is_joined_cluster and now_sec >= self._query_monitor_last_sec + 3 then
         self._query_monitor_last_sec = now_sec
         self:_query_monitor(true)
     end
-    if is_joined_cluster and now_sec >= self._query_reids_last_sec + 3 then
+    if is_zone_setting_ready and is_joined_cluster and now_sec >= self._query_reids_last_sec + 3 then
         self._query_reids_last_sec = now_sec
         self:_query_redis()
     end
@@ -125,7 +126,7 @@ function ServerRoleShadow:_query_redis()
             local adjusting_version = ret:get_reply():get_number()
             if adjusting_version then
                 if not self._adjusting_version or adjusting_version > self._adjusting_version then
-                    self:_set_adjusting_version(adjusting_version, self._monitor_setting.lead_world_rehash_duration_sec)
+                    self:_set_adjusting_version(adjusting_version, self._monitor_setting.lead_rehash_duration_sec)
                 end
             end
         end
@@ -164,6 +165,8 @@ function ServerRoleShadow:_set_adjusting_version(version, left_sec)
 end
 
 function ServerRoleShadow:_set_work_servers(version, servers)
+    -- log_print("ServerRoleShadow:_set_work_servers", version, servers)
+
     if not is_number(version) or not is_table(servers) then
         return
     end

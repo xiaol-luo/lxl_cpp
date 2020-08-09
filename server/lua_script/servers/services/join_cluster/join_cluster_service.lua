@@ -148,10 +148,10 @@ function JoinClusterService:_keep_in_cluster()
 
     local now_sec = logic_sec()
     if not self._is_joined_cluster then
-        if now_sec - self._keep_in_cluster_infos.set_value_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 4.0 then
+        if now_sec - self._keep_in_cluster_infos.set_value_last_sec >= Join_Cluster_Service_Const.refresh_ttl_sec / 4.0 then
             self._keep_in_cluster_infos.set_value_last_sec = now_sec
             self._keep_in_cluster_infos.is_keeping = true
-            self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_data_json_str, Discovery_Service_Const.refresh_ttl_sec, function(op_id, op, ret)
+            self._etcd_client:cmp_swap(self._db_path_zone_server_data, nil, nil, self._zone_server_data_json_str, Join_Cluster_Service_Const.refresh_ttl_sec, function(op_id, op, ret)
                 self._keep_in_cluster_infos.is_keeping = false
                 -- log_print("DiscoveryService:_keep_in_cluster set", ret:is_ok())
                 if ret:is_ok() then
@@ -166,10 +166,10 @@ function JoinClusterService:_keep_in_cluster()
         end
     end
     if self._is_joined_cluster then
-        if now_sec - self._keep_in_cluster_infos.refresh_ttl_last_sec >= Discovery_Service_Const.refresh_ttl_sec / 2.0 then
+        if now_sec - self._keep_in_cluster_infos.refresh_ttl_last_sec >= Join_Cluster_Service_Const.refresh_ttl_sec / 2.0 then
             self._keep_in_cluster_infos.refresh_ttl_last_sec = now_sec
             self._keep_in_cluster_infos.is_keeping = true
-            self._etcd_client:refresh_ttl(self._db_path_zone_server_data, Discovery_Service_Const.refresh_ttl_sec, false, function(op_id, op, ret)
+            self._etcd_client:refresh_ttl(self._db_path_zone_server_data, Join_Cluster_Service_Const.refresh_ttl_sec, false, function(op_id, op, ret)
                 self._keep_in_cluster_infos.is_keeping = false
                 -- log_print("DiscoveryService:_keep_in_cluster refresh ttl", ret:is_ok())
                 if ret:is_ok() then
