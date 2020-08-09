@@ -7,8 +7,8 @@ function GameRoleMgr:ctor(logics, logic_name)
     GameRoleMgr.super.ctor(self, logics, logic_name)
     ---@type GameServer
     self.server = self.server
-    ---@type OnlineWorldShadow
-    self._online_world_shadow = self.server.online_world_shadow
+    ---@type ServerRoleShadow
+    self._work_world_shadow = self.server.work_world_shadow
     ---@type MongoClient
     self._db_client = nil
     self._query_db_name = self.server.zone_name
@@ -19,7 +19,7 @@ function GameRoleMgr:ctor(logics, logic_name)
     self._next_save_role_id = nil
     self._wait_launch_role_rpc_rsps = {}
 
-    self._online_world_shadow_aprted_release_all_roles_tid = nil
+    self._work_world_shadow_aprted_release_all_roles_tid = nil
 
     self._check_match_world_roles_last_sec = 0
 end
@@ -48,9 +48,10 @@ function GameRoleMgr:_on_start()
         return
     end
 
-    self._event_binder:bind(self._online_world_shadow, Online_World_Event.adjusting_version_state_change,
+    local shadow_setting = self._work_world_shadow:get_setting()
+    self._event_binder:bind(self._work_world_shadow, shadow_setting.event_adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
-    self._event_binder:bind(self._online_world_shadow, Online_World_Event.shadow_parted_state_change,
+    self._event_binder:bind(self._work_world_shadow, shadow_setting.event_shadow_parted_state_change,
             Functional.make_closure(self._on_event_shadow_parted_state_change, self))
 end
 
@@ -97,11 +98,11 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoleMgr:_handle_remote_call_launch_role(rpc_rsp, user_id, role_id)
-    if self._online_world_shadow:is_parted() then
+    if self._work_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
-    if self._online_world_shadow:is_adjusting_version() then
+    if self._work_world_shadow:is_adjusting_version() then
         rpc_rsp:response(Error_Consistent_Hash_Adjusting)
         return
     end
@@ -238,7 +239,7 @@ end
 
 function GameRoleMgr:_handle_remote_call_check_match_game_roles(rpc_rsp, role_ids)
     local mismatch_role_ids = {}
-    if not self._online_world_shadow:is_adjusting_version() then
+    if not self._work_world_shadow:is_adjusting_version() then
         for _, role_id in pairs(role_ids) do
             local game_role = self._id_to_roles[role_id]
             if not game_role or game_role:get_world_server_key() ~= rpc_rsp.from_host then
@@ -264,7 +265,7 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
     else
         local to_remove_role = {}
         for role_id, game_role in pairs(self._id_to_roles) do
-            local want_world_server_key = self._online_world_shadow:cal_server_address(role_id)
+            local want_world_server_key = self._work_world_shadow:cal_server_address(role_id)
             if want_world_server_key ~= game_role:get_world_server_key() then
                 to_remove_role[role_id] = game_role
             end
@@ -284,17 +285,17 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
 end
 
 function GameRoleMgr:_on_event_shadow_parted_state_change(is_parted)
-    self:_try_release_all_roles_for_online_world_shadow_parted(is_parted)
+    self:_try_release_all_roles_for_work_world_shadow_parted(is_parted)
 end
 
-function GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted(need_release)
-    if self._online_world_shadow_aprted_release_all_roles_tid then
-        self._timer_proxy:remove(self._online_world_shadow_aprted_release_all_roles_tid)
-        self._online_world_shadow_aprted_release_all_roles_tid = nil
+function GameRoleMgr:_try_release_all_roles_for_work_world_shadow_parted(need_release)
+    if self._work_world_shadow_aprted_release_all_roles_tid then
+        self._timer_proxy:remove(self._work_world_shadow_aprted_release_all_roles_tid)
+        self._work_world_shadow_aprted_release_all_roles_tid = nil
     end
     if need_release then
-        self._online_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
-            self._online_world_shadow_aprted_release_all_roles_tid = nil
+        self._work_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
+            self._work_world_shadow_aprted_release_all_roles_tid = nil
             local role_ids = {}
             for role_id, game_role in pairs(self._id_to_roles) do
                 game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
@@ -306,7 +307,7 @@ function GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted(need_
             for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
                 self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, role_ids)
             end
-            log_print("GameRoleMgr:_try_release_all_roles_for_online_world_shadow_parted ")
+            log_print("GameRoleMgr:_try_release_all_roles_for_work_world_shadow_parted ")
         end, Game_Role_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
     end
 end
@@ -315,7 +316,7 @@ function GameRoleMgr:_check_match_world_roles(now_sec)
     if now_sec - self._check_match_world_roles_last_sec < Game_Role_Const.check_match_world_role_span_sec then
         return
     end
-    if self._online_world_shadow:is_adjusting_version() then
+    if self._work_world_shadow:is_adjusting_version() then
         return
     end
     -- log_print("GameRoleMgr:_check_match_world_roles", self.server:get_cluster_server_key(), table.size(self._id_to_roles))

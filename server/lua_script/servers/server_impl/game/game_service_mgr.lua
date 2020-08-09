@@ -7,10 +7,11 @@ function GameServiceMgr:ctor(server)
 end
 
 function GameServiceMgr:_on_init()
-    local world_online_shadown = OnlineWorldShadow:new(self, Service_Name.online_world_shadow)
-    world_online_shadown:init()
-    self:add_service(world_online_shadown)
-
+    do
+        local svc = ServerRoleShadow:new(self, Service_Name.work_world_shadow, self.server:get_zone_name(), Server_Role.World)
+        svc:init()
+        self:add_service(svc)
+    end    
     do
         local svc = GameLogicService:new(self, Service_Name.logics)
         svc:init()

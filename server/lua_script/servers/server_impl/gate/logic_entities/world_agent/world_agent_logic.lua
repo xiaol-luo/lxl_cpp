@@ -1,5 +1,6 @@
 
 ---@class WorldAgentLogic:LogicEntity
+---@field server GateServer
 WorldAgentLogic = WorldAgentLogic or class("WorldAgentLogic", LogicEntity)
 
 function WorldAgentLogic:ctor(logics, logic_name)
@@ -7,13 +8,13 @@ function WorldAgentLogic:ctor(logics, logic_name)
     ---@type GateClientMgr
     self._gate_client_mgr = nil
     ---@type OnlineWorldShadow
-    self._online_world_shadow = nil
+    self._work_world_shadow = nil
 end
 
 function WorldAgentLogic:_on_init()
     WorldAgentLogic.super._on_init(self)
     self._gate_client_mgr = self.logics.gate_client_mgr
-    self._online_world_shadow = self.server.online_world_shadow
+    self._work_world_shadow = self.server.work_world_shadow
 end
 
 function WorldAgentLogic:_on_start()
@@ -43,7 +44,7 @@ end
 function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
     local error_num = Error_None
     repeat
-        local find_error_num, selected_world_key = self._online_world_shadow:find_available_server_address(msg.role_id)
+        local find_error_num, selected_world_key = self._work_world_shadow:find_available_server_address(msg.role_id)
         if Error_None ~= find_error_num then
             error_num = find_error_num
             break
@@ -105,7 +106,7 @@ function WorldAgentLogic:_on_msg_logout_role(gate_client, pid, msg)
             error_num = Error.logout_role.gate_client_state_not_fit
             break
         end
-        local find_error_num, selected_world_key = self._online_world_shadow:find_available_server_address(gate_client.role_id)
+        local find_error_num, selected_world_key = self._work_world_shadow:find_available_server_address(gate_client.role_id)
         if Error_None ~= find_error_num then
             error_num = find_error_num
             break
@@ -159,7 +160,7 @@ function WorldAgentLogic:_on_msg_reconnect_role(gate_client, pid, msg)
         gate_client.auth_sn = auth_msg.auth_sn
         gate_client.state = Gate_Client_State.manage_role
 
-        local find_error_num, selected_world_key = self._online_world_shadow:find_available_server_address(msg.role_id)
+        local find_error_num, selected_world_key = self._work_world_shadow:find_available_server_address(msg.role_id)
         if Error_None ~= find_error_num then
             error_num = find_error_num
             break

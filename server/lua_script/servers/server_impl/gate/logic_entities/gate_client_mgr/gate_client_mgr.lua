@@ -1,5 +1,6 @@
 
 ---@class GateClientMgr:LogicEntity
+---@field server GateServer
 GateClientMgr = GateClientMgr or class("GateClientMgr", LogicEntity)
 
 function GateClientMgr:ctor(logics, logic_name)
@@ -32,7 +33,8 @@ function GateClientMgr:_on_start()
 
     local Tick_Span_Ms = 2 * 1000
     self._timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
-    self._event_binder:bind(self.server.online_world_shadow, Online_World_Event.adjusting_version_state_change,
+    local shadow_setting = self.server.work_world_shadow:get_setting()
+    self._event_binder:bind(self.server.work_world_shadow, shadow_setting.event_adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
 
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.kick_client, Functional.make_closure(self._handle_remote_call_kick_client, self))
@@ -76,7 +78,7 @@ function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error
     end
     self._gate_clients[netid] = nil
     if gate_client.role_id and gate_client.session_id then
-        local find_error_num, selected_world_key = self.server.online_world_shadow:find_available_server_address(gate_client.role_id)
+        local find_error_num, selected_world_key = self.server.work_world_shadow:find_available_server_address(gate_client.role_id)
         if Error_None == find_error_num then
             self._rpc_svc_proxy:call(nil, selected_world_key, Rpc.world.method.gate_client_quit, gate_client.session_id)
         else
@@ -141,7 +143,7 @@ function GateClientMgr._on_event_adjusting_version_state_change(is_adjusting)
         local quits = self._delay_notify_gate_client_quits
         self._delay_notify_gate_client_quits = {}
         for _, v in pairs(quits) do
-            local server_key = self.server.online_world_shadow:cal_server_address(v.role_id)
+            local server_key = self.server.work_world_shadow:cal_server_address(v.role_id)
             if server_key then
                 self._rpc_svc_proxy:call(nil, server_key, Rpc.world.method.gate_client_quit, v.session_id)
             end

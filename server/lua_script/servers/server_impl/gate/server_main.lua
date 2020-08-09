@@ -6,7 +6,6 @@ ServiceMgr = GateServiceMgr
 ---@class GateServer : ServerBase
 ---@field redis_setting_work_servers RedisServerConfig
 ---@field work_world_shadow ServerRoleShadow
----@field online_world_shadow OnlineWorldShadow
 GateServer = GateServer or class("GateServer", ServerBase)
 
 function create_server_main(init_setting, init_args)

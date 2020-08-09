@@ -273,6 +273,6 @@ function ServerRoleShadow:get_version()
 end
 
 ---@return ServerRoleMonitorSetting
-function ServerRoleShadow:get_settting()
+function ServerRoleShadow:get_setting()
     return self._monitor_setting
 end

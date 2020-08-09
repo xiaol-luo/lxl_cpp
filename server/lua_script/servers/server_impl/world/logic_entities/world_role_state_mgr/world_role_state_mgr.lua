@@ -1,13 +1,14 @@
 
 ---@class RoleStateMgr:LogicEntity
+---@field server WorldServer
 RoleStateMgr = RoleStateMgr or class("RoleStateMgr", LogicEntity)
 
 function RoleStateMgr:_on_init()
     RoleStateMgr.super._on_init(self)
     ---@type CreateRoleServiceMgr
     self.server = self.server
-    ---@type OnlineWorldShadow
-    self._online_world_shadow = self.server.online_world_shadow
+    ---@type ServerRoleShadow
+    self._work_world_shadow = self.server.work_world_shadow
 
     ---@type table<number, WorldRoleState>
     self._role_id_to_role_state = {}
@@ -20,7 +21,7 @@ function RoleStateMgr:_on_init()
 
     self._next_opera_id = make_sequence(0)
 
-    self._online_world_shadow_aprted_release_all_roles_tid = nil
+    self._work_world_shadow_aprted_release_all_roles_tid = nil
 
     self._check_idle_roles_last_sec = 0
     self._check_match_game_roles_last_sec = 0
@@ -36,9 +37,11 @@ function RoleStateMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.notify_release_game_roles, Functional.make_closure(self._handle_remote_call_notify_release_game_roles, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.transfer_world_role, Functional.make_closure(self._handle_remote_call_transfer_world_role, self))
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.check_match_world_roles, Functional.make_closure(self._handle_remote_call_check_match_world_roles, self))
-    self._event_binder:bind(self._online_world_shadow, Online_World_Event.adjusting_version_state_change,
+
+    local shadow_setting = self._work_world_shadow:get_setting()
+    self._event_binder:bind(self._work_world_shadow, shadow_setting.event_adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
-    self._event_binder:bind(self._online_world_shadow, Online_World_Event.shadow_parted_state_change,
+    self._event_binder:bind(self._work_world_shadow, shadow_setting.event_shadow_parted_state_change,
             Functional.make_closure(self._on_event_shadow_parted_state_change, self))
 end
 
@@ -61,7 +64,7 @@ function RoleStateMgr:_check_and_release_idle_roles(now_sec)
     if now_sec - self._check_idle_roles_last_sec < World_Role_State_Const.check_idle_role_span_sec then
         return
     end
-    if self._online_world_shadow:is_adjusting_version() then
+    if self._work_world_shadow:is_adjusting_version() then
         return
     end
     self._check_idle_roles_last_sec = now_sec
@@ -78,11 +81,11 @@ end
 
 ---@param rpc_rsp RpcRsp
 function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_sn, user_id, role_id)
-    if self._online_world_shadow:is_parted() then
+    if self._work_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
-    if self._online_world_shadow:is_adjusting_version() then
+    if self._work_world_shadow:is_adjusting_version() then
         rpc_rsp:response(Error_Consistent_Hash_Adjusting)
         return
     end
@@ -311,11 +314,11 @@ function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num
 end
 
 function RoleStateMgr:_handle_remote_call_reconnect_role(rpc_rsp, gate_netid, role_id, auth_sn)
-    if self._online_world_shadow:is_parted() then
+    if self._work_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
-    if self._online_world_shadow:is_adjusting_version() then
+    if self._work_world_shadow:is_adjusting_version() then
         rpc_rsp:response(Error_Consistent_Hash_Adjusting)
         return
     end
@@ -420,13 +423,13 @@ end
 
 function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_state_data)
     log_print("RoleStateMgr:_handle_remote_call_transfer_world_role ", role_state_data, self.server:get_cluster_server_key())
-    if self._online_world_shadow:is_parted() then
+    if self._work_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
     end
     local role_id = role_state_data.role_id
     local self_server_key = self.server:get_cluster_server_key()
-    local want_world_server_key = self._online_world_shadow:cal_server_address(role_id)
+    local want_world_server_key = self._work_world_shadow:cal_server_address(role_id)
     if want_world_server_key ~= self_server_key then
         rpc_rsp:response(Error_Consistent_Hash_Mismatch)
         return
@@ -459,7 +462,7 @@ end
 
 function RoleStateMgr:_handle_remote_call_check_match_world_roles(rpc_rsp, role_ids)
     local mismatch_role_ids = {}
-    if not self._online_world_shadow:is_adjusting_version() then
+    if not self._work_world_shadow:is_adjusting_version() then
         for _, role_id in pairs(role_ids) do
             local role_state = self._role_id_to_role_state[role_id]
             if not role_state or role_state.game_server_key ~= rpc_rsp.from_host then
@@ -484,7 +487,7 @@ end
 function RoleStateMgr:try_transfer_world_role(role_id, try_times)
     log_print("RoleStateMgr:try_transfer_world_role", role_id, try_times)
     local self_server_key = self.server:get_cluster_server_key()
-    local target_server_key = self._online_world_shadow:cal_server_address(role_id)
+    local target_server_key = self._work_world_shadow:cal_server_address(role_id)
     if not target_server_key or target_server_key == self_server_key then
         return
     end
@@ -519,7 +522,7 @@ function RoleStateMgr:rpc_rsp_transfer_world_role(session_id, try_times, rpc_err
 
     local picked_error_num = pick_error_num(rpc_error_num, logic_error_num)
     if Error_None ~= picked_error_num then
-        if self._online_world_shadow:is_adjusting_version() and try_times < World_Role_State_Const.transfer_role_try_max_times then
+        if self._work_world_shadow:is_adjusting_version() and try_times < World_Role_State_Const.transfer_role_try_max_times then
             self._timer_proxy:delay(Functional.make_closure(self.try_transfer_world_role, self, role_state.role_id, try_times + 1),
                     World_Role_State_Const.transfer_role_try_span_ms)
         else
@@ -548,7 +551,7 @@ function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
     else
         local self_server_key = self.server:get_cluster_server_key()
         for role_id, _ in pairs(self._role_id_to_role_state) do
-            local want_world_server_key = self._online_world_shadow:cal_server_address(role_id)
+            local want_world_server_key = self._work_world_shadow:cal_server_address(role_id)
             if want_world_server_key ~= self_server_key then
                 self:try_release_role(role_id, "world_adjusting_version_end_release_role_server_key_not_fit")
             end
@@ -557,17 +560,17 @@ function RoleStateMgr:_on_event_adjusting_version_state_change(is_adjusting)
 end
 
 function RoleStateMgr:_on_event_shadow_parted_state_change(is_parted)
-    self:_try_release_all_roles_for_online_world_shadow_parted(is_parted)
+    self:_try_release_all_roles_for_work_world_shadow_parted(is_parted)
 end
 
-function RoleStateMgr:_try_release_all_roles_for_online_world_shadow_parted(need_release)
-    if self._online_world_shadow_aprted_release_all_roles_tid then
-        self._timer_proxy:remove(self._online_world_shadow_aprted_release_all_roles_tid)
-        self._online_world_shadow_aprted_release_all_roles_tid = nil
+function RoleStateMgr:_try_release_all_roles_for_work_world_shadow_parted(need_release)
+    if self._work_world_shadow_aprted_release_all_roles_tid then
+        self._timer_proxy:remove(self._work_world_shadow_aprted_release_all_roles_tid)
+        self._work_world_shadow_aprted_release_all_roles_tid = nil
     end
     if need_release then
-        self._online_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
-            self._online_world_shadow_aprted_release_all_roles_tid = nil
+        self._work_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
+            self._work_world_shadow_aprted_release_all_roles_tid = nil
             for _, role_state in pairs(self._role_id_to_role_state) do
                 if World_Role_State.using == role_state.state
                         or World_Role_State.idle == role_state.state
@@ -583,7 +586,7 @@ function RoleStateMgr:_check_match_game_roles(now_sec)
     if now_sec - self._check_match_game_roles_last_sec < World_Role_State_Const.check_match_game_role_span_sec then
         return
     end
-    if self._online_world_shadow:is_adjusting_version() then
+    if self._work_world_shadow:is_adjusting_version() then
         return
     end
 
@@ -614,7 +617,7 @@ function RoleStateMgr:_check_match_game_roles(now_sec)
 end
 
 function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, role_ids)
-    if self._online_world_shadow:is_adjusting_version() then
+    if self._work_world_shadow:is_adjusting_version() then
         return
     end
 

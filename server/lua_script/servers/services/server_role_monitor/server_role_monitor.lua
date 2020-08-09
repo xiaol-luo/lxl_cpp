@@ -381,6 +381,6 @@ function ServerRoleMonitor:_on_rpc_query_work_server_data(rsp, is_simple_info)
 end
 
 ---@return ServerRoleMonitorSetting
-function ServerRoleMonitor:get_settting()
+function ServerRoleMonitor:get_setting()
     return self._monitor_setting
 end

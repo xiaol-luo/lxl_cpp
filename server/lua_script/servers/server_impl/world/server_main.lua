@@ -7,6 +7,7 @@ ServiceMgr = WorldServiceMgr
 ---@class WorldServer : ServerBase
 ---@field redis_setting_work_servers RedisServerConfig
 ---@field mongo_setting_game MongoServerConfig
+---@field work_world_shadow ServerRoleShadow
 WorldServer = WorldServer or class("WorldServer", ServerBase)
 
 function create_server_main(init_setting, init_args)
