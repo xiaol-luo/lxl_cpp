@@ -37,7 +37,6 @@ function CoroutineExMgr.kill(key, kill_reason)
     end
 end
 
-
 function CoroutineExMgr.on_frame()
     local dead_keys = {}
     for k, v in pairs(self.cos) do
@@ -58,7 +57,7 @@ function CoroutineExMgr.on_frame()
 end
 
 
-function CoroutineExMgr.add_delay_execute_fn(fn)
+function CoroutineExMgr.defer_execute(fn)
     table.insert(self.delay_execute_fns, fn)
 end
 

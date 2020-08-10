@@ -26,7 +26,8 @@ function ServerBase:init()
 end
 
 function ServerBase:start()
-    self._on_frame_tid = self._timer_proxy:firm(Functional.make_closure(self._on_frame, self), Const.service_micro_sec_per_frame, Forever_Execute_Timer)
+    self._on_frame_tid = self._timer_proxy:firm(Functional.make_closure(self._update_frame, self), Const.service_micro_sec_per_frame, Forever_Execute_Timer)
+    CoroutineExMgr.start()
     self:_on_start()
 end
 
@@ -36,6 +37,12 @@ function ServerBase:stop()
         self._on_frame_tid = nil
     end
     self:_on_stop()
+    CoroutineExMgr.stop()
+end
+
+function ServerBase:_update_frame()
+    CoroutineExMgr.on_frame()
+    self:_on_frame()
 end
 
 function ServerBase:release()
