@@ -5,12 +5,12 @@ batch_require(require("servers.server_impl.game.server_require_files"))
 
 ServiceMgr = GameServiceMgr
 
----@class GameServer : ServerBase
+---@class GameServer : GameServerBase
 ---@field redis_setting_work_servers RedisServerConfig
 ---@field mongo_setting_game MongoServerConfig
 ---@field logics GameLogicService
 ---@field work_world_shadow ServerRoleShadow
-GameServer = GameServer or class("GameServer", ServerBase)
+GameServer = GameServer or class("GameServer", GameServerBase)
 
 function create_server_main(init_setting, init_args)
     return GameServer:new(init_setting, init_args)

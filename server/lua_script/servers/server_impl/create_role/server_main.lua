@@ -4,10 +4,10 @@ batch_require(require("servers.server_impl.create_role.server_require_files"))
 
 ServiceMgr = CreateRoleServiceMgr
 
----@class CreateRoleServer : ServerBase
+---@class CreateRoleServer : GameServerBase
 ---@field mongo_setting_uuid MongoServerConfig
 ---@field mongo_setting_game MongoServerConfig
-CreateRoleServer = CreateRoleServer or class("CreateRoleServer", ServerBase)
+CreateRoleServer = CreateRoleServer or class("CreateRoleServer", GameServerBase)
 
 function create_server_main(init_setting, init_args)
     return CreateRoleServer:new(init_setting, init_args)

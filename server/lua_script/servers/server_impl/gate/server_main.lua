@@ -3,10 +3,10 @@ batch_require(require("servers.server_impl.gate.server_require_files"))
 
 ServiceMgr = GateServiceMgr
 
----@class GateServer : ServerBase
+---@class GateServer : GameServerBase
 ---@field redis_setting_work_servers RedisServerConfig
 ---@field work_world_shadow ServerRoleShadow
-GateServer = GateServer or class("GateServer", ServerBase)
+GateServer = GateServer or class("GateServer", GameServerBase)
 
 function create_server_main(init_setting, init_args)
     return GateServer:new(init_setting, init_args)

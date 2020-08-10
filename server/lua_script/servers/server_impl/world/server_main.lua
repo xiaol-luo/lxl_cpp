@@ -4,11 +4,11 @@ batch_require(require("servers.server_impl.world.server_require_files"))
 
 ServiceMgr = WorldServiceMgr
 
----@class WorldServer : ServerBase
+---@class WorldServer : GameServerBase
 ---@field redis_setting_work_servers RedisServerConfig
 ---@field mongo_setting_game MongoServerConfig
 ---@field work_world_shadow ServerRoleShadow
-WorldServer = WorldServer or class("WorldServer", ServerBase)
+WorldServer = WorldServer or class("WorldServer", GameServerBase)
 
 function create_server_main(init_setting, init_args)
     return WorldServer:new(init_setting, init_args)

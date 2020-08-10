@@ -12,7 +12,7 @@ return {
 
     "servers.server_impl.server_def",
     "servers.server_impl.server_base",
-    "servers.server_impl.server_base_property",
+    "servers.server_impl.game_server_base",
 
     "servers.services.service_def",
     "servers.services.service_base",

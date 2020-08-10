@@ -1,6 +1,6 @@
 
 ---@class ServiceMgrBase : EventMgr
----@field server ServerBase
+---@field server GameServerBase
 ServiceMgrBase = ServiceMgrBase or class("ServiceMgrBase", EventMgr)
 
 function ServiceMgrBase:ctor(server)

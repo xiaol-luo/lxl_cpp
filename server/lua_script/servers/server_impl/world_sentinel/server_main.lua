@@ -3,9 +3,9 @@
 batch_require(require("servers.server_impl.world_sentinel.server_require_files"))
 
 
----@class WorldSentinelServer : ServerBase
+---@class WorldSentinelServer : GameServerBase
 ---@field redis_setting_work_servers RedisServerConfig
-WorldSentinelServer = WorldSentinelServer or class("WorldSentinelServer", ServerBase)
+WorldSentinelServer = WorldSentinelServer or class("WorldSentinelServer", GameServerBase)
 
 function create_server_main(init_setting, init_args)
     return WorldSentinelServer:new(init_setting, init_args)

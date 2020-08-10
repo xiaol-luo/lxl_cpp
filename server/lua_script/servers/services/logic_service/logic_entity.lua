@@ -1,6 +1,6 @@
 
 ---@class LogicEntity
----@field server ServerBase
+---@field server GameServerBase
 ---@field logics LogicServiceBase
 LogicEntity = LogicEntity or class("LogicEntity", EventMgr)
 
