@@ -3,7 +3,7 @@
 ---@field server GameServerBase
 ServiceMgrBase = ServiceMgrBase or class("ServiceMgrBase", EventMgr)
 
-function ServiceMgrBase:ctor(server)
+function ServiceMgrBase:ctor(server, setup_service_fn)
     ServiceMgrBase.super.ctor(self)
     self.server = server
     self.services = {}
@@ -11,6 +11,7 @@ function ServiceMgrBase:ctor(server)
     self.curr_state = Service_State.Free
     self.error_num = nil
     self.error_msg = ""
+    self._setup_service_fn = setup_service_fn
 end
 
 function ServiceMgrBase:create_event_proxy()
@@ -32,31 +33,9 @@ function ServiceMgrBase:init()
     end
     self.curr_state = Service_State.Inited
 
-    local hotfix_svc = HotfixService:new(self, Service_Name.hotfix)
-    hotfix_svc:init("hotfix_dir")
-    self:add_service(hotfix_svc)
-
-    local zone_setting_svc = ZoneSettingService:new(self, Service_Name.zone_setting)
-    zone_setting_svc:init()
-    self:add_service(zone_setting_svc)
-
-    do
-        local svc = JoinClusterService:new(self, Service_Name.join_cluster)
-        svc:init()
-        self:add_service(svc)
+    if self._setup_service_fn then
+        self._setup_service_fn(self)
     end
-
-    local discovery = DiscoveryService:new(self, Service_Name.discovery)
-    discovery:init()
-    self:add_service(discovery)
-
-    local peer_net_svc = PeerNetService:new(self, Service_Name.peer_net)
-    peer_net_svc:init()
-    self:add_service(peer_net_svc)
-
-    local rpc_svc = RpcService:new(self, Service_Name.rpc)
-    rpc_svc:init()
-    self:add_service(rpc_svc)
 
     local ret = self:_on_init()
     return ret

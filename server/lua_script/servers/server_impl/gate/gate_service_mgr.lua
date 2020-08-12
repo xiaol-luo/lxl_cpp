@@ -6,7 +6,7 @@
 GateServiceMgr = class("GateServiceMgr", ServiceMgrBase)
 
 function GateServiceMgr:ctor(server)
-    GateServiceMgr.super.ctor(self, server)
+    GateServiceMgr.super.ctor(self, server, CustomServiceHelpFn.setup_game_service)
 end
 
 function GateServiceMgr:_on_init()

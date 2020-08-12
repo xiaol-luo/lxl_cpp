@@ -18,34 +18,51 @@ function ServerBase:ctor(server_role, init_setting, init_args)
     ---@type TimerProxy
     self._timer_proxy = TimerProxy:new()
     self._on_frame_tid = nil
+    ---@type ServiceMgrBase
+    self._service_mgr = ServiceMgr:new(self)
 end
 
 function ServerBase:init()
-    local ret = self:_on_init()
-    return ret
+    if not self:_on_init() then
+        return false
+    end
+    if not self._service_mgr:init() then
+        return false
+    end
+    return true
 end
 
 function ServerBase:start()
     self._on_frame_tid = self._timer_proxy:firm(Functional.make_closure(self._update_frame, self), Const.service_micro_sec_per_frame, Forever_Execute_Timer)
     CoroutineExMgr.start()
     self:_on_start()
+    self._service_mgr:start()
 end
 
 function ServerBase:stop()
+    self:_on_stop()
+    self._service_mgr:stop()
     if self._on_frame_tid then
         self._timer_proxy:remove(self._on_frame_tid)
         self._on_frame_tid = nil
     end
-    self:_on_stop()
     CoroutineExMgr.stop()
 end
 
 function ServerBase:_update_frame()
     CoroutineExMgr.on_frame()
     self:_on_frame()
+    self._service_mgr:on_frame()
+    local error_num, error_msg = self._service_mgr:get_error()
+    if error_num and Server_Quit_State.none == self.quit_state then
+        native.try_quit_game()
+        assert(error_num, error_msg)
+    end
 end
 
 function ServerBase:release()
+    self:_on_release()
+    self._service_mgr:release()
     self._event_binder:cancel_all()
     self._timer_proxy:release_all()
     self._on_frame_tid = nil

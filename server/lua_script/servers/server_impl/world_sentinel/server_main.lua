@@ -2,6 +2,7 @@
 
 batch_require(require("servers.server_impl.world_sentinel.server_require_files"))
 
+ServiceMgr = WorldSentinelServiceMgr
 
 ---@class WorldSentinelServer : GameServerBase
 ---@field redis_setting_work_servers RedisServerConfig

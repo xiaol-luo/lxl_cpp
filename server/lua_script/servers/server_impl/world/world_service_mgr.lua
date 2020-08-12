@@ -3,7 +3,7 @@
 WorldServiceMgr = class("WorldServiceMgr", ServiceMgrBase)
 
 function WorldServiceMgr:ctor(server)
-    WorldServiceMgr.super.ctor(self, server)
+    WorldServiceMgr.super.ctor(self, server, CustomServiceHelpFn.setup_game_service)
 end
 
 function WorldServiceMgr:_on_init()

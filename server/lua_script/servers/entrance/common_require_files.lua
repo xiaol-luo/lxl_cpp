@@ -17,6 +17,7 @@ return {
     "servers.services.service_def",
     "servers.services.service_base",
     "servers.services.service_mgr_base",
+    "servers.services.custom_service_help_fn",
     "servers.services.hotfix_service",
 
     "servers.services.join_cluster.join_cluster_service_def",

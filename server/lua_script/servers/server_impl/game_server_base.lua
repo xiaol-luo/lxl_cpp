@@ -19,8 +19,6 @@ function GameServerBase:ctor(server_role, init_setting, init_args)
     self.zone_name = nil
     self.server_name = nil
     self.etcd_service_discovery_setting = nil
-    ---@type ServiceMgrBase
-    self._service_mgr = ServiceMgr:new(self)
     ---@type Server_Quit_State
     self.pto_parser = ProtoParser:new()
 end
@@ -58,36 +56,7 @@ function GameServerBase:_on_init()
         return false
     end
 
-    if not self._service_mgr:init() then
-        return false
-    end
-
     return true
-end
-
-function GameServerBase:_on_start()
-    GameServerBase.super._on_start(self)
-    self._service_mgr:start()
-end
-
-function GameServerBase:_on_stop()
-    GameServerBase.super._on_stop(self)
-    self._service_mgr:stop()
-end
-
-function GameServerBase:_on_release()
-    GameServerBase.super._on_release(self)
-    self._service_mgr:release()
-end
-
-function GameServerBase:_on_frame()
-    GameServerBase.super._on_frame(self)
-    self._service_mgr:on_frame()
-    local error_num, error_msg = self._service_mgr:get_error()
-    if error_num and Server_Quit_State.none == self.quit_state then
-        native.try_quit_game()
-        assert(error_num, error_msg)
-    end
 end
 
 function GameServerBase:_set_as_field(field_name, obj)

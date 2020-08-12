@@ -3,7 +3,7 @@
 GameServiceMgr = class("GameServiceMgr", ServiceMgrBase)
 
 function GameServiceMgr:ctor(server)
-    GameServiceMgr.super.ctor(self, server)
+    GameServiceMgr.super.ctor(self, server, CustomServiceHelpFn.setup_game_service)
 end
 
 function GameServiceMgr:_on_init()

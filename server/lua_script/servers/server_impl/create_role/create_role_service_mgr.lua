@@ -5,7 +5,7 @@
 CreateRoleServiceMgr = class("CreateRoleServiceMgr", ServiceMgrBase)
 
 function CreateRoleServiceMgr:ctor(server)
-    CreateRoleServiceMgr.super.ctor(self, server)
+    CreateRoleServiceMgr.super.ctor(self, server, CustomServiceHelpFn.setup_game_service)
 end
 
 function CreateRoleServiceMgr:_on_init()
