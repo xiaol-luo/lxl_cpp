@@ -50,6 +50,9 @@ return {
     "servers.services.client_net_service.client_net_cnn",
     "servers.services.client_net_service.client_net_service",
 
+    "servers.services.http_net_service.http_net_service",
+    "servers.services.http_net_service.http_net_service_proxy",
+
     "libs.etcd_watch.etcd_watch_def",
     "libs.etcd_watch.etcd_watch_result",
     "libs.etcd_watch.etcd_watcher",
