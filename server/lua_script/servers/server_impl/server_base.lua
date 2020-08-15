@@ -120,4 +120,11 @@ function ServerBase:_on_frame()
 
 end
 
+function ServerBase:_set_as_field(field_name, obj)
+    if obj then
+        assert(not self[field_name])
+        self[field_name] = obj
+    end
+end
+
 

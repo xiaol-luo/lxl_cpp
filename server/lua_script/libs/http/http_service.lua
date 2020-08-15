@@ -1,5 +1,5 @@
 
----@alias Fn_HttpServiceHandleReq fun(method:HttpMethod, req_url:string, heads_map:table<string, string>, body:string):boolean
+---@alias Fn_HttpServiceHandleReq fun(from_cnn_id:number, method:HttpMethod, req_url:string, heads_map:table<string, string>, body:string):boolean
 
 ---@class HttpService
 HttpService = HttpService or class("HttpService")
@@ -31,13 +31,19 @@ function HttpService:stop()
     self.listener = nil
 end
 
+function HttpService:release()
+    self:stop()
+    self.fn_map = {}
+end
+
 ---@param method_name string
 ---@param handle_fn Fn_HttpServiceHandleReq
 function HttpService:set_handle_fn(method_name, handle_fn)
-    if nil ~= method_name then
-        -- heandle_fn = function(enum_method, req_url, heads_map, body)
-        self.fn_map[method_name] = handle_fn
+    assert(method_name)
+    if nil ~= handle_fn then
+        assert(nil == self.fn_map[method_name])
     end
+    self.fn_map[method_name] = handle_fn
 end
 
 ---@param net_listen NetListen

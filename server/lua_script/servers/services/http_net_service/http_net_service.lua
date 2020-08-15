@@ -12,12 +12,11 @@ end
 
 function HttpNetService:_on_init(listen_port)
     HttpNetService.super._on_init(self)
-    self._listen_port = listen_port
+    self._listen_port = listen_port or tonumber(self.server.init_setting.advertise_http_port)
     self._http_service = HttpService:new()
 end
 
 function HttpNetService:_on_start()
-    log_print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HttpNetService:_on_start")
     HttpNetService.super._on_start(self)
     local ret = self._http_service:start(self._listen_port)
     if not ret then
@@ -25,7 +24,6 @@ function HttpNetService:_on_start()
         self.error_msg = string.format("HttpNetService listen port %s fail", self._listen_port)
     end
 end
-
 
 function HttpNetService:_on_stop()
     HttpNetService.super._on_stop(self)

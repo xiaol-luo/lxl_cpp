@@ -1,11 +1,11 @@
 
----@class GateClientMgr:LogicEntity
+---@class LoginClientMgr:LogicEntity
 ---@field server GateServer
-GateClientMgr = GateClientMgr or class("GateClientMgr", LogicEntity)
+LoginClientMgr = LoginClientMgr or class("LoginClientMgr", LogicEntity)
 
-function GateClientMgr:ctor(logics, logic_name)
-    GateClientMgr.super.ctor(self, logics, logic_name)
-    ---@type table<number, GateClient>
+function LoginClientMgr:ctor(logics, logic_name)
+    LoginClientMgr.super.ctor(self, logics, logic_name)
+    ---@type table<number, LoginClient>
     self._gate_clients = {}
     ---@type ClientNetService
     self._client_net_svc = self.server.client_net
@@ -16,8 +16,8 @@ function GateClientMgr:ctor(logics, logic_name)
     self._delay_notify_gate_client_quits = {}
 end
 
-function GateClientMgr:_on_init()
-    GateClientMgr.super._on_init(self)
+function LoginClientMgr:_on_init()
+    LoginClientMgr.super._on_init(self)
     -- self:setup_proto_handler()
 
     ---@type ClientNetServiceCnnCallback
@@ -28,8 +28,8 @@ function GateClientMgr:_on_init()
     self._client_net_svc:set_cnn_cbs(cnn_cbs)
 end
 
-function GateClientMgr:_on_start()
-    GateClientMgr.super._on_start(self)
+function LoginClientMgr:_on_start()
+    LoginClientMgr.super._on_start(self)
 
     local Tick_Span_Ms = 2 * 1000
     self._timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
@@ -40,38 +40,38 @@ function GateClientMgr:_on_start()
     self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.kick_client, Functional.make_closure(self._handle_remote_call_kick_client, self))
 end
 
-function GateClientMgr:_on_stop()
-    GateClientMgr.super._on_stop(self)
+function LoginClientMgr:_on_stop()
+    LoginClientMgr.super._on_stop(self)
     self._timer_proxy:release_all()
 end
 
-function GateClientMgr:_on_release()
-    GateClientMgr.super._on_release(self)
+function LoginClientMgr:_on_release()
+    LoginClientMgr.super._on_release(self)
 end
 
-function GateClientMgr:_on_update()
-    GateClientMgr.super._on_update(self)
+function LoginClientMgr:_on_update()
+    LoginClientMgr.super._on_update(self)
 end
 
 ---@param client_net_svc ClientNetService
-function GateClientMgr:_client_net_svc_cnn_on_open(client_net_svc, netid)
-    -- log_print("GateClientMgr:_client_net_svc_cnn_on_open", netid)
+function LoginClientMgr:_client_net_svc_cnn_on_open(client_net_svc, netid)
+    -- log_print("LoginClientMgr:_client_net_svc_cnn_on_open", netid)
     local cnn = client_net_svc:get_cnn(netid)
     if not cnn then
         return
     end
 
     if self._gate_clients[netid] then
-        log_error("GateClientMgr:_client_net_svc_cnn_on_open unknown error: repeated netid %s", netid)
+        log_error("LoginClientMgr:_client_net_svc_cnn_on_open unknown error: repeated netid %s", netid)
         Net.close(netid)
         return
     end
 
-    local gate_client = GateClient:new(cnn)
+    local gate_client = LoginClient:new(cnn)
     self._gate_clients[netid] = gate_client
 end
 
-function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error_code)
+function LoginClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error_code)
     local gate_client = self._gate_clients[netid]
     if not gate_client then
         return
@@ -89,10 +89,10 @@ function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error
     end
 end
 
-function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)
+function LoginClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)
     local handle_fn = self._msg_handlers[pid]
     if not handle_fn then
-        log_warn("GateClientMgr:_client_net_svc_cnn_on_recv not set handle function for pid %s", pid)
+        log_warn("LoginClientMgr:_client_net_svc_cnn_on_recv not set handle function for pid %s", pid)
         return
     end
 
@@ -113,15 +113,15 @@ function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, b
     -- gate_client.cnn:send_msg(pid + 1, {})
 end
 
-function GateClientMgr:_on_tick()
+function LoginClientMgr:_on_tick()
 
 end
 
-function GateClientMgr:get_client(netid)
+function LoginClientMgr:get_client(netid)
     return self._gate_clients[netid]
 end
 
-function GateClientMgr:set_msg_handler(pid, handler)
+function LoginClientMgr:set_msg_handler(pid, handler)
     if handler then
         assert(is_function(handler))
         assert(not self._msg_handlers[pid])
@@ -130,7 +130,7 @@ function GateClientMgr:set_msg_handler(pid, handler)
 end
 
 ---@param rpc_rsp RpcRsp
-function GateClientMgr:_handle_remote_call_kick_client(rpc_rsp, gate_netid, kick_reason)
+function LoginClientMgr:_handle_remote_call_kick_client(rpc_rsp, gate_netid, kick_reason)
     rpc_rsp:response()
     local gate_client = self._gate_clients[gate_netid]
     if gate_client then
@@ -138,7 +138,7 @@ function GateClientMgr:_handle_remote_call_kick_client(rpc_rsp, gate_netid, kick
     end
 end
 
-function GateClientMgr._on_event_adjusting_version_state_change(is_adjusting)
+function LoginClientMgr._on_event_adjusting_version_state_change(is_adjusting)
     if not is_adjusting then
         local quits = self._delay_notify_gate_client_quits
         self._delay_notify_gate_client_quits = {}

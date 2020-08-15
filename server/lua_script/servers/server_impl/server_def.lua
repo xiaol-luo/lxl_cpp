@@ -3,6 +3,7 @@
 ---@field World string
 ---@field Game string
 Server_Role = {}
+Server_Role.Login = "login"
 Server_Role.World = "world"
 Server_Role.Game = "game"
 Server_Role.Gate = "gate"

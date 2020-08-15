@@ -59,13 +59,6 @@ function GameServerBase:_on_init()
     return true
 end
 
-function GameServerBase:_set_as_field(field_name, obj)
-    if obj then
-        assert(not self[field_name])
-        self[field_name] = obj
-    end
-end
-
 function GameServerBase:get_cluster_server_key()
     return self.join_cluster:get_server_key()
 end

@@ -34,3 +34,11 @@ function CustomServiceHelpFn.setup_game_service(self)
         self:add_service(svc)
     end
 end
+
+function CustomServiceHelpFn.setup_http_service(self)
+    do
+        local svc = HttpNetService:new(self, Service_Name.http_net)
+        svc:init()
+        self:add_service(svc)
+    end
+end
