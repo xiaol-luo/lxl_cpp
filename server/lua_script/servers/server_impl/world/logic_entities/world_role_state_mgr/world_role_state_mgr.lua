@@ -1,7 +1,7 @@
 
----@class RoleStateMgr:LogicEntity
+---@class RoleStateMgr:GameLogicEntity
 ---@field server WorldServer
-RoleStateMgr = RoleStateMgr or class("RoleStateMgr", LogicEntity)
+RoleStateMgr = RoleStateMgr or class("RoleStateMgr", GameLogicEntity)
 
 function RoleStateMgr:_on_init()
     RoleStateMgr.super._on_init(self)

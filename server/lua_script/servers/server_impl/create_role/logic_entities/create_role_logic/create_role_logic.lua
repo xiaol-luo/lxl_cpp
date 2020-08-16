@@ -1,6 +1,6 @@
 
----@class CreateRoleLogic:LogicEntity
-CreateRoleLogic = CreateRoleLogic or class("CreateRoleLogic", LogicEntity)
+---@class CreateRoleLogic:GameLogicEntity
+CreateRoleLogic = CreateRoleLogic or class("CreateRoleLogic", GameLogicEntity)
 
 function CreateRoleLogic:_on_init()
     CreateRoleLogic.super._on_init(self)

@@ -1,6 +1,6 @@
 
----@class CreateRoleAgentLogic:LogicEntity
-CreateRoleAgentLogic = CreateRoleAgentLogic or class("CreateRoleAgentLogic", LogicEntity)
+---@class CreateRoleAgentLogic:GameLogicEntity
+CreateRoleAgentLogic = CreateRoleAgentLogic or class("CreateRoleAgentLogic", GameLogicEntity)
 
 function CreateRoleAgentLogic:ctor(logics, logic_name)
     CreateRoleAgentLogic.super.ctor(self, logics, logic_name)

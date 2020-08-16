@@ -1,19 +1,17 @@
 
----@class LoginClientMgr:LogicEntity
----@field server GateServer
-LoginClientMgr = LoginClientMgr or class("LoginClientMgr", LogicEntity)
+---@class LoginClientMgr:GameLogicEntity
+---@field server loginServer
+LoginClientMgr = LoginClientMgr or class("LoginClientMgr", LogicEntityBase)
 
 function LoginClientMgr:ctor(logics, logic_name)
     LoginClientMgr.super.ctor(self, logics, logic_name)
     ---@type table<number, LoginClient>
-    self._gate_clients = {}
+    self._login_clients = {}
     ---@type ClientNetService
     self._client_net_svc = self.server.client_net
     self._msg_handlers = {}
     ---@type ProtoParser
     self._pto_parser = self.server.pto_parser
-
-    self._delay_notify_gate_client_quits = {}
 end
 
 function LoginClientMgr:_on_init()
@@ -33,11 +31,6 @@ function LoginClientMgr:_on_start()
 
     local Tick_Span_Ms = 2 * 1000
     self._timer_proxy:firm(Functional.make_closure(self._on_tick, self), Tick_Span_Ms, -1)
-    local shadow_setting = self.server.work_world_shadow:get_setting()
-    self._event_binder:bind(self.server.work_world_shadow, shadow_setting.event_adjusting_version_state_change,
-            Functional.make_closure(self._on_event_adjusting_version_state_change, self))
-
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.kick_client, Functional.make_closure(self._handle_remote_call_kick_client, self))
 end
 
 function LoginClientMgr:_on_stop()
@@ -55,38 +48,27 @@ end
 
 ---@param client_net_svc ClientNetService
 function LoginClientMgr:_client_net_svc_cnn_on_open(client_net_svc, netid)
-    -- log_print("LoginClientMgr:_client_net_svc_cnn_on_open", netid)
     local cnn = client_net_svc:get_cnn(netid)
     if not cnn then
         return
     end
 
-    if self._gate_clients[netid] then
+    if self._login_clients[netid] then
         log_error("LoginClientMgr:_client_net_svc_cnn_on_open unknown error: repeated netid %s", netid)
         Net.close(netid)
         return
     end
 
-    local gate_client = LoginClient:new(cnn)
-    self._gate_clients[netid] = gate_client
+    local login_client = LoginClient:new(cnn)
+    self._login_clients[netid] = login_client
 end
 
 function LoginClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error_code)
-    local gate_client = self._gate_clients[netid]
-    if not gate_client then
+    local login_client = self._login_clients[netid]
+    if not login_client then
         return
     end
-    self._gate_clients[netid] = nil
-    if gate_client.role_id and gate_client.session_id then
-        local find_error_num, selected_world_key = self.server.work_world_shadow:find_available_server_address(gate_client.role_id)
-        if Error_None == find_error_num then
-            self._rpc_svc_proxy:call(nil, selected_world_key, Rpc.world.method.gate_client_quit, gate_client.session_id)
-        else
-            if Error_Consistent_Hash_Adjusting == find_error_num then
-                table.insert(self._delay_notify_gate_client_quits, {role_id=gate_client.role_id, session_id=gate_client.session_id})
-            end
-        end
-    end
+    self._login_clients[netid] = nil
 end
 
 function LoginClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)
@@ -96,8 +78,8 @@ function LoginClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, 
         return
     end
 
-    local gate_client = self._gate_clients[netid]
-    if not gate_client then
+    local login_client = self._login_clients[netid]
+    if not login_client then
         local cnn = client_net_svc:get_cnn(netid)
         if cnn then
             Net.close(netid)
@@ -105,12 +87,13 @@ function LoginClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, 
         return
     end
 
-    local is_ok, msg = self._pto_parser:decode(pid, bin)
-    if is_ok then
-        handle_fn(gate_client, pid, msg)
+    local is_ok, msg = true, nil
+    if self._pto_parser:exist(pid) then
+        is_ok, msg = self._pto_parser:decode(pid, bin)
     end
-
-    -- gate_client.cnn:send_msg(pid + 1, {})
+    if is_ok then
+        handle_fn(login_client, pid, msg)
+    end
 end
 
 function LoginClientMgr:_on_tick()
@@ -118,7 +101,7 @@ function LoginClientMgr:_on_tick()
 end
 
 function LoginClientMgr:get_client(netid)
-    return self._gate_clients[netid]
+    return self._login_clients[netid]
 end
 
 function LoginClientMgr:set_msg_handler(pid, handler)
@@ -127,26 +110,4 @@ function LoginClientMgr:set_msg_handler(pid, handler)
         assert(not self._msg_handlers[pid])
     end
     self._msg_handlers[pid] = handler
-end
-
----@param rpc_rsp RpcRsp
-function LoginClientMgr:_handle_remote_call_kick_client(rpc_rsp, gate_netid, kick_reason)
-    rpc_rsp:response()
-    local gate_client = self._gate_clients[gate_netid]
-    if gate_client then
-        Net.close(gate_netid)
-    end
-end
-
-function LoginClientMgr._on_event_adjusting_version_state_change(is_adjusting)
-    if not is_adjusting then
-        local quits = self._delay_notify_gate_client_quits
-        self._delay_notify_gate_client_quits = {}
-        for _, v in pairs(quits) do
-            local server_key = self.server.work_world_shadow:cal_server_address(v.role_id)
-            if server_key then
-                self._rpc_svc_proxy:call(nil, server_key, Rpc.world.method.gate_client_quit, v.session_id)
-            end
-        end
-    end
 end

@@ -39,7 +39,7 @@ end
 function ex_coroutine_delay_resume(co, ...)
     local key = co:get_key()
     local n, params = Functional.varlen_param_info(...)
-    CoroutineExMgr.add_delay_execute_fn(function()
+    CoroutineExMgr.defer_execute(function()
         local ex_co = CoroutineExMgr.get_co(key)
         if ex_co then
             ex_coroutine_resume(ex_co, table.unpack(params, 1, n))
@@ -59,7 +59,7 @@ end
 
 ---@param fn fun(void)void
 function delay_execute(fn)
-    CoroutineExMgr.add_delay_execute_fn(fn)
+    CoroutineExMgr.defer_execute(fn)
 end
 
 ---@param co CoroutineEx

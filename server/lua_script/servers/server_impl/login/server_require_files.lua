@@ -4,6 +4,9 @@ local files = {
 
     "servers.server_impl.login.logic_entities.logic_entity_def",
 
+    "servers.server_impl.login.logic_entities.login_logic.login_logic_def",
+    "servers.server_impl.login.logic_entities.login_logic.login_logic",
+
     "servers.server_impl.login.logic_entities.login_client_mgr.login_client_def",
     "servers.server_impl.login.logic_entities.login_client_mgr.login_client",
     "servers.server_impl.login.logic_entities.login_client_mgr.login_client_mgr",

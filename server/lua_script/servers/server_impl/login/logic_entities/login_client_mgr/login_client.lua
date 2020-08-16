@@ -1,16 +1,11 @@
----@class LoginClient
+---@class loginClient
 ---@field cnn ClientNetCnn
 LoginClient = LoginClient or class("LoginClient")
 
 function LoginClient:ctor(cnn)
     self.cnn = cnn
     self.netid = cnn.netid
-    self.state = Login_Client_State.free
-    self.user_id = nil
-    self.auth_sn = nil
-    self.role_id = nil
-    self.game_server_key = nil
-    self.session_id = nil
+    self.extra_data = {}
 end
 
 function LoginClient:send_bin(pid, bin)
@@ -31,30 +26,7 @@ function LoginClient:disconnect()
     if self.cnn then
         Net.close(self.netid)
     end
-    log_print("LoginClient:disconnect ", debug.traceback())
+    self.extra_data = {}
 end
 
-function LoginClient:is_authed()
-    return self.state > Login_Client_State.authing
-end
-
-function LoginClient:is_alive()
-    return self.state < Login_Client_State.releasing
-end
-
-function LoginClient:is_in_game()
-    return Login_Client_State.in_game == self.state
-end
-
-function LoginClient:is_free()
-    return Login_Client_State.free == self.state
-end
-
-function LoginClient:is_authing()
-    return Login_Client_State.authing == self.state
-end
-
-function LoginClient:is_launching()
-    return Login_Client_State.launch_role == self.state
-end
 

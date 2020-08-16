@@ -95,7 +95,7 @@ function CoroutineEx:start(...)
         error_msg = "start self.co fail"
         self:report_error(error_msg)
     else
-        CoroutineExMgr.add_delay_execute_fn(Functional.make_closure(do_start, self:get_key()))
+        CoroutineExMgr.defer_execute(Functional.make_closure(do_start, self:get_key()))
     end
     return is_ok, error_msg
 end

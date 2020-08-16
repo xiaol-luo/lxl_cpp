@@ -58,7 +58,7 @@ function CoroutineExMgr.on_frame()
 end
 
 
-function CoroutineExMgr.add_delay_execute_fn(fn)
+function CoroutineExMgr.defer_execute(fn)
     table.insert(self.delay_execute_fns, fn)
 end
 

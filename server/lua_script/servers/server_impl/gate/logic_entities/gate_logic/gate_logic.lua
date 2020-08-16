@@ -1,6 +1,6 @@
 
----@class GateLogic:LogicEntity
-GateLogic = GateLogic or class("GateLogic", LogicEntity)
+---@class GateLogic:GameLogicEntity
+GateLogic = GateLogic or class("GateLogic", GameLogicEntity)
 
 function GateLogic:ctor(logics, logic_name)
     GateLogic.super.ctor(self, logics, logic_name)

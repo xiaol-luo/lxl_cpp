@@ -10,4 +10,10 @@ function LoginLogicService:_on_init()
         logic:init()
         self:add_logic(logic)
     end
+
+    do
+        local logic = LoginLogic:new(self, Login_Logic_Name.login_logic)
+        logic:init()
+        self:add_logic(logic)
+    end
 end

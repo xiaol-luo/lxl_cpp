@@ -67,7 +67,7 @@ class RunServiceHelp(object):
             self.scripts_dir(),
             self.exe_dir
         )
-        print("run cmd: " + run_cmd)
+        print("\nrun cmd -- start server : " + run_cmd + "\n")
         try:
             self.process = subprocess.Popen(
                 shlex.split(run_cmd),

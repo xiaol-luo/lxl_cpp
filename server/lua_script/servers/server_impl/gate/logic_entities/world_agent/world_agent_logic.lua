@@ -1,7 +1,7 @@
 
----@class WorldAgentLogic:LogicEntity
+---@class WorldAgentLogic:GameLogicEntity
 ---@field server GateServer
-WorldAgentLogic = WorldAgentLogic or class("WorldAgentLogic", LogicEntity)
+WorldAgentLogic = WorldAgentLogic or class("WorldAgentLogic", GameLogicEntity)
 
 function WorldAgentLogic:ctor(logics, logic_name)
     WorldAgentLogic.super.ctor(self, logics, logic_name)

@@ -104,18 +104,18 @@ local HttpClientCallbackType = {
 ---@return Fn_HttpClientEventCb
 local make_co_fun_callback = function()
     local is_done = false
-    local ret = function(co, cb_type, ret)
-        -- log_debug("make_co_fun_callback %s %s", cb_type, ret)
+    local ret = function(co, cb_type, http_ret)
+        -- log_debug("make_co_fun_callback %s %s", cb_type, http_ret)
         if not is_done and CoroutineState.Dead ~= ex_coroutine_status(co) then
             if cb_type == HttpClientCallbackType.Response_Callback then
                 is_done = true
-                ex_coroutine_delay_resume(co, ret)
+                ex_coroutine_delay_resume(co, http_ret)
             end
             if cb_type == HttpClientCallbackType.Event_Callback then
-                if 0 ~= ret.error_num then
+                if 0 ~= http_ret.error_num then
                     is_done = true
                     ex_coroutine_report_error(co, string.format("http query fail, event_type:%s, error_num:%s",
-                            ret.event_type, ret.error_num))
+                            http_ret.event_type, http_ret.error_num))
                 end
             end
         end
@@ -125,6 +125,7 @@ end
 
 ---@param url string
 ---@param heads_tb table<string, string>
+---@return HttpClientRspResult|HttpClientEventResult
 function HttpClient.co_get(url, heads_tb)
     local co = ex_coroutine_running()
     assert(co, "should be called in a running coroutine")

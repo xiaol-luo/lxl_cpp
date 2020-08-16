@@ -44,7 +44,8 @@ return {
 
     "servers.services.logic_service.logic_service_def",
     "servers.services.logic_service.logic_service_base",
-    "servers.services.logic_service.logic_entity",
+    "servers.services.logic_service.logic_entity_base",
+    "servers.services.logic_service.game_logic_entity",
 
     "servers.services.client_net_service.client_net_def",
     "servers.services.client_net_service.client_net_cnn",

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
-	<zone>zone_0</zone>
-	<server_role>login</server_role>
-	<server_name>login_0</server_name>
+	<server_role>platform</server_role>
+	<server_name>platform_0</server_name>
 	<mongo_service>
 		<element>for_make_array</element>
 		<element>
-			<name>login</name>
+			<name>platform</name>
 			<host>127.0.0.1:9400</host>
 			<auth_db>admin</auth_db>
 			<user>lxl</user>
@@ -15,9 +14,9 @@
 		</element>
 	</mongo_service>
 	<advertise_peer_ip>127.0.0.1</advertise_peer_ip>
-	<advertise_peer_port>31000</advertise_peer_port>
+	<advertise_peer_port>30000</advertise_peer_port>
 	<advertise_client_ip>127.0.0.1</advertise_client_ip>
-	<advertise_client_port>31001</advertise_client_port>
+	<advertise_client_port>30001</advertise_client_port>
 	<advertise_http_ip>127.0.0.1</advertise_http_ip>
-	<advertise_http_port>31002</advertise_http_port>
+	<advertise_http_port>30002</advertise_http_port>
 </root>

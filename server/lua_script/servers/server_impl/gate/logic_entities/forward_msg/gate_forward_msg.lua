@@ -1,6 +1,6 @@
 
----@class GateForwardMsg:LogicEntity
-GateForwardMsg = GateForwardMsg or class("GateForwardMsg", LogicEntity)
+---@class GateForwardMsg:GameLogicEntity
+GateForwardMsg = GateForwardMsg or class("GateForwardMsg", GameLogicEntity)
 
 function GateForwardMsg:ctor(logics, logic_name)
     GateForwardMsg.super.ctor(self, logics, logic_name)

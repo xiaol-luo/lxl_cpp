@@ -1,7 +1,7 @@
 
----@class GateClientMgr:LogicEntity
+---@class GateClientMgr:GameLogicEntity
 ---@field server GateServer
-GateClientMgr = GateClientMgr or class("GateClientMgr", LogicEntity)
+GateClientMgr = GateClientMgr or class("GateClientMgr", GameLogicEntity)
 
 function GateClientMgr:ctor(logics, logic_name)
     GateClientMgr.super.ctor(self, logics, logic_name)
@@ -105,12 +105,13 @@ function GateClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, b
         return
     end
 
-    local is_ok, msg = self._pto_parser:decode(pid, bin)
+    local is_ok, msg = true, nil
+    if self._pto_parser:exist(pid) then
+        is_ok, msg = self._pto_parser:decode(pid, bin)
+    end
     if is_ok then
         handle_fn(gate_client, pid, msg)
     end
-
-    -- gate_client.cnn:send_msg(pid + 1, {})
 end
 
 function GateClientMgr:_on_tick()

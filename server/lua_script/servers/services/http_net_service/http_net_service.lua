@@ -9,7 +9,6 @@ function HttpNetService:ctor(service_mgr, service_name)
     self._listen_port = nil
 end
 
-
 function HttpNetService:_on_init(listen_port)
     HttpNetService.super._on_init(self)
     self._listen_port = listen_port or tonumber(self.server.init_setting.advertise_http_port)
@@ -23,6 +22,7 @@ function HttpNetService:_on_start()
         self.error_num = 1
         self.error_msg = string.format("HttpNetService listen port %s fail", self._listen_port)
     end
+    log_print("HttpNetService:_on_start listen on port", self._listen_port)
 end
 
 function HttpNetService:_on_stop()

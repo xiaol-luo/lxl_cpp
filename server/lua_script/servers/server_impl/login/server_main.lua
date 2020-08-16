@@ -4,7 +4,7 @@ batch_require(require("servers.server_impl.login.server_require_files"))
 ServiceMgr = LoginServiceMgr
 
 ---@class LoginServer : ServiceBase
----@field mongo_setting_game MongoServerConfig
+---@field mongo_setting_login MongoServerConfig
 LoginServer = LoginServer or class("LoginServer", ServerBase)
 
 function create_server_main(init_setting, init_args)
@@ -22,13 +22,13 @@ function LoginServer:_on_init()
         return false
     end
 
-    -- mongo的配置:game
-    local xml_mongo_element = xml.extract_element(self.init_setting.mongo_service.element, "name", Const.mongo_setting_name_game)
+    -- mongo的配置:login
+    local xml_mongo_element = xml.extract_element(self.init_setting.mongo_service.element, "name", Const.mongo_setting_name_login)
     if xml_mongo_element then
-        self.mongo_setting_game = MongoServerConfig:new()
-        self.mongo_setting_game:parse_from(xml_mongo_element)
+        self.mongo_setting_login = MongoServerConfig:new()
+        self.mongo_setting_login:parse_from(xml_mongo_element)
     end
-    if not self.mongo_setting_game or not self.mongo_setting_game.host then
+    if not self.mongo_setting_login or not self.mongo_setting_login.host then
         return false
     end
 

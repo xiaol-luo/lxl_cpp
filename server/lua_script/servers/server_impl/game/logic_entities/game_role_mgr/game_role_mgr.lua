@@ -1,7 +1,7 @@
 
----@class GameRoleMgr:LogicEntity
+---@class GameRoleMgr:GameLogicEntity
 ---@field logics GameLogicService
-GameRoleMgr = GameRoleMgr or class("GameRoleMgr", LogicEntity)
+GameRoleMgr = GameRoleMgr or class("GameRoleMgr", GameLogicEntity)
 
 function GameRoleMgr:ctor(logics, logic_name)
     GameRoleMgr.super.ctor(self, logics, logic_name)
@@ -57,6 +57,7 @@ end
 
 function GameRoleMgr:_on_stop()
     GameRoleMgr.super._on_stop(self)
+    self._db_client:stop()
 end
 
 function GameRoleMgr:_on_release()

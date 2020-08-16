@@ -7,7 +7,7 @@ Login_Pto.pto_files = {
 Login_Pto.id_to_pto = {}
 Login_Pid = {}
 
--- 请求登录
+-- 请求登录（连gate server）
 Login_Pid.req_user_login = 1 + Pto_Const.login_min_pto_id
 Login_Pid.rsp_user_login = 2 + Pto_Const.login_min_pto_id
 setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.req_user_login, "ReqUserLogin")
@@ -46,4 +46,10 @@ setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.rsp_reconnect_role, "RspReconn
 -- 请求转发到game
 Login_Pid.forward_game_msg = 13  + Pto_Const.login_min_pto_id
 setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.forward_game_msg, "ForwardGameMsg")
+
+-- 请求登录（连login server）
+Login_Pid.req_login_game = 15 + Pto_Const.login_min_pto_id
+Login_Pid.rsp_login_game = 16 + Pto_Const.login_min_pto_id
+setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.req_login_game, "ReqLoginGame")
+setup_id_to_pb_pto(Login_Pto.id_to_pto, Login_Pid.rsp_login_game, "RspLoginGame")
 

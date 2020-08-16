@@ -20,7 +20,7 @@ end
 
 function HttpNetServiceProxy:clear_all()
     for fn_name, _ in pairs(self._set_record) do
-        self._http_net_svc:set_coro_handle_fn(fn_name, nil)
+        self._http_net_svc:set_handle_fn(fn_name, nil)
     end
     self._set_record = {}
 end
