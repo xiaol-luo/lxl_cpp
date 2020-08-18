@@ -25,6 +25,7 @@ namespace Lua
         public static List<Type> utopia_classes = new List<Type>()
         {
             typeof(Lua.LuaHelp),
+            typeof(Lua.HttpClient),
 
             typeof(Lua.LuaResLoaderProxy),
             typeof(Utopia.ResourceObserver),

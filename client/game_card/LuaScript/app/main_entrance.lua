@@ -25,7 +25,12 @@ function on_native_drive_update()
     if g_ins then
         -- print("reach on_native_drive_update")
         g_ins:update()
+--[[
+        CS.Lua.HttpClient.Get("https://g100.gdl.netease.com/game_config_list.json", function(...)
+            log_print("11111111111111111111111111111111111111111", ...)
+        end)
     end
+    ]]
 end
 
 function release_lua_logics()

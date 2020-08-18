@@ -18,6 +18,7 @@ namespace Utopia
         public NetModule net { get { return Core.ins.net; } }
         public LogicMgr logicMgr { get; protected set; }
         public AppStateMgr stateMgr { get; protected set; }
+        public HttpModule http { get { return Core.ins.http; } }
 
         protected App(CoreMain _core)
         {

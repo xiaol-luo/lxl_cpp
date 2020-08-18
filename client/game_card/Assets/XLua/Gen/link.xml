@@ -9,6 +9,7 @@
 		<type fullname="Tutorial.ICalc" preserve="all"/>
 		<type fullname="Tutorial.DerivedClassExtensions" preserve="all"/>
 		<type fullname="Lua.LuaHelp" preserve="all"/>
+		<type fullname="Lua.HttpClient" preserve="all"/>
 		<type fullname="Lua.LuaResLoaderProxy" preserve="all"/>
 		<type fullname="Utopia.ResourceObserver" preserve="all"/>
 		<type fullname="Utopia.ResourceScene" preserve="all"/>

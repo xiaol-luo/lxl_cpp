@@ -55,6 +55,7 @@ namespace Utopia
         public long Get(string url, Action<string/*error*/, byte[]/*bodyContent*/, Dictionary<string, string>/*heads*/> rspCbFn, Dictionary<string, string> heads = null, int timeoutSec = 30)
         {
             UnityWebRequest webReq = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET);
+            webReq.downloadHandler = new DownloadHandlerBuffer();
             webReq.timeout = timeoutSec;
             if (null != heads)
             {
@@ -95,8 +96,7 @@ namespace Utopia
                 if (asyn_opera.webRequest.isDone)
                 {
                     rspHeads = asyn_opera.webRequest.GetResponseHeaders();
-                    // rspContent = reqData.webReq.downloadHandler.data;
-                    // string xxx = asyn_opera.webRequest.downloadHandler.text;
+                    rspContent = reqData.webReq.downloadHandler.data;
                 }
                 else
                 {

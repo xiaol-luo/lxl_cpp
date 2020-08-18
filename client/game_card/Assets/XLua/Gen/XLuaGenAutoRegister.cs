@@ -67,6 +67,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Lua.LuaHelp), LuaLuaHelpWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Lua.HttpClient), LuaHttpClientWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Lua.LuaResLoaderProxy), LuaLuaResLoaderProxyWrap.__Register);
         
         
