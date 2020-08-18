@@ -5,7 +5,7 @@ namespace Utopia
     {
         Debug,
         Info,
-        Waring,
+        Warning,
         Error,
         Exception,
         Assert,

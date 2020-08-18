@@ -24,6 +24,12 @@ namespace Utopia
             m_timerMgr.CheckTrigger();
         }
 
+        protected override ERet OnRelease()
+        {
+            this.ClearAll();
+            return base.OnRelease();
+        }
+
         public TimerProxy CreateTimerProxy()
         {
             TimerProxy ret = new TimerProxy(m_timerMgr);

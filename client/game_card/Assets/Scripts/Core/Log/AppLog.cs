@@ -44,7 +44,7 @@ namespace Utopia
 
         public static void Warning(string format, params object[] args)
         {
-            s_log.DoLog(LogLevel.Waring, format, args);
+            s_log.DoLog(LogLevel.Warning, format, args);
         }
 
         public static void Error(string format, params object[] args)

@@ -40,7 +40,7 @@ namespace Utopia
 
         public void Warning(string format, params object[] args)
         {
-            this.DoLog(LogLevel.Waring, format, args);
+            this.DoLog(LogLevel.Warning, format, args);
         }
 
         public void Error(string format, params object[] args)

@@ -89,7 +89,7 @@ namespace XLua.CSObjectWrap
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Info", Utopia.LogLevel.Info);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Waring", Utopia.LogLevel.Waring);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Waring", Utopia.LogLevel.Warning);
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Error", Utopia.LogLevel.Error);
             
@@ -126,7 +126,7 @@ namespace XLua.CSObjectWrap
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Waring"))
                 {
-                    translator.PushUtopiaLogLevel(L, Utopia.LogLevel.Waring);
+                    translator.PushUtopiaLogLevel(L, Utopia.LogLevel.Warning);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Error"))
                 {

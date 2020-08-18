@@ -60,6 +60,12 @@ namespace Utopia
                 RemoveNetAgent(id);
             }
         }
+
+        protected override ERet OnRelease()
+        {
+            m_netAgents.Clear();
+            return base.OnRelease();
+        }
     }
 }
 

@@ -20,6 +20,7 @@ namespace Utopia
 
             m_modules[CoreModule.EModule.TimerModule] = new TimerModule(this);
             m_modules[CoreModule.EModule.NetModule] = new NetModule(this);
+            m_modules[CoreModule.EModule.HttpModule] = new HttpModule(this);
             m_modules[CoreModule.EModule.TestModule] = new EmptyTestModule(this);
             // m_modules[CoreModule.EModule.TestModule] = new TestCoreModule(this);
             // m_modules[CoreModule.EModule.TestModule] = new TestMsgNetAgentModule(this);
@@ -44,6 +45,14 @@ namespace Utopia
             get
             {
                 return m_modules[CoreModule.EModule.NetModule] as NetModule;
+            }
+        }
+
+        public HttpModule http
+        {
+            get
+            {
+                return m_modules[CoreModule.EModule.HttpModule] as HttpModule;
             }
         }
 

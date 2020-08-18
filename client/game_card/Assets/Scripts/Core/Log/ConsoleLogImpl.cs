@@ -23,7 +23,7 @@ namespace Utopia
                         UnityEngine.Debug.Log(content);
                     }
                     break;
-                case LogLevel.Waring:
+                case LogLevel.Warning:
                     {
                         UnityEngine.Debug.LogWarning(content);
                     }
