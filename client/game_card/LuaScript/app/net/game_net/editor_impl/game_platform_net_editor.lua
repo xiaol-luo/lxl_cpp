@@ -9,6 +9,8 @@ function GamePlatformNetEditor:ctor(net_mgr)
     self._app_id = 1
     self._platform_name = "platform_for_test"
     self._account_id = nil
+    self._platform_ip = nil
+    self._platform_port = nil
     self._token = nil
 end
 

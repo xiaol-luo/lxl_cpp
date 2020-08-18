@@ -36,6 +36,10 @@ namespace Lua
         public static Dictionary<string, string> LuaTableToDict(XLua.LuaTable tb)
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
+            foreach (object key in tb.GetKeys())
+            {
+                ret.Add(key.ToString(), tb.Get<object, string>(key));
+            }
             return ret;
         }
     }

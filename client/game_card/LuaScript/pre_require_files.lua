@@ -41,5 +41,7 @@ return {
     "libs.proto_parser.protobuf_store",
     "libs.proto_parser.sproto_store",
 
+    "libs.http.http_client",
+
     "common.init_global_vars"
 }

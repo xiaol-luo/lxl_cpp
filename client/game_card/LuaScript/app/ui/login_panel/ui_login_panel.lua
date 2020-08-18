@@ -25,11 +25,15 @@ function UILoginPanel:_on_init()
     self._gate_data_list = {
         {
             name = "win本地",
+            platform_ip = "127.0.0.1",
+            platform_port = 30002,
             gate_ip = "127.0.0.1",
             gate_port = 35001,
         },
         {
             name = "linux虚拟机",
+            platform_ip = "192.168.0.11",
+            platform_port = 30002,
             gate_ip = "192.168.0.11",
             gate_port = 35001,
         },
@@ -38,10 +42,12 @@ end
 
 function UILoginPanel:_on_attach_panel()
     UILoginPanel.super._on_attach_panel(self)
+    self._account_id_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/account_id")
+    self._platform_ip_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/platform_ip")
+    self._platform_port_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/platform_port")
+    self._confirm_btn = UIHelp.attach_ui(UIButton, self._panel_root, "login_view/confirm_btn")
     self._gate_ip_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/gate_ip")
     self._gate_port_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/gate_port")
-    self._account_id_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/account_id")
-    self._confirm_btn = UIHelp.attach_ui(UIButton, self._panel_root, "login_view/confirm_btn")
 
     self._confirm_btn:set_onclick(Functional.make_closure(self.on_click_confirm_btn, self))
     self._notify_txt = UIHelp.attach_ui(UIText, self._panel_root, "notify_txt")
@@ -58,7 +64,8 @@ function UILoginPanel:_on_attach_panel()
             local btn = UIHelp.attach_ui(UIButton, item, "")
             btn:set_onclick(Functional.make_closure(self._on_click_gate_data_item, self, v))
             UIHelp.attach_ui(UIText, item, "gate_name"):set_text(v.name)
-            UIHelp.attach_ui(UIText, item,"gate_host"):set_text(string.format("%s:%s", v.gate_ip, v.gate_port))
+            UIHelp.attach_ui(UIText, item,"gate_host"):set_text(string.format("platform=%s:%s;gate=%s:%s",
+                    v.platform_ip, v.platform_port,  v.gate_ip, v.gate_port))
         end
     end
 end
@@ -95,6 +102,8 @@ function UILoginPanel:_on_click_gate_data_item(gate_data)
     log_print("UILoginPanel:_on_click_gate_data_item", gate_data)
     self._gate_ip_if:set_text(gate_data.gate_ip)
     self._gate_port_if:set_text(gate_data.gate_port)
+    self._platform_ip_if:set_text(gate_data.platform_ip)
+    self._platform_port_if:set_text(gate_data.platform_port)
 end
 
 function UILoginPanel:on_click_confirm_btn()
@@ -115,6 +124,16 @@ function UILoginPanel:on_click_confirm_btn()
         self:_notify_error(string.format("account is not valid, %s", self._account_id_if:get_text()))
         return
     end
+    local platform_port = tonumber(self._platform_port_if:get_text())
+    if not platform_port then
+        self:_notify_error(string.format("platform_port is not valid, %s", self._platform_port_if:get_text()))
+        return
+    end
+    local platform_ip = self._platform_ip_if:get_text()
+    if not is_string(platform_ip) or  #platform_ip <= 0 then
+        self:_notify_error(string.format("platform_ip is not valid, %s", platform_ip))
+        return
+    end
     local gate_port = tonumber(self._gate_port_if:get_text())
     if not gate_port then
         self:_notify_error(string.format("gate_port is not valid, %s", self._gate_port_if:get_text()))
@@ -128,14 +147,16 @@ function UILoginPanel:on_click_confirm_btn()
 
     self._game_platform_net:logout()
     self._game_platform_net._account_id = account_id
+    self._game_platform_net._platform_ip = platform_ip
+    self._game_platform_net._platform_port = platform_port
     self._game_platform_net:login()
 
-    self._game_login_net:logout()
-    self._game_login_net._user_id = account_id
-    self._game_login_net._gate_hosts = { {ip = gate_ip, port = gate_port} }
-    self._game_login_net:login()
+    --self._game_login_net:logout()
+    --self._game_login_net._user_id = account_id
+    --self._game_login_net._gate_hosts = { {ip = gate_ip, port = gate_port} }
+    --self._game_login_net:login()
 
-    log_print("______________", self._game_login_net:is_ready(), self._game_platform_net:is_ready())
+    -- log_print("______________", self._game_login_net:is_ready(), self._game_platform_net:is_ready())
 end
 
 function UILoginPanel:_notify_error(error_msg)
