@@ -43,8 +43,8 @@ function GameLoginNetBase:get_error_msg()
 
 end
 
-function GameLoginNetBase:notify_login_done()
-    self._net_mgr:fire(Game_Net_Event.game_login_done, self:is_ready(), self:get_error_msg())
+function GameLoginNetBase:notify_ready_change()
+    self._net_mgr:fire(Game_Net_Event.game_login_ready_change, self:is_ready(), self:get_error_msg())
 end
 
 function GameLoginNetBase:get_user_id()

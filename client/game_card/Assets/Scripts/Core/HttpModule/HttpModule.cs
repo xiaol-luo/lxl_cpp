@@ -93,14 +93,14 @@ namespace Utopia
                 string errorStr = null;
                 Dictionary<string, string> rspHeads = null;
                 byte[] rspContent = null;
-                if (asyn_opera.webRequest.isDone)
+                if (asyn_opera.webRequest.isNetworkError || asyn_opera.webRequest.isHttpError)
                 {
-                    rspHeads = asyn_opera.webRequest.GetResponseHeaders();
-                    rspContent = reqData.webReq.downloadHandler.data;
+                    errorStr = asyn_opera.webRequest.error;
                 }
                 else
                 {
-                    errorStr = asyn_opera.webRequest.error;
+                    rspHeads = asyn_opera.webRequest.GetResponseHeaders();
+                    rspContent = reqData.webReq.downloadHandler.data;
                 }
                 reqData.rspCbFn(errorStr, rspContent, rspHeads);
             }

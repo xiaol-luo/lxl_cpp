@@ -43,8 +43,8 @@ function GamePlatformNetBase:get_error_msg()
 
 end
 
-function GamePlatformNetBase:notify_login_done()
-    self._net_mgr:fire(Game_Net_Event.platform_login_done, self:is_ready(), self:get_error_msg())
+function GamePlatformNetBase:notify_ready_change()
+    self._net_mgr:fire(Game_Net_Event.platform_ready_change, self:is_ready(), self:get_error_msg())
 end
 
 function GamePlatformNetBase:get_platform_name()

@@ -16,7 +16,7 @@ end
 
 function GameUser:_on_init()
     GameUser.super._on_init(self)
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.game_login_done,
+    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.game_login_ready_change,
             Functional.make_closure(self._on_event_game_login_done, self))
     self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_done,
             Functional.make_closure(self._on_event_gate_connect_done, self))

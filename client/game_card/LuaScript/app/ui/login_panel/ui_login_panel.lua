@@ -16,6 +16,7 @@ function UILoginPanel:ctor(panel_mgr, panel_setting)
     self._game_platform_net = self._app.net_mgr.game_platform_net
     ---@type GameLoginNetEditor
     self._game_login_net = self._app.net_mgr.game_login_net
+
 end
 
 function UILoginPanel:_on_init()
@@ -28,14 +29,14 @@ function UILoginPanel:_on_init()
             platform_ip = "127.0.0.1",
             platform_port = 30002,
             gate_ip = "127.0.0.1",
-            gate_port = 35001,
+            gate_port = 31001,
         },
         {
             name = "linux虚拟机",
             platform_ip = "192.168.0.11",
             platform_port = 30002,
             gate_ip = "192.168.0.11",
-            gate_port = 35001,
+            gate_port = 31001,
         },
     }
 end
@@ -145,16 +146,18 @@ function UILoginPanel:on_click_confirm_btn()
         return
     end
 
-    self._game_platform_net:logout()
+    -- self._game_platform_net:logout()
     self._game_platform_net._account_id = account_id
     self._game_platform_net._platform_ip = platform_ip
     self._game_platform_net._platform_port = platform_port
     self._game_platform_net:login()
 
-    --self._game_login_net:logout()
-    --self._game_login_net._user_id = account_id
-    --self._game_login_net._gate_hosts = { {ip = gate_ip, port = gate_port} }
-    --self._game_login_net:login()
+    -- self._game_login_net:logout()
+    self._game_login_net._user_id = account_id
+    self._game_login_net._login_ip = gate_ip
+    self._game_login_net._login_port = gate_port
+    -- self._game_login_net._gate_hosts = { {ip = gate_ip, port = gate_port} }
+    -- self._game_login_net:login()
 
     -- log_print("______________", self._game_login_net:is_ready(), self._game_platform_net:is_ready())
 end
