@@ -88,7 +88,7 @@ message ReqLoginGame
 
 message RspLoginGame
 {
-	int32 error_code = 1;
+	int32 error_num = 1;
 	string token = 2;
 	int64 timestamp = 3;
 	int64 user_id = 4;

@@ -23,10 +23,10 @@ function GameLoginNetEditor:ctor(net_mgr)
     self._connect_op_seq = 0
     self._next_seq = make_sequence(1)
     self._trying_login = false
+    self._pto_parser = self._net_mgr._pto_parser
 end
 
 function GameLoginNetEditor:_on_init()
-
 end
 
 function GameLoginNetEditor:_on_release()

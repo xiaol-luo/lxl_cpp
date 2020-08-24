@@ -114,7 +114,7 @@ end
 
 function UIHelp.set_active(root_comp_or_go, is_active)
     local ts = UIHelp.extract_transform(root_comp_or_go)
-    if ts.gameObject.activeSelf ~= is_active then
+    if ts and ts.gameObject.activeSelf ~= is_active then
         ts.gameObject:SetActive(is_active)
     end
 end
@@ -122,7 +122,7 @@ end
 function UIHelp.is_active(root_comp_or_go)
     local ret = false
     local ts = UIHelp.extract_transform(root_comp_or_go)
-    if ts and ts.active then
+    if ts and ts.gameObject.active then
         ret = true
     end
     return ret

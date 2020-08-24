@@ -3,7 +3,6 @@
 GameUser = GameUser or class("GameUser", DataBase)
 
 function GameUser:ctor(data_mgr)
-    log_print("mainrole !!!!!!!!!!!!!!!!!", GameUser, DataBase)
     GameUser.super.ctor(self, data_mgr, "game_user")
     ---@type NetMgr
     self._net_mgr = self._app.net_mgr

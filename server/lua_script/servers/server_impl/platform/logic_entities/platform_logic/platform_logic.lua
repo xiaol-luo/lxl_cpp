@@ -68,7 +68,7 @@ function PlatformLogic:_on_http_login_platform(from_cnn_id, method, req_url, hea
         })
     else
         local token_str = gen_uuid()
-        local timestamp_str = os.time()
+        local timestamp_str = tostring(os.time())
         self._token_map[token_str] = {
             timestamp = timestamp_str,
             platform_account_id = platform_account_id,
@@ -101,6 +101,7 @@ function PlatformLogic:_on_http_verity_token(from_cnn_id, method, req_url, heads
         })
     else
         local token_item = self._token_map[token_str]
+        log_print("PlatformLogic:_on_http_verity_token ", token_item, timestamp_str, token_str, heads_map)
         if not token_item or token_item.timestamp ~= timestamp_str then
             self:_http_rsp_help(from_cnn_id, {
                 error_num = 1,

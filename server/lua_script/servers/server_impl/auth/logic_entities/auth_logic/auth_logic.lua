@@ -139,13 +139,13 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
 
         local user_id = nil
         if db_ret.matched_count > 0 then
-            user_id = db_ret["0"].user_id
+            user_id = db_ret.val["0"].user_id
             if not user_id then
                 reply_client_with_error(81, "unknown error")
                 return
             end
         else
-            user_id = self._db_uuid.apply(DB_Uuid_Names.user_id)
+            user_id = self._db_uuid:apply(DB_Uuid_Names.user_id)
             if not user_id then
                 reply_client_with_error(80, "apply user id from db uuid fail")
                 return
@@ -166,7 +166,7 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
         end
         rsp_body.user_id = user_id
         rsp_body.user_token = gen_uuid()
-        rsp_body.user_token_timestamp = os.time()
+        rsp_body.user_token_timestamp = tostring(os.time())
 
         self._token_map[rsp_body.user_token] = {
             timestamp = rsp_body.user_token_timestamp,

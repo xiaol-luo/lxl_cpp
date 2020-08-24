@@ -7,7 +7,7 @@ function GamePlatformNetEditor:ctor(net_mgr)
     self._timer_proxy = TimerProxy:new()
     self._is_ready = false
     self._error_msg = nil
-    self._app_id = 1
+    self._app_id = "test_app_id"
     self._platform_name = "platform_for_test"
     self._account_id = nil
     self._platform_ip = nil
@@ -28,7 +28,8 @@ function GamePlatformNetEditor:login()
     self:logout()
     self._error_msg = nil
     local get_rul = string.format("http://%s:%s/login_platform?platform_account_id=%s&game_id=%s&password=%s",
-            self._platform_ip, self._platform_port, self._account_id, self.game_id, "test_test")
+            self._platform_ip, self._platform_port, self._account_id, self._app_id, "test_test")
+    log_print("request url ", get_rul)
     UnityHttpClient.get(get_rul, Functional.make_closure(self._on_http_rsp_login, self))
     self:notify_login_start()
 end
@@ -53,8 +54,6 @@ function GamePlatformNetEditor:_on_http_rsp_login(http_error, rspContent, heads_
 end
 
 function GamePlatformNetEditor:logout()
-    self._account_id = nil
-    self._token = nil
     self._is_ready = false
     self:_set_is_ready(false)
 end

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 222075506219011234}
   - component: {fileID: 114929305738307550}
   m_Layer: 5
-  m_Name: EditorPlatformLogin
+  m_Name: EditorPlatformPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1315,7 +1315,7 @@ GameObject:
   - component: {fileID: 4596781043050270314}
   - component: {fileID: 2728437945693389468}
   m_Layer: 5
-  m_Name: advise_platforms_scroll_view
+  m_Name: scroll_view
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

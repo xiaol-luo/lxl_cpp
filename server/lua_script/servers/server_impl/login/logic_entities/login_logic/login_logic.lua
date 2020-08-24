@@ -51,10 +51,15 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
     kv_tb["platform_account_id"] = msg.account_id
     kv_tb["game_id"] = msg.app_id
     kv_tb["platform_token"] = msg.token
-    local query_url = string.format("http://127.0.0.1:32002/login_game?%s", table.concat(kv_tb, "&"))
-    -- HttpClient.get()
-
-    login_client:send_msg(Login_Pid.rsp_login_game, { error_num = Error_None })
+    local params_tb = {}
+    for  k, v in pairs(kv_tb) do
+        table.insert(params_tb, string.format("%s=%s", k, v))
+    end
+    local query_url = string.format("http://127.0.0.1:32002/login_game?%s", table.concat(params_tb, "&"))
+    HttpClient.get(query_url, function(http_ret)
+        log_print("LoginLogic:_on_msg_req_login_game", http_ret)
+        login_client:send_msg(Login_Pid.rsp_login_game, { error_num = Error_None })
+    end)
 end
 
 
