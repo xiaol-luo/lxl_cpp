@@ -60,6 +60,10 @@ function GameGateNetBase:notify_connect_done()
     self._net_mgr:fire(Game_Net_Event.gate_connect_done, self:is_ready(), self:get_error_msg())
 end
 
+function GameGateNetBase:notify_connect_start()
+    self._net_mgr:fire(Game_Net_Event.gate_connect_start)
+end
+
 function GameGateNetBase:notify_ready_change()
     self._net_mgr:fire(Game_Net_Event.gate_connect_ready_change, self, self:is_ready())
 end

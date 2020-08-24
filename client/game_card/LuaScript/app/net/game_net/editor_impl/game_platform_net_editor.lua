@@ -6,7 +6,7 @@ function GamePlatformNetEditor:ctor(net_mgr)
     GamePlatformNetEditor.super.ctor(self, net_mgr)
     self._timer_proxy = TimerProxy:new()
     self._is_ready = false
-    self._error_msg = ""
+    self._error_msg = nil
     self._app_id = 1
     self._platform_name = "platform_for_test"
     self._account_id = nil
@@ -26,11 +26,11 @@ end
 
 function GamePlatformNetEditor:login()
     self:logout()
-    -- self._timer_proxy:delay(Functional.make_closure(self.notify_ready_change, self), 1)
-    -- http://127.0.0.1:30002/login_platform?platform_account_id=12345&game_id=2234&password=12345
+    self._error_msg = nil
     local get_rul = string.format("http://%s:%s/login_platform?platform_account_id=%s&game_id=%s&password=%s",
             self._platform_ip, self._platform_port, self._account_id, self.game_id, "test_test")
     UnityHttpClient.get(get_rul, Functional.make_closure(self._on_http_rsp_login, self))
+    self:notify_login_start()
 end
 
 function GamePlatformNetEditor:_on_http_rsp_login(http_error, rspContent, heads_map)
@@ -49,6 +49,7 @@ function GamePlatformNetEditor:_on_http_rsp_login(http_error, rspContent, heads_
     self._token = http_ret.token
     self._token_timestamp = http_ret.timestamp
     self:_set_is_ready(true)
+    self:notify_login_done()
 end
 
 function GamePlatformNetEditor:logout()
@@ -61,7 +62,7 @@ end
 function GamePlatformNetEditor:_set_is_ready(is_ready, error_msg)
     local old_is_ready = self._is_ready
     self._is_ready = is_ready
-    self._error_msg = error_msg or ""
+    self._error_msg = error_msg
     if old_is_ready ~= self._is_ready then
         self:notify_ready_change()
     end
@@ -72,7 +73,7 @@ function GamePlatformNetEditor:is_ready()
 end
 
 function GamePlatformNetEditor:get_error_msg()
-    return ""
+    return self._error_msg
 end
 
 function GamePlatformNetEditor:get_platform_name()

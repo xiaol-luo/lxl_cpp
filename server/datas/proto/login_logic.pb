@@ -82,22 +82,17 @@ message ReqLoginGame
 	string token = 1;
 	int64 timestamp = 2;
 	string platform = 3;
-	bool ignore_auth = 4;
-	string force_account_id = 5;
+	string account_id = 5;
+	string app_id = 6;
 }
 
 message RspLoginGame
 {
 	int32 error_code = 1;
-	string auth_sn = 2;
+	string token = 2;
 	int64 timestamp = 3;
-	string account_id = 4;
-	string app_id = 5;
-	int64 user_id = 6;
-	string gate_ip = 7;
-	int32 gate_port = 8;
-	string auth_ip = 9;
-	int32 auth_port = 10;
-	bool ignore_auth = 11;
+	int64 user_id = 4;
+	string auth_ip = 5;
+	int32 auth_port = 6;
 }
 
