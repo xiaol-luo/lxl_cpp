@@ -52,6 +52,7 @@ function UILoginPanel:_on_attach_panel()
 
     -- for i=1, 20
     do
+        local is_selected = false
         for _, v in pairs(self._gate_data_list) do
             local item = UIHelp.clone_gameobject(self._advise_item_prefab)
             UIHelp.set_parent(item, self._advise_content_ts)
@@ -59,6 +60,11 @@ function UILoginPanel:_on_attach_panel()
             btn:set_onclick(Functional.make_closure(self._on_click_gate_data_item, self, v))
             UIHelp.attach_ui(UIText, item, "name"):set_text(v.name)
             UIHelp.attach_ui(UIText, item,"host"):set_text(string.format("%s:%s", v.login_ip, v.login_port))
+
+            if not is_selected then
+                is_selected = true
+                self:_on_click_gate_data_item(v)
+            end
         end
     end
 end

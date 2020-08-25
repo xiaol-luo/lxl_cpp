@@ -17,6 +17,7 @@ function AppStateLogin:on_enter(params)
         end
     end
     self.event_binder:bind(self.app.net_mgr, Game_Net_Event.platform_ready_change,  Functional.make_closure(self._on_event_platform_login_done, self))
+    self.event_binder:bind(self.app.net_mgr, Game_Net_Event.game_login_ready_change,  Functional.make_closure(self._on_event_game_login_done, self))
 end
 
 function AppStateLogin:on_update()
@@ -34,7 +35,9 @@ function AppStateLogin:on_exit()
 end
 
 function AppStateLogin:is_all_done()
-    local ret = self.app.net_mgr.game_platform_net:is_ready() and self.app.net_mgr.game_login_net:is_ready()
+    local ret = self.app.net_mgr.game_platform_net:is_ready()
+            and self.app.net_mgr.game_login_net:is_ready()
+            and self.app.net_mgr.game_gate_net:is_ready()
     return ret
 end
 
@@ -42,5 +45,21 @@ function AppStateLogin:_on_event_platform_login_done(is_ready, error_msg)
     if is_ready then
         self.app.panel_mgr:release_panel(UI_Panel_Name.platform_panel, {})
         self.app.panel_mgr:open_panel(UI_Panel_Name.login_panel, {})
+    end
+end
+
+function AppStateLogin:_on_event_game_login_done(is_ready, error_msg)
+    if is_ready then
+        self.app.panel_mgr:release_panel(UI_Panel_Name.platform_panel, {})
+        self.app.panel_mgr:release_panel(UI_Panel_Name.login_panel, {})
+        self.app.panel_mgr:open_panel(UI_Panel_Name.select_gate_panel, {})
+    end
+end
+
+function AppStateLogin:_on_event_game_gate_connect_done(is_ready, error_msg)
+    if is_ready then
+        self.app.panel_mgr:release_panel(UI_Panel_Name.platform_panel, {})
+        self.app.panel_mgr:release_panel(UI_Panel_Name.login_panel, {})
+        self.app.panel_mgr:release_panel(UI_Panel_Name.select_gate_panel, {})
     end
 end

@@ -40,6 +40,10 @@ function GameGateNetBase:reconnect()
 
 end
 
+function GameGateNetBase:get_gate_host()
+
+end
+
 function GameGateNetBase:get_error_msg()
 
 end

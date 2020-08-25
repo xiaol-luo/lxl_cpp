@@ -4,11 +4,10 @@ message ReqUserLogin
 {
 	int64 user_id = 1;
     string app_id = 2;
-    string auth_sn = 3;
-	string auth_ip = 4;
-	int32 auth_port = 5;
-	string account_id = 6;
-	bool ignore_auth = 7;
+    string token = 3;
+	string token_timestamp = 4;
+	string auth_ip = 5;
+	int32 auth_port = 6;
 }
 
 message RspUserLogin
@@ -80,7 +79,7 @@ message RspReconnectRole
 message ReqLoginGame
 {
 	string token = 1;
-	int64 timestamp = 2;
+	string timestamp = 2;
 	string platform = 3;
 	string account_id = 5;
 	string app_id = 6;
@@ -90,7 +89,7 @@ message RspLoginGame
 {
 	int32 error_num = 1;
 	string token = 2;
-	int64 timestamp = 3;
+	string timestamp = 3;
 	int64 user_id = 4;
 	string auth_ip = 5;
 	int32 auth_port = 6;

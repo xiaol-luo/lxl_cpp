@@ -63,15 +63,7 @@ function GameLoginNetBase:get_token()
 
 end
 
-function GameLoginNetBase:get_auth_ip()
-
-end
-
-function GameLoginNetBase:get_auth_port()
-
-end
-
-function GameLoginNetBase:get_gate_hosts()
+function GameLoginNetBase:get_auth_host()
 
 end
 

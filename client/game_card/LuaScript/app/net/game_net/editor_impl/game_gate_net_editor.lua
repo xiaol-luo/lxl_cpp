@@ -11,6 +11,8 @@ function GameGateNetEditor:ctor(net_mgr)
     self._net = nil
     self._connect_op_seq = 0
     self._next_seq = make_sequence(1)
+    self._gate_ip = nil
+    self._gate_port = nil
 end
 
 function GameGateNetEditor:_on_init()
@@ -21,7 +23,6 @@ function GameGateNetEditor:_on_release()
 end
 
 function GameGateNetEditor:connect()
-    log_print("GameGateNetEditor:connect 1")
     local old_is_ready = self:is_ready()
     if self._net then
         self._net:close()
@@ -34,15 +35,7 @@ function GameGateNetEditor:connect()
         self:notify_ready_change()
     end
 
-    local all_gate_host = self._net_mgr.game_login_net:get_gate_hosts()
-    if not all_gate_host or not next(all_gate_host) then
-        self._error_msg = "not valid gate host can use"
-        self:notify_connect_done()
-        log_print("GameGateNetEditor:connect 2")
-        return false
-    end
-    log_print("GameGateNetEditor:connect 3")
-    local gate_ip, gate_port = all_gate_host[1].ip, all_gate_host[1].port
+    local gate_ip, gate_port = self:get_gate_host()
     if not gate_ip or #gate_ip <= 0 or not gate_port then
         self._error_msg = string.format("gate_ip %s or gate_port %s, is not valid", gate_ip, gate_port)
         self:notify_connect_done()
@@ -69,6 +62,11 @@ end
 
 function GameGateNetEditor:reconnect()
     return self._is_connecting
+end
+
+
+function GameGateNetBase:get_gate_host()
+    return self._gate_ip, self._gate_port
 end
 
 function GameGateNetEditor:get_error_msg()
@@ -105,9 +103,19 @@ function GameGateNetEditor:_on_event_net_open(connect_op_seq, is_succ)
     -- self:on_open(is_succ)
     if is_succ then
         local user_id = self._net_mgr.game_login_net:get_user_id()
-        local auth_sn = self._net_mgr.game_login_net:get_auth_sn()
-        self:send_msg_to_gate(Login_Pid.req_user_login, { user_id = user_id, auth_sn = auth_sn })
+        local app_id = self._net_mgr.game_platform_net:get_app_id()
+        local token, token_timestamp = self._net_mgr.game_login_net:get_token()
+        local auth_ip, auth_port = self._net_mgr.game_login_net:get_auth_host()
+        self:send_msg_to_gate(Login_Pid.req_user_login, {
+            user_id = user_id,
+            app_id = app_id,
+            token = token,
+            token_timestamp = token_timestamp,
+            auth_ip = auth_ip,
+            auth_port = auth_port,
+        })
     else
+        self._error_msg = "connect fail"
         self:notify_connect_done()
     end
 end

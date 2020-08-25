@@ -55,10 +55,33 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
     for  k, v in pairs(kv_tb) do
         table.insert(params_tb, string.format("%s=%s", k, v))
     end
-    local query_url = string.format("http://127.0.0.1:32002/login_game?%s", table.concat(params_tb, "&"))
+    local Auth_Ip = "127.0.0.1"
+    local Auth_Port = 32002
+    local query_url = string.format("http://%s:%s/login_game?%s", Auth_Ip, Auth_Port, table.concat(params_tb, "&"))
     HttpClient.get(query_url, function(http_ret)
         log_print("LoginLogic:_on_msg_req_login_game", http_ret)
-        login_client:send_msg(Login_Pid.rsp_login_game, { error_num = Error_None })
+        local error_num = Error_None
+        if "OK" == http_ret.state then
+            local rsp_data = lua_json.decode(http_ret.body)
+            if Error_None == rsp_data.error_num then
+                login_client:send_msg(Login_Pid.rsp_login_game, {
+                    error_num = Error_None,
+                    token = rsp_data.user_token,
+                    timestamp = tostring(rsp_data.user_token_timestamp),
+                    user_id = rsp_data.user_id,
+                    auth_ip = Auth_Ip,
+                    auth_port = Auth_Port,
+                })
+            else
+                error_num = rsp_data.error_num
+            end
+        else
+            error_num = 1
+        end
+
+        if Error_None ~= error_num then
+            login_client:send_msg(Login_Pid.rsp_login_game, { error_num = error_num})
+        end
     end)
 end
 

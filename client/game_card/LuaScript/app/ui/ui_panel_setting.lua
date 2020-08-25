@@ -7,6 +7,7 @@ UI_Panel_Name.confirm_panel = "confirm_panel"
 UI_Panel_Name.login_panel = "login_panel"
 UI_Panel_Name.platform_panel = "platform_panel"
 UI_Panel_Name.manage_role_panel = "manage_role_panel"
+UI_Panel_Name.select_gate_panel = "select_gate_panel"
 
 
 UI_Panel_Setting = {
@@ -36,11 +37,16 @@ UI_Panel_Setting = {
         res_path = "Assets/Res/UI/PanelMgr/LoginPanel/EditorPlatformPanel.prefab",
         panel_cls = UIPlatformPanel,
     },
+    [UI_Panel_Name.select_gate_panel] = {
+        belong_layer = Panel_Layer.coexist_0,
+        res_path = "Assets/Res/UI/PanelMgr/LoginPanel/EditorSelectGate.prefab",
+        panel_cls = UISelectGatePanel,
+    },
     [UI_Panel_Name.manage_role_panel] = {
         belong_layer = Panel_Layer.coexist_0,
         res_path = "Assets/Res/UI/PanelMgr/ManageRolePanel/ManageRolePanel.prefab",
         panel_cls = UIManageRolePanel,
-    }
+    },
 }
 
 for panel_name, panel_setting in pairs(UI_Panel_Setting) do

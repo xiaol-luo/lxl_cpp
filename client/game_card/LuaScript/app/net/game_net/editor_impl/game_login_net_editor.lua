@@ -14,8 +14,6 @@ function GameLoginNetEditor:ctor(net_mgr)
     self._auth_ip = nil
     self._auth_port = nil
 
-    self._gate_hosts = nil
-
     ---@type GameNet
     self._net = nil
     self._login_ip = nil
@@ -78,17 +76,8 @@ function GameLoginNetEditor:get_token()
     return self._token, self._token_timestamp
 end
 
-function GameLoginNetEditor:get_auth_port()
-    return self._auth_port
-end
-
-function GameLoginNetBase:get_auth_ip()
-    return self._auth_ip
-end
-
-
-function GameLoginNetEditor:get_gate_hosts()
-    return self._gate_hosts
+function GameLoginNetEditor:get_auth_host()
+    return self._auth_ip, self._auth_port
 end
 
 function GameLoginNetEditor:_on_event_net_open(connect_op_seq, is_succ)
@@ -156,7 +145,7 @@ function GameLoginNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes,
         if Error_None == msg.error_num then
             self:_set_is_ready(true)
             self._token = msg.token
-            self._token_timestamp = msg.timestamp
+            self._token_timestamp = tostring(msg.timestamp)
             self._user_id = msg.user_id
             self._auth_ip = msg.auth_ip
             self._auth_port = msg.auth_port

@@ -35,6 +35,7 @@ return {
     "app.ui.login_panel.ui_login_panel",
     "app.ui.platform_panel.ui_platform_panel",
     "app.ui.manage_role_panel.ui_manage_role_panel",
+    "app.ui.select_gate.ui_select_gate_panel",
 
     "app.ui.ui_panel_setting",
 

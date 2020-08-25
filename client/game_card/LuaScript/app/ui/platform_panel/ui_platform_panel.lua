@@ -40,6 +40,8 @@ end
 function UIPlatformPanel:_on_attach_panel()
     UIPlatformPanel.super._on_attach_panel(self)
     self._account_id_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/account_id")
+    self._account_id_if:set_text(1)
+
     self._platform_ip_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/platform_ip")
     self._platform_port_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/platform_port")
     self._confirm_btn = UIHelp.attach_ui(UIButton, self._panel_root, "login_view/confirm_btn")
@@ -54,6 +56,7 @@ function UIPlatformPanel:_on_attach_panel()
 
     -- for i=1, 20
     do
+        local is_selected = false
         for _, v in pairs(self._gate_data_list) do
             local item = UIHelp.clone_gameobject(self._advise_item_prefab)
             UIHelp.set_parent(item, self._advise__content_ts)
@@ -61,6 +64,11 @@ function UIPlatformPanel:_on_attach_panel()
             btn:set_onclick(Functional.make_closure(self._on_click_gate_data_item, self, v))
             UIHelp.attach_ui(UIText, item, "name"):set_text(v.name)
             UIHelp.attach_ui(UIText, item,"host"):set_text(string.format("%s:%s", v.platform_ip, v.platform_port))
+
+            if not is_selected then
+                is_selected = true
+                self:_on_click_gate_data_item(v)
+            end
         end
     end
 end
