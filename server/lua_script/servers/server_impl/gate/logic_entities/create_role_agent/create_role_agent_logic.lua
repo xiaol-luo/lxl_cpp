@@ -57,7 +57,13 @@ function CreateRoleAgentLogic:_on_msg_query_roles(gate_client, pid, msg)
     end
 end
 
+---@param gate_client GateClient
 function CreateRoleAgentLogic:_on_msg_create_role(gate_client, pid, msg)
+    if not gate_client:is_authed() then
+        gate_client:send_msg(Login_Pid.rsp_create_role, { error_num = 1 })
+        return
+    end
+
     local server_key = self.server.peer_net:random_server_key(Server_Role.Create_Role)
     if server_key then
         self._rpc_svc_proxy:call(function(rpc_error_num, error_num, role_id)

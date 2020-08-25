@@ -45,9 +45,53 @@ function GateLogic:_on_msg_user_login(gate_client, pid, msg)
         gate_client:disconnect()
     end
     gate_client.user_id = msg.user_id
-    gate_client.auth_sn = msg.auth_sn
-    gate_client.state = Gate_Client_State.manage_role
-    gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = Error_None })
+    gate_client.auth_sn = msg.token
+    gate_client.state = Gate_Client_State.authing
+    gate_client.auth_data = {
+        token = msg.token,
+        token_timestamp = msg.token_timestamp,
+        app_id = msg.app_id,
+        auth_ip = msg.auth_ip,
+        auth_port = msg.auth_port,
+    }
+    -- todo: 去auth_server鉴权
+    local kv_tb = {}
+    kv_tb["token"] = msg.token
+    kv_tb["timestamp"] = msg.token_timestamp
+    local query_params = {}
+    for  k, v in pairs(kv_tb) do
+        table.insert(query_params, string.format("%s=%s", k, v))
+    end
+    local query_url = string.format("http://%s:%s/verity_token?%s", msg.auth_ip, msg.auth_port, table.concat(query_params, "&"))
+    HttpClient.get(query_url, Functional.make_closure(self._on_http_rsp_vertity_token, self, gate_client))
+end
+
+function GateLogic:_on_http_rsp_vertity_token(gate_client, http_ret)
+    local error_num = Error_None
+    if Http_OK == http_ret.state then
+        local rsp_data = lua_json.decode(http_ret.body)
+        if Error_None == rsp_data.error_num then
+            if gate_client.user_id == rsp_data.user_id then
+                -- error_num = Error_None
+                if Gate_Client_State.authing ==  gate_client.state then
+                    if self.server.discovery:is_cluster_can_work() then
+                        gate_client.state = Gate_Client_State.manage_role
+                    else
+                        error_num = 5
+                    end
+                else
+                    error_num = 4
+                end
+            else
+                error_num = 3
+            end
+        else
+            error_num = 2
+        end
+    else
+        error_num = 1
+    end
+    gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = error_num })
 end
 
 

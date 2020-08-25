@@ -101,7 +101,7 @@ function PlatformLogic:_on_http_verity_token(from_cnn_id, method, req_url, heads
         })
     else
         local token_item = self._token_map[token_str]
-        log_print("PlatformLogic:_on_http_verity_token ", token_item, timestamp_str, token_str, heads_map)
+        -- log_print("PlatformLogic:_on_http_verity_token ", token_item, timestamp_str, token_str, heads_map)
         if not token_item or token_item.timestamp ~= timestamp_str then
             self:_http_rsp_help(from_cnn_id, {
                 error_num = 1,

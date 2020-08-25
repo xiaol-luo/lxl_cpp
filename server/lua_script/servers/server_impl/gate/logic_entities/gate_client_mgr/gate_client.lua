@@ -11,6 +11,7 @@ function GateClient:ctor(cnn)
     self.role_id = nil
     self.game_server_key = nil
     self.session_id = nil
+    self.auth_data = nil
 end
 
 function GateClient:send_bin(pid, bin)

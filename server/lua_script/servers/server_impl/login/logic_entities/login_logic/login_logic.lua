@@ -59,7 +59,7 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
     local Auth_Port = 32002
     local query_url = string.format("http://%s:%s/login_game?%s", Auth_Ip, Auth_Port, table.concat(params_tb, "&"))
     HttpClient.get(query_url, function(http_ret)
-        log_print("LoginLogic:_on_msg_req_login_game", http_ret)
+        -- log_print("LoginLogic:_on_msg_req_login_game", http_ret)
         local error_num = Error_None
         if "OK" == http_ret.state then
             local rsp_data = lua_json.decode(http_ret.body)
