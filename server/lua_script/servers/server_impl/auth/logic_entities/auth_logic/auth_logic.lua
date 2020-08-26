@@ -50,13 +50,13 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
     local platform_token = heads_map["platform_token"]
     local platform_token_timestamp = heads_map["platform_token_timestamp"]
     local platform_account_id = heads_map["platform_account_id"]
-    local game_id = heads_map["game_id"]
+    local app_id = heads_map["app_id"]
 
     if not platform_name
             or not platform_token
             or not platform_token_timestamp
             or not platform_account_id
-            or not game_id
+            or not app_id
     then
         self:_http_rsp_help(from_cnn_id, {
             error_num = 1,
@@ -116,10 +116,10 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
             reply_client_with_error(40, error_msg)
             return
         end
-        if platform_account_id ~= http_body.platform_account_id or game_id ~= http_body.game_id then
-            local error_msg = string.format("platform_account_id[%s:%s] or game_id[%s:%s] mismatch",
+        if platform_account_id ~= http_body.platform_account_id or app_id ~= http_body.app_id then
+            local error_msg = string.format("platform_account_id[%s:%s] or app_id[%s:%s] mismatch",
                     platform_account_id, http_body.platform_account_id,
-                    game_id, http_body.game_id)
+                    app_id, http_body.app_id)
             reply_client_with_error(50, error_msg)
             return
         end
@@ -171,7 +171,7 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
         self._token_map[rsp_body.user_token] = {
             timestamp = rsp_body.user_token_timestamp,
             user_id = rsp_body.user_id,
-            game_id = game_id,
+            app_id = app_id,
             platform_name = platform_name,
             platform_account_id = platform_account_id,
             platform_token = platform_token,
@@ -211,7 +211,7 @@ function AuthLogic:_on_http_verity_token(from_cnn_id, method, req_url, heads_map
                 error_num = 0,
                 error_msg = nil,
                 user_id = token_item.user_id,
-                game_id = token_item.game_id,
+                app_id = token_item.app_id,
             })
         end
     end

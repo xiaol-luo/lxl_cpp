@@ -1,6 +1,6 @@
 syntax="proto3"
 
-message ReqUserLogin
+message ReqLoginGate
 {
 	int64 user_id = 1;
     string app_id = 2;
@@ -10,7 +10,7 @@ message ReqUserLogin
 	int32 auth_port = 6;
 }
 
-message RspUserLogin
+message RspLoginGate
 {
     int32 error_num = 1;
 }
@@ -66,7 +66,7 @@ message RspLogoutRole
 
 message ReqReconnectRole
 {
-	ReqUserLogin user_login_msg = 1;
+	ReqLoginGate login_gate_data = 1;
 	int64 role_id = 2;
 }
 
@@ -76,7 +76,7 @@ message RspReconnectRole
 	int64 role_id = 2;
 }
 
-message ReqLoginGame
+message ReqLoginUser
 {
 	string token = 1;
 	string timestamp = 2;
@@ -85,7 +85,7 @@ message ReqLoginGame
 	string app_id = 6;
 }
 
-message RspLoginGame
+message RspLoginUser
 {
 	int32 error_num = 1;
 	string token = 2;

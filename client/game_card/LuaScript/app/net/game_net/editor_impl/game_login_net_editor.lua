@@ -97,7 +97,7 @@ function GameLoginNetEditor:_on_event_net_open(connect_op_seq, is_succ)
             local token, token_timestamp = game_platform_net:get_token()
             local platform = game_platform_net:get_platform_name()
             local app_id = game_platform_net:get_app_id()
-            local send_ret = self:send_msg(Login_Pid.req_login_game, {
+            local send_ret = self:send_msg(Login_Pid.req_login_user, {
                 token = token,
                 timestamp = token_timestamp,
                 platform = platform,
@@ -105,9 +105,9 @@ function GameLoginNetEditor:_on_event_net_open(connect_op_seq, is_succ)
                 account_id = account_id,
             })
             if not send_ret then
-                log_error("GameLoginNetEditor:_on_event_net_open send msg Login_Pid.req_login_game fail")
+                log_error("GameLoginNetEditor:_on_event_net_open send msg Login_Pid.req_login_user fail")
                 self._trying_login = false
-                self:_set_is_ready(false, "GameLoginNetEditor:_on_event_net_open send msg Login_Pid.req_login_game fail")
+                self:_set_is_ready(false, "GameLoginNetEditor:_on_event_net_open send msg Login_Pid.req_login_user fail")
                 self:notify_login_done()
             end
         end
@@ -140,7 +140,7 @@ function GameLoginNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes,
     end
 
     log_print("GameLoginNetEditor:on_event_net_recv_msg", pto_id, is_ok, msg)
-    if Login_Pid.rsp_login_game == pto_id then
+    if Login_Pid.rsp_login_user == pto_id then
         self._trying_login = false
         if Error_None == msg.error_num then
             self:_set_is_ready(true)
@@ -150,7 +150,7 @@ function GameLoginNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes,
             self._auth_ip = msg.auth_ip
             self._auth_port = msg.auth_port
         else
-            self:_set_is_ready(false, string.format("Login_Pid.rsp_login_game error %s", msg.error_num))
+            self:_set_is_ready(false, string.format("Login_Pid.rsp_login_user error %s", msg.error_num))
         end
         self:notify_login_done()
         self._net:close()

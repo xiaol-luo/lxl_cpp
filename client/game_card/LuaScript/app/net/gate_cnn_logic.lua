@@ -68,7 +68,7 @@ function GateCnnLogic:send_msg_to_game(proto_id, msg)
 end
 
 function GateCnnLogic:login_gate(is_reconnect)
-    local user_login_msg = {
+    local login_gate_data = {
         user_id = self.user_info.user_id,
         app_id = self.user_info.app_id,
         auth_sn = self.user_info.auth_sn,
@@ -82,10 +82,10 @@ function GateCnnLogic:login_gate(is_reconnect)
         log_assert(self.main_logic.main_role.role_id, "unexpected error")
         is_ok = self:send_msg(ProtoId.req_reconnect, {
             role_id = self.main_logic.main_role.role_id,
-            user_login_msg = user_login_msg
+            login_gate_data = login_gate_data
         })
     else
-        is_ok = self:send_msg(ProtoId.req_user_login, user_login_msg)
+        is_ok = self:send_msg(ProtoId.req_user_login, login_gate_data)
     end
     log_assert(is_ok, "unexpected error")
     return is_ok

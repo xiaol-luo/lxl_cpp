@@ -90,9 +90,9 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
     local user_id = math.random(1, 100000)
     local auth_sn = gen_uuid()
 
-    self:send_msg(gate_cnn, Login_Pid.req_user_login, { user_id=user_id, auth_sn=auth_sn })
+    self:send_msg(gate_cnn, Login_Pid.req_login_gate, { user_id=user_id, auth_sn=auth_sn })
     co_ok, action_name, error_num, pid, msg = ex_coroutine_yield(co)
-    if not co_ok or Action_Name.cnn_on_recv ~= action_name or pid ~= Login_Pid.rsp_user_login then
+    if not co_ok or Action_Name.cnn_on_recv ~= action_name or pid ~= Login_Pid.rsp_login_gate then
         log_print("00000 recv msg", user_id, opera_id, co_ok, action_name, error_num, pid, msg)
         ex_coroutine_report_error(co, "gate connection is over")
         return
@@ -137,8 +137,6 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
         return
     end
 
-    -- log_print("333333333333333")
-
     local role_id = nil
     if role_digests and next(role_digests) then
         role_id = role_digests[1].role_id
@@ -181,7 +179,7 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
             -- reconnect role
             ex_coroutine_expired(co,  3000)
             self:send_msg(gate_cnn, Login_Pid.req_reconnect_role, {
-                role_id = role_id,  user_login_msg = {
+                role_id = role_id,  login_gate_data = {
                     user_id = user_id,
                     auth_sn = auth_sn,
                 }})
@@ -226,7 +224,7 @@ function RobotTestLogin:_test_main_logic(co, logic_uuid)
 
             if 3 == opera_id then
                 self:send_msg(gate_cnn, Login_Pid.req_reconnect_role, {
-                    role_id = role_id,  user_login_msg = {
+                    role_id = role_id,  login_gate_data = {
                         user_id = user_id,
                         auth_sn = auth_sn,
                     }})

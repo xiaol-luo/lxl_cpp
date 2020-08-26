@@ -16,12 +16,12 @@ end
 
 function GateLogic:_on_start()
     GateLogic.super._on_start(self)
-    self._gate_client_mgr:set_msg_handler(Login_Pid.req_user_login, Functional.make_closure(self._on_msg_user_login, self))
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_login_gate, Functional.make_closure(self._on_msg_user_login, self))
 end
 
 function GateLogic:_on_stop()
     GateLogic.super._on_stop(self)
-    self._gate_client_mgr:set_msg_handler(Login_Pid.req_user_login, nil)
+    self._gate_client_mgr:set_msg_handler(Login_Pid.req_login_gate, nil)
 end
 
 function GateLogic:_on_release()
@@ -35,13 +35,21 @@ end
 ---@param gate_client GateClient
 function GateLogic:_on_msg_user_login(gate_client, pid, msg)
     -- todo: 定义错误码
+    self:try_login_gate(gate_client, msg, function(error_num)
+        gate_client:send_msg(Login_Pid.rsp_login_gate, { error_num = error_num })
+    end)
+end
+
+
+---@param cb_fn fun(error_num:number):void
+function GateLogic:try_login_gate(gate_client, msg, cb_fn)
     if Gate_Client_State.free ~= gate_client.state or gate_client.user_id then
-        gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = 1})
+        gate_client:send_msg(Login_Pid.rsp_login_gate, { error_num = 1})
         gate_client:disconnect()
         return
     end
     if not self.server.discovery:is_cluster_can_work() then
-        gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = 2})
+        gate_client:send_msg(Login_Pid.rsp_login_gate, { error_num = 2})
         gate_client:disconnect()
     end
     gate_client.user_id = msg.user_id
@@ -63,10 +71,11 @@ function GateLogic:_on_msg_user_login(gate_client, pid, msg)
         table.insert(query_params, string.format("%s=%s", k, v))
     end
     local query_url = string.format("http://%s:%s/verity_token?%s", msg.auth_ip, msg.auth_port, table.concat(query_params, "&"))
-    HttpClient.get(query_url, Functional.make_closure(self._on_http_rsp_vertity_token, self, gate_client))
+    HttpClient.get(query_url, Functional.make_closure(self._on_http_rsp_vertity_token, self, gate_client, cb_fn))
 end
 
-function GateLogic:_on_http_rsp_vertity_token(gate_client, http_ret)
+
+function GateLogic:_on_http_rsp_vertity_token(gate_client, cb_fn, http_ret)
     local error_num = Error_None
     if Http_OK == http_ret.state then
         local rsp_data = lua_json.decode(http_ret.body)
@@ -91,7 +100,9 @@ function GateLogic:_on_http_rsp_vertity_token(gate_client, http_ret)
     else
         error_num = 1
     end
-    gate_client:send_msg(Login_Pid.rsp_user_login, { error_num = error_num })
+    if cb_fn then
+        cb_fn(error_num)
+    end
 end
 
 

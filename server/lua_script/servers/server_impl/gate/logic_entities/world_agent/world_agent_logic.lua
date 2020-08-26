@@ -148,29 +148,36 @@ end
 function WorldAgentLogic:_on_msg_reconnect_role(gate_client, pid, msg)
     -- todo: 补认证过程
     local error_num = Error_None
-    local auth_msg = msg.user_login_msg
+    local auth_msg = msg.login_gate_data
     repeat
         if Gate_Client_State.free ~= gate_client.state then
             error_num = Error.reconnect_role.gate_client_state_not_fit
             break
         end
 
-        -- todo: 补认证过程，姑且先这样做
-        gate_client.user_id = auth_msg.user_id
-        gate_client.auth_sn = auth_msg.auth_sn
-        gate_client.state = Gate_Client_State.manage_role
+        ---@type GateLogic
+        local gate_logic = self.server.logics.gate
+        gate_logic:try_login_gate(gate_client, msg.login_gate_data, function(login_gate_error_num)
+            if Error_None ~= login_gate_error_num then
+                gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = login_gate_error_num, role_id = msg.role_id })
+                return
+            end
 
-        local find_error_num, selected_world_key = self._work_world_shadow:find_available_server_address(msg.role_id)
-        if Error_None ~= find_error_num then
-            error_num = find_error_num
-            break
-        end
-
-        gate_client.state = Gate_Client_State.launch_role
-        self._rpc_svc_proxy:call(
-                Functional.make_closure(self._rpc_rsp_reconnect_role, self, gate_client.netid, msg.role_id),
-                selected_world_key, Rpc.world.method.reconnect_role, gate_client.netid, msg.role_id, gate_client.auth_sn
-        )
+            local error_num = Error_None
+            local find_error_num, selected_world_key = self._work_world_shadow:find_available_server_address(msg.role_id)
+            if Error_None ~= find_error_num then
+                error_num = find_error_num
+            else
+                gate_client.state = Gate_Client_State.launch_role
+                self._rpc_svc_proxy:call(
+                        Functional.make_closure(self._rpc_rsp_reconnect_role, self, gate_client.netid, msg.role_id),
+                        selected_world_key, Rpc.world.method.reconnect_role, gate_client.netid, msg.role_id, gate_client.auth_sn
+                )
+            end
+            if Error_None ~= error_num then
+                gate_client:send_msg(Login_Pid.rsp_reconnect_role, { error_num = error_num, role_id = msg.role_id })
+            end
+        end)
     until true
 
     if Error_None ~= error_num then

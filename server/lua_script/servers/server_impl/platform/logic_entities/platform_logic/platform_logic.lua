@@ -60,11 +60,11 @@ end
 function PlatformLogic:_on_http_login_platform(from_cnn_id, method, req_url, heads_map, body)
     local platform_account_id = heads_map["platform_account_id"]
     local password = heads_map["password"]
-    local game_id = heads_map["game_id"]
-    if not platform_account_id or not game_id then
+    local app_id = heads_map["app_id"]
+    if not platform_account_id or not app_id then
         self:_http_rsp_help(from_cnn_id, {
             error_num = 1,
-            error_msg = "platform_account_id or game_id is not valid",
+            error_msg = "platform_account_id or app_id is not valid",
         })
     else
         local token_str = gen_uuid()
@@ -72,7 +72,7 @@ function PlatformLogic:_on_http_login_platform(from_cnn_id, method, req_url, hea
         self._token_map[token_str] = {
             timestamp = timestamp_str,
             platform_account_id = platform_account_id,
-            game_id = game_id,
+            app_id = app_id,
         }
         local rsp_body = {
             error_num = 0,
@@ -112,7 +112,7 @@ function PlatformLogic:_on_http_verity_token(from_cnn_id, method, req_url, heads
                 error_num = 0,
                 error_msg = nil,
                 platform_account_id = token_item.platform_account_id,
-                game_id = token_item.game_id,
+                app_id = token_item.app_id,
             })
         end
     end

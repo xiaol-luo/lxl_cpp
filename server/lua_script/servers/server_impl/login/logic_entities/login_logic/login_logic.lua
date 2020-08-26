@@ -14,7 +14,7 @@ function LoginLogic:_on_init()
     LoginLogic.super._on_init(self)
     self._client_mgr = self.logics.client_mgr
 
-    self._msg_handle_fns[Login_Pid.req_login_game] = Functional.make_closure(self._on_msg_req_login_game, self)
+    self._msg_handle_fns[Login_Pid.req_login_user] = Functional.make_closure(self._on_msg_req_login_game, self)
 end
 
 function LoginLogic:_setup_msg_handler(is_setup)
@@ -49,7 +49,7 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
     kv_tb["platform_token"] = msg.token
     kv_tb["platform_token_timestamp"] = msg.timestamp
     kv_tb["platform_account_id"] = msg.account_id
-    kv_tb["game_id"] = msg.app_id
+    kv_tb["app_id"] = msg.app_id
     kv_tb["platform_token"] = msg.token
     local params_tb = {}
     for  k, v in pairs(kv_tb) do
@@ -64,7 +64,7 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
         if "OK" == http_ret.state then
             local rsp_data = lua_json.decode(http_ret.body)
             if Error_None == rsp_data.error_num then
-                login_client:send_msg(Login_Pid.rsp_login_game, {
+                login_client:send_msg(Login_Pid.rsp_login_user, {
                     error_num = Error_None,
                     token = rsp_data.user_token,
                     timestamp = tostring(rsp_data.user_token_timestamp),
@@ -80,7 +80,7 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
         end
 
         if Error_None ~= error_num then
-            login_client:send_msg(Login_Pid.rsp_login_game, { error_num = error_num})
+            login_client:send_msg(Login_Pid.rsp_login_user, { error_num = error_num})
         end
     end)
 end

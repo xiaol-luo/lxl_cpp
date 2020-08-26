@@ -195,7 +195,7 @@ function LoginAction:robot_main_logic(co)
 
     local gate_ip = msg.gate_ip
     local gate_port = msg.gate_port
-    local user_login_msg = {
+    local login_gate_data = {
         user_id = msg.user_id,
         app_id = msg.app_id,
         auth_sn = msg.auth_sn,
@@ -204,7 +204,7 @@ function LoginAction:robot_main_logic(co)
         account_id = msg.account_id,
     }
 
-    send_msg(cnn, ProtoId.req_user_login, user_login_msg)
+    send_msg(cnn, ProtoId.req_user_login, login_gate_data)
     co_ok, pid, msg = ex_coroutine_yield(co)
     if not co_ok then
         return
@@ -282,7 +282,7 @@ function LoginAction:robot_main_logic(co)
     log_debug("to comunicate with gate for reconnect")
 
     send_msg(cnn, ProtoId.req_reconnect, {
-        user_login_msg = user_login_msg,
+        login_gate_data = login_gate_data,
         role_id = role_ids[1],
     })
     co_ok, pid, msg = ex_coroutine_yield(co)

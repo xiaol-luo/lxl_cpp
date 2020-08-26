@@ -106,7 +106,7 @@ function GameGateNetEditor:_on_event_net_open(connect_op_seq, is_succ)
         local app_id = self._net_mgr.game_platform_net:get_app_id()
         local token, token_timestamp = self._net_mgr.game_login_net:get_token()
         local auth_ip, auth_port = self._net_mgr.game_login_net:get_auth_host()
-        self:send_msg_to_gate(Login_Pid.req_user_login, {
+        self:send_msg_to_gate(Login_Pid.req_login_gate, {
             user_id = user_id,
             app_id = app_id,
             token = token,
@@ -142,7 +142,7 @@ function GameGateNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes, 
     end
 
     log_print("GameGateNetEditor:on_event_net_recv_msg", pto_id, is_ok, msg)
-    if Login_Pid.rsp_user_login == pto_id then
+    if Login_Pid.rsp_login_gate == pto_id then
         local old_is_ready = self:is_ready()
         self._error_num = msg.error_num
         if old_is_ready ~= self:is_ready() then

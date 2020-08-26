@@ -27,7 +27,7 @@ end
 function GamePlatformNetEditor:login()
     self:logout()
     self._error_msg = nil
-    local get_rul = string.format("http://%s:%s/login_platform?platform_account_id=%s&game_id=%s&password=%s",
+    local get_rul = string.format("http://%s:%s/login_platform?platform_account_id=%s&app_id=%s&password=%s",
             self._platform_ip, self._platform_port, self._account_id, self._app_id, "test_test")
     log_print("request url ", get_rul)
     UnityHttpClient.get(get_rul, Functional.make_closure(self._on_http_rsp_login, self))
