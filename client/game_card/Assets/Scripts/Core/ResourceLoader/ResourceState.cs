@@ -48,6 +48,8 @@ namespace Utopia
                     return false;
                 if (req.isUnloaded)
                     return false;
+                if (req.isDone && req.isLoadFail)
+                    return false;
                 return true;
             }
         }

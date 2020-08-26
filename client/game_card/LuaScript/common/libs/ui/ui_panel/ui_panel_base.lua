@@ -45,7 +45,8 @@ function UIPanelBase:_load_panel_res()
             return
         end
         if not res_obs.isValid then
-            log_assert(false, "panel %s load resource fail, path is %s", self._panel_setting.panel_name, res_path)
+            log_error("panel %s load resource fail, path is %s", self._panel_setting.panel_name, res_path)
+            return
         end
         -- self.panel_state = Panel_State.loaded
         local panel_root = res_obs:Instantiate()

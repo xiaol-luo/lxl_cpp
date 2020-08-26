@@ -24,7 +24,7 @@ namespace Lua
                 }
                 if (null != onEnd)
                 {
-                    onEnd.Call(seq, refMono, i, s);
+                    SafeCall(onEnd, seq, refMono, i, s);
                 }
             });
         }
@@ -51,7 +51,7 @@ namespace Lua
             if (null != luaFn && null != App.ins)
             {
                 System.Action cb = () => {
-                    luaFn.Call();
+                    SafeCall(luaFn);
                 };
                 tid = App.ins.timer.Add(cb, delaySec, callTimes, callSpanSec);
             }
@@ -69,7 +69,7 @@ namespace Lua
         public static void ReloadScripts(string scriptTable)
         {
             LuaFunction loadFiles = App.ins.lua.Global.Get<LuaFunction>("reload_files");
-            loadFiles.Call(scriptTable);
+            SafeCall(loadFiles, scriptTable);
         }
 
         public static void AddLuaSearchPath(string path)
@@ -128,5 +128,20 @@ namespace Lua
 #endif
         }
 
+        public static object[] SafeCall(LuaFunction luaFn, params object[] fnParams)
+        {
+            if (null != luaFn)
+            {
+                try
+                {
+                    return luaFn.Call(fnParams);
+                }
+                catch (System.Exception ex)
+                {
+                    AppLog.Error("SafeCall Error: {0}", ex.ToString());
+                }
+            }
+            return null;
+        }
     }
 }

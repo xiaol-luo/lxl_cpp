@@ -31,7 +31,7 @@ namespace Utopia
             XLua.LuaFunction lua_fn = m_lua.Global.Get<XLua.LuaFunction>("release_lua_logics");
             if (null != lua_fn)
             {
-                lua_fn.Call();
+                Lua.LuaHelp.SafeCall(lua_fn);
             }
         }
 
@@ -40,7 +40,7 @@ namespace Utopia
             XLua.LuaFunction lua_fn = m_lua.Global.Get<XLua.LuaFunction>("on_native_drive_update");
             if (null != lua_fn)
             {
-                lua_fn.Call();
+                Lua.LuaHelp.SafeCall(lua_fn);
             }
         }
 

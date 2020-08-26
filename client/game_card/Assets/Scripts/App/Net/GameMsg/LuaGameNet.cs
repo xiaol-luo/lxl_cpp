@@ -27,7 +27,7 @@ namespace Utopia
         {
             if (null != m_closeCb)
             {
-                m_closeCb.Call(errno, errMsg);
+                Lua.LuaHelp.SafeCall(m_closeCb, errno, errMsg);
             }
         }
 
@@ -35,7 +35,7 @@ namespace Utopia
         {
             if (null != m_openCb)
             {
-                m_openCb.Call(isSucc);
+                Lua.LuaHelp.SafeCall(m_openCb, isSucc);
             }
         }
 
@@ -45,7 +45,7 @@ namespace Utopia
             {
                 byte[] newBytes = new byte[dataLen];
                 Array.Copy(data, dataBegin, newBytes, 0, dataLen);
-                m_recvMsgCb.Call(protocolId, newBytes, dataLen);
+                Lua.LuaHelp.SafeCall(m_recvMsgCb, protocolId, newBytes, dataLen);
             }
         }
     }

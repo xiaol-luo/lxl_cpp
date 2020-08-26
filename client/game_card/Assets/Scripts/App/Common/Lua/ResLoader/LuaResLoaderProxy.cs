@@ -23,10 +23,7 @@ namespace Lua
         {
             return m_loaderProxy.AsyncLoadAsset(path, (string resPath, ResourceObserver ob) =>
             {
-                if (null != luaFn)
-                {
-                    luaFn.Call(resPath, ob);
-                }
+                LuaHelp.SafeCall(luaFn, resPath, ob);
             });
         }
         public ResourceObserver CoLoadAsset(string path)
@@ -48,7 +45,7 @@ namespace Lua
             m_loaderProxy.AsyncLoadScene(path, isAddition, (ResourceScene.LoadResult ret, string resPath) => {
                 if (null != luaFn)
                 {
-                    luaFn.Call(ret, resPath);
+                    Lua.LuaHelp.SafeCall(luaFn, ret, resPath);
                 }
             });
         }
