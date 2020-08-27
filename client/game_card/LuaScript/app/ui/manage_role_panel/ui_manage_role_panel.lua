@@ -66,24 +66,24 @@ end
 function UIManageRolePanel:_on_open(panel_data)
     UIManageRolePanel.super._on_open(self, panel_data)
 
-    log_info("UIManageRolePanel:on_show")
+    -- log_info("UIManageRolePanel:on_show")
 end
 
 function UIManageRolePanel:_on_enable()
     UIManageRolePanel.super._on_enable(self)
-    log_info("UIManageRolePanel:_on_enable")
+    -- log_info("UIManageRolePanel:_on_enable")
     -- self.ml_event_subscriber:release_all()
 end
 
 function UIManageRolePanel:_on_disable()
     UIManageRolePanel.super._on_disable(self)
-    log_info("UIManageRolePanel:_on_disable")
+    -- log_info("UIManageRolePanel:_on_disable")
     -- self.ml_event_subscriber:release_all()
 end
 
 function UIManageRolePanel:_on_release()
     UIManageRolePanel.super._on_release(self)
-    log_info("UIManageRolePanel:on_release")
+    -- log_info("UIManageRolePanel:on_release")
     -- self.ml_event_subscriber:release_all()
 end
 
@@ -92,20 +92,15 @@ function UIManageRolePanel:_on_click_role_list_item(item_data)
 end
 
 function UIManageRolePanel:_on_click_gate_cnn_btn()
-    log_print("UIManageRolePanel:_on_click_gate_cnn_btn 1")
     if not self._gate_net:is_ready() then
 
     end
 
-    log_print("UIManageRolePanel:_on_click_gate_cnn_btn 2")
     self._gate_net:disconnect()
-    log_print("UIManageRolePanel:_on_click_gate_cnn_btn 3")
     self._gate_net:connect()
-    log_print("UIManageRolePanel:_on_click_gate_cnn_btn 4")
 end
 
 function UIManageRolePanel:_on_click_re_login_btn()
-    log_print("UIManageRolePanel:_on_click_re_login_btn")
     self._platform_net:logout()
     self._login_net:logout()
     self._gate_net:disconnect()
@@ -121,7 +116,6 @@ function UIManageRolePanel:_on_click_create_role_btn()
 end
 
 function UIManageRolePanel:_on_click_launch_role_btn()
-    log_print("UIManageRolePanel:_on_click_launch_role_btn")
     if self._gate_net:is_ready() and self._selected_role_id then
         self._app.data_mgr.game_user:launch_role(self._selected_role_id)
     else
@@ -139,7 +133,6 @@ function UIManageRolePanel:_update_ui()
 end
 
 function UIManageRolePanel:_update_gate_state_txt()
-    log_print("UIManageRolePanel:_update_gate_state_txt")
     local ret_txt = ""
     if self._gate_net:is_ready() then
         ret_txt = "is_ready"

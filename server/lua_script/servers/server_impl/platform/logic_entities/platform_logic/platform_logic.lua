@@ -49,7 +49,7 @@ function PlatformLogic:_http_rsp_help(cnn_id, body)
     if is_table(body) then
         body_str = lua_json.encode(body)
     end
-    Net.send(cnn_id, gen_http_rsp_content(200, "ok", body_str))
+    Net.send(cnn_id, gen_http_rsp_content(200, Http_OK, body_str))
 end
 
 ---@param from_cnn_id number

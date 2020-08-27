@@ -85,7 +85,7 @@ end
 
 
 function GateLogic:_on_http_rsp_vertity_token(gate_client, cb_fn, http_ret)
-    log_print("_on_http_rsp_vertity_token ", http_ret)
+    -- log_print("_on_http_rsp_vertity_token ", http_ret)
     local error_num = Error_None
     if Http_OK == http_ret.state then
         local rsp_data = lua_json.decode(http_ret.body)

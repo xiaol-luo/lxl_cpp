@@ -35,7 +35,7 @@ function GamePlatformNetEditor:login()
 end
 
 function GamePlatformNetEditor:_on_http_rsp_login(http_error, rspContent, heads_map)
-    log_print("GamePlatformNetEditor:_on_http_rsp_login", http_error, rspContent)
+    -- log_print("GamePlatformNetEditor:_on_http_rsp_login", http_error, rspContent)
     if http_error then
         log_print("GamePlatformNetEditor http_error is ", http_error)
         self:_set_is_ready(false, http_error)

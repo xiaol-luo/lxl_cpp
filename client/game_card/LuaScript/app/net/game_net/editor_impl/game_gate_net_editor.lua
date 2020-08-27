@@ -141,7 +141,7 @@ function GameGateNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes, 
         return
     end
 
-    log_print("GameGateNetEditor:on_event_net_recv_msg", pto_id, is_ok, msg)
+    -- log_print("GameGateNetEditor:on_event_net_recv_msg", pto_id, is_ok, msg)
     if Login_Pid.rsp_login_gate == pto_id then
         local old_is_ready = self:is_ready()
         self._error_num = msg.error_num
@@ -152,7 +152,6 @@ function GameGateNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes, 
         return
     end
 
-    log_print("GameGateNetEditor:on_event_net_recv_msg 222", pto_id, is_ok, msg)
     self._net_mgr:fire(pto_id, pto_id, msg)
 end
 

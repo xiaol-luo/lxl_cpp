@@ -35,7 +35,9 @@ function make_http_query_url(host, method, params)
     return query_url
 end
 
+Http_OK = "OK"
+
 ---@param rsp_state string
 function is_rsp_ok(rsp_state)
-    return "ok" == string.lower(rsp_state)
+    return Http_OK == string.upper(rsp_state)
 end

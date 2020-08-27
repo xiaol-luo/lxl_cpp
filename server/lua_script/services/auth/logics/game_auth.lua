@@ -48,14 +48,14 @@ end
 
 function GameAuth:index(from_cnn_id, method, req_url, kv_params, body)
     log_debug("index %s", req_url)
-    local rsp_content = gen_http_rsp_content(200, "OK", "", {})
+    local rsp_content = gen_http_rsp_content(200, Http_OK, "", {})
     Net.send(from_cnn_id, rsp_content)
     Net.close(from_cnn_id)
 end
 
 local rsp_client = function(cnn_id, tb)
     local body_str = rapidjson.encode(tb)
-    Net.send(cnn_id, gen_http_rsp_content(200, "OK", body_str))
+    Net.send(cnn_id, gen_http_rsp_content(200, Http_OK, body_str))
     Net.close(cnn_id)
 end
 

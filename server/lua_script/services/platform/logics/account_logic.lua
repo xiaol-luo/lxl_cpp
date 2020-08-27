@@ -36,7 +36,7 @@ function AccountLogic:get_http_handle_fns()
 end
 
 function AccountLogic:index(from_cnn_id, method, req_url, kv_params, body)
-    local rsp_content = gen_http_rsp_content(200, "OK", kv_params["xxx"], {})
+    local rsp_content = gen_http_rsp_content(200, Http_OK, kv_params["xxx"], {})
     Net.send(from_cnn_id, rsp_content)
     Net.close(from_cnn_id)
     -- log_debug("AccountLogic:index reach")
@@ -44,7 +44,7 @@ end
 
 local rsp_client = function(cnn_id, tb)
     local body_str = rapidjson.encode(tb)
-    Net.send(cnn_id, gen_http_rsp_content(200, "OK", body_str))
+    Net.send(cnn_id, gen_http_rsp_content(200, Http_OK, body_str))
     Net.close(cnn_id)
 end
 

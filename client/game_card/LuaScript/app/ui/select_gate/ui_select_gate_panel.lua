@@ -68,41 +68,27 @@ end
 
 function UISelectGatePanel:_on_open(panel_data)
     UISelectGatePanel.super._on_open(self, panel_data)
-
-    log_info("UISelectGatePanel:on_show")
-
-    --self.ml_event_subscriber:subscribe(Event_Set__Login_Cnn_Logic.login_done, Functional.make_closure(self.on_event_login_cnn_done, self))
-    --self.ml_event_subscriber:subscribe(Event_Set__Login_Cnn_Logic.open, Functional.make_closure(self.on_event_login_cnn_open, self))
-    --self.ml_event_subscriber:subscribe(Event_Set__Login_Cnn_Logic.close, Functional.make_closure(self.on_event_login_cnn_close, self))
 end
 
 function UISelectGatePanel:_on_enable()
     UISelectGatePanel.super._on_enable(self)
-    log_info("UISelectGatePanel:_on_enable")
-    -- self.ml_event_subscriber:release_all()
 end
 
 function UISelectGatePanel:_on_disable()
     UISelectGatePanel.super._on_disable(self)
     log_info("UISelectGatePanel:_on_disable")
-    -- self.ml_event_subscriber:release_all()
 end
 
 function UISelectGatePanel:_on_release()
     UISelectGatePanel.super._on_release(self)
-    log_info("UISelectGatePanel:on_release")
-    -- self.ml_event_subscriber:release_all()
 end
 
 function UISelectGatePanel:_on_click_gate_data_item(gate_data)
-    log_print("UISelectGatePanel:_on_click_gate_data_item", gate_data)
     self._ip_if:set_text(gate_data.gate_ip)
     self._port_if:set_text(gate_data.gate_port)
 end
 
 function UISelectGatePanel:on_click_confirm_btn()
-    log_print("UISelectGatePanel:on_click_confirm_btn")
-
     local gate_port = tonumber(self._port_if:get_text())
     if not gate_port then
         self:_notify_error(string.format("gate_port is not valid, %s", self._port_if:get_text()))
@@ -114,7 +100,6 @@ function UISelectGatePanel:on_click_confirm_btn()
         return
     end
 
-    -- self._game_login_net:logout()
     self._game_gate_net._gate_ip = gate_ip
     self._game_gate_net._gate_port = gate_port
     self._game_gate_net:connect()
@@ -124,33 +109,6 @@ function UISelectGatePanel:_notify_error(error_msg)
     self._notify_txt:set_text(error_msg)
 end
 
-function UISelectGatePanel:on_click_reset_btn()
-    --log_info("UISelectGatePanel:on_click_reset_btn")
-    --local login_cnn_logic = g_ins.login_cnn_logic
-    --login_cnn_logic:reset(self.ip_txt:get_text(), tonumber(self.port_txt:get_text()))
-    --self.notify_txt:set_text
-end
-
-function UISelectGatePanel:on_event_login_cnn_done(cnn_logic, error_code, user_info)
-    --log_info("UISelectGatePanel:on_event_login_cnn_done")
-    --self.user_info = user_info
-    --if 0 ~= error_code then
-    --    self.notify_txt:set_text(string.format("get user info from login game fail. error_code is %s", error_code))
-    --end
-end
-
-function UISelectGatePanel:on_event_login_cnn_open(cnn_logic, is_succ)
-    log_info("UISelectGatePanel:on_event_login_cnn_open %s", is_succ)
-    if not is_succ then
-        self.notify_txt:set_text("connect login server fail")
-    end
-end
-
-function UISelectGatePanel:on_event_login_cnn_close(cnn_logic, error_code, error_msg)
-    if not cnn_logic:is_done() and Error_None ~= error_code then
-        self.notify_txt:set_text(string.format( "login connection closed unexpected ! error_msg : %s ", error_msg))
-    end
-end
 
 
 

@@ -105,7 +105,7 @@ function LoginGameMgr:process_req_login_game(netid, pid, msg)
             local url = string.format("%s/%s?%s", host, "login_auth", table.concat(auth_param_strs, "&"))
             local co_ok, http_ret = HttpClient.co_get(url, {})
             local rsp_state, body_str = http_ret.state, http_ret.body
-            if not co_ok or "OK" ~= rsp_state then
+            if not co_ok or not is_rsp_ok(rsp_state) then
                 return Error.Login_Game.auth_login_fail
             end
             auth_login_ret = rapidjson.decode(body_str)

@@ -126,7 +126,7 @@ end
 function UIPanelMgr:_forward_panel_events(combine_event_name, event_name, panel, ...)
     self:fire(event_name, panel, ...)
     self:fire(combine_event_name, panel, ...)
-    log_print("UIPanelMgr:_forward_panel_events ", combine_event_name, event_name, ...)
+    -- log_print("UIPanelMgr:_forward_panel_events ", combine_event_name, event_name, ...)
 end
 
 function UIPanelMgr:_bind_panel_events(panel_data, is_bind)

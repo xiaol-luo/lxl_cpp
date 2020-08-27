@@ -54,8 +54,6 @@ void HttpReqCnn::OnClose(int num)
 
 void HttpReqCnn::OnOpen(int error_num)
 {
-	// log_debug("HttpReqCnn::OnOpen {} {}", m_netid, error_num);
-
 	if (0 != error_num)
 	{
 		this->TryExecuteRspFn(Rsp_State_Cnn_Open_Fail, fmt::format("{0} {1}", Rsp_State_Cnn_Open_Fail, error_num));
@@ -64,7 +62,7 @@ void HttpReqCnn::OnOpen(int error_num)
 	{
 		m_process_event_fn(this, eActionType_Open, error_num);
 	}
-	else
+	if (0 == error_num)
 	{
 		auto sp_cnn_map = m_cnn_map.lock();
 		if (sp_cnn_map)

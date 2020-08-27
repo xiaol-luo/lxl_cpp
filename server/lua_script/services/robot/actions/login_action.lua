@@ -139,7 +139,7 @@ function LoginAction:robot_main_logic(co)
     end
     local rsp_state, body_str = http_ret.state, http_ret.body
     log_debug("login_platform body_str %s %s",rsp_state,  body_str)
-    if "OK" ~= rsp_state then
+    if not is_rsp_ok(rsp_state) then
         return
     end
     local platform_login_ret = rapidjson.decode(body_str)

@@ -106,7 +106,7 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
         end
         ---@type HttpClientRspResult
         local http_rsp_ret = tmp_ret
-        if "ok" ~= http_rsp_ret.state then
+        if not is_rsp_ok(http_rsp_ret.state) then
             local error_msg = string.format("query_platform fail, http response state is %s", http_rsp_ret.state)
             reply_client_with_error(30, error_msg)
             return
@@ -225,6 +225,6 @@ function AuthLogic:_http_rsp_help(cnn_id, body)
     if is_table(body) then
         body_str = lua_json.encode(body)
     end
-    Net.send(cnn_id, gen_http_rsp_content(200, "OK", body_str))
+    Net.send(cnn_id, gen_http_rsp_content(200, Http_OK, body_str))
     Net.close(cnn_id)
 end

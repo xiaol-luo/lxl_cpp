@@ -18,11 +18,6 @@ function HttpService:start(port)
     self.listener:set_open_cb(Functional.make_closure(HttpService.on_listener_open, self))
     self.listener:set_close_cb(Functional.make_closure(HttpService.on_listener_close, self))
     self.listener_netid = Net.listen("0.0.0.0", port, self.listener)
-    --[[
-    self:set_handle_fn("/index", function (...)
-        return gen_http_rsp_content(200, "OK", "hello world", nil)
-    end)
-    ]]
     return 0 ~= self.listener_netid
 end
 
