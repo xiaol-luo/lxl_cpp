@@ -68,18 +68,6 @@ function GameLoginNetEditor:get_error_msg()
     return self._error_msg
 end
 
-function GameLoginNetEditor:get_user_id()
-    return self._user_id
-end
-
-function GameLoginNetEditor:get_token()
-    return self._token, self._token_timestamp
-end
-
-function GameLoginNetEditor:get_auth_host()
-    return self._auth_ip, self._auth_port
-end
-
 function GameLoginNetEditor:_on_event_net_open(connect_op_seq, is_succ)
     if self._connect_op_seq ~= connect_op_seq then
         return
@@ -179,6 +167,19 @@ function GameLoginNetEditor:_set_is_ready(is_ready, error_msg)
     end
 end
 
+-- get fields
+
+function GameLoginNetEditor:get_user_id()
+    return self._user_id
+end
+
+function GameLoginNetEditor:get_token()
+    return self._token, self._token_timestamp
+end
+
+function GameLoginNetEditor:get_auth_host()
+    return self._auth_ip, self._auth_port
+end
 
 
 

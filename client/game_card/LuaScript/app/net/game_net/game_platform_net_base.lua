@@ -55,6 +55,7 @@ function GamePlatformNetBase:notify_login_start()
     self._net_mgr:fire(Game_Net_Event.platform_login_start)
 end
 
+-- get fields
 
 function GamePlatformNetBase:get_platform_name()
 

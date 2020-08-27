@@ -75,6 +75,8 @@ function GamePlatformNetEditor:get_error_msg()
     return self._error_msg
 end
 
+-- get fields
+
 function GamePlatformNetEditor:get_platform_name()
     return self._platform_name
 end

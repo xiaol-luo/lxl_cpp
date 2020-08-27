@@ -55,9 +55,9 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
     for  k, v in pairs(kv_tb) do
         table.insert(params_tb, string.format("%s=%s", k, v))
     end
-    local Auth_Ip = "127.0.0.1"
-    local Auth_Port = 32002
-    local query_url = string.format("http://%s:%s/login_game?%s", Auth_Ip, Auth_Port, table.concat(params_tb, "&"))
+    local auth_ip = self.server.init_setting.auth_http_ip
+    local auth_port = self.server.init_setting.auth_http_port
+    local query_url = string.format("http://%s:%s/login_game?%s", auth_ip, auth_port, table.concat(params_tb, "&"))
     HttpClient.get(query_url, function(http_ret)
         -- log_print("LoginLogic:_on_msg_req_login_game", http_ret)
         local error_num = Error_None
@@ -69,8 +69,8 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
                     token = rsp_data.user_token,
                     timestamp = tostring(rsp_data.user_token_timestamp),
                     user_id = rsp_data.user_id,
-                    auth_ip = Auth_Ip,
-                    auth_port = Auth_Port,
+                    auth_ip = auth_ip,
+                    auth_port = auth_port,
                 })
             else
                 error_num = rsp_data.error_num

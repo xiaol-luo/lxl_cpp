@@ -55,6 +55,8 @@ function GameLoginNetBase:notify_login_start()
     self._net_mgr:fire(Game_Net_Event.platform_login_start)
 end
 
+-- get fields
+
 function GameLoginNetBase:get_user_id()
 
 end

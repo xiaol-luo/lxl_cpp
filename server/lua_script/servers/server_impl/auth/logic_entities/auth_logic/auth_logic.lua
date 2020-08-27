@@ -93,7 +93,9 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
         local query_params = {}
         table.insert(query_params, string.format("%s=%s", "token", platform_token))
         table.insert(query_params, string.format("%s=%s", "timestamp", platform_token_timestamp))
-        local query_url = string.format("%s%s?%s", Auth_Const.platform_http_host, "/verity_token", table.concat(query_params, "&"))
+        local platform_http_ip = self.server.init_setting.platform_http_ip
+        local platform_http_port = self.server.init_setting.platform_http_port
+        local query_url = string.format("%s:%s%s?%s", platform_http_ip, platform_http_port, "/verity_token", table.concat(query_params, "&"))
         local co_ok, tmp_ret = HttpClient.co_get(query_url, {})
         if not co_ok then
             ---@type HttpClientEventResult

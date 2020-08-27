@@ -20,4 +20,8 @@
 	<advertise_client_port>31001</advertise_client_port>
 	<advertise_http_ip>127.0.0.1</advertise_http_ip>
 	<advertise_http_port>31002</advertise_http_port>
+
+	<auth_http_ip>127.0.0.1</auth_http_ip>
+	<auth_http_port>32002</auth_http_port>
+
 </root>

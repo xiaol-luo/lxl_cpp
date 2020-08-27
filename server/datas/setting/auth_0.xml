@@ -27,4 +27,7 @@
 	<advertise_client_port>32001</advertise_client_port>
 	<advertise_http_ip>127.0.0.1</advertise_http_ip>
 	<advertise_http_port>32002</advertise_http_port>
+
+	<platform_http_ip>127.0.0.1</platform_http_ip>
+	<platform_http_port>30002</platform_http_port>
 </root>

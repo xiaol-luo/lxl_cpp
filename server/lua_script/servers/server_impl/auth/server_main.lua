@@ -52,6 +52,11 @@ function AuthServer:_on_init()
         self.mongo_setting_uuid = mongo_setting
     end
 
+    if not self.init_setting.platform_http_ip or not self.init_setting.platform_http_port then
+        log_error("platform http host invalid")
+        return false
+    end
+
     return true
 end
 

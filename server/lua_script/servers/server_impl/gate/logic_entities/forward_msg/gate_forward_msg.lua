@@ -26,7 +26,7 @@ end
 
 function GateForwardMsg:_on_stop()
     GateForwardMsg.super._on_stop(self)
-    self._gate_client_mgr:set_msg_handler(Login_Pid.req_forward_game_msg, nil)
+    self._gate_client_mgr:set_msg_handler(Forward_Msg_Pid.req_forward_game_msg, nil)
 end
 
 function GateForwardMsg:_on_release()

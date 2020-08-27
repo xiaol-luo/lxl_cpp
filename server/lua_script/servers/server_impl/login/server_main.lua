@@ -29,6 +29,12 @@ function LoginServer:_on_init()
         self.mongo_setting_login:parse_from(xml_mongo_element)
     end
     if not self.mongo_setting_login or not self.mongo_setting_login.host then
+        log_error("mongo setting invalid")
+        return false
+    end
+
+    if not self.init_setting.auth_http_ip or not self.init_setting.auth_http_port then
+        log_error("auth http host invalid")
         return false
     end
 
