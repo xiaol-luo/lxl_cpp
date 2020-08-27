@@ -33,14 +33,16 @@ void HttpReqCnn::OnClose(int num)
 	int error_num = num;
 	if (m_is_message_completed)
 		error_num = 0;
-
-	if (nullptr != m_process_event_fn)
-	{
-		m_process_event_fn(this, eActionType_Close, error_num);
-	}
+	
 	if (0 != error_num)
 	{
 		log_error("HttpReqCnn::OnClose {}, host={}:{}", error_num, m_host, m_port);
+		m_rsp_body->PopBuff(m_rsp_body->Size(), nullptr);
+		this->TryExecuteRspFn(Rsp_State_Cnn_Break, fmt::format("{0} {1}", Rsp_State_Cnn_Break, m_parser->http_errno));
+	}
+	if (nullptr != m_process_event_fn)
+	{
+		m_process_event_fn(this, eActionType_Close, error_num);
 	}
 	auto ap_cnn_map = m_cnn_map.lock();
 	if (ap_cnn_map)
@@ -54,13 +56,13 @@ void HttpReqCnn::OnOpen(int error_num)
 {
 	// log_debug("HttpReqCnn::OnOpen {} {}", m_netid, error_num);
 
+	if (0 != error_num)
+	{
+		this->TryExecuteRspFn(Rsp_State_Cnn_Open_Fail, fmt::format("{0} {1}", Rsp_State_Cnn_Open_Fail, error_num));
+	}
 	if (nullptr != m_process_event_fn)
 	{
 		m_process_event_fn(this, eActionType_Open, error_num);
-	}
-
-	if (0 != error_num)
-	{
 	}
 	else
 	{
@@ -100,6 +102,10 @@ void HttpReqCnn::OnRecvData(char * data, uint32_t len)
 	}
 	if (m_parser->http_errno)
 	{
+		{
+			m_rsp_body->PopBuff(m_rsp_body->Size(), nullptr);
+			this->TryExecuteRspFn(Rsp_State_Http_Parse_Fail, fmt::format("{0} {1}", Rsp_State_Http_Parse_Fail, m_parser->http_errno));
+		}
 		if (nullptr != m_process_event_fn)
 		{
 			m_process_event_fn(this, eActionType_Parse, m_parser->http_errno);
@@ -186,11 +192,7 @@ void HttpReqCnn::ProcessRsp()
 	{
 		m_process_event_fn(this, eActionType_Parse, 0);
 	}
-	if (nullptr != m_process_rsp_fn)
-	{
-		m_process_rsp_fn(this, m_rsp_state, m_rsp_heads, 
-			std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()));
-	}
+	this->TryExecuteRspFn(m_rsp_state, "");
 	net_close(m_netid);
 }
 
@@ -328,4 +330,20 @@ void HttpReqCnn::ReleaseAll()
 	delete m_req_data_buff; m_req_data_buff = nullptr;
 	mempool_free(m_parser); m_parser = nullptr;
 	mempool_free(m_parser_setting); m_parser_setting = nullptr;
+}
+
+void HttpReqCnn::TryExecuteRspFn(const std::string & rsp_state, const std::string &extra_body_str)
+{
+	if (m_already_execute_rsp_fn)
+		return;
+	m_already_execute_rsp_fn = true;
+
+	if (m_process_rsp_fn)
+	{
+		if (!extra_body_str.empty())
+		{
+			m_rsp_body->Append(extra_body_str);
+		}
+		m_process_rsp_fn(this, rsp_state, m_rsp_heads, std::string(m_rsp_body->HeadPtr(), m_rsp_body->Size()));
+	}
 }

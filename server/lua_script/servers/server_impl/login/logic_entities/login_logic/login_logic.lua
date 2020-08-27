@@ -61,7 +61,7 @@ function LoginLogic:_on_msg_req_login_game(login_client, pid, msg)
     HttpClient.get(query_url, function(http_ret)
         -- log_print("LoginLogic:_on_msg_req_login_game", http_ret)
         local error_num = Error_None
-        if "OK" == http_ret.state then
+        if Http_OK == http_ret.state then
             local rsp_data = lua_json.decode(http_ret.body)
             if Error_None == rsp_data.error_num then
                 login_client:send_msg(Login_Pid.rsp_login_user, {

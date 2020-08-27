@@ -43,6 +43,12 @@ public:
 		eEventType /*error_type*/,
 		int /*error_num*/
 		)>;
+
+	std::string Rsp_State_OK = "OK";
+	std::string Rsp_State_Cnn_Open_Fail = "Connection_Open_Fail";
+	std::string Rsp_State_Cnn_Break = "Connection_Break";
+	std::string Rsp_State_Http_Parse_Fail = "Http_Parse_Fail";
+
 public:
 	HttpReqCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>> cnn_map);
 	virtual ~HttpReqCnn();
@@ -77,6 +83,7 @@ protected:
 	http_parser * m_parser = nullptr;
 	http_parser_settings *m_parser_setting = nullptr;
 	bool m_is_message_completed = false;
+	bool m_already_execute_rsp_fn = false;
 	FnProcessRsp m_process_rsp_fn = nullptr;
 	FnProcessEvent m_process_event_fn = nullptr;
 	NetBuffer *m_recv_buff = nullptr;
@@ -106,4 +113,5 @@ protected:
 	int m_port = 0;
 
 	void ReleaseAll();
+	void TryExecuteRspFn(const std::string &rsp_state, const std::string &extra_body_str);
 };
