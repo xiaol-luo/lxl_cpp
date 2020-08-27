@@ -44,11 +44,6 @@ return {
     "app.logic.user.main_user",
 
     "app.net.net_mgr",
-    "app.net.cnn_logic_base",
-    "app.net.gate_cnn_logic",
-    "app.net.login_cnn_logic",
-    "app.net.fight_cnn_logic",
-
     "app.net.game_net.game_net_define",
     "app.net.game_net.game_platform_net_base",
     "app.net.game_net.game_login_net_base",
