@@ -11,6 +11,7 @@ Server_Role.World_Sentinel = "world_sentinel"
 Server_Role.Create_Role = "create_role"
 Server_Role.Auth = "auth"
 Server_Role.Platform = "platform"
+Server_Role.Match = "match"
 
 
 ---@class Server_Quit_State

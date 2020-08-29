@@ -311,12 +311,41 @@ function hotfix_file(file_path, old_env_tb)
     hotfix_chunk(old_env_tb, file_content, file_path)
 end
 
+
 function batch_hotfix_files(file_paths, old_env_tb)
-    for _, v in pairs(file_paths) do
-        hotfix_file(v, old_env_tb)
-    end
+    batch_hotfix_files_ex(file_paths, nil,  old_env_tb)
 end
 
+function batch_hotfix_files_ex(input_arg, prefix_path, old_env_tb)
+    if "table" == type(input_arg) then
+        for _, v in pairs(input_arg) do
+            if "table" == v then
+                local new_prefix_path = nil
+                if prefix_path then
+                    new_prefix_path = prefix_path
+                    if v.prefix then
+                        new_prefix_path = string.format("%s.%s", prefix_path, v.prefix)
+                    end
+                else
+                    new_prefix_path = v.prefix
+                end
+                batch_hotfix_files_ex(v.files, new_prefix_path, old_env_tb)
+            else
+                local file_path = v
+                if prefix_path then
+                    file_path = string.format("%s.%s", prefix_path, file_path)
+                end
+                hotfix_file(file_path, old_env_tb)
+            end
+        end
+    else
+        local file_path = input_arg
+        if prefix_path then
+            file_path = string.format("%s.%s", prefix_path, file_path)
+        end
+        hotfix_file(file_path, old_env_tb)
+    end
+end
 
 -- 下面的是为了处理用local定义类的情况
 function hotfix_require(file_path)

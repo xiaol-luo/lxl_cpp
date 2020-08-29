@@ -1,13 +1,32 @@
 
-function batch_require(...)
-    for _, v in pairs(...) do
-        local tp = type(v)
-        if "table" == tp then
-            batch_require(table.unpack(v))
+function batch_require(input_arg, prefix_path)
+    if "table" == type(input_arg) then
+        for _, v in pairs(input_arg) do
+            if "table" == type(v) then
+                local new_prefix_path = nil
+                if prefix_path then
+                    new_prefix_path = prefix_path
+                    if v.prefix then
+                        new_prefix_path = string.format("%s.%s", prefix_path, v.prefix)
+                    end
+                else
+                    new_prefix_path = v.prefix
+                end
+                batch_require(v.files, new_prefix_path)
+            else
+                local file_path = v
+                if prefix_path then
+                    file_path = string.format("%s.%s", prefix_path, file_path)
+                end
+                require(file_path)
+            end
         end
-        if "string" == tp then
-            require(v)
+    else
+        local file_path = input_arg
+        if prefix_path then
+            file_path = string.format("%s.%s", prefix_path, file_path)
         end
+        require(file_path)
     end
 end
 

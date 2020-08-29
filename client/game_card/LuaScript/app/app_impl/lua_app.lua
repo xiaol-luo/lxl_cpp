@@ -26,15 +26,8 @@ function LuaApp:ctor()
 end
 
 function LuaApp:init(arg)
-    local pre_require_files = require("app.app_impl.lua_app_pre_require_server_files")
-    for _, v in pairs(pre_require_files) do
-        require(v)
-    end
-
-    local pre_require_files = require("app.app_impl.lua_app_pre_require_files")
-    for _, v in pairs(pre_require_files) do
-        require(v)
-    end
+    batch_require(require("app.app_impl.lua_app_pre_require_server_files"))
+    batch_require(require("app.app_impl.lua_app_pre_require_files"))
 
     log_assert(self:init_proto_parser(), "init_proto_parser fail")
 
