@@ -1,7 +1,6 @@
 
 ---@class MatchServiceMgr: ServiceMgrBase
----@field db_uuid DBUuidService
----@field logics CreateRoleLogicService
+---@field logics MatchLogicService
 MatchServiceMgr = class("MatchServiceMgr", ServiceMgrBase)
 
 function MatchServiceMgr:ctor(server)

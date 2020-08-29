@@ -1,3 +1,14 @@
+ function path_combine(...)
+    ret = nil
+    for _, v in ipairs({...}) do
+        if nil == ret then
+            ret = v
+        else
+            ret = string.format("%s.%s", ret, v)
+        end
+    end
+    return ret
+end
 
 function batch_require(input_arg, prefix_path)
     if "table" == type(input_arg) then

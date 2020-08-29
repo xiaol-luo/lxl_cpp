@@ -98,7 +98,7 @@ function JoinClusterService:_try_apply_cluster_server_id()
                 }
             else
                 local Error_Key_Not_Found = 100
-                if 0 == ret.fail_code and Error_Key_Not_Found == ret.op_result.errorCode then
+                if ret.op_result and Error_Key_Not_Found == ret.op_result.errorCode then
                     self._cluster_server_id_prev_info = {
                         prev_idx = nil,
                         prev_value = nil,

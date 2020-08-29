@@ -12,6 +12,8 @@ Server_Role.Create_Role = "create_role"
 Server_Role.Auth = "auth"
 Server_Role.Platform = "platform"
 Server_Role.Match = "match"
+Server_Role.Room = "room"
+Server_Role.Fight = "fight"
 
 
 ---@class Server_Quit_State

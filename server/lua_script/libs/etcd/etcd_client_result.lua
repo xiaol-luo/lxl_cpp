@@ -3,8 +3,7 @@
 EtcdClientResult = EtcdClientResult or class("EtcdClientResult")
 
 function EtcdClientResult:ctor()
-    self.fail_event = nil
-    self.fail_code = 0
+    self.error_msg = nil
     self.op_result = nil
     self.result_node = nil
     self[Etcd_Const.Rsp_State] = nil
@@ -13,7 +12,7 @@ end
 ---@return boolean
 function EtcdClientResult:is_ok()
     local fail_msg = self:fail_msg()
-    if 0 ~= self.fail_code then
+    if self.error_msg then
         return false
     end
     if self.op_result and self.op_result.errorCode and 0 ~= self.op_result.errorCode then
@@ -24,8 +23,8 @@ end
 
 function EtcdClientResult:fail_msg()
     local fail_msg = nil
-    if self.fail_event then
-        fail_msg = self.fail_event
+    if self.error_msg then
+        fail_msg = self.error_msg
     else
         if self.op_result and self.op_result.message then
             fail_msg = self.op_result.message

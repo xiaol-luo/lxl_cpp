@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<zone>zone_0</zone>
-	<service>fight</service>
-	<idx>0</idx>
-	<all_service_config>setting/all_service_config.xml</all_service_config>
+	<server_role>fight</server_role>
+	<server_name>fight_0</server_name>
+
+	<etcd_server>
+		<element>for_make_array</element>
+		<element>
+			<name>service_discovery</name>
+			<host>http://127.0.0.1:8100</host>
+			<user>root</user>
+			<pwd>xiaolzz</pwd>
+		</element>
+	</etcd_server>
+
+	<advertise_peer_ip>127.0.0.1</advertise_peer_ip>
+	<advertise_peer_port>42000</advertise_peer_port>
+	<advertise_client_ip>127.0.0.1</advertise_client_ip>
+	<advertise_client_port>42001</advertise_client_port>
 </root>

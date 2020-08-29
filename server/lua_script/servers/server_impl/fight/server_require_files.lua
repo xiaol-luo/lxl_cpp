@@ -1,11 +1,10 @@
-
-local Server_Root_Path = "servers.server_impl.match"
+local Server_Root_Path = "servers.server_impl.fight"
 
 local service_files = {
     prefix = Server_Root_Path,
     files = {
-        "match_service_mgr",
-        "match_logic_service",
+        "fight_service_mgr",
+        "fight_logic_service",
     }
 }
 
@@ -13,7 +12,7 @@ local logic_entities_files = {
     prefix = path_combine(Server_Root_Path, "logic_entities"),
     files = {
         "logic_entity_def",
-        "match_mgr.match_mgr",
+        "fight_mgr.fight_mgr",
     }
 }
 
