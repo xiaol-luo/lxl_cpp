@@ -39,7 +39,7 @@ protected:
 	};
 	std::unordered_map<uint64_t, CnnData> m_cnn_datas;
 
-	void HandleHttpRsp(HttpReqCnn *cnn,
+	void HandleHttpRsp(HttpReqCnn *cnn, int error_num,
 		const std::string &rsp_state, const std::unordered_map<std::string, std::string> &heads,
 		std::string body);
 

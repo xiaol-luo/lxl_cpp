@@ -41,12 +41,13 @@ TimerID lua_timer_firm(sol::main_protected_function cb_fn, int64_t execute_span_
 
 HttpReqCnn::FnProcessRsp safe_http_req_process_rsp_cb(sol::main_protected_function lua_fn)
 {
-	HttpReqCnn::FnProcessRsp ret = [lua_fn](HttpReqCnn * self, std::string rsp_state,
+	HttpReqCnn::FnProcessRsp ret = [lua_fn](HttpReqCnn * self, int error_num, std::string rsp_state,
 		const std::unordered_map<std::string, std::string> &heads, const std::string &body) {
 		lua_State *ls = lua_fn.lua_state();
 		sol::state_view lsv(ls);
 		sol::main_table t = lsv.create_table_with(
 			"id", (int64_t)self->GetPtr(),
+			"error_num", error_num,
 			"state", rsp_state,
 			"heads", sol::as_table(heads),
 			"body", body

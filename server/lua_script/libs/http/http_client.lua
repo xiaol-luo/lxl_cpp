@@ -1,6 +1,7 @@
 
 ---@class HttpClientRspResult
 ---@field id string
+---@field error_num number
 ---@field state string
 ---@field heads table<string, string>
 ---@field body string

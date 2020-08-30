@@ -45,19 +45,21 @@ end
 
 ---@param ret HttpClientEventResult
 function EtcdClientOpBase:_handle_event_cb(ret)
-
+    -- log_print("EtcdClientOpBase:_handle_event_cb ", ret)
 end
 
----@param ret HttpClientRspResult
-function EtcdClientOpBase:_handle_result_cb(ret)
+---@param http_ret HttpClientRspResult
+function EtcdClientOpBase:_handle_result_cb(http_ret)
     if not self.cb_fn then
         return
     end
 
-    local op_id, rsp_state, heads_map, body_str = ret.id, ret.state, ret.heads, ret.body
+    local op_id, rsp_state, heads_map, body_str = http_ret.id, http_ret.state, http_ret.heads, http_ret.body
     local ret = EtcdClientResult:new()
     ret[Etcd_Const.Rsp_State] = rsp_state
-    if not is_rsp_ok(rsp_state) then
+
+    ret.http_error_num = http_ret.error_num
+    if Error_None ~= ret.http_error_num then
         ret._error_msg = rsp_state .. body_str
     else
         if body_str then
@@ -75,7 +77,6 @@ function EtcdClientOpBase:_handle_result_cb(ret)
             end
         end
     end
-
     self.cb_fn(op_id, self, ret)
 end
 

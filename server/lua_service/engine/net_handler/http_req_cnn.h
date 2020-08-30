@@ -27,6 +27,7 @@ public:
 	};		
 	using FnProcessRsp = std::function<void(
 		HttpReqCnn * /*self*/,
+		int/*error_num*/,
 		std::string /*rsp_state*/,
 		const std::unordered_map<std::string, std::string> &/*heads*/,
 		const std::string &/*body*/
@@ -44,10 +45,15 @@ public:
 		int /*error_num*/
 		)>;
 
-	std::string Rsp_State_OK = "OK";
-	std::string Rsp_State_Cnn_Open_Fail = "Connection_Open_Fail";
-	std::string Rsp_State_Cnn_Break = "Connection_Break";
-	std::string Rsp_State_Http_Parse_Fail = "Http_Parse_Fail";
+	const std::string Rsp_State_OK = "OK";
+	const std::string Rsp_State_Cnn_Open_Fail = "Connection_Open_Fail";
+	const std::string Rsp_State_Cnn_Break = "Connection_Break";
+	const std::string Rsp_State_Http_Parse_Fail = "Http_Parse_Fail";
+	const int Error_None = 0;
+	const int Error_Cnn_Open_Fail = -10;
+	const int Error_Cnn_Break = -20;
+	const int Error_Http_Parse_Fail = -30;
+
 
 public:
 	HttpReqCnn(std::weak_ptr<NetHandlerMap<INetConnectHandler>> cnn_map);
@@ -113,5 +119,5 @@ protected:
 	int m_port = 0;
 
 	void ReleaseAll();
-	void TryExecuteRspFn(const std::string &rsp_state, const std::string &extra_body_str);
+	void TryExecuteRspFn(int error_num, const std::string &rsp_state, const std::string &extra_body_str);
 };

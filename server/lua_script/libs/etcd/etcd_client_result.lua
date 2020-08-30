@@ -4,6 +4,7 @@
 EtcdClientResult = EtcdClientResult or class("EtcdClientResult")
 
 function EtcdClientResult:ctor()
+    self.http_error_num = Error_None
     self._error_msg = nil
     self.op_result = nil
     self.result_node = nil
@@ -12,11 +13,10 @@ end
 
 ---@return boolean
 function EtcdClientResult:is_ok()
-    local error_msg = self:error_msg()
-    if error_msg then
+    if Error_None ~= self.http_error_num then
         return false
     end
-    if self.op_result and self.op_result.errorCode and 0 ~= self.op_result.errorCode then
+    if self.op_result and self.op_result.errorCode and Error_None ~= self.op_result.errorCode then
         return false
     end
     return true
