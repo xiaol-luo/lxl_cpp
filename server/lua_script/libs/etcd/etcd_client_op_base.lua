@@ -58,7 +58,7 @@ function EtcdClientOpBase:_handle_result_cb(ret)
     local ret = EtcdClientResult:new()
     ret[Etcd_Const.Rsp_State] = rsp_state
     if not is_rsp_ok(rsp_state) then
-        ret.error_msg = rsp_state .. body_str
+        ret._error_msg = rsp_state .. body_str
     else
         if body_str then
             ret:prase_op_result(body_str)

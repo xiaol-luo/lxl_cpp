@@ -39,5 +39,8 @@ Http_OK = "OK"
 
 ---@param rsp_state string
 function is_rsp_ok(rsp_state)
+    if nil == rsp_state then
+        return false
+    end
     return Http_OK == string.upper(rsp_state)
 end

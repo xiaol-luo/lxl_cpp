@@ -104,8 +104,8 @@ function JoinClusterService:_try_apply_cluster_server_id()
                         prev_value = nil,
                     }
                 end
-                if ret:fail_msg() then
-                    log_warn("JoinClusterService:_try_apply_cluster_server_id get fail, because %s", ret:fail_msg())
+                if ret:error_msg() then
+                    log_warn("JoinClusterService:_try_apply_cluster_server_id get fail, because %s", ret:error_msg())
                 end
             end
             -- log_print("get cluster_id op ret", op_id, ret)
@@ -128,8 +128,8 @@ function JoinClusterService:_try_apply_cluster_server_id()
                     else
                         self._cluster_server_id_prev_info = nil
                     end
-                    if ret:fail_msg() then
-                        log_warn("JoinClusterService apply cluster id ret=%s, fail_msg=%s", ret:is_ok(), ret:fail_msg())
+                    if ret:error_msg() then
+                        log_warn("JoinClusterService apply cluster id ret=%s, error_msg=%s", ret:is_ok(), ret:error_msg())
                     else
                         log_info("JoinClusterService apply cluster id ret=%s", ret:is_ok())
                     end
