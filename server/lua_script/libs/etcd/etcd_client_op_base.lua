@@ -11,6 +11,7 @@ function EtcdClientOpBase:ctor()
     self.http_heads["Content-Type"] = "application/x-www-form-urlencoded"
     self.cb_fn = nil -- function(op_id, op, op_result) end
     self.op_id = nil
+    self.running_op_id = nil
 end
 
 function EtcdClientOpBase:get_http_url()
@@ -27,6 +28,13 @@ end
 function EtcdClientOpBase:execute(etcd_client, host_idx)
     assert(false, "should not reach here")
     return 0
+end
+
+function EtcdClientOpBase:cancel()
+    if self.running_op_id then
+        HttpClient.cancel(self.running_op_id)
+        self.running_op_id = nil
+    end
 end
 
 ---@param keys_tb table<string, string>

@@ -11,7 +11,6 @@ function EtcdClient:ctor(hosts, user, pwd)
     end
     if is_string(hosts) then
         tmp_hosts = string.split(hosts, ";")
-        log_print("EtcdClient:ctor ", hosts, tmp_hosts)
     end
     self.hosts = {}
     for _, host in pairs(tmp_hosts) do
@@ -157,9 +156,12 @@ end
 ---@param op EtcdClientOpBase
 ---@return number
 function EtcdClient:execute(op)
-    return op:execute(self, 1)
+    local op_id = op:execute(self, 1)
+    return 0 ~= op_id and op or nil
 end
 
-function EtcdClient:cancel(op_id)
-    HttpClient.cancel(op_id)
+function EtcdClient:cancel(op)
+    if op then
+        op:cancel()
+    end
 end

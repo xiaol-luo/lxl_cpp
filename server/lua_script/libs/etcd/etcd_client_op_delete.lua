@@ -53,9 +53,12 @@ function EtcdClientOpDelete:execute(etcd_client, host_idx)
         return 0
     end
     local url = string.format(self.host_format, host, sub_url)
-    local op_id = HttpClient.delete(url,
+    self.running_op_id = HttpClient.delete(url,
             Functional.make_closure(self._handle_result_cb, self, etcd_client, host_idx),
             Functional.make_closure(self._handle_event_cb, self, etcd_client, host_idx),
             etcd_client:get_heads(self.http_heads))
-    return op_id;
+    if not self.op_id then
+        self.op_id = self.running_op_id
+    end
+    return self.running_op_id
 end

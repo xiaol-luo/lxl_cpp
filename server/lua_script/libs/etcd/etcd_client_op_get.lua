@@ -45,12 +45,12 @@ function EtcdClientOpGet:execute(etcd_client, host_idx)
         return 0
     end
     local url = string.format(self.host_format, host, sub_url)
-    local op_id = HttpClient.get(url,
+    self.running_op_id = HttpClient.get(url,
             Functional.make_closure(self._handle_result_cb, self, etcd_client, host_idx),
             Functional.make_closure(self._handle_event_cb, self, etcd_client, host_idx),
             etcd_client:get_heads(self.http_heads))
     if not self.op_id then
-        self.op_id = op_id
+        self.op_id = self.running_op_id
     end
-    return op_id
+    return self.running_op_id
 end

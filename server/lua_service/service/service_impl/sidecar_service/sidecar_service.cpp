@@ -23,6 +23,8 @@ void SidecarService::RunService(int argc, char ** argv)
 	{
 		engine_stop();
 	}
+
+	/*
 	EtcdClient xxx(m_lua_state, "http://127.0.0.1:2379", "", "");
 	auto fn = [](uint64_t op_id, const std::string & str)
 	{
@@ -30,4 +32,5 @@ void SidecarService::RunService(int argc, char ** argv)
 	};
 	xxx.Set("/test3/xxx", "hello", 1000, false, fn);
 	xxx.Set("/test3/xxx", "hello", 1000, false, nullptr);
+	*/
 }

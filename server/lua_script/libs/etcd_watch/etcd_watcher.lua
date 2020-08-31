@@ -9,7 +9,7 @@ function EtcdWatcher:ctor(hosts, user, pwd, watch_path)
     self._etcd_client = EtcdClient:new(hosts, user, pwd)
     self.watch_path = watch_path
     self.watch_result = EtcdWatchResult:new(self.watch_path)
-    self._op_id = 0
+    self._etcd_op = nil
     self._wait_idx = nil
     self._next_seq = make_sequence(0)
     self._last_seq = self._next_seq()
@@ -29,9 +29,9 @@ function EtcdWatcher:stop()
     self._timer_proxy:release_all()
     self._tid = nil
     self._last_seq = self._next_seq()
-    if self._op_id then
-        self._etcd_client:cancel(self._op_id)
-        self._op_id = nil
+    if self._etcd_op then
+        self._etcd_client:cancel(self._etcd_op)
+        self._etcd_op = nil
     end
     self._wait_idx = nil
     self:cancel_all()
@@ -42,9 +42,9 @@ function EtcdWatcher:force_pull()
 end
 
 function EtcdWatcher:_do_watch(is_force_pull)
-    if self._op_id then
-        self._etcd_client:cancel(self._op_id)
-        self._op_id = nil
+    if self._etcd_op then
+        self._etcd_client:cancel(self._etcd_op)
+        self._etcd_op = nil
     end
     if self._tid then
         self._timer_proxy:remove(self._tid)
