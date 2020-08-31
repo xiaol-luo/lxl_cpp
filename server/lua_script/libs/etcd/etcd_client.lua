@@ -4,15 +4,35 @@
 ---@class EtcdClient
 EtcdClient = EtcdClient or class("EtcdClient")
 
-function EtcdClient:ctor(host, user, pwd)
-    self.host = string.rtrim(host, "/")
+function EtcdClient:ctor(hosts, user, pwd)
+    local tmp_hosts = {}
+    if is_table(hosts) then
+        tmp_hosts = hosts
+    end
+    if is_string(hosts) then
+        tmp_hosts = string.split(hosts, ";")
+        log_print("EtcdClient:ctor ", hosts, tmp_hosts)
+    end
+    self.hosts = {}
+    for _, host in pairs(tmp_hosts) do
+        table.insert(self.hosts, string.rtrim(host, "/"))
+    end
+    assert(#self.hosts > 0)
     self.user = user
     self.pwd = pwd
 end
 
 ---@return string
-function EtcdClient:get_host()
-    return self.host
+function EtcdClient:get_hosts()
+    return self.hosts
+end
+
+function EtcdClient:get_host(host_idx)
+    if host_idx > #self.hosts then
+        return nil
+    else
+        return self.hosts[host_idx]
+    end
 end
 
 ---@return table<string, string>
@@ -137,7 +157,7 @@ end
 ---@param op EtcdClientOpBase
 ---@return number
 function EtcdClient:execute(op)
-    return op:execute(self)
+    return op:execute(self, 1)
 end
 
 function EtcdClient:cancel(op_id)

@@ -46,7 +46,7 @@
 		<element>
 			<name>zone_0</name>
 			<!-- <host>http://119.28.224.75:2379</host>-->
-			<host>http://127.0.0.1:8100</host>
+			<host>http://127.0.0.1:8100;http://127.0.0.1:8200;http://127.0.0.1:8300</host>
 			<user>root</user>
 			<pwd>xiaolzz</pwd>
 			<ttl>30</ttl>

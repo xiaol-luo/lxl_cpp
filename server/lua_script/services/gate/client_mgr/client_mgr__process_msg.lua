@@ -14,16 +14,16 @@ function ClientMgr:_coro_auth_user_login(auth_ip, auth_port, auth_sn, user_id, a
     local host = string.format("%s:%s", string.rtrim(auth_ip, "/"), auth_port)
     local query_url = make_http_query_url(host, "gate_auth", { token = auth_sn })
     log_debug("query_url %s", query_url)
+    ---@type HttpClientRspResult
     local http_ret = nil
     co_ok, http_ret = HttpClient.co_get(query_url)
     if not co_ok then
         return Error_Coro_Logic
     end
-    local rsp_state, body_str = http_ret.state, http_ret.body
-    if not is_rsp_ok(rsp_state) then
+    if Error_None ~= http_ret.error_num then
         return Error_Http_State
     end
-    local co_get_ret = rapidjson.decode(body_str)
+    local co_get_ret = rapidjson.decode(http_ret.body)
     log_debug("co_get ret %s %s %s", co_get_ret, account_id, app_id)
     if co_get_ret.error and #co_get_ret.error > 0 then
         return Error_Exist

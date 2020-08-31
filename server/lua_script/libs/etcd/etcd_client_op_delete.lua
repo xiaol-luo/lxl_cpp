@@ -43,15 +43,19 @@ function EtcdClientOpDelete:get_http_content()
     return ret_str
 end
 
-function EtcdClientOpDelete:execute(etcd_client)
+function EtcdClientOpDelete:execute(etcd_client, host_idx)
     local ret, sub_url = self:get_http_url()
     if not ret then
         return 0
     end
-    local url = string.format(self.host_format, etcd_client:get_host(), sub_url)
+    local host = etcd_client:get_host(host_idx)
+    if nil == host_idx then
+        return 0
+    end
+    local url = string.format(self.host_format, host, sub_url)
     local op_id = HttpClient.delete(url,
-            Functional.make_closure(self._handle_result_cb, self),
-            Functional.make_closure(self._handle_event_cb, self),
+            Functional.make_closure(self._handle_result_cb, self, etcd_client, host_idx),
+            Functional.make_closure(self._handle_event_cb, self, etcd_client, host_idx),
             etcd_client:get_heads(self.http_heads))
     return op_id;
 end

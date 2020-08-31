@@ -4,9 +4,9 @@
 ---@field pre_result
 EtcdWatcher = EtcdWatcher or class("EtcdWatcher", EventMgr)
 
-function EtcdWatcher:ctor(host, user, pwd, watch_path)
+function EtcdWatcher:ctor(hosts, user, pwd, watch_path)
     EtcdWatcher.super.ctor(self)
-    self._etcd_client = EtcdClient:new(host, user, pwd)
+    self._etcd_client = EtcdClient:new(hosts, user, pwd)
     self.watch_path = watch_path
     self.watch_result = EtcdWatchResult:new(self.watch_path)
     self._op_id = 0

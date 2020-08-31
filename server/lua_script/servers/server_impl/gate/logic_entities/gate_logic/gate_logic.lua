@@ -83,11 +83,11 @@ function GateLogic:try_login_gate(gate_client, msg, cb_fn)
     HttpClient.get(query_url, Functional.make_closure(self._on_http_rsp_vertity_token, self, gate_client, cb_fn))
 end
 
-
+---@param http_ret HttpClientRspResult
 function GateLogic:_on_http_rsp_vertity_token(gate_client, cb_fn, http_ret)
     -- log_print("_on_http_rsp_vertity_token ", http_ret)
     local error_num = Error_None
-    if Http_OK == http_ret.state then
+    if Error_None == http_ret.error_num then
         local rsp_data = lua_json.decode(http_ret.body)
         if Error_None == rsp_data.error_num then
             if gate_client.user_id == rsp_data.user_id then

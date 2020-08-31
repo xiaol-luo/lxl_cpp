@@ -7,6 +7,7 @@ require("servers.common.const.const_main_args")
 require("servers.common.const.const_server")
 require("servers.common.const.const_mongo")
 
+Http_OK = "OK"
 Error_None = 0
 
 MICRO_SEC_PER_SEC = 1000

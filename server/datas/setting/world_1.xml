@@ -8,7 +8,7 @@
 		<element>for_make_array</element>
 		<element>
 			<name>service_discovery</name>
-			<host>http://127.0.0.1:8100</host>
+			<host>http://127.0.0.1:8100;http://127.0.0.1:8200;http://127.0.0.1:8300</host>
 			<user>root</user>
 			<pwd>xiaolzz</pwd>
 		</element>

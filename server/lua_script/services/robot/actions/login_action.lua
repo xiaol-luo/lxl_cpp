@@ -133,17 +133,16 @@ function LoginAction:robot_main_logic(co)
     local host = string.format("%s:%s", platform_cfg[Service_Const.Ip], platform_cfg[Service_Const.Port])
     local url = string.format("%s/%s?%s", host, "login", table.concat(login_param_strs, "&"))
     log_debug("url = %s", url)
+    ---@type HttpClientRspResult
+    local http_ret = nil
     co_ok, http_ret = HttpClient.co_get(url, {})
     if not co_ok then
         return
     end
-    local rsp_state, body_str = http_ret.state, http_ret.body
-    log_debug("login_platform body_str %s %s",rsp_state,  body_str)
-    if not is_rsp_ok(rsp_state) then
+    if Error_None ~= http_ret.error_num then
         return
     end
-    local platform_login_ret = rapidjson.decode(body_str)
-    log_debug("platform_login_ret %s", platform_login_ret)
+    local platform_login_ret = rapidjson.decode(http_ret.body)
 
     -- login service
     local cnn = PidBinCnn:new()

@@ -106,7 +106,7 @@ function AuthLogic:_on_http_login_game(from_cnn_id, method, req_url, heads_map, 
         end
         ---@type HttpClientRspResult
         local http_rsp_ret = tmp_ret
-        if not is_rsp_ok(http_rsp_ret.state) then
+        if Error_None ~= http_rsp_ret.error_num then
             local error_msg = string.format("query_platform fail, http response state is %s", http_rsp_ret.state)
             reply_client_with_error(30, error_msg)
             return
