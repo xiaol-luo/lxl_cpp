@@ -382,7 +382,9 @@ end
 --- 客户端函数
 function GameRoleMgr:_on_map_client_msg_handle_fns()
     GameRoleMgr.super._on_map_client_msg_handle_fns(self)
-    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = GameRoleMgrHandleClientMsgFns.handle_client_msg_pull_role_data
+    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = GameRoleMgrHandleClientMsgFns.pull_role_data
+    self._pid_to_client_msg_handle_fns[Fight_Pid.req_join_match] = GameRoleMgrHandleClientMsgFns.req_join_match
+    self._pid_to_client_msg_handle_fns[Fight_Pid.req_quit_match] = GameRoleMgrHandleClientMsgFns.req_quit_match
 end
 
 --[[

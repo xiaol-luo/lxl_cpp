@@ -11,8 +11,9 @@ end
 function RoleBaseInfo:_on_init_from_db(db_ret)
     local db_info = db_ret[self._module_name] or {}
     local data_struct_version = db_info.data_struct_version or Game_Role_Data_Struct_Version.base_info
-    if nil == db_info.data_struct_version or Game_Role_Data_Struct_Version.base_info then
+    if nil == db_info.data_struct_version or Game_Role_Data_Struct_Version.base_info ~= data_struct_version then
         self._data_struct_version = Game_Role_Data_Struct_Version.base_info
+        -- maybe do some adjust
         self:set_dirty()
     else
         self._data_struct_version = db_info.data_struct_version

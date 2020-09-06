@@ -55,6 +55,9 @@ function GameServer:_on_init()
     self.pto_parser:load_files(Main_Role_Pto.pto_files)
     self.pto_parser:setup_id_to_protos(Main_Role_Pto.id_to_pto)
 
+    self.pto_parser:load_files(Fight_Pto.pto_files)
+    self.pto_parser:setup_id_to_protos(Fight_Pto.id_to_pto)
+
     return true
 end
 

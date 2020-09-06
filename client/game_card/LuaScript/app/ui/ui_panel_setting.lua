@@ -8,22 +8,18 @@ UI_Panel_Name.login_panel = "login_panel"
 UI_Panel_Name.platform_panel = "platform_panel"
 UI_Panel_Name.manage_role_panel = "manage_role_panel"
 UI_Panel_Name.select_gate_panel = "select_gate_panel"
+UI_Panel_Name.match_panel = "match_panel"
 
 
 UI_Panel_Setting = {
-    [UI_Panel_Name.main_panel]= {
+    [UI_Panel_Name.match_panel]= {
         belong_layer = Panel_Layer.coexist_0,
-        res_path = "Assets/Res/UI/PanelMgr/MainPanel/MainPanel.prefab",
-        panel_cls = UIMainPanel,
+        res_path = "Assets/Res/UI/PanelMgr/MatchPanel/MatchPanel.prefab",
+        panel_cls = UIMatchPanel,
     },
 
-    [UI_Panel_Name.loading_panel]= {
-        belong_layer = Panel_Layer.loading,
-        res_path = "Assets/Res/UI/PanelMgr/MainPanel/MainPanel.prefab",
-        panel_cls = UIMainPanel,
-    },
-    [UI_Panel_Name.confirm_panel]= {
-        belong_layer = Panel_Layer.mask,
+    [UI_Panel_Name.main_panel]= {
+        belong_layer = Panel_Layer.coexist_0,
         res_path = "Assets/Res/UI/PanelMgr/MainPanel/MainPanel.prefab",
         panel_cls = UIMainPanel,
     },
