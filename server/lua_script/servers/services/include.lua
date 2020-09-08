@@ -1,6 +1,6 @@
 
 local files = {
-    prefix = "servers.services",
+    dir = "servers.services",
     files = {
         "service_def",
         "service_base",

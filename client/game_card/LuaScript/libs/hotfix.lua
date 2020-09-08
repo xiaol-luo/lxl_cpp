@@ -316,32 +316,32 @@ function batch_hotfix_files(file_paths, old_env_tb)
     batch_hotfix_files_ex(file_paths, nil,  old_env_tb)
 end
 
-function batch_hotfix_files_ex(input_arg, prefix_path, old_env_tb)
+function batch_hotfix_files_ex(input_arg, dir_path, old_env_tb)
     if "table" == type(input_arg) then
         for _, v in pairs(input_arg) do
             if "table" == v then
-                local new_prefix_path = nil
-                if prefix_path then
-                    new_prefix_path = prefix_path
-                    if v.prefix then
-                        new_prefix_path = string.format("%s.%s", prefix_path, v.prefix)
+                local new_dir_path = nil
+                if dir_path then
+                    new_dir_path = dir_path
+                    if v.dir then
+                        new_dir_path = string.format("%s.%s", dir_path, v.dir)
                     end
                 else
-                    new_prefix_path = v.prefix
+                    new_dir_path = v.dir
                 end
-                batch_hotfix_files_ex(v.files, new_prefix_path, old_env_tb)
+                batch_hotfix_files_ex(v.files, new_dir_path, old_env_tb)
             else
                 local file_path = v
-                if prefix_path then
-                    file_path = string.format("%s.%s", prefix_path, file_path)
+                if dir_path then
+                    file_path = string.format("%s.%s", dir_path, file_path)
                 end
                 hotfix_file(file_path, old_env_tb)
             end
         end
     else
         local file_path = input_arg
-        if prefix_path then
-            file_path = string.format("%s.%s", prefix_path, file_path)
+        if dir_path then
+            file_path = string.format("%s.%s", dir_path, file_path)
         end
         hotfix_file(file_path, old_env_tb)
     end

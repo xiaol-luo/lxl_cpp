@@ -10,32 +10,32 @@
     return ret
 end
 
-function batch_require(input_arg, prefix_path)
+function batch_require(input_arg, dir_path)
     if "table" == type(input_arg) then
         for _, v in pairs(input_arg) do
             if "table" == type(v) then
-                local new_prefix_path = nil
-                if prefix_path then
-                    new_prefix_path = prefix_path
-                    if v.prefix then
-                        new_prefix_path = string.format("%s.%s", prefix_path, v.prefix)
+                local new_dir_path = nil
+                if dir_path then
+                    new_dir_path = dir_path
+                    if v.dir then
+                        new_dir_path = string.format("%s.%s", dir_path, v.dir)
                     end
                 else
-                    new_prefix_path = v.prefix
+                    new_dir_path = v.dir
                 end
-                batch_require(v.files, new_prefix_path)
+                batch_require(v.files, new_dir_path)
             else
                 local file_path = v
-                if prefix_path then
-                    file_path = string.format("%s.%s", prefix_path, file_path)
+                if dir_path then
+                    file_path = string.format("%s.%s", dir_path, file_path)
                 end
                 require(file_path)
             end
         end
     else
         local file_path = input_arg
-        if prefix_path then
-            file_path = string.format("%s.%s", prefix_path, file_path)
+        if dir_path then
+            file_path = string.format("%s.%s", dir_path, file_path)
         end
         require(file_path)
     end

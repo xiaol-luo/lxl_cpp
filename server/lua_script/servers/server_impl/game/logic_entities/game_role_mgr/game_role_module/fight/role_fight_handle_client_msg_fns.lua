@@ -1,0 +1,2 @@
+
+RoleFightHandleClientMsgFns = RoleFightHandleClientMsgFns or {}

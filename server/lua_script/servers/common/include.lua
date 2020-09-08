@@ -1,6 +1,6 @@
 
 local files = {
-    prefix = "servers.common",
+    dir = "servers.common",
     files = {
         "config.etcd_server_config",
         "config.redis_server_config",
