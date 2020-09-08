@@ -1,4 +1,6 @@
 
+---@alias Fn_GameForwardHandleClientMsgFn fun(from_gate_server_key:string, gate_netid:number, role_id:number, pid:number, msg:table):void
+
 ---@class GameForwardMsg:GameLogicEntity
 GameForwardMsg = GameForwardMsg or class("GameForwardMsg", GameLogicEntity)
 
@@ -7,6 +9,7 @@ function GameForwardMsg:ctor(logics, logic_name)
     ---@type GameRoleMgr
     self._game_role_mgr = nil
     self._pto_parser = self.server.pto_parser
+    ---@type table<number, Fn_GameForwardHandleClientMsgFn>
     self._client_msg_handle_fns = {}
 end
 
@@ -33,6 +36,7 @@ function GameForwardMsg:_on_update()
 
 end
 
+---@param handle_fn Fn_GameForwardHandleClientMsgFn
 function GameForwardMsg:set_client_msg_handle_fn(pid, handle_fn)
     assert(pid)
     if handle_fn then
@@ -75,7 +79,7 @@ function GameForwardMsg:_on_remote_call_forward_client_msg_to_game(rpc_rsp, gate
         log_warn("GameForwardMsg:_on_remote_call_forward_client_msg_to_game not handle function for pid %s", pid)
         return
     end
-    handle_fn(role_id, pid, pto)
+    handle_fn(rpc_rsp.from_host, gate_netid, role_id, pid, pto)
 
     -- for test
     --[[

@@ -7,7 +7,7 @@ GameLogicEntity = GameLogicEntity or class("GameLogicEntity", LogicEntityBase)
 function GameLogicEntity:ctor(logics, logic_name)
     GameLogicEntity.super.ctor(self, logics, logic_name)
     self._rpc_svc_proxy = self.server.rpc:create_svc_proxy()
-
+    ---@type table<number, Fn_GameForwardHandleClientMsgFn>
     self._pid_to_client_msg_handle_fns = {}
     self._method_name_to_remote_call_handle_fns = {}
 end
