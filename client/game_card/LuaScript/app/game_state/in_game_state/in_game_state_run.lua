@@ -20,7 +20,7 @@ end
 
 function InGameStateRun:on_exit()
     InGameStateRun.super.on_exit(self)
-    self.app.panel_mgr:release_all_panel()
+    self.app.panel_mgr:close_all_panel()
 end
 --
 --function InGameStateRun:_on_event_gate_cnn_open(cnn_logic, is_succ)

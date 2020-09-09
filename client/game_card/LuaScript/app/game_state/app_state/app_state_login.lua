@@ -30,8 +30,8 @@ end
 
 function AppStateLogin:on_exit()
     AppStateLogin.super.on_exit(self)
-    self.app.panel_mgr:release_panel(UI_Panel_Name.login_panel)
-    self.app.panel_mgr:release_panel(UI_Panel_Name.platform_panel)
+    self.app.panel_mgr:close_panel(UI_Panel_Name.login_panel)
+    self.app.panel_mgr:close_panel(UI_Panel_Name.platform_panel)
 end
 
 function AppStateLogin:is_all_done()
@@ -43,23 +43,23 @@ end
 
 function AppStateLogin:_on_event_platform_login_done(is_ready, error_msg)
     if is_ready then
-        self.app.panel_mgr:release_panel(UI_Panel_Name.platform_panel, {})
+        self.app.panel_mgr:close_panel(UI_Panel_Name.platform_panel, {})
         self.app.panel_mgr:open_panel(UI_Panel_Name.login_panel, {})
     end
 end
 
 function AppStateLogin:_on_event_game_login_done(is_ready, error_msg)
     if is_ready then
-        self.app.panel_mgr:release_panel(UI_Panel_Name.platform_panel, {})
-        self.app.panel_mgr:release_panel(UI_Panel_Name.login_panel, {})
+        self.app.panel_mgr:close_panel(UI_Panel_Name.platform_panel, {})
+        self.app.panel_mgr:close_panel(UI_Panel_Name.login_panel, {})
         self.app.panel_mgr:open_panel(UI_Panel_Name.select_gate_panel, {})
     end
 end
 
 function AppStateLogin:_on_event_game_gate_connect_done(is_ready, error_msg)
     if is_ready then
-        self.app.panel_mgr:release_panel(UI_Panel_Name.platform_panel, {})
-        self.app.panel_mgr:release_panel(UI_Panel_Name.login_panel, {})
-        self.app.panel_mgr:release_panel(UI_Panel_Name.select_gate_panel, {})
+        self.app.panel_mgr:close_panel(UI_Panel_Name.platform_panel, {})
+        self.app.panel_mgr:close_panel(UI_Panel_Name.login_panel, {})
+        self.app.panel_mgr:close_panel(UI_Panel_Name.select_gate_panel, {})
     end
 end

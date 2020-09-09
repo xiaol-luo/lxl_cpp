@@ -48,9 +48,9 @@ end
 
 function InGameStateManageRole:on_exit()
     InGameStateManageRole.super.on_exit(self)
-    self.app.panel_mgr:release_panel(UI_Panel_Name.manage_role_panel)
+    self.app.panel_mgr:close_panel(UI_Panel_Name.manage_role_panel)
     --self.event_subscriber:release_all()
-    --self.in_game_state.app.panel_mgr:release_panel(UI_Panel_Name.manage_role_panel)
+    --self.in_game_state.app.panel_mgr:close_panel(UI_Panel_Name.manage_role_panel)
 end
 
 function InGameStateManageRole:_on_event_role_reachable_change(is_role_reachable)

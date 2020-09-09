@@ -86,7 +86,7 @@ function UIPanelMgr:disable_all_panel()
     end
 end
 
-function UIPanelMgr:release_panel(panel_name)
+function UIPanelMgr:close_panel(panel_name)
     local panel_data = self:_get_cached_panel_data(panel_name)
     if panel_data then
         self:_do_release_panel(panel_data)
@@ -94,7 +94,7 @@ function UIPanelMgr:release_panel(panel_name)
     end
 end
 
-function UIPanelMgr:release_all_panel()
+function UIPanelMgr:close_all_panel()
     for _, v in pairs(self._cached_panel_datas) do
         self:_do_release_panel(v)
     end
@@ -111,7 +111,7 @@ function UIPanelMgr:_do_release_panel(panel_data)
 end
 
 function UIPanelMgr:release_self()
-    self:release_all_panel()
+    self:close_all_panel()
     self._res_loader:Release()
     self._timer_proxy:release_all()
     self._cached_forward_panel_event_closure = {}

@@ -41,10 +41,6 @@ return {
 
     "app.ui.ui_panel_setting",
 
-    "app.logic.role.role",
-    "app.logic.role.role_mgr",
-    "app.logic.user.main_user",
-
     "app.net.net_mgr",
     "app.net.game_net.game_net_define",
     "app.net.game_net.game_platform_net_base",
