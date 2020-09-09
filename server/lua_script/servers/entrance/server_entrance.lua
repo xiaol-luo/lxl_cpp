@@ -4,6 +4,7 @@ batch_require(require("servers.entrance.pre_require_files"))
 batch_require(require("servers.entrance.common_require_files"))
 
 -- importance global vars
+---@type GameServerBase
 SERVER_INS = nil
 PROTO_PARSER = nil
 

@@ -45,11 +45,11 @@ function UIMatchPanel:_update_match_view()
 end
 
 function UIMatchPanel:_on_click_join_match_btn()
-
+    self._app.data_mgr.fight:req_join_match(1)
 end
 
 function UIMatchPanel:_on_click_quit_match_btn()
-
+    self._app.data_mgr.fight:req_quit_match()
 end
 
 function UIMatchPanel:_on_click_query_btn()

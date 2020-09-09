@@ -37,10 +37,10 @@ function RoleFight:_on_pack_for_db(out_ret)
 end
 
 function RoleFight:on_msg_req_join_match(pid, msg)
-
+    self._role:send_msg(Fight_Pid.rsp_join_match, { error_num = Error_None })
 end
 
 function RoleFight:on_msg_req_quit_match(pid, msg)
-
+    self._role:send_msg(Fight_Pid.rsp_quit_match, { error_num = Error_None })
 end
 

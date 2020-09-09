@@ -1,12 +1,11 @@
 
 ---@class GameRoleMgr:GameLogicEntity
 ---@field logics GameLogicService
+---@field server GameServer
 GameRoleMgr = GameRoleMgr or class("GameRoleMgr", GameLogicEntity)
 
 function GameRoleMgr:ctor(logics, logic_name)
     GameRoleMgr.super.ctor(self, logics, logic_name)
-    ---@type GameServer
-    self.server = self.server
     ---@type ServerRoleShadow
     self._work_world_shadow = self.server.work_world_shadow
     ---@type MongoClient

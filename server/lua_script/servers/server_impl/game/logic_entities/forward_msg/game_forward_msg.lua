@@ -90,4 +90,26 @@ function GameForwardMsg:_on_remote_call_forward_client_msg_to_game(rpc_rsp, gate
     ]]
 end
 
+function GameForwardMsg:send_msg_to_client(gate_server_key, gate_netid, pid, msg, cb_fn)
+    if not gate_server_key or not gate_netid then
+        return false
+    end
+    if not is_number(pid) then
+        return false
+    end
+
+    local is_ok, bytes = true, nil
+    if msg then
+        is_ok, bytes = self.server.pto_parser:encode(pid, msg)
+    end
+    if not is_ok then
+        log_warn("GameRole:send_msg encode fail, pid %s and msg %s", is_ok, msg)
+        return
+    end
+    self.server.rpc:call(cb_fn, gate_server_key,
+            Rpc.gate.method.forward_msg_to_client, gate_netid, pid, bytes)
+    return true
+end
+
+
 

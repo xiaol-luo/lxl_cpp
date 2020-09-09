@@ -7,7 +7,7 @@ assert(DataBase)
 function Fight:ctor(data_mgr)
     Fight.super.ctor(self, data_mgr, "fight")
     ---@type GameGateNetBase
-    self._gate_net = self._net_mgr.game_gate_net
+    self._gate_net = self._app.net_mgr.game_gate_net
 end
 
 function Fight:_on_init()
