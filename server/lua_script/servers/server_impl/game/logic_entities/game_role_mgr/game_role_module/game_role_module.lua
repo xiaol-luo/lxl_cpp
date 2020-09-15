@@ -6,6 +6,8 @@ function GameRoleModule:ctor(role, module_name)
     ---@type GameRole
     self._role = role
     self._module_name = module_name
+    ---@type GameServer
+    self._server = self._role._mgr.server
 end
 
 function GameRoleModule:init()

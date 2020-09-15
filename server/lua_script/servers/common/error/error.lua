@@ -1,4 +1,6 @@
 
+---@class Error
+---@field fight Error_Fight
 Error = {}
 
 Error_None = 0
@@ -24,8 +26,11 @@ Error_Not_Available_Server = -403
 
 Error_Mongo_Opera_Fail = -500
 
+Error_Not_Find_Role = -510
+
 require("servers.common.error.error_world_server")
 require("servers.common.error.error_game_server")
+require("servers.common.error.error_fight")
 
 function pick_error_num(...)
     local ret = Error_None

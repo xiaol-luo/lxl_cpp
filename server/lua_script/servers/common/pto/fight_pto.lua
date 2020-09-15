@@ -21,7 +21,8 @@ setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.req_quit_match, "ReqQuitMatch"
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rsp_quit_match, "RspQuitMatch")
 
 -- 同步信息
-Fight_Pid.sync_fight_state = 5 + Pto_Const.fight_min_pto_id
+Fight_Pid.query_fight_state = 5 + Pto_Const.fight_min_pto_id
+Fight_Pid.sync_fight_state = 6 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_fight_state, "SyncFightState")
 
 

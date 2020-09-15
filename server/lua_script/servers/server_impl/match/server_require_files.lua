@@ -19,7 +19,8 @@ local logic_entities_files = {
 
 local files = {
     service_files,
-    logic_entities_files,
+    -- logic_entities_files,
+    require("servers.server_impl.match.logic_entities.include"),
 }
 
 return files
