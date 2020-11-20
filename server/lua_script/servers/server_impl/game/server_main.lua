@@ -1,6 +1,6 @@
 
 
-batch_require(require("servers.server_impl.game.server_require_files"))
+batch_require(require("servers.server_impl.game.include"))
 
 
 ServiceMgr = GameServiceMgr
