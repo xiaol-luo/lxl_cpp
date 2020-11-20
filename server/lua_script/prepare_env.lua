@@ -1,4 +1,24 @@
- function path_combine(...)
+function string_split(s, sep)
+     s = tostring(s)
+     sep = tostring(sep)
+     assert(sep ~= '')
+
+     if string.len(s) == 0 then return {} end
+
+     local pos, r = 0, {}
+     local iterator = function() return string.find(s, sep, pos, true) end
+     for pos_b, pos_e in iterator do
+         table.insert(r, string.sub(s, pos, pos_b - 1))
+         pos = pos_e + 1
+     end
+     s = string.sub(s, pos)
+     if string.len(s) > 0 then
+         table.insert(r, s)
+     end
+     return r
+ end
+
+function path_combine(...)
     ret = nil
     for _, v in ipairs({...}) do
         if nil == ret then
@@ -23,7 +43,39 @@ function batch_require(input_arg, dir_path)
                 else
                     new_dir_path = v.dir
                 end
-                batch_require(v.files, new_dir_path)
+                if "table" == type(v.files) then
+                    batch_require(v.files, new_dir_path)
+                end
+                if "table" == type(v.includes) then
+                    for _, iv in pairs(v.includes) do
+                        local include_file_path = nil
+                        if new_dir_path then
+                            include_file_path = path_combine(new_dir_path, iv)
+                        else
+                            include_file_path = iv
+                        end
+                        local include_content = require(include_file_path)
+
+                        local include_file_dir = new_dir_path
+                        if string.find(iv, ".", 0, true) then
+                            local tmp_strs = {}
+                            for _, tmp_str in ipairs(string_split(iv, ".")) do
+                                if #tmp_str > 0 then
+                                    table.insert(tmp_strs, tmp_str)
+                                end
+                            end
+                            if #tmp_strs > 1 then
+                                table.remove(tmp_strs, #tmp_strs)
+                                if new_dir_path then
+                                    include_file_dir = new_dir_path .. "." .. table.concat(tmp_strs, ".")
+                                else
+                                    include_file_dir = table.concat(tmp_strs, ".")
+                                end
+                            end
+                        end
+                        batch_require(include_content, include_file_dir)
+                    end
+                end
             else
                 local file_path = v
                 if dir_path then

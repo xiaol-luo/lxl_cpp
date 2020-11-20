@@ -15,7 +15,14 @@ local files = {
 
     "servers.server_impl.game.logic_entities.forward_msg.game_forward_msg",
 
-    require("servers.server_impl.game.logic_entities.game_role_mgr.game_role_module.include")
+    {
+      dir = "servers.server_impl.game.logic_entities",
+      includes = {
+          -- "game_role_mgr.game_role_module.include",
+          "include",
+      }
+    },
+    -- require("servers.server_impl.game.logic_entities.game_role_mgr.game_role_module.include")
 }
 
 return files

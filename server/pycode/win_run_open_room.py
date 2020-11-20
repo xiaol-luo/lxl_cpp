@@ -63,7 +63,7 @@ for sig_num in [signal.SIGINT, signal.SIGTERM]:
 
 kill_alive_services()
 
-in_home = True
+in_home = False
 
 if in_home:
 	code_dir = r"F:\github\lxl_cpp\server"
@@ -75,7 +75,8 @@ else:
 	work_dir_base = r"E:\git\ws\lxl_cpp"
 
 run_cmds = []
-for role_name in ["world_0", "world_1", "world_sentinel_0", "gate_0", "game_0", "create_role_0", "login_0", "auth_0", "platform_0", "match_0"]:
+for role_name in ["world_0", "world_1", "world_sentinel_0", "gate_0", "game_0", "create_role_0", 
+        "login_0", "auth_0", "platform_0", "match_0", "room_0", "fight_0" ]:
 # for role_name in ["world_0", "world_sentinel_0", "gate_0", "game_0"]:
     run_cmd = "{} {} {} {}".format(
         exe_file,
