@@ -1,0 +1,21 @@
+
+return
+{
+	{
+        -- dir = ".",
+        files =
+        {
+
+		 {%- for elem in scrip_files  %}
+			"{{ elem }}",
+		 {%- endfor %}
+
+        },
+        includes =
+        {
+		 {%- for elem in include_files  %}
+			"{{ elem }}",
+		 {%- endfor %}
+        },
+    },
+}
