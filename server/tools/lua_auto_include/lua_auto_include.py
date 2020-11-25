@@ -3,8 +3,10 @@ import argparse
 import sys
 import os
 import auto_gen
+import codecs
 
 Include_File_Name = "include.lua"
+
 
 def parse_args(input_args):
     arg_parse = argparse.ArgumentParser()
@@ -18,9 +20,23 @@ def parse_args(input_args):
     return ret
 
 
-def exclude_file_path(file_path, exclude_file_paths):
+def extract_file_suffix(file_path):
+    ret = ""
+    tmp_strs = os.path.splitext(file_path)
+    if len(tmp_strs) > 1:
+        ret = tmp_strs[len(tmp_strs) - 1]
+    return ret
+
+
+def exclude_file_path(file_path, exclude_file_paths, allow_suffixs):
     ret = False
-    if exclude_files:
+    if not ret and allow_suffixs:
+        is_not_fit = True
+        file_suffix = extract_file_suffix(file_path)
+        if file_suffix in allow_suffixs:
+            is_not_fit = False
+        ret= is_not_fit
+    if not ret and exclude_files:
         for item in exclude_file_paths:
             if file_path.endswith(item):
                 ret = True
@@ -61,7 +77,7 @@ def to_lua_path(p_str):
 if __name__ == "__main__":
     parse_ret = parse_args(sys.argv[1:])
     for (k, v) in vars(parse_ret).items():
-        print("k,v {0}, {1}".format(k, v))
+        print("parse_args k, v: {0}, {1}".format(k, v))
     root_dir = os.path.abspath(parse_ret.root)
     file_suffixs = None
     if parse_ret.suffixs:
@@ -85,28 +101,31 @@ if __name__ == "__main__":
     for visit_dir, child_dirs, child_files in os.walk(root_dir):
         #print("os.walk {} {} {}".format(visit_dir, child_dirs, child_files))
         visit_dir_abs_path = abs_join_path(visit_dir)
-        if not include_dir_path(visit_dir, include_dirs) or exclude_dir_path(visit_dir, exclude_dirs):
+        if not include_dir_path(visit_dir_abs_path, include_dirs) or exclude_dir_path(visit_dir_abs_path, exclude_dirs):
             continue
 
-        visit_dir_relative_path = visit_dir_abs_path[len(root_dir):].lstrip("/")
-        print("visit_dir_relative_path {}".format(visit_dir_relative_path))
+        #visit_dir_relative_path = visit_dir_abs_path[len(root_dir):].lstrip("/")
+        #print("visit_dir_relative_path {}".format(visit_dir_relative_path))
         fit_dirs = []
         fit_files = []
         for elem in child_dirs:
-            tmp_abs_path = abs_join_path(visit_dir, elem)
+            tmp_abs_path = abs_join_path(visit_dir_abs_path, elem)
             if include_dir_path(tmp_abs_path, include_dirs) and not exclude_dir_path(tmp_abs_path, exclude_dirs):
-                tmp_relative_path = to_lua_path(os.path.join(visit_dir_relative_path, elem, Include_File_Name))
+                tmp_relative_path = to_lua_path(os.path.join(elem, Include_File_Name))
                 fit_dirs.append(tmp_relative_path)
         for elem in child_files:
-            tmp_abs_path = abs_join_path(visit_dir, elem)
-            if not exclude_file_path(tmp_abs_path, exclude_files):
-                tmp_relative_path = to_lua_path(os.path.join(visit_dir_relative_path, elem))
+            tmp_abs_path = abs_join_path(visit_dir_abs_path, elem)
+            if not exclude_file_path(tmp_abs_path, exclude_files, file_suffixs):
+                tmp_relative_path = to_lua_path(os.path.join(elem))
                 fit_files.append(tmp_relative_path)
 
         render_ret, render_content = auto_gen.render(
             "include.lua.tt", scrip_files=fit_files, include_files=fit_dirs)
-        write_file = abs_join_path(visit_dir, Include_File_Name)
-        print("render_content {}\n{}\n{} \n\n".format(render_ret, write_file, render_content))
+        write_file = abs_join_path(visit_dir_abs_path, Include_File_Name)
+        #print("render_content {}\n{}\n{} \n\n".format(render_ret, write_file, render_content))
+
+        with codecs.open(write_file, 'w', 'utf-8') as f:
+            f.write(render_content)
 
 
     #print(parse_ret.root, parse_ret.suffix, parse_ret.exclude_dirs, parse_ret.exclude_files)
