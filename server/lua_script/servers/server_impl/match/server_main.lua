@@ -1,6 +1,5 @@
 
 
-batch_require(require("servers.server_impl.match.server_require_files"))
 include_file("servers.server_impl.match.include")
 
 ServiceMgr = MatchServiceMgr

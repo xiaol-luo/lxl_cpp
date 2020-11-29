@@ -1,6 +1,5 @@
 
-
-batch_require(require("servers.server_impl.fight.server_require_files"))
+include_file("servers.server_impl.fight.include")
 
 ServiceMgr = FightServiceMgr
 

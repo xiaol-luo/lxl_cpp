@@ -1,6 +1,6 @@
 
 
-batch_require(require("servers.server_impl.room.server_require_files"))
+include_file("servers.server_impl.room.include")
 
 ServiceMgr = RoomServiceMgr
 

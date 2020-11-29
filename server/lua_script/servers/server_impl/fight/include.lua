@@ -7,9 +7,6 @@ return
         {
 			"fight_logic_service",
 			"fight_service_mgr",
-			"server_main",
-			"server_require_files",
-
         },
         includes =
         {
