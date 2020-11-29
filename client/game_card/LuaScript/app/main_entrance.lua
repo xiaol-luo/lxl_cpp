@@ -4,37 +4,6 @@
 ---@type LuaApp
 g_ins = nil
 
-function batch_require(input_arg, dir_path)
-    if "table" == type(input_arg) then
-        for _, v in pairs(input_arg) do
-            if "table" == type(v) then
-                local new_dir_path = nil
-                if dir_path then
-                    new_dir_path = dir_path
-                    if v.dir then
-                        new_dir_path = string.format("%s.%s", dir_path, v.dir)
-                    end
-                else
-                    new_dir_path = v.dir
-                end
-                batch_require(v.files, new_dir_path)
-            else
-                local file_path = v
-                if dir_path then
-                    file_path = string.format("%s.%s", dir_path, file_path)
-                end
-                require(file_path)
-            end
-        end
-    else
-        local file_path = input_arg
-        if dir_path then
-            file_path = string.format("%s.%s", dir_path, file_path)
-        end
-        require(file_path)
-    end
-end
-
 function error_handler(error_msg)
     error_msg = debug.traceback(error_msg)
     log_error(error_msg)

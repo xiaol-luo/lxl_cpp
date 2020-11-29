@@ -3,6 +3,118 @@ ParseArgs.One_Gang = "-"
 ParseArgs.Opt_Require_Files = "require_files"
 ParseArgs.Opt_Execute_Fns = "execute_fns"
 
+
+function string_split(s, sep)
+    s = tostring(s)
+    sep = tostring(sep)
+    assert(sep ~= '')
+
+    if string.len(s) == 0 then return {} end
+
+    local pos, r = 0, {}
+    local iterator = function() return string.find(s, sep, pos, true) end
+    for pos_b, pos_e in iterator do
+        table.insert(r, string.sub(s, pos, pos_b - 1))
+        pos = pos_e + 1
+    end
+    s = string.sub(s, pos)
+    if string.len(s) > 0 then
+        table.insert(r, s)
+    end
+    return r
+end
+
+function path_combine(...)
+    ret = nil
+    for _, v in ipairs({...}) do
+        if nil == ret then
+            ret = v
+        else
+            ret = string.format("%s.%s", ret, v)
+        end
+    end
+    return ret
+end
+
+function batch_require(input_arg, dir_path)
+    if "table" == type(input_arg) then
+        for _, v in pairs(input_arg) do
+            if "table" == type(v) then
+                local new_dir_path = nil
+                if dir_path then
+                    new_dir_path = dir_path
+                    if v.dir then
+                        new_dir_path = string.format("%s.%s", dir_path, v.dir)
+                    end
+                else
+                    new_dir_path = v.dir
+                end
+                if "table" == type(v.files) then
+                    batch_require(v.files, new_dir_path)
+                end
+                if "table" == type(v.includes) then
+                    for _, iv in pairs(v.includes) do
+                        local include_file_path = nil
+                        if new_dir_path then
+                            include_file_path = path_combine(new_dir_path, iv)
+                        else
+                            include_file_path = iv
+                        end
+                        local include_content = require(include_file_path)
+
+                        local include_file_dir = new_dir_path
+                        if string.find(iv, ".", 0, true) then
+                            local tmp_strs = {}
+                            for _, tmp_str in ipairs(string_split(iv, ".")) do
+                                if #tmp_str > 0 then
+                                    table.insert(tmp_strs, tmp_str)
+                                end
+                            end
+                            if #tmp_strs > 1 then
+                                table.remove(tmp_strs, #tmp_strs)
+                                if new_dir_path then
+                                    include_file_dir = new_dir_path .. "." .. table.concat(tmp_strs, ".")
+                                else
+                                    include_file_dir = table.concat(tmp_strs, ".")
+                                end
+                            end
+                        end
+                        batch_require(include_content, include_file_dir)
+                    end
+                end
+            else
+                local file_path = v
+                if dir_path then
+                    file_path = string.format("%s.%s", dir_path, file_path)
+                end
+                require(file_path)
+            end
+        end
+    else
+        local file_path = input_arg
+        if dir_path then
+            file_path = string.format("%s.%s", dir_path, file_path)
+        end
+        require(file_path)
+    end
+end
+
+function include_file(input_arg, dir_path)
+    local includes = {}
+    if "table" == type(input_arg) then
+        includes = input_arg
+    else
+        table.insert(includes, input_arg)
+    end
+    batch_require({
+        {
+            dir = dir_path,
+            files = {},
+            includes = includes,
+        }
+    })
+end
+
 function ParseArgs.append_lua_search_path(v)
 	CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?.lua", v))
 	CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?/init.lua", v))
@@ -91,8 +203,10 @@ end
 
 -- 预先加载常用的库文件进来
 for _, v in ipairs(require("pre_require_files")) do
-    require(v)
+    --require(v)
 end
+
+batch_require(require("pre_require_files"))
 
 local opt_op_fn_map = {
     [ParseArgs.Opt_Require_Files] = make_simple_closure(ParseArgs.fill_args, ParseArgs.Opt_Require_Files),
