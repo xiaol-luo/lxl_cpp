@@ -1,15 +1,20 @@
 
-local files = {
-    "config.etcd_server_config",
-    "config.redis_server_config",
-    "config.mongo_server_config",
+return
+{
+	{
+        -- dir = ".",
+        files =
+        {
 
-    "const.const",
-    "rpc.rpc",
-    "pto.pto_def",
-    "error.error",
-
-    "logic.fight.fight_def",
+        },
+        includes =
+        {
+			"config.include",
+			"const.include",
+			"error.include",
+			"logic.include",
+			"pto.include",
+			"rpc.include",
+        },
+    },
 }
-
-return files

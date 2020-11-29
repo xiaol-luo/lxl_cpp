@@ -1,27 +1,17 @@
-local files = {
 
-    -- services
-    {
-        dir = "servers.services",
-        includes =
-        {
-            "server_role_monitor.include",
-        },
-    },
-
-    -- server logic
-    {
-        dir = "servers.server_impl.game",
+return
+{
+	{
+        -- dir = ".",
         files =
         {
-            "game_service_mgr",
-            "game_logic_service",
+			"game_logic_service",
+			"game_service_mgr",
+
         },
         includes =
         {
-            "logic_entities.include",
+			"logic_entities.include",
         },
     },
 }
-
-return files

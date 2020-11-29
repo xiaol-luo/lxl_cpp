@@ -93,6 +93,22 @@ function batch_require(input_arg, dir_path)
     end
 end
 
+function include_file(input_arg, dir_path)
+    local includes = {}
+    if "table" == type(input_arg) then
+        includes = input_arg
+    else
+        table.insert(includes, input_arg)
+    end
+    batch_require({
+        {
+            dir = dir_path,
+            files = {},
+            includes = includes,
+        }
+    })
+end
+
 ParseArgs = ParseArgs or {}
 ParseArgs.One_Gang = "-"
 ParseArgs.Opt_Lua_Path = "lua_path"

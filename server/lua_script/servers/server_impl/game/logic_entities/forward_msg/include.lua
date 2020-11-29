@@ -1,4 +1,15 @@
 
-return {
-    "game_forward_msg",
+return
+{
+	{
+        -- dir = ".",
+        files =
+        {
+			"game_forward_msg",
+
+        },
+        includes =
+        {
+        },
+    },
 }

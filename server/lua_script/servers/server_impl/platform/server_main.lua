@@ -1,6 +1,6 @@
 
-batch_require(require("servers.server_impl.platform.server_require_files"))
-
+-- batch_require(require("servers.server_impl.platform.server_require_files"))
+include_file("servers.server_impl.platform.include")
 ServiceMgr = PlatformServiceMgr
 
 ---@class PlatformServer : ServiceBase
