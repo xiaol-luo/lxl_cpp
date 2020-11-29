@@ -4,6 +4,7 @@ import sys
 import os
 import auto_gen
 import codecs
+from slpp import slpp
 
 Include_File_Name = "include.lua"
 
@@ -70,6 +71,8 @@ def abs_join_path(p1, p2=None):
 
 
 def to_lua_path(p_str):
+    if p_str.endswith(".lua"):
+        p_str = p_str[:-4]
     p_str = p_str.replace("\\", "/").replace("/", ".")
     return p_str
 
@@ -94,7 +97,7 @@ if __name__ == "__main__":
     for elem in parse_ret.exclude_dirs or []:
         tmp_dir = abs_join_path(os.path.join(root_dir, elem))
         exclude_dirs[tmp_dir] = True
-    exclude_files = {}
+    exclude_files = {Include_File_Name: True}
     for elem in parse_ret.exclude_files or []:
         exclude_files[elem] = True
 
@@ -119,14 +122,27 @@ if __name__ == "__main__":
                 tmp_relative_path = to_lua_path(os.path.join(elem))
                 fit_files.append(tmp_relative_path)
 
+        write_file = abs_join_path(visit_dir_abs_path, Include_File_Name)
+        with codecs.open(write_file, 'r', 'utf-8') as f:
+            f.readline()
+            f.readline()
+            txt_content = f.read()
+            setting_tb = slpp.decode(txt_content)
+            if setting_tb:
+                order_fit_files = setting_tb[0].get("files", [])
+                order_fit_dirs = setting_tb[0].get("includes", [])
+                file_repeat_checker = {e: True for e in order_fit_files }
+                dir_repeat_checker = {e: True for e in order_fit_dirs }
+                for elem in fit_files:
+                    if elem not in file_repeat_checker:
+                        order_fit_files.append(elem)
+                for elem in fit_dirs:
+                    if elem not in dir_repeat_checker:
+                        order_fit_dirs.append(elem)
+                fit_files = order_fit_files
+                fit_dirs = order_fit_dirs
         render_ret, render_content = auto_gen.render(
             "include.lua.tt", scrip_files=fit_files, include_files=fit_dirs)
-        write_file = abs_join_path(visit_dir_abs_path, Include_File_Name)
         #print("render_content {}\n{}\n{} \n\n".format(render_ret, write_file, render_content))
-
         with codecs.open(write_file, 'w', 'utf-8') as f:
             f.write(render_content)
-
-
-    #print(parse_ret.root, parse_ret.suffix, parse_ret.exclude_dirs, parse_ret.exclude_files)
-

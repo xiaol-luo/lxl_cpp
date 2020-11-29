@@ -1,0 +1,1 @@
+pyinstaller -F lua_auto_include.py  --hidden-import jinja2 --add-data auto_gen;auto_gen
