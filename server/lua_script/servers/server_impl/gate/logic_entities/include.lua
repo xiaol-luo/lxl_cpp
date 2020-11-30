@@ -15,6 +15,7 @@ return
 			"gate_client_mgr.include",
 			"gate_logic.include",
 			"world_agent.include",
+			"game_agent.include",
         },
     },
 }

@@ -7,6 +7,7 @@ return
         {
 			"fight_logic_service",
 			"fight_service_mgr",
+
         },
         includes =
         {

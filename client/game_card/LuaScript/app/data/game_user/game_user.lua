@@ -78,7 +78,6 @@ function GameUser:pull_role_digest(role_id)
 end
 
 function GameUser:_on_msg_rsp_pull_role_digest(pto_id, msg)
-    log_print("GameUser:on_msg_rsp_pull_role_digest 11111 xxx ", pto_id, "zzz", msg)
     if Error_None ==  msg.error_num then
         if 0 == msg.role_id then
             self.role_digests = {}

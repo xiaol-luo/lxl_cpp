@@ -9,7 +9,6 @@ return
 			"service_mgr_base",
 			"service_base",
 			"custom_service_help_fn",
-			"hotfix_service",
 
         },
         includes =
@@ -25,6 +24,7 @@ return
 			"server_role_monitor.include",
 			"service_module.include",
 			"zone_setting.include",
+			"hotfix.include",
         },
     },
 }

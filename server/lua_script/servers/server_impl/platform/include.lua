@@ -7,6 +7,7 @@ return
         {
 			"platform_logic_service",
 			"platform_service_mgr",
+
         },
         includes =
         {

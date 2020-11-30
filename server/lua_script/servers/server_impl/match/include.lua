@@ -7,6 +7,7 @@ return
         {
 			"match_logic_service",
 			"match_service_mgr",
+
         },
         includes =
         {

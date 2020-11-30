@@ -12,10 +12,10 @@ Include_File_Name = "include.lua"
 def parse_args(input_args):
     arg_parse = argparse.ArgumentParser()
     arg_parse.add_argument("root", help="to travel dir")
-    arg_parse.add_argument("--suffixs", action="append")
-    arg_parse.add_argument("--include_dirs", action="append", help="include dirs")
-    arg_parse.add_argument("--exclude_dirs", action="append", help="exclude dirs")
-    arg_parse.add_argument("--exclude_files", action="append", help="exclude files")
+    arg_parse.add_argument("--suffixs", action="append", nargs="+", help="include files suffix")
+    arg_parse.add_argument("--include_dirs", action="append", nargs="+", help="include dirs")
+    arg_parse.add_argument("--exclude_dirs", action="append", nargs="+", help="exclude dirs")
+    arg_parse.add_argument("--exclude_files", action="append", nargs="+", help="exclude files")
 
     ret = arg_parse.parse_args(input_args)
     return ret
@@ -85,21 +85,25 @@ if __name__ == "__main__":
     file_suffixs = None
     if parse_ret.suffixs:
         file_suffixs = {}
-        for elem in parse_ret.suffixs:
-            file_suffixs[elem] = True
+        for elem_list in parse_ret.suffixs:
+            for elem in elem_list:
+                file_suffixs[elem] = True
     include_dirs = None
     if parse_ret.include_dirs:
         include_dirs= {}
-        for elem in parse_ret.include_dirs:
-            tmp_dir = abs_join_path(os.path.join(root_dir, elem))
-            include_dirs[tmp_dir] = True
+        for elem_list in parse_ret.include_dirs:
+            for elem in elem_list:
+                tmp_dir = abs_join_path(os.path.join(root_dir, elem))
+                include_dirs[tmp_dir] = True
     exclude_dirs = {}
-    for elem in parse_ret.exclude_dirs or []:
-        tmp_dir = abs_join_path(os.path.join(root_dir, elem))
-        exclude_dirs[tmp_dir] = True
+    for elem_list in parse_ret.exclude_dirs or [[]]:
+        for elem in elem_list:
+            tmp_dir = abs_join_path(os.path.join(root_dir, elem))
+            exclude_dirs[tmp_dir] = True
     exclude_files = {Include_File_Name: True}
-    for elem in parse_ret.exclude_files or []:
-        exclude_files[elem] = True
+    for elem_list in parse_ret.exclude_files or [[]]:
+        for elem in elem_list:
+            exclude_files[elem] = True
 
     for visit_dir, child_dirs, child_files in os.walk(root_dir):
         #print("os.walk {} {} {}".format(visit_dir, child_dirs, child_files))
@@ -123,24 +127,29 @@ if __name__ == "__main__":
                 fit_files.append(tmp_relative_path)
 
         write_file = abs_join_path(visit_dir_abs_path, Include_File_Name)
-        with codecs.open(write_file, 'r', 'utf-8') as f:
-            f.readline()
-            f.readline()
-            txt_content = f.read()
-            setting_tb = slpp.decode(txt_content)
-            if setting_tb:
-                order_fit_files = setting_tb[0].get("files", [])
-                order_fit_dirs = setting_tb[0].get("includes", [])
-                file_repeat_checker = {e: True for e in order_fit_files }
-                dir_repeat_checker = {e: True for e in order_fit_dirs }
-                for elem in fit_files:
-                    if elem not in file_repeat_checker:
-                        order_fit_files.append(elem)
-                for elem in fit_dirs:
-                    if elem not in dir_repeat_checker:
-                        order_fit_dirs.append(elem)
-                fit_files = order_fit_files
-                fit_dirs = order_fit_dirs
+        if os.path.isfile(write_file):
+            with codecs.open(write_file, 'r', 'utf-8') as f:
+                f.readline()
+                f.readline()
+                txt_content = f.read()
+                setting_tb = slpp.decode(txt_content)
+                if setting_tb:
+                    order_fit_files = setting_tb[0].get("files", [])
+                    if len(order_fit_files) <= 0: #如果lua表为空，则会返回dict
+                        order_fit_files = []
+                    order_fit_dirs = setting_tb[0].get("includes", [])
+                    if len(order_fit_dirs) <= 0: #如果lua表为空，则会返回dict
+                        order_fit_dirs = []
+                    file_repeat_checker = {e: True for e in order_fit_files }
+                    dir_repeat_checker = {e: True for e in order_fit_dirs }
+                    for elem in fit_files:
+                        if elem not in file_repeat_checker:
+                            order_fit_files.append(elem)
+                    for elem in fit_dirs:
+                        if elem not in dir_repeat_checker:
+                            order_fit_dirs.append(elem)
+                    fit_files = order_fit_files
+                    fit_dirs = order_fit_dirs
         render_ret, render_content = auto_gen.render(
             "include.lua.tt", scrip_files=fit_files, include_files=fit_dirs)
         #print("render_content {}\n{}\n{} \n\n".format(render_ret, write_file, render_content))

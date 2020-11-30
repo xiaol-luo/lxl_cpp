@@ -24,7 +24,7 @@ function ServiceMgrBase:add_service(service)
     self.server:_set_as_field(name, service)
     assert(not self.services[name])
     self.services[name] = service
-    log_debug("ServiceMgrBase:add_service %s", name)
+    -- log_debug("ServiceMgrBase:add_service %s", name)
 end
 
 function ServiceMgrBase:init()

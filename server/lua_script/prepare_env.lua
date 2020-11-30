@@ -227,6 +227,7 @@ for k, v in pairs(arg_tb) do
     end
 end
 --]]
+
 if arg_tb[ParseArgs.Opt_C_Path] then
     for _, v in pairs(arg_tb[ParseArgs.Opt_C_Path]) do
         ParseArgs.append_c_search_path(v)

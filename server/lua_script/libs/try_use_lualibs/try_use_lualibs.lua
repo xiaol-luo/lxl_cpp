@@ -1,6 +1,6 @@
-print(arg, arg[1], arg[2])
+-- print(arg, arg[1], arg[2])
 
-print("xxx")
+-- print("xxx")
 local lib, other_lib = require("tryuselualib") 
 lib, other_lib = require("tryuselualib") 
 lib, other_lib = require("tryuselualib") 
@@ -13,10 +13,10 @@ othertryuselualib.log_msg()
 -- print(func)
 -- func()
 
-print("package.cpath:")
-print(package.cpath)
-print("package.path:")
-print(package.path)
+-- print("package.cpath:")
+-- print(package.cpath)
+-- print("package.path:")
+-- print(package.path)
 
 local core = require "sproto.core"
 local assert = assert
@@ -269,5 +269,4 @@ function host:attach(sp)
 	end
 end
 
-print("sproto End")
 return sproto

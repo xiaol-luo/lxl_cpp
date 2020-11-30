@@ -11,7 +11,6 @@ return
         includes =
         {
 			"match_mgr.include",
-			"match_role_mgr.include",
         },
     },
 }

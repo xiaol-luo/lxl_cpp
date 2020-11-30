@@ -43,7 +43,6 @@ return
 			"rpc.include",
 			"sproto.include",
 			"timer.include",
-			"try_use_lualibs.include",
 			"xml2lua.include",
         },
     },

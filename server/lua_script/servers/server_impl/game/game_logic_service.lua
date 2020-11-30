@@ -19,4 +19,16 @@ function GameLogicService:_on_init()
         self:add_logic(logic)
     end
 
+    do
+        local logic = GameMatchMgr:new(self, Game_Logic_Name.match_mgr)
+        logic:init()
+        self:add_logic(logic)
+    end
+
+    do
+        local logic = GameRoomMgr:new(self, Game_Logic_Name.room_mgr)
+        logic:init()
+        self:add_logic(logic)
+    end
+
 end

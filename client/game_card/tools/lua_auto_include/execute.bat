@@ -1,3 +1,3 @@
-lua_auto_include ..\..\LuaScript\libs
-lua_auto_include ..\..\LuaScript\common
-lua_auto_include ..\..\LuaScript\app
+lua_auto_include ..\..\LuaScript\libs --suffix .lua
+lua_auto_include ..\..\LuaScript\common --suffix .lua
+lua_auto_include ..\..\LuaScript\app --suffix .lua

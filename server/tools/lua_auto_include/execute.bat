@@ -1,4 +1,4 @@
-python lua_auto_include.py ..\..\lua_script\libs --suffix .lua
+python lua_auto_include.py ..\..\lua_script\libs --suffix .lua --exclude_dirs try_use_lualibs
 python lua_auto_include.py ..\..\lua_script\common --suffix .lua
 python lua_auto_include.py ..\..\lua_script\servers\common --suffix .lua
 python lua_auto_include.py ..\..\lua_script\servers\services --suffix .lua
