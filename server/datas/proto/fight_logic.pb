@@ -21,6 +21,14 @@ message RspQuitMatch
 	int32 error_num = 1;
 }
 
+message SyncMatchState
+{
+	int32 state = 1;
+	string match_theme = 2;
+	string match_key = 3;
+}
+
+
 message SyncFightState
 {
 	int32 state = 1;
