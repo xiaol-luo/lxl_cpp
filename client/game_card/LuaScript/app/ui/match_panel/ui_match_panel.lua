@@ -53,7 +53,7 @@ function UIMatchPanel:_on_click_quit_match_btn()
 end
 
 function UIMatchPanel:_on_click_query_btn()
-
+    self._app.data_mgr.fight:req_match_state()
 end
 
 function UIMatchPanel:_on_click_close_btn()

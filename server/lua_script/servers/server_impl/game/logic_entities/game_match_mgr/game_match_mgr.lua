@@ -42,19 +42,20 @@ function GameMatchMgr:_on_map_client_msg_handle_fns()
     GameMatchMgr.super._on_map_client_msg_handle_fns(self)
     self._pid_to_client_msg_handle_fns[Fight_Pid.req_join_match] = self._on_msg_join_match
     self._pid_to_client_msg_handle_fns[Fight_Pid.req_quit_match] = self._on_msg_quit_match
+    self._pid_to_client_msg_handle_fns[Fight_Pid.req_match_state] = self._on_msg_req_match_state
 end
 
 
 function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, msg)
-
+    log_debug("GameMatchMgr:_on_msg_join_match %s", role_id)
 end
 
 function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, msg)
-
+    log_debug("GameMatchMgr:_on_msg_quit_match %s", role_id)
 end
 
-function GameMatchMgr:_on_msg_query_match_state(from_gate, gate_netid, role_id, pid, msg)
-
+function GameMatchMgr:_on_msg_req_match_state(from_gate, gate_netid, role_id, pid, msg)
+    log_debug("GameMatchMgr:_on_msg_req_match_state %s", role_id)
 end
 
 function GameMatchMgr:sync_state(role_id)

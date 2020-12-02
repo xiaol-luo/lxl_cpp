@@ -168,10 +168,12 @@ end
 
 function GameGateNetEditor:send_msg(pto_id, msg)
     local is_ok, bytes = true, nil
-    if is_table(msg) then
-        is_ok, bytes = self._pto_parser:encode(pto_id, msg)
-    else
-        is_ok = false
+    if not is_nil(msg) then
+        if is_table(msg) then
+            is_ok, bytes = self._pto_parser:encode(pto_id, msg)
+        else
+            is_ok = false
+        end
     end
     if not is_ok then
         log_error("GameGateNetEditor:send_msg encode fail, pid %s, msg %s", pto_id, msg)
