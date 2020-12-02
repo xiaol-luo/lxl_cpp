@@ -6,6 +6,7 @@ return
         files =
         {
 			"logic_entity_def",
+			"game_server_logic_entity",
 
         },
         includes =

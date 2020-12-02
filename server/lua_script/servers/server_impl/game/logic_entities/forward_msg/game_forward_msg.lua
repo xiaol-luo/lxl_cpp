@@ -1,8 +1,8 @@
 
 ---@alias Fn_GameForwardHandleClientMsgFn fun(from_gate_server_key:string, gate_netid:number, role_id:number, pid:number, msg:table):void
 
----@class GameForwardMsg:GameLogicEntity
-GameForwardMsg = GameForwardMsg or class("GameForwardMsg", GameLogicEntity)
+---@class GameForwardMsg:GameServerLogicEntity
+GameForwardMsg = GameForwardMsg or class("GameForwardMsg", GameServerLogicEntity)
 
 function GameForwardMsg:ctor(logics, logic_name)
     GameForwardMsg.super.ctor(self, logics, logic_name)

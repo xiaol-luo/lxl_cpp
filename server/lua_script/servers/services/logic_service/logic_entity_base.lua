@@ -57,23 +57,23 @@ function LogicEntityBase:update()
 end
 
 function LogicEntityBase:_on_init(...)
-
+    -- override by subclass
 end
 
 function LogicEntityBase:_on_start()
-
+    -- override by subclass
 end
 
 function LogicEntityBase:_on_stop()
-
+    -- override by subclass
 end
 
 function LogicEntityBase:_on_release()
-
+    -- override by subclass
 end
 
 function LogicEntityBase:_on_update()
-
+    -- override by subclass
 end
 
 

@@ -1,5 +1,5 @@
 
----@class AuthLogic:GameLogicEntity
+---@class AuthLogic:LogicEntityBase
 ---@field server AuthServer
 AuthLogic = AuthLogic or class("AuthLogic", LogicEntityBase)
 

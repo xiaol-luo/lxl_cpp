@@ -1,6 +1,6 @@
 
 ---@class GameRole
----@field base_info RoleBaseInfo
+---@field base_info GameRoleBaseInfo
 ---@field fight RoleFight
 GameRole = GameRole or class("GameRole")
 
@@ -25,8 +25,10 @@ function GameRole:ctor(mgr, user_id, role_id)
 end
 
 function GameRole:init()
-    self:_setup_module(RoleBaseInfo)
+    self:_setup_module(GameRoleBaseInfo)
     self:_setup_module(RoleFight)
+    self:_setup_module(GameRoleMatch)
+    self:_setup_module(GameRoleRoom)
 
     for _, m in pairs(self._role_modules) do
         m:init()

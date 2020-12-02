@@ -1,8 +1,8 @@
 
----@class GameRoleMgr:GameLogicEntity
+---@class GameRoleMgr:GameServerLogicEntity
 ---@field logics GameLogicService
 ---@field server GameServer
-GameRoleMgr = GameRoleMgr or class("GameRoleMgr", GameLogicEntity)
+GameRoleMgr = GameRoleMgr or class("GameRoleMgr", GameServerLogicEntity)
 
 function GameRoleMgr:ctor(logics, logic_name)
     GameRoleMgr.super.ctor(self, logics, logic_name)
@@ -30,6 +30,7 @@ function GameRoleMgr:_on_init()
     self._db_client = MongoClient:new(db_setting.thread_num, db_setting.host, db_setting.auth_db,  db_setting.user, db_setting.pwd)
 end
 
+--- rpc调用函数
 function GameRoleMgr:_on_map_remote_call_handle_fns()
     GameRoleMgr.super._on_map_remote_call_handle_fns(self)
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.launch_role] = self._handle_remote_call_launch_role
@@ -37,6 +38,14 @@ function GameRoleMgr:_on_map_remote_call_handle_fns()
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.release_role] = self._handle_remote_call_release_role
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.bind_world] = self._handle_remote_call_bind_world
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.check_match_game_roles] = self._handle_remote_call_check_match_game_roles
+end
+
+--- 客户端函数
+function GameRoleMgr:_on_map_client_msg_handle_fns()
+    GameRoleMgr.super._on_map_client_msg_handle_fns(self)
+    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = GameRoleMgrHandleClientMsgFns.pull_role_data
+    self._pid_to_client_msg_handle_fns[Fight_Pid.req_join_match] = RoleFightHandleClientMsgFns.req_join_match
+    self._pid_to_client_msg_handle_fns[Fight_Pid.req_quit_match] = RoleFightHandleClientMsgFns.req_quit_match
 end
 
 function GameRoleMgr:_on_start()
@@ -378,13 +387,6 @@ function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, ro
     end, world_server_key, Rpc.world.method.check_match_world_roles, role_ids)
 end
 
---- 客户端函数
-function GameRoleMgr:_on_map_client_msg_handle_fns()
-    GameRoleMgr.super._on_map_client_msg_handle_fns(self)
-    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = GameRoleMgrHandleClientMsgFns.pull_role_data
-    self._pid_to_client_msg_handle_fns[Fight_Pid.req_join_match] = RoleFightHandleClientMsgFns.req_join_match
-    self._pid_to_client_msg_handle_fns[Fight_Pid.req_quit_match] = RoleFightHandleClientMsgFns.req_quit_match
-end
 
 --[[
 function GameRoleMgr:_handle_client_msg_pull_role_data(role_id, pid, msg)

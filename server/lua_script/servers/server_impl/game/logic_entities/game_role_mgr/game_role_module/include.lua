@@ -12,6 +12,9 @@ return
         {
 			"base_info.include",
 			"fight.include",
+			"example.include",
+			"match.include",
+			"room.include",
         },
     },
 }

@@ -16,11 +16,17 @@ Game_Role_State = {
 
 
 Game_Role_Module_Name = {}
+Game_Role_Module_Name.example = "example"
 Game_Role_Module_Name.base_info = "base_info"
 Game_Role_Module_Name.fight = "fight"
+Game_Role_Module_Name.room = "room"
+Game_Role_Module_Name.match = "match"
 
 
 Game_Role_Data_Struct_Version = {}
+Game_Role_Data_Struct_Version.example = 1
 Game_Role_Data_Struct_Version.game_role = 1
 Game_Role_Data_Struct_Version.base_info = 1
 Game_Role_Data_Struct_Version.fight = 1
+Game_Role_Data_Struct_Version.room = 1
+Game_Role_Data_Struct_Version.match = 1

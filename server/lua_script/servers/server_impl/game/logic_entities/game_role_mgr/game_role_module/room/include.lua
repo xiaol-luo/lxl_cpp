@@ -5,7 +5,7 @@ return
         -- dir = ".",
         files =
         {
-			"game_role_base_info",
+			"game_role_room",
 
         },
         includes =
