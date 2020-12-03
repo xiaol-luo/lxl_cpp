@@ -6,9 +6,9 @@ return
         files =
         {
 			"error",
-			"error_fight",
-			"error_game_server",
 			"error_world_server",
+			"error_game_server",
+			"error_fight",
 
         },
         includes =

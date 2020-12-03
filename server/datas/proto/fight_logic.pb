@@ -2,7 +2,8 @@ syntax="proto3"
 
 message ReqJoinMatch
 {
-	int32 fight_type = 1;
+	string match_theme = 1;
+	repeated int64 teammate_role_ids = 2;
 }
 
 message RspJoinMatch

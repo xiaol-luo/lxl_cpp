@@ -86,10 +86,26 @@ end
 function GameRoleMgr:get_role_in_game(role_id)
     local ret = nil
     local role = self._id_to_roles[role_id]
-    if role and Game_Role_State.in_game then
+    if role and Game_Role_State.in_game == role.state then
         ret = role
     end
     return ret
+end
+
+function GameRoleMgr:_release_role(role_id)
+    local game_role = self:get_role(role_id)
+    if game_role then
+        if Game_Role_State.in_game == game_role.state then
+            self:fire(Game_Role_Event.pre_leave_game, game_role)
+        end
+        game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
+        if Game_Role_State.in_game == game_role.state then
+            self:fire(Game_Role_Event.leave_game, game_role)
+            game_role.state = Game_Role_State.free
+        end
+    end
+    self:remove_role(role_id)
+    return game_role
 end
 
 function GameRoleMgr:remove_role(role_id)
@@ -173,8 +189,8 @@ end
 
 function GameRoleMgr:_db_rsp_launch_role(role_id, db_ret)
     local error_num = Error_None
+    local game_role = self:get_role(role_id)
     repeat
-        local game_role = self:get_role(role_id)
         if not game_role or Game_Role_State.load_from_db ~= game_role:get_state() then
             error_num = Error_Unknown
             break
@@ -203,6 +219,10 @@ function GameRoleMgr:_db_rsp_launch_role(role_id, db_ret)
     for _, rpc_rsp in ipairs(wait_rpc_rsps or {}) do
         rpc_rsp:response(error_num)
     end
+
+    if Error_None == error_num then
+        self:fire(Game_Role_Event.enter_game, game_role)
+    end
 end
 
 ---@param rpc_rsp RpcRsp
@@ -227,8 +247,7 @@ function GameRoleMgr:_handle_remote_call_release_role(rpc_rsp, role_id)
         rpc_rsp:response(Error.release_game_role.role_not_exist)
         return
     end
-    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
-    self:remove_role(role_id)
+    self:_release_role(role_id)
     rpc_rsp:response(Error_None)
 end
 
@@ -266,8 +285,7 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
             end
         end
         for role_id, game_role in pairs(to_remove_role) do
-            game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
-            self:remove_role(role_id)
+            self:_release_role(role_id)
         end
     else
         local to_remove_role = {}
@@ -279,8 +297,7 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
         end
         if next(to_remove_role) then
             for role_id, game_role in pairs(to_remove_role) do
-                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
-                self:remove_role(role_id)
+                self:_release_role(role_id)
             end
             local removed_role_ids = table.keys(to_remove_role)
             for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
@@ -304,8 +321,8 @@ function GameRoleMgr:_try_release_all_roles_for_work_world_shadow_parted(need_re
         self._work_world_shadow_aprted_release_all_roles_tid = self._timer_proxy:delay(function ()
             self._work_world_shadow_aprted_release_all_roles_tid = nil
             local role_ids = {}
-            for role_id, game_role in pairs(self._id_to_roles) do
-                game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
+            for role_id, game_role in pairs(table.clone(self._id_to_roles)) do
+                self:_release_role(role_id)
                 table.insert(role_ids, role_id)
             end
             self._id_to_roles = {}
@@ -372,8 +389,7 @@ function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, ro
             for _, role_id in pairs(release_role_ids) do
                 local game_role = self._id_to_roles[role_id]
                 if game_role then
-                    game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
-                    self:remove_role(role_id)
+                    self:_release_role(role_id)
                     table.insert(removed_role_ids, role_id)
                 end
             end
