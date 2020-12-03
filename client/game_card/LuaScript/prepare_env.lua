@@ -36,7 +36,7 @@ function path_combine(...)
     return ret
 end
 
-function batch_require(input_arg, dir_path)
+function collect_batch_require_files_help(input_arg, dir_path, out_ret)
     if "table" == type(input_arg) then
         for _, v in pairs(input_arg) do
             if "table" == type(v) then
@@ -50,7 +50,7 @@ function batch_require(input_arg, dir_path)
                     new_dir_path = v.dir
                 end
                 if "table" == type(v.files) then
-                    batch_require(v.files, new_dir_path)
+                    collect_batch_require_files_help(v.files, new_dir_path, out_ret)
                 end
                 if "table" == type(v.includes) then
                     for _, iv in pairs(v.includes) do
@@ -79,7 +79,7 @@ function batch_require(input_arg, dir_path)
                                 end
                             end
                         end
-                        batch_require(include_content, include_file_dir)
+                        collect_batch_require_files_help(include_content, include_file_dir, out_ret)
                     end
                 end
             else
@@ -87,7 +87,7 @@ function batch_require(input_arg, dir_path)
                 if dir_path then
                     file_path = string.format("%s.%s", dir_path, file_path)
                 end
-                require(file_path)
+                table.insert(out_ret, file_path)
             end
         end
     else
@@ -95,7 +95,20 @@ function batch_require(input_arg, dir_path)
         if dir_path then
             file_path = string.format("%s.%s", dir_path, file_path)
         end
-        require(file_path)
+        table.insert(out_ret, file_path)
+    end
+end
+
+function collect_batch_require_files(input_arg, dir_path)
+    local files = {}
+    collect_batch_require_files_help(input_arg, dir_path, files)
+    return files
+end
+
+function batch_require(input_arg, dir_path)
+    local files = collect_batch_require_files(input_arg, dir_path)
+    for _, v in pairs(files) do
+        require(v)
     end
 end
 

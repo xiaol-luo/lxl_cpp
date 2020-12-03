@@ -32,7 +32,7 @@ function RobotService:setup_modules()
     self.module_mgr:add_module(logic_mgr)
     local hotfix_module = HotfixModule:new(self.module_mgr, "hotfix_module")
     self.module_mgr:add_module(hotfix_module)
-    local hotifx_dir_path = path.combine(lfs.currentdir(), "hotifx_dir")
+    local hotifx_dir_path = path.combine(lfs.currentdir(), "hotfix_dir")
     self.hotfix_module:init(hotifx_dir_path)
     lfs.mkdir(hotifx_dir_path)
 end

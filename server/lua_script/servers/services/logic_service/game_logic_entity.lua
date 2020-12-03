@@ -41,7 +41,7 @@ function GameLogicEntity:_setup_remote_call_handle_fns(is_setup)
     end
     if is_setup then
         for method_name, handle_fn in pairs(self._method_name_to_remote_call_handle_fns) do
-            self._rpc_svc_proxy:set_remote_call_handle_fn(method_name, Functional.make_closure(handle_fn, self))
+            self._rpc_svc_proxy:set_remote_call_handle_fn(method_name, handle_fn)
         end
     end
 end

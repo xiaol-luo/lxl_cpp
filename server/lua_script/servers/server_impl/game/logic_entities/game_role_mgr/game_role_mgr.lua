@@ -33,17 +33,17 @@ end
 --- rpc调用函数
 function GameRoleMgr:_on_map_remote_call_handle_fns()
     GameRoleMgr.super._on_map_remote_call_handle_fns(self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.launch_role] = self._handle_remote_call_launch_role
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.change_gate_client] = self._handle_remote_call_change_gate_client
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.release_role] = self._handle_remote_call_release_role
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.bind_world] = self._handle_remote_call_bind_world
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.check_match_game_roles] = self._handle_remote_call_check_match_game_roles
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.launch_role] = Functional.make_closure(self._handle_remote_call_launch_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.change_gate_client] = Functional.make_closure(self._handle_remote_call_change_gate_client, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.release_role] = Functional.make_closure(self._handle_remote_call_release_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.bind_world] = Functional.make_closure(self._handle_remote_call_bind_world, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.check_match_game_roles] = Functional.make_closure(self._handle_remote_call_check_match_game_roles, self)
 end
 
 --- 客户端函数
 function GameRoleMgr:_on_map_client_msg_handle_fns()
     GameRoleMgr.super._on_map_client_msg_handle_fns(self)
-    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = GameRoleMgrHandleClientMsgFns.pull_role_data
+    self._pid_to_client_msg_handle_fns[Main_Role_Pid.pull_role_data] = Functional.make_closure(GameRoleMgrHandleClientMsgFns.pull_role_data, self)
 end
 
 function GameRoleMgr:_on_start()

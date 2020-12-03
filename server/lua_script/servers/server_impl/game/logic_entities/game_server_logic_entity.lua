@@ -38,7 +38,7 @@ function GameServerLogicEntity:_setup_client_msg_handle_fns(is_setup)
     end
     if is_setup then
         for pid, handle_fn in pairs(self._pid_to_client_msg_handle_fns) do
-            self.logics.forward_msg:set_client_msg_handle_fn(pid, Functional.make_closure(handle_fn, self))
+            self.logics.forward_msg:set_client_msg_handle_fn(pid, handle_fn)
         end
     end
 end
