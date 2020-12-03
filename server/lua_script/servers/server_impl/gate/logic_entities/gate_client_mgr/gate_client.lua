@@ -32,7 +32,7 @@ function GateClient:disconnect()
     if self.cnn then
         Net.close(self.netid)
     end
-    log_print("GateClient:disconnect ", debug.traceback())
+    -- log_print("GateClient:disconnect ", debug.traceback())
 end
 
 function GateClient:is_authed()

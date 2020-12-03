@@ -18,9 +18,13 @@ function Fight:_on_release()
     Fight.super._on_release(self)
 end
 
----@param fight_type Fight_Type
-function Fight:req_join_match(fight_type)
-    self._gate_net:send_msg(Fight_Pid.req_join_match, { fight_type = fight_type })
+---@param match_theme Match_Theme
+---@param teammate_role_ids table<number, number>
+function Fight:req_join_match(match_theme, teammate_role_ids)
+    self._gate_net:send_msg(Fight_Pid.req_join_match, {
+        match_theme = match_theme,
+        teammate_role_ids = teammate_role_ids,
+    })
 end
 
 function Fight:req_quit_match()

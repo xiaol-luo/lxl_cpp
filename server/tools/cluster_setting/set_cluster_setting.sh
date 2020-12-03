@@ -20,6 +20,8 @@ etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/world.luo 
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/world.xiao 1
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/create_role.create_role_0 1
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/match.match_0 1
+etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/room.room_0 1
+etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/fight.fight_0 1
 
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world.luo 1
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world.xiao 1

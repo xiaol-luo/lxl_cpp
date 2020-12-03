@@ -59,6 +59,7 @@ function GameMatchMgr:_on_map_remote_call_handle_fns()
     -- self._method_name_to_remote_call_handle_fns[]
 end
 
+---@param msg PB_ReqJoinMatch
 function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, msg)
     log_debug("GameMatchMgr:_on_msg_join_match %s", role_id)
 
@@ -85,14 +86,23 @@ function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, ms
             self._role_id_match_map[role_id] = match
         end
         match.match_server_key = match_server_key
+        match.match_theme = msg.match_theme
         match.role_id = role_id
         match.match_key = gen_uuid()
         match.leader_role_id = role_id
         match.teammate_role_ids = {} -- from msg
         table.insert(match.teammate_role_ids, role_id)
+        if match.teammate_role_ids then
+            table.append(match.teammate_role_ids, msg.teammate_role_ids)
+        end
 
         self._rpc_svc_proxy:call(Functional.make_closure(self._on_cb_join_match, self, role_id, match.match_key),
-            match.match_server_key, Rpc.match.method.join_match, match)
+            match.match_server_key, Rpc.match.method.join_match, {
+                    role_id = match.role_id,
+
+                    match_key = match.match_key,
+                    teammate_role_ids = match.teammate_role_ids,
+                })
     until true
 end
 
@@ -102,6 +112,7 @@ end
 
 function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, msg)
     log_debug("GameMatchMgr:_on_msg_quit_match %s", role_id)
+    self._role_id_match_map[role_id] = nil
 end
 
 function GameMatchMgr:_on_msg_req_match_state(from_gate, gate_netid, role_id, pid, msg)

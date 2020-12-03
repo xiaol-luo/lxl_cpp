@@ -86,7 +86,7 @@ function RpcServiceRpcMgr:pack_params(...)
         tb.params[tostring(i)] = params[i]
     end
     local ret, error_msg = msgpack.encode_one(tb)
-    assert(nil ~= ret, string.format("RpcServiceRpcMgr:unpack_params fail error_msg:%s", error_msg))
+    assert(nil ~= ret, string.format("RpcServiceRpcMgr:pack_params fail error_msg:%s", error_msg))
     return ret
 end
 
