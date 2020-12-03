@@ -86,7 +86,7 @@ end
 function GameRoleMgr:get_role_in_game(role_id)
     local ret = nil
     local role = self._id_to_roles[role_id]
-    if role and Game_Role_State.in_game == role.state then
+    if role and Game_Role_State.in_game == role:get_state() then
         ret = role
     end
     return ret
@@ -95,13 +95,14 @@ end
 function GameRoleMgr:_release_role(role_id)
     local game_role = self:get_role(role_id)
     if game_role then
-        if Game_Role_State.in_game == game_role.state then
+        local role_state = game_role:get_state()
+        if Game_Role_State.in_game == role_state then
             self:fire(Game_Role_Event.pre_leave_game, game_role)
         end
         game_role:check_and_save(self._db_client, self._query_db_name, self._query_coll_name, true)
-        if Game_Role_State.in_game == game_role.state then
+        if Game_Role_State.in_game == role_state then
             self:fire(Game_Role_Event.leave_game, game_role)
-            game_role.state = Game_Role_State.free
+            game_role:set_state(Game_Role_State.free)
         end
     end
     self:remove_role(role_id)
