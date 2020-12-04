@@ -215,10 +215,6 @@ local make_simple_closure = function(fn, opt)
 end
 
 -- 预先加载常用的库文件进来
-for _, v in ipairs(require("pre_require_files")) do
-    --require(v)
-end
-
 batch_require(require("pre_require_files"))
 
 local opt_op_fn_map = {

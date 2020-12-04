@@ -12,7 +12,7 @@ Error.join_match.no_available_match_server = 3
 
 ---@class Error.quit_match
 Error.quit_match = {}
-Error.join_match.match_key_not_same = 1
+Error.quit_match.match_key_not_same = 1
 
 
 

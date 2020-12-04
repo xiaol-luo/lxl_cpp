@@ -104,7 +104,10 @@ function PeerNetService:_on_peer_cnn_recv_msg(unique_id, cnn, pid, bin)
     end
 
     cnn_state.recv_msg_counts = cnn_state.recv_msg_counts + 1
-    local is_ok, msg = self._pto_parser:decode(pid, bin)
+    local is_ok, msg = true, nil
+    if self._pto_parser:exist(pid) then
+        is_ok, msg = self._pto_parser:decode(pid, bin)
+    end
 
     if true == cnn_state.is_ok then
         self:_on_cnn_recv_msg(pid, msg, unique_id, cnn_state.server_key, cnn_state.server_id)
@@ -153,7 +156,10 @@ function PeerNetService:_on_accept_cnn_recv_msg(unique_id, cnn, pid, bin)
     end
 
     cnn_state.recv_msg_counts = cnn_state.recv_msg_counts + 1
-    local is_ok, msg = self._pto_parser:decode(pid, bin)
+    local is_ok, msg = true, nil
+    if self._pto_parser:exist(pid) then
+        is_ok, msg = self._pto_parser:decode(pid, bin)
+    end
 
     if true == cnn_state.is_ok then
         self:_on_cnn_recv_msg(pid, msg, unique_id, cnn_state.server_key, cnn_state.server_id)

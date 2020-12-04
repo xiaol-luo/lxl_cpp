@@ -64,7 +64,7 @@ function GameForwardMsg:_on_remote_call_forward_client_msg_to_game(rpc_rsp, gate
     local further_forward = msg.further_forward -- todo: 想办法转发给别的server
     local pid = msg.pto_id
     local pto = nil
-    if msg.pto_bytes and #msg.pto_bytes > 0 then
+    if self._pto_parser:exist(pid) then
         local is_ok, tmp_pto = self._pto_parser:decode(pid, msg.pto_bytes)
         if is_ok then
             pto = tmp_pto

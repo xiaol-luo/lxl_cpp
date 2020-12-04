@@ -28,7 +28,10 @@ function Fight:req_join_match(match_theme, teammate_role_ids)
 end
 
 function Fight:req_quit_match()
-    self._gate_net:send_msg(Fight_Pid.req_quit_match, {})
+    self._gate_net:send_msg(Fight_Pid.req_quit_match, {
+        match_key = "",
+        ignore_match_key = true,
+    })
 end
 
 function Fight:req_match_state()

@@ -17,7 +17,7 @@ end
 function RoleFightHandleClientMsgFns.req_quit_match(self, from_gate, gate_netid, role_id, pid, msg)
     local role = self:get_role(role_id)
     if not role then
-        return server_ins.logics.forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.req_quit_match, { error_num = Error_Not_Find_Role })
+        return server_ins.logics.forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.rsp_quit_match, { error_num = Error_Not_Find_Role })
     end
     role.fight:on_msg_req_quit_match(pid, msg)
 end
@@ -26,7 +26,7 @@ end
 function RoleFightHandleClientMsgFns:query_fight_state(self, from_gate, gate_netid, role_id, pid, msg)
     local role = self:get_role(role_id)
     if not role then
-        return server_ins.logics.forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.req_quit_match, { error_num = Error_Not_Find_Role })
+        return server_ins.logics.forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.sync_match_state, { error_num = Error_Not_Find_Role })
     end
     role.fight:sync_fight_state(pid, msg)
 end

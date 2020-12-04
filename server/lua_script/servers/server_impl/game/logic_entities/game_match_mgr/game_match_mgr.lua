@@ -62,9 +62,7 @@ end
 
 ---@param msg PB_ReqJoinMatch
 function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, msg)
-    log_debug("GameMatchMgr:_on_msg_join_match %s", role_id)
-
-    ---@type Error.match
+    ---@type Error.join_match
     local error_num = Error_None
     repeat
         local game_role = self._role_mgr:get_role_in_game(role_id)
@@ -105,6 +103,7 @@ function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, ms
                     teammate_role_ids = match.teammate_role_ids,
                 })
     until true
+    log_print("GameMatchMgr:_on_msg_join_match ", error_num, from_gate, gate_netid, role_id)
 end
 
 function GameMatchMgr:_on_cb_join_match(from_gate, gate_netid, role_id, match_key, rpc_error_num, error_num)
@@ -118,7 +117,7 @@ end
 
 ---@param msg PB_ReqQuitMatch
 function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, msg)
-    log_debug("GameMatchMgr:_on_msg_quit_match %s", role_id)
+    ---@type Error.quit_match
     local error_num = Error_None
     repeat
         local match = self:get_match(role_id)
@@ -138,6 +137,7 @@ function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, ms
     until true
     self._forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.rsp_quit_match, { error_num = error_num })
     self:sync_state(role_id, from_gate, gate_netid)
+    log_print("GameMatchMgr:_on_msg_quit_match ", role_id, error_num)
 end
 
 function GameMatchMgr:_on_msg_req_match_state(from_gate, gate_netid, role_id, pid, msg)
@@ -172,7 +172,7 @@ end
 
 ---@param game_role GameRole
 function GameMatchMgr:_on_event_role_leave_game(game_role)
-    log_debug("GameMatchMgr:_on_event_role_leave_game %s", game_role.get_role_id())
+    log_debug("GameMatchMgr:_on_event_role_leave_game %s", game_role:get_role_id())
 end
 
 function GameMatchMgr:get_match(role_id)
