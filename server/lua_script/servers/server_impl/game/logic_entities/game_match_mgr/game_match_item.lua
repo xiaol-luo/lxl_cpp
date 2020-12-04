@@ -1,14 +1,4 @@
 
----@class Game_Match_Item_State
-Game_Match_Item_State = {}
-Game_Match_Item_State.idle = "idle"
-Game_Match_Item_State.wait_join_confirm = "wait_join_confirm"
-Game_Match_Item_State.accepted_join = "accepted_join"
-Game_Match_Item_State.matching = "matching"
-Game_Match_Item_State.wait_enter_room_confirm = "wait_enter_room_confirm"
-Game_Match_Item_State.accepted_enter_room = "wait_enter_room"
-Game_Match_Item_State.over = "over"
-
 ---@class GameMatchItem
 ---@field role_id number
 ---@field state Game_Match_Item_State
@@ -28,4 +18,6 @@ function GameMatchItem:ctor()
     self.leader_role_id = 0
     self.teammate_role_ids = {}
 end
+
+
 

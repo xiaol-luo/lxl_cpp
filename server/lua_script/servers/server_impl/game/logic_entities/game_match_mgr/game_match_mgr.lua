@@ -18,6 +18,7 @@ function GameMatchMgr:_on_init()
     GameMatchMgr.super._on_init(self)
     self._role_mgr = self.logics.role_mgr
     self._room_mgr = self.logics.room_mgr
+    self._forward_msg = self.logics.forward_msg
 
     self:_batch_bind_events()
 end
@@ -68,17 +69,17 @@ function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, ms
     repeat
         local game_role = self._role_mgr:get_role_in_game(role_id)
         if not game_role then
-            error_num = Error.match.role_not_in_game_server
+            error_num = Error.join_match.role_not_in_game_server
             break
         end
         local match = self:get_match(role_id)
         if match and Game_Match_Item_State.idle ~= match.state then
-            error_num = Error.match.already_matching
+            error_num = Error.join_match.already_matching
             break
         end
         local match_server_key = self.server.peer_net:random_server_key(Server_Role.Match)
         if not match_server_key then
-            error_num = Error.match.no_available_match_server
+            error_num = Error.join_match.no_available_match_server
             break
         end
         if not match then
@@ -96,31 +97,65 @@ function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, ms
             table.append(match.teammate_role_ids, msg.teammate_role_ids)
         end
 
-        self._rpc_svc_proxy:call(Functional.make_closure(self._on_cb_join_match, self, role_id, match.match_key),
-            match.match_server_key, Rpc.match.method.join_match, {
+        self._rpc_svc_proxy:call(
+                Functional.make_closure(self._on_cb_join_match, self, from_gate, gate_netid, role_id, match.match_key),
+                match.match_server_key, Rpc.match.method.join_match, {
                     role_id = match.role_id,
-
                     match_key = match.match_key,
                     teammate_role_ids = match.teammate_role_ids,
                 })
     until true
 end
 
-function GameMatchMgr:_on_cb_join_match(role_id, match_key, rpc_error_num, error_num)
+function GameMatchMgr:_on_cb_join_match(from_gate, gate_netid, role_id, match_key, rpc_error_num, error_num)
     log_print("GameMatchMgr:_on_cb_join_match ", role_id, match_key, rpc_error_num, error_num)
+    self._forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.rsp_join_match,{
+                error_num = pick_error_num(rpc_error_num, error_num),
+                match_key = match_key,
+            })
+    self:sync_state(role_id, from_gate, gate_netid)
 end
 
+---@param msg PB_ReqQuitMatch
 function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, msg)
     log_debug("GameMatchMgr:_on_msg_quit_match %s", role_id)
-    self._role_id_match_map[role_id] = nil
+    local error_num = Error_None
+    repeat
+        local match = self:get_match(role_id)
+        if not match then
+            break
+        end
+        if not msg.ignore_match_key and match.match_key ~= msg.match_key then
+            error_num = Error.quit_match.match_key_not_same
+            break
+        end
+        self._rpc_svc_proxy:call(nil, match.match_server_key, Rpc.match.method.quit_match, {
+            role_id = match.role_id,
+            Match_Theme = match.match_theme,
+            match_key = match.match_key,
+        })
+        self._role_id_match_map[role_id] = nil
+    until true
+    self._forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.rsp_quit_match, { error_num = error_num })
+    self:sync_state(role_id, from_gate, gate_netid)
 end
 
 function GameMatchMgr:_on_msg_req_match_state(from_gate, gate_netid, role_id, pid, msg)
     log_debug("GameMatchMgr:_on_msg_req_match_state %s", role_id)
+    self:sync_state(role_id, from_gate, gate_netid)
 end
 
-function GameMatchMgr:sync_state(role_id)
+function GameMatchMgr:sync_state(role_id, from_gate, gate_netid)
+    local msg = {
+        state = Game_Match_Item_State.idle
+    }
+    local match = self:get_match(role_id)
+    if not match then
 
+    end
+    self._forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.sync_match_state, {
+
+    })
 end
 
 --- 事件函数

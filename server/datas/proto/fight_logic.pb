@@ -8,13 +8,14 @@ message ReqJoinMatch
 
 message RspJoinMatch
 {
-    int32 fight_type = 1
-    int32 error_num = 2;
+	int32 error_num = 1;
+	string match_key = 2;
 }
 
 message ReqQuitMatch
 {
-	
+	string match_key = 1;
+	bool ignore_match_key = 2;
 }
 
 message RspQuitMatch
