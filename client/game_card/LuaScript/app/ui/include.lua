@@ -5,7 +5,6 @@ return
         -- dir = ".",
         files =
         {
-			"ui_panel_setting",
 
         },
         includes =

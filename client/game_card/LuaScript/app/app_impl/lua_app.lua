@@ -17,8 +17,12 @@ function LuaApp:ctor()
 end
 
 function LuaApp:init(arg)
-    batch_require(require("app.app_impl.lua_app_pre_require_server_files"))
-    batch_require(require("app.app_impl.lua_app_pre_require_files"))
+    for _, v in pairs(require("app.app_impl.lua_app_pre_require_server_files")) do
+        include_file(v)
+    end
+
+    include_file("app.include")
+    require("app.ui.ui_panel_setting")
 
     log_assert(self:init_proto_parser(), "init_proto_parser fail")
 
