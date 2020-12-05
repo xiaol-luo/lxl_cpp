@@ -5,13 +5,11 @@ return
         -- dir = ".",
         files =
         {
-			"logic_entity_def",
+			"match_logic_simple_fill",
 
         },
         includes =
         {
-			"match_mgr.include",
-			"match_room_mgr.include",
         },
     },
 }

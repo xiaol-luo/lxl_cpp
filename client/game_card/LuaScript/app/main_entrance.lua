@@ -15,7 +15,12 @@ function setup_lua_logics(arg)
     log_print("server_lua_script_dir ", server_lua_script_dir)
     ParseArgs.append_lua_search_path("../LuaScript")
     ParseArgs.append_lua_search_path("../LuaScriptServer")
-    require("app.app_impl.lua_app")
+    -- require("app.app_impl.lua_app")
+
+    include_file("libs.include")
+    include_file("common.include")
+    include_file("app.include")
+
     g_ins = LuaApp:new()
     g_ins:init(arg)
     g_ins:start()

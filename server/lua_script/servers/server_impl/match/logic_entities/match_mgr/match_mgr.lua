@@ -2,10 +2,28 @@
 ---@class MatchMgr:GameLogicEntity
 MatchMgr = MatchMgr or class("MatchMgr", GameLogicEntity)
 
-function MatchMgr:_on_init()
-    MatchMgr.super._on_init(self)
+function MatchMgr:ctor(logics, logic_name)
+    MatchMgr.super.ctor(self, logics, logic_name)
     ---@type MatchServiceMgr
     self.server = self.server
+    ---@type table<Match_Theme, MatchTeamBase>
+    self._key_to_team = {}
+    ---@type table<string, MatchLogicBase>
+    self._theme_to_logic = {}
+end
+
+function MatchMgr:_on_init()
+    MatchMgr.super._on_init(self)
+
+    do
+        local match_logic = MatchLogicSimpleFill:ctor(self, {
+            match_theme = Match_Theme.two_dice,
+            game_role_max_num = 2,
+        })
+        self._theme_to_logic[Match_Theme.two_dice] = match_logic
+    end
+
+
 end
 
 function MatchMgr:_on_start()
@@ -24,6 +42,26 @@ end
 function MatchMgr:_on_update()
     -- log_print("MatchMgr:_on_update")
     MatchMgr.super._on_update(self)
+end
+
+function MatchMgr:_create_match_team(match_theme, ask_role_id, teammate_role_ids, extra_param)
+    local logic = self:get_match_logic(match_theme)
+    if not logic then
+        return nil
+    end
+
+    local ret = logic:create_match_team(ask_role_id, teammate_role_ids, extra_param)
+    return ret
+end
+
+function MatchMgr:get_match_team(match_key)
+    local ret = self._key_to_team[match_key]
+    return ret
+end
+
+function MatchMgr:get_match_logic(match_theme)
+    local ret = self._theme_to_logic[match_theme]
+    return ret
 end
 
 --- rpc函数
