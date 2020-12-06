@@ -98,9 +98,11 @@ function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, ms
         self._rpc_svc_proxy:call(
                 Functional.make_closure(self._on_cb_join_match, self, from_gate, gate_netid, role_id, match.match_key),
                 match.match_server_key, Rpc.match.method.join_match, {
-                    role_id = match.role_id,
+                    match_theme = match.match_theme,
                     match_key = match.match_key,
+                    role_id = match.role_id,
                     teammate_role_ids = match.teammate_role_ids,
+                    extra_param = {}
                 })
     until true
     log_print("GameMatchMgr:_on_msg_join_match ", error_num, from_gate, gate_netid, role_id)

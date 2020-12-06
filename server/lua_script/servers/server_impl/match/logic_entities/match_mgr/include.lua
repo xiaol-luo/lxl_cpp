@@ -11,6 +11,7 @@ return
 			"match_logic_base",
 			"match_role_base",
 			"match_team_base",
+			"match_item",
 
         },
         includes =

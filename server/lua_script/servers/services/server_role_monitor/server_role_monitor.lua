@@ -32,12 +32,12 @@ local Opera_State = {
 ---@class ServerRoleMonitor: ServiceBase
 ServerRoleMonitor = ServerRoleMonitor or class("ServerRoleMonitor", ServiceBase)
 
-function ServerRoleMonitor:ctor(service_mgr, service_name, zone_name, server_role_name)
+function ServerRoleMonitor:ctor(service_mgr, service_name, zone_name, server_role_name, observer_server_roles)
     ServerRoleMonitor.super.ctor(self, service_mgr, service_name)
     self._zone_name = zone_name
     self._role_name = server_role_name
     ---@type ServerRoleMonitorSetting
-    self._monitor_setting = ServerRoleMonitorSetting:new(self._zone_name, self._role_name)
+    self._monitor_setting = ServerRoleMonitorSetting:new(self._zone_name, self._role_name, observer_server_roles)
     ---@type RpcServiceProxy
     self._rpc_svc_proxy = nil
 
@@ -351,7 +351,11 @@ function ServerRoleMonitor:_notify_work_data(to_server_key, is_simple_info)
     if to_server_key then
         notify_servers = { to_server_key }
     else
-        notify_servers = self._monitor_setting.observer_server_roles
+        notify_servers = {}
+        for _, server_role in pairs(self._monitor_setting.observer_server_roles) do
+            local role_server_keys = self.server.peer_net:get_role_server_keys(server_role)
+            table.append(notify_servers, role_server_keys)
+        end
     end
     if next(notify_servers) then
         local send_tb = {
