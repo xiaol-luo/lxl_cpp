@@ -30,19 +30,23 @@ end
 function RoleStateMgr:_on_start()
     RoleStateMgr.super._on_start(self)
 
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.launch_role, Functional.make_closure(self._handle_remote_call_launch_role, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.logout_role, Functional.make_closure(self._handle_remote_call_logout_role, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.reconnect_role, Functional.make_closure(self._handle_remote_call_reconnect_role, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.gate_client_quit, Functional.make_closure(self._handle_remote_call_gate_client_quit, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.notify_release_game_roles, Functional.make_closure(self._handle_remote_call_notify_release_game_roles, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.transfer_world_role, Functional.make_closure(self._handle_remote_call_transfer_world_role, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.world.method.check_match_world_roles, Functional.make_closure(self._handle_remote_call_check_match_world_roles, self))
-
     local shadow_setting = self._work_world_shadow:get_setting()
     self._event_binder:bind(self._work_world_shadow, shadow_setting.event_adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
     self._event_binder:bind(self._work_world_shadow, shadow_setting.event_shadow_parted_state_change,
             Functional.make_closure(self._on_event_shadow_parted_state_change, self))
+end
+
+function GameLogicEntity:_on_map_remote_call_handle_fns()
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.launch_role] = Functional.make_closure(self._on_rpc_launch_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.logout_role] = Functional.make_closure(self._on_rpc_logout_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.reconnect_role] = Functional.make_closure(self._on_rpc_reconnect_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.gate_client_quit] = Functional.make_closure(self._on_rpc_gate_client_quit, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.notify_release_game_roles] = Functional.make_closure(self._on_rpc_notify_release_game_roles, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.transfer_world_role] = Functional.make_closure(self._on_rpc_transfer_world_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.check_match_world_roles] = Functional.make_closure(self._on_rpc_check_match_world_roles, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.method.query_game_role_location] = Functional.make_closure(self._on_rpc_query_game_role_location, self)
+
 end
 
 function RoleStateMgr:_on_stop()
@@ -80,7 +84,7 @@ function RoleStateMgr:_check_and_release_idle_roles(now_sec)
 end
 
 ---@param rpc_rsp RpcRsp
-function RoleStateMgr:_handle_remote_call_launch_role(rpc_rsp, gate_netid, auth_sn, user_id, role_id)
+function RoleStateMgr:_on_rpc_launch_role(rpc_rsp, gate_netid, auth_sn, user_id, role_id)
     if self._work_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
@@ -313,7 +317,7 @@ function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num
     end
 end
 
-function RoleStateMgr:_handle_remote_call_reconnect_role(rpc_rsp, gate_netid, role_id, auth_sn)
+function RoleStateMgr:_on_rpc_reconnect_role(rpc_rsp, gate_netid, role_id, auth_sn)
     if self._work_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
@@ -375,7 +379,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_for_reconnect_role(
 end
 
 ---@param rpc_rsp RpcRsp
-function RoleStateMgr:_handle_remote_call_logout_role(rpc_rsp, session_id)
+function RoleStateMgr:_on_rpc_logout_role(rpc_rsp, session_id)
     local error_num = Error_None
     repeat
         local role_state = self._session_id_to_role_state[session_id]
@@ -392,7 +396,7 @@ function RoleStateMgr:_handle_remote_call_logout_role(rpc_rsp, session_id)
     rpc_rsp:response(error_num)
 end
 
-function RoleStateMgr:_handle_remote_call_gate_client_quit(rpc_rsp, session_id)
+function RoleStateMgr:_on_rpc_gate_client_quit(rpc_rsp, session_id)
     rpc_rsp:response()
     local role_state = self._session_id_to_role_state[session_id]
     if role_state then
@@ -407,22 +411,22 @@ function RoleStateMgr:_handle_remote_call_gate_client_quit(rpc_rsp, session_id)
         elseif World_Role_State.launch == role_state then
             self:try_release_role(role_state.role_id, "gate_client_quit_and_role_state_unexpecte")
         else
-            log_warn("RoleStateMgr:_handle_remote_call_gate_client_quit error: role_id %s role_state %s", role_state.role_id, role_state.state)
+            log_warn("RoleStateMgr:_on_rpc_gate_client_quit error: role_id %s role_state %s", role_state.role_id, role_state.state)
             self:try_release_role(role_state.role_id, "gate_client_quit_and_role_state_unexpecte")
         end
     end
 end
 
-function RoleStateMgr:_handle_remote_call_notify_release_game_roles(rpc_rsp, role_ids)
-    log_print("RoleStateMgr:_handle_remote_call_notify_release_game_roles ", role_ids)
+function RoleStateMgr:_on_rpc_notify_release_game_roles(rpc_rsp, role_ids)
+    log_print("RoleStateMgr:_on_rpc_notify_release_game_roles ", role_ids)
     rpc_rsp:response()
     for _, role_id in pairs(role_ids or {}) do
         self:try_release_role(role_id, "game_notify_release_game_roles")
     end
 end
 
-function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_state_data)
-    log_print("RoleStateMgr:_handle_remote_call_transfer_world_role ", role_state_data, self.server:get_cluster_server_key())
+function RoleStateMgr:_on_rpc_transfer_world_role(rpc_rsp, role_state_data)
+    log_print("RoleStateMgr:_on_rpc_transfer_world_role ", role_state_data, self.server:get_cluster_server_key())
     if self._work_world_shadow:is_parted() then
         rpc_rsp:response(Error_Server_Role_Shadow_Parted)
         return
@@ -455,12 +459,12 @@ function RoleStateMgr:_handle_remote_call_transfer_world_role(rpc_rsp, role_stat
         self._session_id_to_role_state[session_id] = role_state
     end
     rpc_rsp:response(Error_None)
-    log_print("RoleStateMgr:_handle_remote_call_transfer_world_role 22222")
+    log_print("RoleStateMgr:_on_rpc_transfer_world_role 22222")
     self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_bind_world, self, session_id),
         role_state.game_server_key, Rpc.game.method.bind_world, role_id)
 end
 
-function RoleStateMgr:_handle_remote_call_check_match_world_roles(rpc_rsp, role_ids)
+function RoleStateMgr:_on_rpc_check_match_world_roles(rpc_rsp, role_ids)
     local mismatch_role_ids = {}
     if not self._work_world_shadow:is_adjusting_version() then
         for _, role_id in pairs(role_ids) do
@@ -640,3 +644,52 @@ function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, rol
         end
     end, game_server_key, Rpc.game.method.check_match_game_roles, role_ids)
 end
+
+function RoleStateMgr:_on_rpc_query_game_role_location(rpc_rsp, role_ids, left_redirect_times)
+    local role_ids_group_by_world = {}
+    local self_server_key = self.server:get_cluster_server_key()
+    local game_role_locations = {}
+    for _, role_id in pairs(role_ids) do
+        game_role_locations[role_id] = ""
+        local role_state = self._role_id_to_role_state[role_id]
+        if role_state then
+            if World_Role_State.using == role_state.state or World_Role_State.idle == role_state.state then
+                game_role_locations[role_id] = role_state.game_server_key
+            end
+        else
+            local locate_world_server_key = self._work_world_shadow:cal_server_address(role_id)
+            if locate_world_server_key ~= self_server_key then
+                role_ids_group_by_world[locate_world_server_key] = role_ids_group_by_world[locate_world_server_key] or {}
+                table.insert(role_ids_group_by_world[locate_world_server_key], role_id)
+            end
+        end
+    end
+
+    -- log_print("_on_rpc_query_game_role_location ", left_redirect_times, game_role_locations, role_ids_group_by_world)
+
+    if left_redirect_times <= 0 or not next(role_ids_group_by_world) then
+        rpc_rsp:response(game_role_locations)
+    else
+        for k, v in pairs(role_ids_group_by_world) do
+            local other_world_server_key = k
+            self._rpc_svc_proxy:call(
+                    Functional.make_closure(self._on_cb_batch_query_role_location, self, rpc_rsp, game_role_locations, role_ids_group_by_world, other_world_server_key),
+                    other_world_server_key, Rpc.world.method.query_game_role_location, v, left_redirect_times - 1)
+        end
+    end
+end
+
+function RoleStateMgr:_on_cb_batch_query_role_location(rpc_rsp, game_role_locations, role_ids_group_by_world, other_world_server_key, rpc_error_num, sub_game_role_locations)
+    role_ids_group_by_world[other_world_server_key] = nil
+    for k, v in pairs(sub_game_role_locations) do
+        if v and #v > 0 then
+            game_role_locations[k] = v
+        end
+    end
+    if not next(role_ids_group_by_world) then
+        rpc_rsp:response(game_role_locations)
+    end
+end
+
+
+
