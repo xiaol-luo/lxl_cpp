@@ -43,6 +43,11 @@ function RpcServiceProxy:call(cb_fn, remote_server_key, remote_fn, ...)
     self._rpc_svc:call(cb_fn, remote_server_key, remote_fn, ...)
 end
 
+---@param cb_fn Fn_RpcRemoteCallGameServerCallback
+function RpcServiceProxy:call_game_server(cb_fn, role_id, remote_fn, ...)
+    self._rpc_svc:call_game_server(cb_fn, role_id, remote_fn, ...)
+end
+
 ---@return RpcClient
 function RpcServiceProxy:create_client(remote_server_key)
     local ret = self._rpc_svc:create_client(remote_server_key)

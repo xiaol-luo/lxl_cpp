@@ -236,9 +236,24 @@ end
 function PeerNetService:random_server_key(server_role)
     local ret = nil
     if server_role then
+        ---@type RandomHash
         local role_server_states = self._cluster_server_states_group_by_roles[server_role]
         if role_server_states then
             local val, key = role_server_states:random()
+            ret = key
+        end
+    end
+    -- log_print("PeerNetService:random_server_key", server_role, ret)
+    return ret
+end
+
+function PeerNetService:pick_server_key(server_role, pick_idx)
+    local ret = nil
+    if server_role then
+        ---@type RandomHash
+        local role_server_states = self._cluster_server_states_group_by_roles[server_role]
+        if role_server_states and role_server_states:size() > 0 then
+            local _, key = role_server_states:get_by_index(pick_idx % role_server_states:size())
             ret = key
         end
     end

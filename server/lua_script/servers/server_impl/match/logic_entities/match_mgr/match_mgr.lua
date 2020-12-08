@@ -65,12 +65,12 @@ function MatchMgr:_on_update()
 end
 
 function MatchMgr:_create_match_team(match_theme, match_key, ask_role_id, teammate_role_ids, extra_param)
-    local ret = nil
+    local error_num, ret = Error_Unknown, nil
     local logic = self:get_match_logic(match_theme)
     if logic then
-        ret = logic:create_match_team(match_key, ask_role_id, teammate_role_ids, extra_param)
+        error_num, ret = logic:create_match_team(match_key, ask_role_id, teammate_role_ids, extra_param)
     end
-    return ret
+    return error_num, ret
 end
 
 function MatchMgr:get_match_item(match_key)
@@ -101,11 +101,13 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, msg)
             error_num = Error.join_match.match_key_clash
             break
         end
+
         local sub_error_num, match_team = self:_create_match_team(msg.match_theme, msg.match_key, msg.role_id, msg.teammate_role_ids, msg.extra_param)
-        if not sub_error_num then
+        if Error_None ~= sub_error_num then
             error_num = sub_error_num
             break
         end
+
         local match_item = MatchItem:new()
         match_item.match_theme = msg.match_theme
         match_item.match_key = msg.match_key
@@ -116,8 +118,12 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, msg)
         match_item.state = Match_Item_State.ask_teammate_accept_match
         for _, role_id in pairs(msg.teammate_role_ids) do
             --- 查询role所在game_server_key, 然后叫他们同意match
+--[[
+            self._rpc_svc_proxy:call_game_server(function(rpc_error_num, error_num, ...)
+                log_print("查询role所在game_server_key ", role_id, rpc_error_num, error_num, ...)
+            end, role_id, Rpc.game.method.test_match, role_id, "12345")
+            --]]
         end
-
     until true
 
     rpc_rsp:response(error_num)

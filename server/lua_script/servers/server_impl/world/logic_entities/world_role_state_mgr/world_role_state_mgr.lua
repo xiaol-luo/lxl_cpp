@@ -681,9 +681,11 @@ end
 
 function RoleStateMgr:_on_cb_batch_query_role_location(rpc_rsp, game_role_locations, role_ids_group_by_world, other_world_server_key, rpc_error_num, sub_game_role_locations)
     role_ids_group_by_world[other_world_server_key] = nil
-    for k, v in pairs(sub_game_role_locations) do
-        if v and #v > 0 then
-            game_role_locations[k] = v
+    if Error_None == rpc_error_num then
+        for k, v in pairs(sub_game_role_locations) do
+            if v and #v > 0 then
+                game_role_locations[k] = v
+            end
         end
     end
     if not next(role_ids_group_by_world) then

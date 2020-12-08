@@ -9,3 +9,5 @@ Rpc.game.method.bind_world = "bind_world"
 Rpc.game.method.check_match_game_roles = "check_match_game_roles"
 
 Rpc.game.method.forward_client_msg_to_game = "forward_client_msg_to_game"
+
+Rpc.game.method.test_match = "test_match"

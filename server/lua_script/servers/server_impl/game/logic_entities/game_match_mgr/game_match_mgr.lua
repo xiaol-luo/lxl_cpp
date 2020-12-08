@@ -57,7 +57,13 @@ end
 --- rpc函数
 function GameMatchMgr:_on_map_remote_call_handle_fns()
     GameMatchMgr.super._on_map_remote_call_handle_fns()
-    -- self._method_name_to_remote_call_handle_fns[]
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.test_match] = Functional.make_closure(self._on_rpc_test_match, self)
+end
+
+---@param rpc_rsp RpcRsp
+function GameMatchMgr:_on_rpc_test_match(rpc_rsp, ...)
+    log_print("GameMatchMgr:_on_rpc_test_match ", ...)
+    rpc_rsp:response(Error_None, ...)
 end
 
 ---@param msg PB_ReqJoinMatch

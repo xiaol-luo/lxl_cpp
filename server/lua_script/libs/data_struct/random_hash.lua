@@ -85,3 +85,10 @@ end
 function RandomHash:size()
     return #self._array
 end
+
+function RandomHash:get_by_index(idx)
+    if idx <= 0 or idx > #self._array then
+        return nil, nil
+    end
+    return self._array[idx].val, self._array[idx].key
+end
