@@ -11,3 +11,7 @@ Rpc.game.method.check_match_game_roles = "check_match_game_roles"
 Rpc.game.method.forward_client_msg_to_game = "forward_client_msg_to_game"
 
 Rpc.game.method.test_match = "test_match"
+
+Rpc.game.method.ask_role_accept_match = "ask_role_accept_match"
+Rpc.game.method.notify_match_over = "match_over"
+Rpc.game.method.notify_matching = "notify_matching"

@@ -76,10 +76,10 @@ function RpcService:call_game_server(cb_fn, role_id, remote_fn, ...)
     if not world_server_key then
         if cb_fn then
             cb_fn(Error_None, Error_Not_Available_Server)
-            return
         end
+        return
     end
-
+    
     local n, params = Functional.varlen_param_info(...)
     self:call(function(rpc_error_num, role_locations)
         local role_locate_game_server_key = role_locations[role_id]

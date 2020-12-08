@@ -18,7 +18,7 @@ function MatchMgr:_on_init()
     MatchMgr.super._on_init(self)
 
     do
-        local match_logic = MatchLogicSimpleFill:ctor(self, {
+        local match_logic = MatchLogicSimpleFill:new(self, {
             match_theme = Match_Theme.two_dice,
             game_role_max_num = 2,
         })
@@ -68,7 +68,10 @@ function MatchMgr:_create_match_team(match_theme, match_key, ask_role_id, teamma
     local error_num, ret = Error_Unknown, nil
     local logic = self:get_match_logic(match_theme)
     if logic then
-        error_num, ret = logic:create_match_team(match_key, ask_role_id, teammate_role_ids, extra_param)
+        ret = logic:create_match_team(match_key, ask_role_id, teammate_role_ids, extra_param)
+        if ret then
+            error_num = Error_None
+        end
     end
     return error_num, ret
 end
@@ -92,8 +95,6 @@ end
 
 ---@param rpc_rsp RpcRsp
 function MatchMgr:_on_rpc_join_match(rpc_rsp, msg)
-    log_print("MatchMgr:_handle_remote_call_join_match", msg)
-
     local error_num = Error_None
     repeat
         local match_item = self:get_match_item(msg.match_key)
@@ -113,25 +114,76 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, msg)
         match_item.match_key = msg.match_key
         match_item.match_team = match_team
         match_item.match_logic = self:get_match_logic(msg.match_theme)
+        match_item.role_replys = {}
         self._key_to_item[match_item.match_key] = match_item
 
         match_item.state = Match_Item_State.ask_teammate_accept_match
-        for _, role_id in pairs(msg.teammate_role_ids) do
-            --- 查询role所在game_server_key, 然后叫他们同意match
---[[
-            self._rpc_svc_proxy:call_game_server(function(rpc_error_num, error_num, ...)
-                log_print("查询role所在game_server_key ", role_id, rpc_error_num, error_num, ...)
-            end, role_id, Rpc.game.method.test_match, role_id, "12345")
-            --]]
+        for _, v in pairs(msg.teammate_role_ids) do
+            local role_id = v
+            self._rpc_svc_proxy:call_game_server(
+                    Functional.make_closure(self._on_cb_ask_role_accept_match, self, match_item, role_id),
+                    role_id, Rpc.game.method.ask_role_accept_match, role_id, msg)
         end
     until true
 
+    log_print("MatchMgr:_handle_remote_call_join_match", error_num, msg)
     rpc_rsp:response(error_num)
+end
+
+---@param match_item MatchItem
+function MatchMgr:_on_cb_ask_role_accept_match(match_item, role_id, rpc_error_num, error_num, is_accept)
+    log_print("MatchMgr:_on_cb_ask_role_accept_match", role_id, rpc_error_num, error_num,  is_accept)
+    if Match_Item_State.ask_teammate_accept_match ~=  match_item.state then
+        return
+    end
+
+    local real_error_num = pick_error_num(rpc_error_num, error_num)
+    if Error_None ~= real_error_num then
+        match_item.role_replys[role_id] = false
+    else
+        match_item.role_replys[role_id] = is_accept
+    end
+    if not match_item.role_replys[role_id] then
+        match_item.state = Match_Item_State.over
+        for _, v in pairs(match_item.match_team.teammate_role_ids) do
+            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
+        end
+        self:remove_team(match_item.match_key)
+    else
+        if table.size(match_item.role_replys) == #match_item.match_team.teammate_role_ids then
+            match_item.state = Match_Item_State.all_teammate_accept_match
+            match_item.can_match = true
+            match_item.role_replys = {}
+            self:enter_match_pool(match_item.match_key)
+            for _, v in pairs(match_item.match_team.teammate_role_ids) do
+                self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_matching, v, match_item.match_key)
+            end
+        end
+    end
+end
+
+function MatchMgr:remove_team(match_key)
+    self:leave_match_pool(match_key)
+    local match_item = self._key_to_item[match_key]
+    self._key_to_item[match_key] = nil
+    if match_item then
+        -- todo:
+    end
+end
+
+function MatchMgr:enter_match_pool(match_key)
+    local match_item = self._key_to_item[match_key]
+    --
+end
+
+function MatchMgr:leave_match_pool(match_key)
+
 end
 
 ---@param rpc_rsp RpcRsp
 function MatchMgr:_on_rpc_quit_match(rpc_rsp, msg)
     log_print("MatchMgr:_on_rpc_quit_match", msg)
+    -- local match_item = self._key_to_item[msg.match_key]
     self._key_to_item[msg.match_key] = nil
     rpc_rsp:response(Error_None)
 end

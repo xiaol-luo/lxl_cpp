@@ -253,7 +253,7 @@ function PeerNetService:pick_server_key(server_role, pick_idx)
         ---@type RandomHash
         local role_server_states = self._cluster_server_states_group_by_roles[server_role]
         if role_server_states and role_server_states:size() > 0 then
-            local _, key = role_server_states:get_by_index(pick_idx % role_server_states:size())
+            local _, key = role_server_states:get_by_index(pick_idx % role_server_states:size() + 1)
             ret = key
         end
     end

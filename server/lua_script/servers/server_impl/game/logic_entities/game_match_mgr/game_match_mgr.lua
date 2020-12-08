@@ -58,12 +58,30 @@ end
 function GameMatchMgr:_on_map_remote_call_handle_fns()
     GameMatchMgr.super._on_map_remote_call_handle_fns()
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.test_match] = Functional.make_closure(self._on_rpc_test_match, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.ask_role_accept_match] = Functional.make_closure(self._on_rpc_ask_role_accept_match, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_match_over] = Functional.make_closure(self._on_rpc_match_over, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_matching] = Functional.make_closure(self._on_rpc_notify_matching, self)
 end
 
 ---@param rpc_rsp RpcRsp
 function GameMatchMgr:_on_rpc_test_match(rpc_rsp, ...)
     log_print("GameMatchMgr:_on_rpc_test_match ", ...)
     rpc_rsp:response(Error_None, ...)
+end
+
+function GameMatchMgr:_on_rpc_ask_role_accept_match(rpc_rsp, role_id, msg)
+    log_print("GameMatchMgr:_on_rpc_ask_role_accept_match")
+    rpc_rsp:response(Error_None, math.random(0, 2) >= 1)
+end
+
+function GameMatchMgr:_on_rpc_match_over(rpc_rsp, role_id, match_key)
+    log_print("GameMatchMgr:_on_rpc_match_over")
+    rpc_rsp:response(Error_None)
+end
+
+function GameMatchMgr:_on_rpc_notify_matching(rpc_rsp, role_id, match_key)
+    log_print("GameMatchMgr:_on_rpc_notify_matching")
+    rpc_rsp:response(Error_None)
 end
 
 ---@param msg PB_ReqJoinMatch

@@ -7,5 +7,7 @@ function MatchLogicSimpleFill:ctor(match_mgr, logic_setting)
 end
 
 function MatchLogicSimpleFill:create_match_team(match_key, ask_role_id, teammate_role_ids, extra_param)
-    return Error_None, {}
+    local ret = SimpleFillMatchTeam:new(self, match_key, ask_role_id, teammate_role_ids, extra_param)
+    return ret
 end
+

@@ -10,6 +10,7 @@ Match_Item_State.wait_room = "wait_enter_room"
 Match_Item_State.ask_teammate_accept_enter_room = "ask_teammate_accept_enter_room"
 Match_Item_State.all_teammate_accept_enter_room = "all_teammate_accept_enter_room"
 Match_Item_State.enter_room = "enter_room"; -- done
+Match_Item_State.over = "over" -- 结束了
 
 ---@class MatchItem
 ---@field match_theme string
@@ -25,6 +26,8 @@ function MatchItem:ctor()
     self.match_team = nil
     self.state = Match_Item_State.free
     self.match_logic = nil
+    self.role_replys = nil
+    self.can_match = false
 end
 
 
