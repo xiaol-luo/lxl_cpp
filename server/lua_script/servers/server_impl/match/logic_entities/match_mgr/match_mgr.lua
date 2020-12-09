@@ -6,19 +6,21 @@ function MatchMgr:ctor(logics, logic_name)
     MatchMgr.super.ctor(self, logics, logic_name)
     ---@type MatchServiceMgr
     self.server = self.server
-    ---@type table<Match_Theme, MatchTeamBase>
+    ---@type table<Match_Theme, MatchItem>
     self._key_to_item = {}
     ---@type table<string, MatchLogicBase>
     self._theme_to_logic = {}
+    ---@type table<string, boolean>
+    self._quit_match_keys = {}
 
-
+    self._key_to_match_game = {}
 end
 
 function MatchMgr:_on_init()
     MatchMgr.super._on_init(self)
 
     do
-        local match_logic = MatchLogicSimpleFill:new(self, {
+        local match_logic = SimpleFillMatchLogic:new(self, {
             match_theme = Match_Theme.two_dice,
             game_role_max_num = 2,
         })
@@ -56,11 +58,66 @@ function MatchMgr:_on_release()
 end
 
 function MatchMgr:_on_update()
-    -- log_print("MatchMgr:_on_update")
     MatchMgr.super._on_update(self)
+
 
     for _, logic in pairs(self._theme_to_logic) do
         logic:update()
+        local ready_match_games = logic:pop_ready_match_games()
+        if ready_match_games then
+            local invalid_match_games = {}
+            local valid_match_games = {}
+            do -- 根据规则填充两个table
+                for _ , match_game in pairs(ready_match_games) do
+                    local all_team_ok = true
+                    for _, match_camp in pairs(match_game.match_camps) do
+                        for match_key, _ in pairs(match_camp.match_teams) do
+                            if self._quit_match_keys[match_key] then
+                                all_team_ok = false
+                                break
+                            end
+                        end
+                        if all_team_ok then
+                            break
+                        end
+                    end
+                    if not all_team_ok then
+                        table.insert(invalid_match_games, match_game)
+                    else
+                        table.insert(valid_match_games, match_game)
+                    end
+                end
+            end
+            log_print("MatchMgr.super._on_update ", #invalid_match_games, #valid_match_games)
+            for _, match_game in pairs(valid_match_games) do
+                -- 合法的match_game， 给对应的match_item设置状态
+                -- todo: 但实际上还需要加game_role确认的流程
+                -- todo: 和room对接,申请room
+                self._key_to_match_game[match_game.unique_key] = match_game
+                for _, match_camp in pairs(match_game.match_camps) do
+                    for match_key, _ in pairs(match_camp.match_teams) do
+                        local match_item = self:get_match_item(match_key)
+                        match_item.state = Match_Item_State.match_done
+                    end
+                end
+            end
+            for _, match_game in pairs(invalid_match_games) do
+                -- 不合法的match_game，重新加入匹配
+                for _, match_camp in pairs(match_game.match_camps) do
+                    for match_key, _ in pairs(match_camp.match_teams) do
+                        local match_item = self:get_match_item(match_key)
+                        if match_item then
+                            match_item.state = Match_Item_State.wait_enter_match_pool
+                            self:enter_match_pool(match_key)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if next(self._quit_match_keys) then
+        self._quit_match_keys = {}
     end
 end
 
@@ -145,14 +202,13 @@ function MatchMgr:_on_cb_ask_role_accept_match(match_item, role_id, rpc_error_nu
     end
     if not match_item.role_replys[role_id] then
         match_item.state = Match_Item_State.over
+        self:remove_team(match_item.match_key)
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
             self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
         end
-        self:remove_team(match_item.match_key)
     else
         if table.size(match_item.role_replys) == #match_item.match_team.teammate_role_ids then
-            match_item.state = Match_Item_State.all_teammate_accept_match
-            match_item.can_match = true
+            match_item.state = Match_Item_State.wait_enter_match_pool
             match_item.role_replys = {}
             self:enter_match_pool(match_item.match_key)
             for _, v in pairs(match_item.match_team.teammate_role_ids) do
@@ -167,26 +223,55 @@ function MatchMgr:remove_team(match_key)
     local match_item = self._key_to_item[match_key]
     self._key_to_item[match_key] = nil
     if match_item then
-        -- todo:
+        for _, v in pairs(match_item.match_team.teammate_role_ids) do
+            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
+        end
     end
 end
 
 function MatchMgr:enter_match_pool(match_key)
     local match_item = self._key_to_item[match_key]
-    --
+    if not match_item or Match_Item_State.wait_enter_match_pool ~= match_item.state then
+        return false
+    end
+    local match_logic = self:get_match_logic(match_item.match_theme)
+    if not match_logic then
+        return false
+    end
+    local ret = match_logic:enter_match(match_item.match_team)
+    if ret then
+        match_item.state = Match_Item_State.matching
+    end
+    return ret
 end
 
 function MatchMgr:leave_match_pool(match_key)
-
+    local match_item = self._key_to_item[match_key]
+    if match_item then
+        local match_logic = self:get_match_logic(match_item.match_theme)
+        if match_logic then
+            match_logic:leave_match(match_item.match_key)
+        end
+    end
 end
 
 ---@param rpc_rsp RpcRsp
 function MatchMgr:_on_rpc_quit_match(rpc_rsp, msg)
-    log_print("MatchMgr:_on_rpc_quit_match", msg)
-    -- local match_item = self._key_to_item[msg.match_key]
-    self._key_to_item[msg.match_key] = nil
-    rpc_rsp:response(Error_None)
+    local error_num = Error_None
+    local match_item = self:get_match_item(msg.match_key)
+    if match_item and Match_Item_State.match_done ~= match_item.state then
+        self:remove_team(match_item.match_key)
+        for _, v in pairs(match_item.match_team.teammate_role_ids) do
+            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
+        end
+        self._quit_match_keys[match_item.match_key] = true
+    else
+        error_num = Error.quit_match.can_not_quit_when_match_done
+    end
+    log_print("MatchMgr:_on_rpc_quit_match", error_num, msg, match_item and match_item.state)
+    rpc_rsp:response(error_num)
 end
+
 
 
 

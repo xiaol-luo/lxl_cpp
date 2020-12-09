@@ -9,6 +9,8 @@ function MatchLogicBase:ctor(match_mgr, logic_setting)
     self._logic_setting = logic_setting
     ---@type table<string, MatchTeamBase>
     self._key_to_team = {}
+    ---@type table<number, MatchGameBase>
+    self._ready_match_games = {}
 end
 
 function MatchLogicBase:get_team(match_key)
@@ -40,8 +42,44 @@ function MatchLogicBase:create_match_team(match_key, ask_role_id, teammate_role_
     return nil
 end
 
-function MatchLogicBase:_on_init(...)
+---@param match_team MatchTeamBase
+function MatchLogicBase:enter_match(match_team)
+    if not match_team or not match_team.match_key then
+        return false
+    end
+    if self:get_team(match_team.match_key) then
+        return false
+    end
+
+    if not self:__check_can_enter_match(match_team) then
+        return false
+    end
+
+    self._key_to_team[match_team.match_key] = match_team
+    self:_on_enter_match(match_team)
+    return true
+end
+
+function MatchLogicBase:leave_match(match_key)
     -- override by subclass
+    local match_team = self:get_team(match_key)
+    if match_team then
+        self._key_to_team[match_key] = nil
+        self:_on_leave_match(match_team)
+    end
+end
+
+function MatchLogicBase:pop_ready_match_games()
+    if not next(self._ready_match_games) then
+        return nil
+    end
+    local ret = self._ready_match_games
+    self._ready_match_games = {}
+    return ret
+end
+
+function MatchLogicBase:_on_init(...)
+
 end
 
 function MatchLogicBase:_on_start()
@@ -57,6 +95,19 @@ function MatchLogicBase:_on_release()
 end
 
 function MatchLogicBase:_on_update()
+    -- override by subclass
+end
+
+function MatchLogicBase:__check_can_enter_match(match_team)
+    -- override by subclass
+    return false
+end
+
+function MatchLogicBase:_on_enter_match(match_team)
+    -- override by subclass
+end
+
+function MatchLogicBase:_on_leave_match(match_team)
     -- override by subclass
 end
 

@@ -82,9 +82,13 @@ function RpcService:call_game_server(cb_fn, role_id, remote_fn, ...)
     
     local n, params = Functional.varlen_param_info(...)
     self:call(function(rpc_error_num, role_locations)
-        local role_locate_game_server_key = role_locations[role_id]
+
+        local role_locate_game_server_key = nil
+        if Error_None == rpc_error_num and role_locations then
+            role_locate_game_server_key = role_locations[role_id]
+        end
         local not_find_role = not role_locate_game_server_key or #role_locate_game_server_key <= 0
-        if Error_None ~= rpc_error_num or not_find_role then
+        if not_find_role then
             if cb_fn then
                 cb_fn(rpc_error_num, not_find_role and Error_Not_Find_Role or Error_None)
             end
