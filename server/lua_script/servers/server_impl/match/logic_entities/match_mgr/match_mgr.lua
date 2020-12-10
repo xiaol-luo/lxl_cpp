@@ -12,8 +12,9 @@ function MatchMgr:ctor(logics, logic_name)
     self._theme_to_logic = {}
     ---@type table<string, boolean>
     self._quit_match_keys = {}
-
     self._key_to_match_game = {}
+    ---@type MatchRoomMgr
+    self._room_mgr = nil
 end
 
 function MatchMgr:_on_init()
@@ -34,7 +35,7 @@ end
 
 function MatchMgr:_on_start()
     MatchMgr.super._on_start(self)
-
+    self._room_mgr = self.server.logics.room_mgr
     for _, logic in pairs(self._theme_to_logic) do
         logic:start()
     end
@@ -88,18 +89,19 @@ function MatchMgr:_on_update()
                     end
                 end
             end
-            log_print("MatchMgr.super._on_update ", #invalid_match_games, #valid_match_games)
             for _, match_game in pairs(valid_match_games) do
                 -- 合法的match_game， 给对应的match_item设置状态
-                -- todo: 但实际上还需要加game_role确认的流程
-                -- todo: 和room对接,申请room
                 self._key_to_match_game[match_game.unique_key] = match_game
                 for _, match_camp in pairs(match_game.match_camps) do
-                    for match_key, _ in pairs(match_camp.match_teams) do
+                    for match_key, match_team in pairs(match_camp.match_teams) do
                         local match_item = self:get_match_item(match_key)
-                        match_item.state = Match_Item_State.match_done
+                        match_item.state = Match_Item_State.match_succ
+                        for _, v in pairs(match_team.teammate_role_ids) do
+                            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_succ, v, match_item.match_key)
+                        end
                     end
                 end
+                self._room_mgr:handle_match_game(match_game)
             end
             for _, match_game in pairs(invalid_match_games) do
                 -- 不合法的match_game，重新加入匹配
@@ -201,7 +203,7 @@ function MatchMgr:_on_cb_ask_role_accept_match(match_item, role_id, rpc_error_nu
         match_item.role_replys[role_id] = is_accept
     end
     if not match_item.role_replys[role_id] then
-        match_item.state = Match_Item_State.over
+        match_item.state = Match_Item_State.match_over
         self:remove_team(match_item.match_key)
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
             self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
@@ -223,6 +225,7 @@ function MatchMgr:remove_team(match_key)
     local match_item = self._key_to_item[match_key]
     self._key_to_item[match_key] = nil
     if match_item then
+        match_item.state = Match_Item_State.match_over
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
             self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
         end
@@ -255,11 +258,35 @@ function MatchMgr:leave_match_pool(match_key)
     end
 end
 
+---@param match_game MatchGameBase
+function MatchMgr:notify_handle_game_fail(match_game, relate_role_ids)
+    -- 最简单的做法就是，相关的匹配人员全部退出匹配
+    -- 好一点的做法是，relate_role_ids涉及的match_team推出匹配，
+    -- 其他的match_team重新进入匹配池
+    self._key_to_match_game[match_game.unique_key] = nil
+    for _, match_camp in pairs(match_game.match_camps) do
+        for match_key, match_team in pairs(match_camp.match_teams) do
+            self:remove_team(match_key)
+        end
+    end
+end
+
+---@param match_game MatchGameBase
+function MatchMgr:notify_handle_game_succ(match_game)
+    self._key_to_match_game[match_game.unique_key] = nil
+    for _, match_camp in pairs(match_game.match_camps) do
+        for match_key, match_team in pairs(match_camp.match_teams) do
+            self:remove_team(match_key)
+        end
+    end
+end
+
 ---@param rpc_rsp RpcRsp
 function MatchMgr:_on_rpc_quit_match(rpc_rsp, msg)
     local error_num = Error_None
     local match_item = self:get_match_item(msg.match_key)
-    if match_item and Match_Item_State.match_done ~= match_item.state then
+    if match_item and Match_Item_State.match_succ ~= match_item.state then
+        match_item.state = Match_Item_State.match_over
         self:remove_team(match_item.match_key)
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
             self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)

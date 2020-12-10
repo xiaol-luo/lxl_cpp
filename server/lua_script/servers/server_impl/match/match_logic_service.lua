@@ -1,6 +1,7 @@
 
 ---@class MatchLogicService:LogicServiceBase
 ---@field match_mgr MatchMgr
+---@field room_mgr RoomMgr
 MatchLogicService = MatchLogicService or class("LogicService", LogicServiceBase)
 
 function MatchLogicService:_on_init()

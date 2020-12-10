@@ -10,7 +10,7 @@ function GameMatchMgr:ctor(logics, logic_name)
     ---@type GameRoomMgr
     self._room_mgr = nil
     ---@type table<number, GameMatchItem>
-    self._role_id_match_map = {}
+    self._role_id_to_match = {}
 end
 
 
@@ -59,8 +59,9 @@ function GameMatchMgr:_on_map_remote_call_handle_fns()
     GameMatchMgr.super._on_map_remote_call_handle_fns()
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.test_match] = Functional.make_closure(self._on_rpc_test_match, self)
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.ask_role_accept_match] = Functional.make_closure(self._on_rpc_ask_role_accept_match, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_match_over] = Functional.make_closure(self._on_rpc_match_over, self)
     self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_matching] = Functional.make_closure(self._on_rpc_notify_matching, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_match_succ] = Functional.make_closure(self._on_rpc_notify_match_succ, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_match_over] = Functional.make_closure(self._on_rpc_match_over, self)
 end
 
 ---@param rpc_rsp RpcRsp
@@ -71,17 +72,27 @@ end
 
 function GameMatchMgr:_on_rpc_ask_role_accept_match(rpc_rsp, role_id, msg)
     log_print("GameMatchMgr:_on_rpc_ask_role_accept_match")
-    rpc_rsp:response(Error_None, math.random(0, 2) >= 1)
-end
-
-function GameMatchMgr:_on_rpc_match_over(rpc_rsp, role_id, match_key)
-    log_print("GameMatchMgr:_on_rpc_match_over")
-    rpc_rsp:response(Error_None)
+    local is_accept = math.random(0, 2) >= 1
+    rpc_rsp:response(Error_None, is_accept)
+    if not is_accept then
+        self._role_id_to_match[role_id] = nil
+    end
 end
 
 function GameMatchMgr:_on_rpc_notify_matching(rpc_rsp, role_id, match_key)
     log_print("GameMatchMgr:_on_rpc_notify_matching")
     rpc_rsp:response(Error_None)
+end
+
+function GameMatchMgr:_on_rpc_notify_match_succ(rpc_rsp, role_id, match_key)
+    log_print("GameMatchMgr:_on_rpc_notify_match_succ")
+    rpc_rsp:response(Error_None)
+end
+
+function GameMatchMgr:_on_rpc_match_over(rpc_rsp, role_id, match_key)
+    log_print("GameMatchMgr:_on_rpc_match_over")
+    rpc_rsp:response(Error_None)
+    self._role_id_to_match[role_id] = nil
 end
 
 ---@param msg PB_ReqJoinMatch
@@ -106,7 +117,7 @@ function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, ms
         end
         if not match then
             match = GameMatchItem:new()
-            self._role_id_match_map[role_id] = match
+            self._role_id_to_match[role_id] = match
         end
         match.match_server_key = match_server_key
         match.match_theme = msg.match_theme
@@ -159,7 +170,7 @@ function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, ms
             Match_Theme = match.match_theme,
             match_key = match.match_key,
         })
-        self._role_id_match_map[role_id] = nil
+        self._role_id_to_match[role_id] = nil
     until true
     self._forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.rsp_quit_match, { error_num = error_num })
     self:sync_state(role_id, from_gate, gate_netid)
@@ -202,7 +213,7 @@ function GameMatchMgr:_on_event_role_leave_game(game_role)
 end
 
 function GameMatchMgr:get_match(role_id)
-    local ret = self._role_id_match_map[role_id]
+    local ret = self._role_id_to_match[role_id]
     return ret
 end
 
