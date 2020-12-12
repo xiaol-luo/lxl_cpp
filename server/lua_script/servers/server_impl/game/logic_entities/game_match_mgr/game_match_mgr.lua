@@ -145,7 +145,7 @@ function GameMatchMgr:_on_rpc_match_over(rpc_rsp, role_id, match_key)
     rpc_rsp:response(Error_None)
     local match = self:get_match(role_id)
     if match and match.match_key == match_key then
-        match.state = Game_Match_Item_State.match_over
+        match.state = Game_Match_Item_State.all_over
         self:sync_state(role_id)
     end
     if self:remove_match(role_id, match_key) then
@@ -300,7 +300,7 @@ function GameMatchMgr:remove_match(role_id, match_key)
     if match then
         if nil == match_key or match_key == match.match_key then
             is_removed = true
-            match.state = Game_Match_Item_State.match_over
+            match.state = Game_Match_Item_State.all_over
             self._role_id_to_match[role_id] = nil
             local game_role = self.logics.role_mgr:get_role(role_id)
             if game_role then

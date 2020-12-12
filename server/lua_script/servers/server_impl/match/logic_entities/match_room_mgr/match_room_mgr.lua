@@ -10,6 +10,8 @@ function MatchRoomMgr:ctor(logics, logic_name)
     ---@type table<string, MatchGameBase>
     self._key_to_match_game  = {}
     self._match_mgr = nil
+
+    self._key_to_room = {}
 end
 
 function MatchRoomMgr:_on_init()
@@ -61,8 +63,27 @@ end
 
 ---@param match_game MatchGameBase
 function MatchRoomMgr:handle_match_game(match_game)
+    local match_room = MatchRoom:new()
+    match_room.unique_key = gen_uuid()
+    match_room.match_game = match_game
+    self._key_to_room[match_room.unique_key] = match_room
+
+    -- todo: 1.向game_role确认进入room
+    -- todo: 2.向room_server申请room
+    -- todo: 完成任务
     self._key_to_match_game[match_game.unique_key] = match_game
     -- log_print("MatchRoomMgr:handle_match_game", table.size(self._key_to_match_game), match_game)
+end
+
+function MatchRoomMgr:get_room(room_key)
+    local ret = self._key_to_room[room_key]
+    return ret
+end
+
+function MatchRoomMgr:remove_room(room_key)
+    local ret = self._key_to_room[room_key]
+    self._key_to_room[room_key] = nil
+    return ret
 end
 
 --- rpc函数

@@ -203,7 +203,7 @@ function MatchMgr:_on_cb_ask_role_accept_match(match_item, role_id, rpc_error_nu
         match_item.role_replys[role_id] = is_accept
     end
     if not match_item.role_replys[role_id] then
-        match_item.state = Match_Item_State.match_over
+        match_item.state = Match_Item_State.all_over
         self:remove_team(match_item.match_key)
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
             self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
@@ -225,7 +225,7 @@ function MatchMgr:remove_team(match_key)
     local match_item = self._key_to_item[match_key]
     self._key_to_item[match_key] = nil
     if match_item then
-        match_item.state = Match_Item_State.match_over
+        match_item.state = Match_Item_State.all_over
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
             self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
         end
@@ -286,7 +286,7 @@ function MatchMgr:_on_rpc_quit_match(rpc_rsp, msg)
     local error_num = Error_None
     local match_item = self:get_match_item(msg.match_key)
     if match_item and Match_Item_State.match_succ ~= match_item.state then
-        match_item.state = Match_Item_State.match_over
+        match_item.state = Match_Item_State.all_over
         self:remove_team(match_item.match_key)
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
             self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)

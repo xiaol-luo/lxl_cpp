@@ -6,7 +6,7 @@ Match_Item_State.ask_teammate_accept_match = "ask_teammate_accept_match"
 Match_Item_State.wait_enter_match_pool = "wait_enter_match_pool"
 Match_Item_State.matching = "matching"
 Match_Item_State.match_succ = "match_succ"
-Match_Item_State.match_over = "match_over" -- 结束了
+Match_Item_State.all_over = "all_over" -- 结束了
 
 ---@class MatchItem
 ---@field match_theme string
