@@ -37,14 +37,6 @@ function SimpleFillMatchLogic:_on_update()
             local match_game = MatchGameBase:new()
             match_game.unique_key = gen_uuid()
             table.insert(self._ready_match_games, match_game)
-            --[[
-            do
-                local team = match_team_1
-                local match_camp = MatchCampBase:new()
-                match_camp.match_teams[team.match_key] = team
-                table.insert(match_game.match_camps, match_camp)
-            end
-            --]]
             do
                 local team = match_team_2
                 local match_camp = MatchCampBase:new()

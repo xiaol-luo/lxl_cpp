@@ -232,7 +232,7 @@ function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, ms
             break
         end
         if Game_Match_Item_State.match_succ == match.state then
-            error_num = Error_None.quit_match.can_not_quit_when_match_succ
+            error_num = Error.quit_match.can_not_quit_when_match_succ
             break
         end
         self._rpc_svc_proxy:call(nil, match.match_server_key, Rpc.match.method.quit_match, {

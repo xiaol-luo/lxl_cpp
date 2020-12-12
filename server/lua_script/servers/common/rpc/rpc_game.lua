@@ -13,6 +13,11 @@ Rpc.game.method.forward_client_msg_to_game = "forward_client_msg_to_game"
 Rpc.game.method.test_match = "test_match"
 
 Rpc.game.method.ask_role_accept_match = "ask_role_accept_match"
-Rpc.game.method.notify_match_over = "match_over"
+Rpc.game.method.notify_match_over = "notify_match_over"
 Rpc.game.method.notify_matching = "notify_matching"
 Rpc.game.method.notify_match_succ = "notify_match_succ"
+
+Rpc.game.method.ask_accept_enter_room = "ask_accept_enter_room"
+Rpc.game.method.notify_enter_room = "notify_enter_room"
+Rpc.game.method.notify_room_over = "notify_room_over"
+Rpc.game.method.sync_room_state = "sync_room_state"

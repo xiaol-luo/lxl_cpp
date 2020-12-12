@@ -14,7 +14,7 @@ Match_Room_State.all_over = "all_over" -- 结束了
 ---@field room_server_key string
 ---@field match_game MatchGameBase
 ---@field timeout_timestamp number
----@field role_replys table<number, boolean>
+---@field role_replys table<number, Reply_State>
 MatchRoom = MatchRoom or class("MatchRoom")
 
 function MatchRoom:ctor()
