@@ -143,6 +143,11 @@ end
 function GameMatchMgr:_on_rpc_match_over(rpc_rsp, role_id, match_key)
     log_print("GameMatchMgr:_on_rpc_match_over")
     rpc_rsp:response(Error_None)
+    local match = self:get_match(role_id)
+    if match and match.match_key == match_key then
+        match.state = Game_Match_Item_State.match_over
+        self:sync_state(role_id)
+    end
     if self:remove_match(role_id, match_key) then
         self:sync_state(role_id)
     end
@@ -252,15 +257,17 @@ function GameMatchMgr:sync_state(role_id, from_gate, gate_netid)
         state = Game_Match_Item_State.idle
     }
     local match = self:get_match(role_id)
-    if not match then
-
+    if match then
+        msg.state = match.state
+        msg.match_theme = match.match_theme
+        msg.match_key = match.match_key
     end
     if from_gate and gate_netid then
         self._forward_msg:send_msg_to_client(from_gate, gate_netid, Fight_Pid.sync_match_state, msg)
     else
         local game_role = self.logics.role_mgr:get_role(role_id)
         if game_role then
-            game_role:send_to_client(Fight_Pid.sync_match_state, msg)
+            game_role:send_msg(Fight_Pid.sync_match_state, msg)
         end
     end
 end

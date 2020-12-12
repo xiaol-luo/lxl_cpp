@@ -25,7 +25,7 @@ message RspQuitMatch
 
 message SyncMatchState
 {
-	int32 state = 1;
+	string state = 1;
 	string match_theme = 2;
 	string match_key = 3;
 }
