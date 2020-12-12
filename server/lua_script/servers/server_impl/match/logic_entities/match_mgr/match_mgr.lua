@@ -293,7 +293,7 @@ function MatchMgr:_on_rpc_quit_match(rpc_rsp, msg)
         end
         self._quit_match_keys[match_item.match_key] = true
     else
-        error_num = Error.quit_match.can_not_quit_when_match_done
+        error_num = Error.quit_match.can_not_quit_when_match_succ
     end
     log_print("MatchMgr:_on_rpc_quit_match", error_num, msg, match_item and match_item.state)
     rpc_rsp:response(error_num)

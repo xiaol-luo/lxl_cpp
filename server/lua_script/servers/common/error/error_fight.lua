@@ -14,7 +14,7 @@ Error.join_match.match_key_clash = 4
 ---@class Error.quit_match
 Error.quit_match = {}
 Error.quit_match.match_key_not_same = 1
-Error.quit_match.can_not_quit_when_match_done = 2
+Error.quit_match.can_not_quit_when_match_succ = 2
 
 
 

@@ -2,6 +2,8 @@
 ---@class GameRole
 ---@field base_info GameRoleBaseInfo
 ---@field fight RoleFight
+---@field match GameRoleMatch
+---@field room GameRoleModule
 GameRole = GameRole or class("GameRole")
 
 function GameRole:ctor(mgr, user_id, role_id)

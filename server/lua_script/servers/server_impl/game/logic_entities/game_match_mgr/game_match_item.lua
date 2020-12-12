@@ -11,7 +11,7 @@ GameMatchItem = GameMatchItem or class("GameMatchItem")
 
 function GameMatchItem:ctor()
     self.role_id = 0
-    self.state = 0
+    self.state = Game_Match_Item_State.idle
     self.match_server_key = nil
     self.match_key = nil
     self.match_theme = nil
