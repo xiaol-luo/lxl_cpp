@@ -9,7 +9,7 @@ RpcMgrBase = RpcMgrBase or class("RpcMgrBase")
 function RpcMgrBase:ctor()
     self.req_list = {}
     self.last_check_expired_ms = 0
-    self.Check_Expired_Span_ms = 5 * 1000
+    self.Check_Expired_Span_ms = 3 * 1000
     self.rsp_list = {}
     ---@type table<string, Fn_RpcRemoteCallHandleFn>
     self.remote_call_handle_fn = {}

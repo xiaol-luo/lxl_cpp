@@ -6,12 +6,13 @@ function MatchRoomMgr:ctor(logics, logic_name)
     MatchMgr.super.ctor(self, logics, logic_name)
     ---@type MatchServiceMgr
     self.server = self.server
-
-    ---@type table<string, MatchGameBase>
-    self._key_to_match_game  = {}
     self._match_mgr = nil
-
+    ---@type table<string, MatchRoom>
     self._key_to_room = {}
+
+    self._last_check_room_timeout = 0
+    self._wait_sec_for_role_accept_enter_room = 10
+    self._wait_sec_for_apply_room = 20
 end
 
 function MatchRoomMgr:_on_init()
@@ -35,28 +36,21 @@ end
 function MatchRoomMgr:_on_update()
     MatchRoomMgr.super._on_update(self)
 
-    if false then
-        -- for test
-        local pre_key = nil
-        repeat
-            local k, match_game = next(self._key_to_match_game, pre_key)
-            if nil ~= pre_key then
-                self._key_to_match_game[pre_key] = nil
+    local now_sec = logic_sec()
+    if now_sec > self._last_check_room_timeout + 1 then
+        self._last_check_room_timeout = now_sec
+        local timeout_rooms = {}
+        for _, room in pairs(self._key_to_room) do
+            if now_sec > room.timeout_timestamp then
+                table.insert(timeout_rooms, room)
             end
-            if nil == k then
-                break
+        end
+        if next(timeout_rooms) then
+            local role_ids = {}
+            for _, room in ipairs(timeout_rooms) do
+                self:remove_room(room.room_key)
+                self._match_mgr:notify_handle_game_fail(room.match_game, role_ids)
             end
-            pre_key = k
-            local rand_val = math.random()
-            if rand_val > 0.5 then
-                local relate_role_ids = {}
-                self._match_mgr:notify_handle_game_fail(match_game, relate_role_ids)
-            else
-                self._match_mgr:notify_handle_game_succ(match_game)
-            end
-        until false
-        if nil ~= pre_key then
-            self._key_to_match_game[pre_key] = nil
         end
     end
 end
@@ -64,20 +58,20 @@ end
 ---@param match_game MatchGameBase
 function MatchRoomMgr:handle_match_game(match_game)
     local match_room = MatchRoom:new()
-    match_room.unique_key = gen_uuid()
+    match_room.room_key = gen_uuid()
     match_room.match_game = match_game
-    self._key_to_room[match_room.unique_key] = match_room
+    self._key_to_room[match_room.room_key] = match_room
 
     -- 1.向game_role确认进入room
-
+    match_room.timeout_timestamp = logic_sec() + self._wait_sec_for_role_accept_enter_room
     for _, match_camp in pairs(match_game.match_camps) do
         for match_key, match_team in pairs(match_camp.match_teams) do
             for _, v in pairs(match_team.teammate_role_ids) do
                 local role_id = v
                 match_room.role_replys[role_id] = Reply_State.pending
                 self._rpc_svc_proxy:call_game_server(
-                        Functional.make_closure(self._on_cb_ask_accept_enter_room, self, match_room.unique_key, role_id),
-                        v, Rpc.game.ask_accept_enter_room, v, match_room.unique_key)
+                        Functional.make_closure(self._on_cb_ask_accept_enter_room, self, match_room.room_key, role_id),
+                        v, Rpc.game.ask_accept_enter_room, v, match_room.room_key)
             end
         end
     end
@@ -112,35 +106,70 @@ function MatchRoomMgr:_on_cb_ask_accept_enter_room(room_key, role_id, rpc_error_
         end
     end
     if no_paneding then
-        log_print("xxx 1", match_room.role_replys, reject_role_ids)
         if next(reject_role_ids) then
-            log_print("xxx 2")
             self:remove_room(room_key)
             self._match_mgr:notify_handle_game_fail(match_room.match_game, reject_role_ids)
         else
-            log_print("xxx 3")
-            self._match_mgr:notify_handle_game_succ(match_room.match_game)
+            -- self._match_mgr:notify_handle_game_succ(match_room.match_game)
             -- todo: 2.向room_server申请room
-            -- for test
-            self._timer_proxy:delay(function()
-                log_print("xxx 4")
-                local match_room = self:remove_room(room_key)
-                if match_room then
-                    log_print("xxx 5")
-                    for _, match_camp in pairs(match_room.match_game.match_camps) do
-                        for match_key, match_team in pairs(match_camp.match_teams) do
-                            for _, v in pairs(match_team.teammate_role_ids) do
-                                self._rpc_svc_proxy:call_game_server(nil,v,
-                                        Rpc.game.notify_room_over, v, match_room.unique_key)
-                            end
-                        end
-                    end
-                end
-            end, 2000)
+            match_room.timeout_timestamp = logic_sec() + self._wait_sec_for_apply_room
+            self:try_apply_room(match_room.room_key, 1, Functional.make_closure(self._on_cb_apply_room, self))
         end
     end
 end
 
+---@param cb_fn fun(room_key, rpc_error_num:number, error_num:number):void
+function MatchRoomMgr:try_apply_room(room_key, left_try_times, cb_fn)
+    local match_room = self:get_room(room_key)
+    if not match_room then
+        return
+    end
+    if not match_room.room_server_key then
+        match_room.room_server_key = self.server.peer_net:random_server_key(Server_Role.Room)
+        if not match_room.room_server_key then
+            if left_try_times > 0 then
+                self._timer_proxy:delay(Functional.make_closure(
+                        self.try_apply_room, self, room_key, left_try_times - 1, cb_fn), 1 * 1000)
+            else
+                if cb_fn then
+                    cb(room_key, Error_Not_Available_Server, Error_None)
+                end
+            end
+            return
+        end
+    end
+    self._rpc_svc_proxy:call(function(rpc_error_num, error_num)
+        log_print("try_apply_room call back ", rpc_error_num, error_num)
+        local picked_error_num = pick_error_num(rpc_error_num, error_num)
+        if Error_None == picked_error_num or left_try_times <= 0 then
+            if cb_fn then
+                cb_fn(room_key, rpc_error_num, error_num)
+            end
+        else
+            if left_try_times > 0 then
+                self._timer_proxy:delay(Functional.make_closure(
+                        self.try_apply_room, self, room_key, left_try_times - 1, cb_fn), 1 * 1000)
+            end
+        end
+    end, match_room.room_server_key, Rpc.room.apply_room, room_key, match_room.match_game:collect_setup_room_data())
+end
+
+function MatchRoomMgr:_on_cb_apply_room(room_key, rpc_error_num, error_num)
+    log_print("MatchRoomMgr:_on_cb_apply_room ", room_key, rpc_error_num, error_num)
+    local match_room = self:get_room(room_key)
+    if not match_room then
+        return
+    end
+    local picked_error_num = pick_error_num(rpc_error_num, error_num)
+    if Error_None ~= picked_error_num then
+        self._match_mgr:notify_handle_game_fail(match_room.match_game, {})
+    else
+        self._match_mgr:notify_handle_game_succ(match_room.match_game)
+    end
+    self:remove_room(room_key)
+end
+
+---@return MatchRoom
 function MatchRoomMgr:get_room(room_key)
     local ret = self._key_to_room[room_key]
     return ret

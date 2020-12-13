@@ -11,6 +11,7 @@ return
 			"rpc_gate",
 			"rpc_match",
 			"rpc_world",
+			"rpc_room",
 
         },
         includes =

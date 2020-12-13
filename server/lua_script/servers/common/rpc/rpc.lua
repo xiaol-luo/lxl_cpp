@@ -2,6 +2,8 @@
 ---@class RPC
 ---@field gate Rpc.gate
 ---@field match Rpc.match
+---@field room Rpc.room
+---@field game Rpc.game
 Rpc = {}
 
 -- require("servers.common.rpc.rpc_create_role")

@@ -1,5 +1,5 @@
 
-Rpc.game = {}
+---@class Rpc.game
 Rpc.game = {}
 
 Rpc.game.launch_role = "launch_role"

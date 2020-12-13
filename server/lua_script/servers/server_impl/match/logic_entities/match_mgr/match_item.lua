@@ -14,6 +14,7 @@ Match_Item_State.all_over = "all_over" -- 结束了
 ---@field match_team MatchTeamBase
 ---@field state Match_Item_State
 ---@field match_logic MatchLogicBase
+---@field wait_role_accept_match_timeout_sec number
 MatchItem = MatchItem or class("MatchItem")
 
 function MatchItem:ctor()
@@ -23,6 +24,7 @@ function MatchItem:ctor()
     self.state = Match_Item_State.free
     self.match_logic = nil
     self.role_replys = nil
+    self.wait_role_accept_match_timeout_sec = nil
 end
 
 

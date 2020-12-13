@@ -5,16 +5,12 @@ return
         -- dir = ".",
         files =
         {
-			"room_mgr",
-			"room_base",
-			"room_camp_base",
-			"room_logic_base",
-			"room_role_base",
+			"two_dice_room",
+			"two_dice_room_logic",
 
         },
         includes =
         {
-			"room_logics.include",
         },
     },
 }

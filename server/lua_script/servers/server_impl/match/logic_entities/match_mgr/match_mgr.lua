@@ -15,13 +15,17 @@ function MatchMgr:ctor(logics, logic_name)
     self._key_to_match_game = {}
     ---@type MatchRoomMgr
     self._room_mgr = nil
+
+    self._wait_sec_for_role_accept_match = 10
+
+    self._last_check_timeout_sec = 0
 end
 
 function MatchMgr:_on_init()
     MatchMgr.super._on_init(self)
 
     do
-        local match_logic = SimpleFillMatchLogic:new(self, {
+        local match_logic = SimpleFillMatchLogic:new(self, Match_Theme.two_dice, {
             match_theme = Match_Theme.two_dice,
             game_role_max_num = 2,
         })
@@ -60,7 +64,6 @@ end
 
 function MatchMgr:_on_update()
     MatchMgr.super._on_update(self)
-
 
     for _, logic in pairs(self._theme_to_logic) do
         logic:update()
@@ -121,6 +124,29 @@ function MatchMgr:_on_update()
     if next(self._quit_match_keys) then
         self._quit_match_keys = {}
     end
+
+    do
+        local now_sec = logic_sec()
+        if now_sec > self._last_check_timeout_sec + 1 then
+            self._last_check_timeout_sec = now_sec
+            local timeout_match_items = {}
+            for _, match_item in pairs(self._key_to_item) do
+                if Match_Item_State.ask_teammate_accept_match == match_item.state then
+                    if now_sec > match_item.wait_role_accept_match_timeout_sec then
+                        table.insert(timeout_match_items, match_item)
+                    end
+                end
+            end
+            if next(timeout_match_items) then
+                for _, match_item in ipairs(timeout_match_items) do
+                    self:remove_team(match_item.match_key)
+                    for _, v in pairs(match_item.match_team.teammate_role_ids) do
+                        self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.notify_match_over, v, match_item.match_key)
+                    end
+                end
+            end
+        end
+    end
 end
 
 function MatchMgr:_create_match_team(match_theme, match_key, ask_role_id, teammate_role_ids, extra_param)
@@ -177,6 +203,7 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, msg)
         self._key_to_item[match_item.match_key] = match_item
 
         match_item.state = Match_Item_State.ask_teammate_accept_match
+        match_item.wait_role_accept_match_timeout_sec = logic_sec() + self._wait_sec_for_role_accept_match
         for _, v in pairs(msg.teammate_role_ids) do
             local role_id = v
             self._rpc_svc_proxy:call_game_server(
@@ -211,6 +238,7 @@ function MatchMgr:_on_cb_ask_role_accept_match(match_item, role_id, rpc_error_nu
     else
         if table.size(match_item.role_replys) == #match_item.match_team.teammate_role_ids then
             match_item.state = Match_Item_State.wait_enter_match_pool
+            match_item.wait_role_accept_match_timeout_sec = nil
             match_item.role_replys = {}
             self:enter_match_pool(match_item.match_key)
             for _, v in pairs(match_item.match_team.teammate_role_ids) do

@@ -2,16 +2,23 @@
 ---@class RoomMgr:GameLogicEntity
 RoomMgr = RoomMgr or class("RoomMgr", GameLogicEntity)
 
+function RoomMgr:ctor(logics, logic_name)
+    RoomMgr.super.ctor(self, logics, logic_name)
+    ---@type RoomServiceMgr
+    self.server = self.server
+    ---@type RoomLogicService
+    self.logics = self.logics
+    ---@type table<string, RoomLogicBase>
+    self._theme_to_logic = {}
+end
+
 function RoomMgr:_on_init()
     RoomMgr.super._on_init(self)
-    ---@type MatchServiceMgr
-    self.server = self.server
+
 end
 
 function RoomMgr:_on_start()
     RoomMgr.super._on_start(self)
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.query_roles, Functional.make_closure(self._handle_remote_call_query_roles, self))
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.create_role, Functional.make_closure(self._handle_remote_call_create_role, self))
 end
 
 function RoomMgr:_on_stop()
@@ -30,12 +37,12 @@ end
 --- rpc函数
 
 function RoomMgr:_on_map_remote_call_handle_fns()
-    -- self._method_name_to_remote_call_handle_fns[Rpc.match.join_match] = Functional.make_closure(self._on_rpc_join_match, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.room.apply_room] = Functional.make_closure(self._on_rpc_apply_room, self)
 end
 
 ---@param rpc_rsp RpcRsp
-function RoomMgr:_on_rpc_join_match(rpc_rsp, msg)
-    log_print("MatchRoomMgr:_handle_remote_call_join_match", msg)
+function RoomMgr:_on_rpc_apply_room(rpc_rsp, room_key, msg)
+    log_print("MatchRoomMgr:_on_rpc_apply_room", room_key, msg)
     rpc_rsp:response(Error_None)
 end
 

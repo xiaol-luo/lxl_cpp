@@ -2,8 +2,8 @@
 ---@class SimpleFillMatchLogic:MatchLogicBase
 SimpleFillMatchLogic = SimpleFillMatchLogic or class("SimpleFillMatchLogic", MatchLogicBase)
 
-function SimpleFillMatchLogic:ctor(match_mgr, logic_setting)
-    SimpleFillMatchLogic.super.ctor(self, match_mgr, logic_setting)
+function SimpleFillMatchLogic:ctor(match_mgr, match_theme, logic_setting)
+    SimpleFillMatchLogic.super.ctor(self, match_mgr, match_theme, logic_setting)
     self._last_do_match_timestamp = 0
 end
 
@@ -35,6 +35,7 @@ function SimpleFillMatchLogic:_on_update()
             -- table.insert(consume_match_teams, key_1)
             table.insert(consume_match_teams, key_2)
             local match_game = MatchGameBase:new()
+            match_game.match_theme = self._match_theme
             match_game.unique_key = gen_uuid()
             table.insert(self._ready_match_games, match_game)
             do
@@ -51,7 +52,7 @@ function SimpleFillMatchLogic:_on_update()
     end
 end
 
-function SimpleFillMatchLogic:__check_can_enter_match(match_team)
+function SimpleFillMatchLogic:_check_can_enter_match(match_team)
     return true
 end
 

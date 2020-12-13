@@ -2,9 +2,10 @@
 ---@class MatchLogicBase
 MatchLogicBase = MatchLogicBase or class("MatchLogicBase")
 
-function MatchLogicBase:ctor(match_mgr, logic_setting)
+function MatchLogicBase:ctor(match_mgr, match_theme, logic_setting)
     ---@type MatchMgr
     self._match_mgr = match_mgr
+    self._match_theme = match_theme
     ---@type table
     self._logic_setting = logic_setting
     ---@type table<string, MatchTeamBase>
@@ -51,7 +52,7 @@ function MatchLogicBase:enter_match(match_team)
         return false
     end
 
-    if not self:__check_can_enter_match(match_team) then
+    if not self:_check_can_enter_match(match_team) then
         return false
     end
 
@@ -61,7 +62,6 @@ function MatchLogicBase:enter_match(match_team)
 end
 
 function MatchLogicBase:leave_match(match_key)
-    -- override by subclass
     local match_team = self:get_team(match_key)
     if match_team then
         self._key_to_team[match_key] = nil
@@ -79,7 +79,7 @@ function MatchLogicBase:pop_ready_match_games()
 end
 
 function MatchLogicBase:_on_init(...)
-
+    -- override by subclass
 end
 
 function MatchLogicBase:_on_start()
@@ -98,7 +98,7 @@ function MatchLogicBase:_on_update()
     -- override by subclass
 end
 
-function MatchLogicBase:__check_can_enter_match(match_team)
+function MatchLogicBase:_check_can_enter_match(match_team)
     -- override by subclass
     return false
 end
