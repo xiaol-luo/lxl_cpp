@@ -1,5 +1,5 @@
 
 ---@class Rpc.room
----@field apply_room string
+---@field setup_room string
 Rpc.room = {}
-Rpc.room.apply_room = "join_match"
+Rpc.room.setup_room = "setup_room"

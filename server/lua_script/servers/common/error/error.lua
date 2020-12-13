@@ -1,6 +1,7 @@
 
 ---@class Error
 ---@field fight Error_Fight
+---@field setup_room Error.setup_room
 Error = {}
 
 Error_None = 0

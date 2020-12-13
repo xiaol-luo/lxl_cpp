@@ -2,8 +2,8 @@
 ---@class TwoDiceRoomLogic: RoomLogicBase
 TwoDiceRoomLogic = TwoDiceRoomLogic or class("TwoDiceRoomLogic", RoomLogicBase)
 
-function TwoDiceRoomLogic:ctor(room_mgr, logic_setting)
-    TwoDiceRoomLogic.super.ctor(self, room_mgr, logic_setting)
+function TwoDiceRoomLogic:ctor(room_mgr, match_theme, logic_setting)
+    TwoDiceRoomLogic.super.ctor(self, room_mgr, match_theme, logic_setting)
 end
 
 
@@ -11,10 +11,15 @@ function TwoDiceRoomLogic:create_room(room_key, setup_data)
     local room = TwoDiceRoom:new()
     room.room_key = setup_data.room_key
     room.match_theme = setup_data.match_theme
+    room.room_camps = setup_data.room_camps
+    return room
 end
 
 function TwoDiceRoomLogic:_check_can_setup_room(room)
-    return true
+    if not room then
+        return Error_Unknown
+    end
+    return Error_None
 end
 
 function TwoDiceRoomLogic:_on_setup_room(room)

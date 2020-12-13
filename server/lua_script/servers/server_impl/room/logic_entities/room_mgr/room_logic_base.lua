@@ -2,11 +2,12 @@
 ---@class RoomLogicBase
 RoomLogicBase = RoomLogicBase or class("RoomLogicBase")
 
-function RoomLogicBase:ctor(room_mgr, logic_setting)
+function RoomLogicBase:ctor(room_mgr, match_theme, logic_setting)
     ---@type RoomMgr
     self._room_mgr = room_mgr
     ---@type table
     self._logic_setting = logic_setting
+    self._match_theme = match_theme
     ---@type table<string, RoomBase>
     self._key_to_room ={}
 end
@@ -39,15 +40,17 @@ end
 function RoomLogicBase:setup_room(room_key, setup_data)
     local room = self:get_room(room_key)
     if room then
-        return false, nil
+        return Error.setup_room.room_key_clash, nil
     end
+
     room = self:create_room(room_key, setup_data)
-    if not self:_check_can_setup_room(room) then
-        return false, nil
+    local error_num = self:_check_can_setup_room(room)
+    if Error_None ~= error_num  then
+        return error_num, nil
     end
     self._key_to_room[room_key] = room
     self:_on_setup_room(room)
-    return true, room
+    return Error_None, room
 end
 
 function RoomLogicBase:release_room(room_key)
@@ -84,7 +87,7 @@ end
 
 function RoomLogicBase:_check_can_setup_room(room)
     -- override by subclass
-    return false
+    return Error_Unknown
 end
 
 function RoomLogicBase:_on_setup_room(room)

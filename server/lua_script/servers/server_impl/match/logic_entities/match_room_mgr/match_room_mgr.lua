@@ -12,7 +12,7 @@ function MatchRoomMgr:ctor(logics, logic_name)
 
     self._last_check_room_timeout = 0
     self._wait_sec_for_role_accept_enter_room = 10
-    self._wait_sec_for_apply_room = 20
+    self._wait_sec_for_setup_room = 20
 end
 
 function MatchRoomMgr:_on_init()
@@ -112,14 +112,14 @@ function MatchRoomMgr:_on_cb_ask_accept_enter_room(room_key, role_id, rpc_error_
         else
             -- self._match_mgr:notify_handle_game_succ(match_room.match_game)
             -- todo: 2.向room_server申请room
-            match_room.timeout_timestamp = logic_sec() + self._wait_sec_for_apply_room
-            self:try_apply_room(match_room.room_key, 1, Functional.make_closure(self._on_cb_apply_room, self))
+            match_room.timeout_timestamp = logic_sec() + self._wait_sec_for_setup_room
+            self:try_setup_room(match_room.room_key, 1, Functional.make_closure(self._on_cb_setup_room, self))
         end
     end
 end
 
 ---@param cb_fn fun(room_key, rpc_error_num:number, error_num:number):void
-function MatchRoomMgr:try_apply_room(room_key, left_try_times, cb_fn)
+function MatchRoomMgr:try_setup_room(room_key, left_try_times, cb_fn)
     local match_room = self:get_room(room_key)
     if not match_room then
         return
@@ -129,7 +129,7 @@ function MatchRoomMgr:try_apply_room(room_key, left_try_times, cb_fn)
         if not match_room.room_server_key then
             if left_try_times > 0 then
                 self._timer_proxy:delay(Functional.make_closure(
-                        self.try_apply_room, self, room_key, left_try_times - 1, cb_fn), 1 * 1000)
+                        self.try_setup_room, self, room_key, left_try_times - 1, cb_fn), 1 * 1000)
             else
                 if cb_fn then
                     cb(room_key, Error_Not_Available_Server, Error_None)
@@ -139,7 +139,7 @@ function MatchRoomMgr:try_apply_room(room_key, left_try_times, cb_fn)
         end
     end
     self._rpc_svc_proxy:call(function(rpc_error_num, error_num)
-        log_print("try_apply_room call back ", rpc_error_num, error_num)
+        log_print("try_setup_room call back ", rpc_error_num, error_num)
         local picked_error_num = pick_error_num(rpc_error_num, error_num)
         if Error_None == picked_error_num or left_try_times <= 0 then
             if cb_fn then
@@ -148,14 +148,14 @@ function MatchRoomMgr:try_apply_room(room_key, left_try_times, cb_fn)
         else
             if left_try_times > 0 then
                 self._timer_proxy:delay(Functional.make_closure(
-                        self.try_apply_room, self, room_key, left_try_times - 1, cb_fn), 1 * 1000)
+                        self.try_setup_room, self, room_key, left_try_times - 1, cb_fn), 1 * 1000)
             end
         end
-    end, match_room.room_server_key, Rpc.room.apply_room, room_key, match_room.match_game:collect_setup_room_data())
+    end, match_room.room_server_key, Rpc.room.setup_room, room_key, match_room.match_game:collect_setup_room_data())
 end
 
-function MatchRoomMgr:_on_cb_apply_room(room_key, rpc_error_num, error_num)
-    log_print("MatchRoomMgr:_on_cb_apply_room ", room_key, rpc_error_num, error_num)
+function MatchRoomMgr:_on_cb_setup_room(room_key, rpc_error_num, error_num)
+    log_print("MatchRoomMgr:_on_cb_setup_room ", room_key, rpc_error_num, error_num)
     local match_room = self:get_room(room_key)
     if not match_room then
         return
