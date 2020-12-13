@@ -97,7 +97,7 @@ function MatchMgr:_on_update()
                         local match_item = self:get_match_item(match_key)
                         match_item.state = Match_Item_State.match_succ
                         for _, v in pairs(match_team.teammate_role_ids) do
-                            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_succ, v, match_item.match_key)
+                            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.notify_match_succ, v, match_item.match_key)
                         end
                     end
                 end
@@ -148,8 +148,8 @@ end
 --- rpc函数
 
 function MatchMgr:_on_map_remote_call_handle_fns()
-    self._method_name_to_remote_call_handle_fns[Rpc.match.method.join_match] = Functional.make_closure(self._on_rpc_join_match, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.match.method.quit_match] = Functional.make_closure(self._on_rpc_quit_match, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.match.join_match] = Functional.make_closure(self._on_rpc_join_match, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.match.quit_match] = Functional.make_closure(self._on_rpc_quit_match, self)
 end
 
 ---@param rpc_rsp RpcRsp
@@ -181,7 +181,7 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, msg)
             local role_id = v
             self._rpc_svc_proxy:call_game_server(
                     Functional.make_closure(self._on_cb_ask_role_accept_match, self, match_item, role_id),
-                    role_id, Rpc.game.method.ask_role_accept_match, role_id, msg)
+                    role_id, Rpc.game.ask_role_accept_match, role_id, msg)
         end
     until true
 
@@ -206,7 +206,7 @@ function MatchMgr:_on_cb_ask_role_accept_match(match_item, role_id, rpc_error_nu
         match_item.state = Match_Item_State.all_over
         self:remove_team(match_item.match_key)
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
-            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
+            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.notify_match_over, v, match_item.match_key)
         end
     else
         if table.size(match_item.role_replys) == #match_item.match_team.teammate_role_ids then
@@ -214,7 +214,7 @@ function MatchMgr:_on_cb_ask_role_accept_match(match_item, role_id, rpc_error_nu
             match_item.role_replys = {}
             self:enter_match_pool(match_item.match_key)
             for _, v in pairs(match_item.match_team.teammate_role_ids) do
-                self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_matching, v, match_item.match_key)
+                self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.notify_matching, v, match_item.match_key)
             end
         end
     end
@@ -227,7 +227,7 @@ function MatchMgr:remove_team(match_key)
     if match_item then
         match_item.state = Match_Item_State.all_over
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
-            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
+            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.notify_match_over, v, match_item.match_key)
         end
     end
 end
@@ -289,7 +289,7 @@ function MatchMgr:_on_rpc_quit_match(rpc_rsp, msg)
         match_item.state = Match_Item_State.all_over
         self:remove_team(match_item.match_key)
         for _, v in pairs(match_item.match_team.teammate_role_ids) do
-            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.method.notify_match_over, v, match_item.match_key)
+            self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.notify_match_over, v, match_item.match_key)
         end
         self._quit_match_keys[match_item.match_key] = true
     else

@@ -10,8 +10,8 @@ end
 
 function FightMgr:_on_start()
     FightMgr.super._on_start(self)
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.method.query_roles, Functional.make_closure(self._handle_remote_call_query_roles, self))
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.method.create_role, Functional.make_closure(self._handle_remote_call_create_role, self))
+    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.query_roles, Functional.make_closure(self._handle_remote_call_query_roles, self))
+    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.create_role, Functional.make_closure(self._handle_remote_call_create_role, self))
 end
 
 function FightMgr:_on_stop()

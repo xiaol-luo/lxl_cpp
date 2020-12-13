@@ -33,11 +33,11 @@ end
 --- rpc调用函数
 function GameRoleMgr:_on_map_remote_call_handle_fns()
     GameRoleMgr.super._on_map_remote_call_handle_fns(self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.launch_role] = Functional.make_closure(self._handle_remote_call_launch_role, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.change_gate_client] = Functional.make_closure(self._handle_remote_call_change_gate_client, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.release_role] = Functional.make_closure(self._handle_remote_call_release_role, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.bind_world] = Functional.make_closure(self._handle_remote_call_bind_world, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.check_match_game_roles] = Functional.make_closure(self._handle_remote_call_check_match_game_roles, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.launch_role] = Functional.make_closure(self._handle_remote_call_launch_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.change_gate_client] = Functional.make_closure(self._handle_remote_call_change_gate_client, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.release_role] = Functional.make_closure(self._handle_remote_call_release_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.bind_world] = Functional.make_closure(self._handle_remote_call_bind_world, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.check_match_game_roles] = Functional.make_closure(self._handle_remote_call_check_match_game_roles, self)
 end
 
 --- 客户端函数
@@ -302,7 +302,7 @@ function GameRoleMgr:_on_event_adjusting_version_state_change(is_adjusting)
             end
             local removed_role_ids = table.keys(to_remove_role)
             for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
-                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, removed_role_ids)
+                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.notify_release_game_roles, removed_role_ids)
             end
             log_print("GameRoleMgr:_on_event_adjusting_version_state_change", removed_role_ids)
         end
@@ -330,7 +330,7 @@ function GameRoleMgr:_try_release_all_roles_for_work_world_shadow_parted(need_re
             self._next_save_role_id = nil
             -- todo: 广播被踢掉的人
             for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
-                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, role_ids)
+                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.notify_release_game_roles, role_ids)
             end
             log_print("GameRoleMgr:_try_release_all_roles_for_work_world_shadow_parted ")
         end, Game_Role_Const.after_n_secondes_release_all_role * MICRO_SEC_PER_SEC)
@@ -396,10 +396,10 @@ function GameRoleMgr:_do_check_match_world_roles(try_times, world_server_key, ro
             end
             -- todo: 广播被踢掉的人
             for _, world_server_key in pairs(self.server.peer_net:get_role_server_keys(Server_Role.World)) do
-                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.method.notify_release_game_roles, removed_role_ids)
+                self._rpc_svc_proxy:call(nil, world_server_key, Rpc.world.notify_release_game_roles, removed_role_ids)
             end
         end
-    end, world_server_key, Rpc.world.method.check_match_world_roles, role_ids)
+    end, world_server_key, Rpc.world.check_match_world_roles, role_ids)
 end
 
 

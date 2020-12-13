@@ -234,7 +234,7 @@ function GameRole:send_msg(pid, msg)
         return
     end
     self._mgr.server.rpc:call(nil, self._gate_server_key,
-            Rpc.gate.method.forward_msg_to_client, self._gate_netid, pid, bytes)
+            Rpc.gate.forward_msg_to_client, self._gate_netid, pid, bytes)
     return true
 end
 

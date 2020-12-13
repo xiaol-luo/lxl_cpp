@@ -20,7 +20,7 @@ end
 
 function GameForwardMsg:_on_start()
     GameForwardMsg.super._on_start(self)
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.method.forward_client_msg_to_game,
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.game.forward_client_msg_to_game,
             Functional.make_closure(self._on_remote_call_forward_client_msg_to_game, self))
 end
 
@@ -85,7 +85,7 @@ function GameForwardMsg:_on_remote_call_forward_client_msg_to_game(rpc_rsp, gate
     --[[
     self._rpc_svc_proxy:call(function(...)
 
-    end, rpc_rsp.from_host, Rpc.gate.method.forward_msg_to_client, gate_netid, Login_Pid.rsp_pull_role_digest, { error_num = 0 })
+    end, rpc_rsp.from_host, Rpc.gate.forward_msg_to_client, gate_netid, Login_Pid.rsp_pull_role_digest, { error_num = 0 })
     game_role.base_info:set_role_name("rand_role_name" .. tostring(math.random(1, 1000000)))
     ]]
 end
@@ -107,7 +107,7 @@ function GameForwardMsg:send_msg_to_client(gate_server_key, gate_netid, pid, msg
         return
     end
     self.server.rpc:call(cb_fn, gate_server_key,
-            Rpc.gate.method.forward_msg_to_client, gate_netid, pid, bytes)
+            Rpc.gate.forward_msg_to_client, gate_netid, pid, bytes)
     return true
 end
 

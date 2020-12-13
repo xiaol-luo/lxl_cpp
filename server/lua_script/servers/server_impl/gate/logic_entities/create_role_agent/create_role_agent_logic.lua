@@ -49,11 +49,11 @@ function CreateRoleAgentLogic:_on_msg_query_roles(gate_client, pid, msg)
                 msg.error_num = rpc_error_num
             end
             if Error_None ~= msg.error_num then
-                -- log_print("Rpc.create_role.method.query_roles", msg)
+                -- log_print("Rpc.create_role.query_roles", msg)
             end
 
             gate_client:send_msg(Login_Pid.rsp_pull_role_digest, msg)
-        end, server_key, Rpc.create_role.method.query_roles, gate_client.user_id, msg.role_id)
+        end, server_key, Rpc.create_role.query_roles, gate_client.user_id, msg.role_id)
     end
 end
 
@@ -76,9 +76,9 @@ function CreateRoleAgentLogic:_on_msg_create_role(gate_client, pid, msg)
             else
                 msg.error_num = rpc_error_num
             end
-            -- log_print("Rpc.create_role.method._create_role", msg)
+            -- log_print("Rpc.create_role._create_role", msg)
             gate_client:send_msg(Login_Pid.rsp_create_role, msg)
-        end, server_key, Rpc.create_role.method.create_role, gate_client.user_id, msg.params)
+        end, server_key, Rpc.create_role.create_role, gate_client.user_id, msg.params)
     end
 end
 

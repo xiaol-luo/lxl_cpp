@@ -37,7 +37,7 @@ function GateClientMgr:_on_start()
     self._event_binder:bind(self.server.work_world_shadow, shadow_setting.event_adjusting_version_state_change,
             Functional.make_closure(self._on_event_adjusting_version_state_change, self))
 
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.kick_client, Functional.make_closure(self._handle_remote_call_kick_client, self))
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.kick_client, Functional.make_closure(self._handle_remote_call_kick_client, self))
 end
 
 function GateClientMgr:_on_stop()
@@ -80,7 +80,7 @@ function GateClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, error
     if gate_client.role_id and gate_client.session_id then
         local find_error_num, selected_world_key = self.server.work_world_shadow:find_available_server_address(gate_client.role_id)
         if Error_None == find_error_num then
-            self._rpc_svc_proxy:call(nil, selected_world_key, Rpc.world.method.gate_client_quit, gate_client.session_id)
+            self._rpc_svc_proxy:call(nil, selected_world_key, Rpc.world.gate_client_quit, gate_client.session_id)
         else
             if Error_Consistent_Hash_Adjusting == find_error_num then
                 table.insert(self._delay_notify_gate_client_quits, {role_id=gate_client.role_id, session_id=gate_client.session_id})
@@ -146,7 +146,7 @@ function GateClientMgr._on_event_adjusting_version_state_change(is_adjusting)
         for _, v in pairs(quits) do
             local server_key = self.server.work_world_shadow:cal_server_address(v.role_id)
             if server_key then
-                self._rpc_svc_proxy:call(nil, server_key, Rpc.world.method.gate_client_quit, v.session_id)
+                self._rpc_svc_proxy:call(nil, server_key, Rpc.world.gate_client_quit, v.session_id)
             end
         end
     end

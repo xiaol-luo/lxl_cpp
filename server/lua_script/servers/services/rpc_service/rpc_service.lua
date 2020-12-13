@@ -95,7 +95,7 @@ function RpcService:call_game_server(cb_fn, role_id, remote_fn, ...)
         else
             self:call(cb_fn, role_locate_game_server_key, remote_fn, table.unpack(params, 1, n))
         end
-    end, world_server_key, Rpc.world.method.query_game_role_location, { role_id }, 3)
+    end, world_server_key, Rpc.world.query_game_role_location, { role_id }, 3)
 end
 
 ---@return RpcClient

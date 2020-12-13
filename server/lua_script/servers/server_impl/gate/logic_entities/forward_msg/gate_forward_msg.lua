@@ -18,9 +18,9 @@ function GateForwardMsg:_on_start()
     GateForwardMsg.super._on_start(self)
     self._gate_client_mgr:set_msg_handler(Forward_Msg_Pid.req_forward_game_msg,
             Functional.make_closure(self._on_msg_forward_game_msg, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.forward_msg_to_client,
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.forward_msg_to_client,
             Functional.make_closure(self._handle_remote_call_forward_msg_to_client, self))
-    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.method.forward_binary_to_client,
+    self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.gate.forward_binary_to_client,
             Functional.make_closure(self._handle_remote_call_forward_binary_to_client, self))
 end
 
@@ -42,7 +42,7 @@ function GateForwardMsg:_on_msg_forward_game_msg(gate_client, pid, msg)
     if not gate_client:is_in_game() or not gate_client.game_server_key or not gate_client.role_id then
         return
     end
-    self._rpc_svc_proxy:call(nil, gate_client.game_server_key, Rpc.game.method.forward_client_msg_to_game, gate_client.netid, gate_client.role_id, msg.msg)
+    self._rpc_svc_proxy:call(nil, gate_client.game_server_key, Rpc.game.forward_client_msg_to_game, gate_client.netid, gate_client.role_id, msg.msg)
 end
 
 ---@param rpc_rsp RpcRsp

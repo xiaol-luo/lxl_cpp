@@ -53,7 +53,7 @@ function RoleFight:on_msg_req_join_match(pid, msg)
             self._match_data.server_key = server_key
             self._state = Role_Fight_State.in_match
         end
-    end, server_key, Rpc.match.method.join_match, self._role.role_id, token, msg.fight_type)
+    end, server_key, Rpc.match.join_match, self._role.role_id, token, msg.fight_type)
 end
 
 function RoleFight:on_msg_req_quit_match(pid, msg)

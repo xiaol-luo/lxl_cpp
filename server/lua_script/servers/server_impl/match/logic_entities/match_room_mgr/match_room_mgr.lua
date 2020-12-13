@@ -77,7 +77,7 @@ function MatchRoomMgr:handle_match_game(match_game)
                 match_room.role_replys[role_id] = Reply_State.pending
                 self._rpc_svc_proxy:call_game_server(
                         Functional.make_closure(self._on_cb_ask_accept_enter_room, self, match_room.unique_key, role_id),
-                        v, Rpc.game.method.ask_accept_enter_room, v, match_room.unique_key)
+                        v, Rpc.game.ask_accept_enter_room, v, match_room.unique_key)
             end
         end
     end
@@ -131,7 +131,7 @@ function MatchRoomMgr:_on_cb_ask_accept_enter_room(room_key, role_id, rpc_error_
                         for match_key, match_team in pairs(match_camp.match_teams) do
                             for _, v in pairs(match_team.teammate_role_ids) do
                                 self._rpc_svc_proxy:call_game_server(nil,v,
-                                        Rpc.game.method.notify_room_over, v, match_room.unique_key)
+                                        Rpc.game.notify_room_over, v, match_room.unique_key)
                             end
                         end
                     end
@@ -155,7 +155,7 @@ end
 --- rpc函数
 
 function MatchRoomMgr:_on_map_remote_call_handle_fns()
-    -- self._method_name_to_remote_call_handle_fns[Rpc.match.method.join_match] = Functional.make_closure(self._on_rpc_join_match, self)
+    -- self._method_name_to_remote_call_handle_fns[Rpc.match.join_match] = Functional.make_closure(self._on_rpc_join_match, self)
 end
 
 ---@param rpc_rsp RpcRsp

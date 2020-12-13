@@ -57,11 +57,11 @@ end
 --- rpc函数
 function GameMatchMgr:_on_map_remote_call_handle_fns()
     GameMatchMgr.super._on_map_remote_call_handle_fns()
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.test_match] = Functional.make_closure(self._on_rpc_test_match, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.ask_role_accept_match] = Functional.make_closure(self._on_rpc_ask_role_accept_match, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_matching] = Functional.make_closure(self._on_rpc_notify_matching, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_match_succ] = Functional.make_closure(self._on_rpc_notify_match_succ, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_match_over] = Functional.make_closure(self._on_rpc_match_over, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.test_match] = Functional.make_closure(self._on_rpc_test_match, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.ask_role_accept_match] = Functional.make_closure(self._on_rpc_ask_role_accept_match, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.notify_matching] = Functional.make_closure(self._on_rpc_notify_matching, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.notify_match_succ] = Functional.make_closure(self._on_rpc_notify_match_succ, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.notify_match_over] = Functional.make_closure(self._on_rpc_match_over, self)
 end
 
 ---@param rpc_rsp RpcRsp
@@ -194,7 +194,7 @@ function GameMatchMgr:_on_msg_join_match(from_gate, gate_netid, role_id, pid, ms
         match.state = Game_Match_Item_State.wait_join_confirm
         self._rpc_svc_proxy:call(
                 Functional.make_closure(self._on_cb_join_match, self, from_gate, gate_netid, role_id, match.match_key),
-                match.match_server_key, Rpc.match.method.join_match, {
+                match.match_server_key, Rpc.match.join_match, {
                     match_theme = match.match_theme,
                     match_key = match.match_key,
                     role_id = match.role_id,
@@ -235,7 +235,7 @@ function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, ms
             error_num = Error.quit_match.can_not_quit_when_match_succ
             break
         end
-        self._rpc_svc_proxy:call(nil, match.match_server_key, Rpc.match.method.quit_match, {
+        self._rpc_svc_proxy:call(nil, match.match_server_key, Rpc.match.quit_match, {
             role_id = match.role_id,
             Match_Theme = match.match_theme,
             match_key = match.match_key,

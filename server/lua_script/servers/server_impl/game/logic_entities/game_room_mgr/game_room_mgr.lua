@@ -50,8 +50,8 @@ end
 --- rpc函数
 function GameRoomMgr:_on_map_remote_call_handle_fns()
     GameRoomMgr.super._on_map_remote_call_handle_fns()
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.ask_accept_enter_room] = Functional.make_closure(self._on_rpc_ask_accept_enter_room, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.game.method.notify_room_over] = Functional.make_closure(self._on_rpc_notify_room_over, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.ask_accept_enter_room] = Functional.make_closure(self._on_rpc_ask_accept_enter_room, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.notify_room_over] = Functional.make_closure(self._on_rpc_notify_room_over, self)
 end
 
 ---@param rpc_rsp RpcRsp

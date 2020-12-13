@@ -38,14 +38,14 @@ function RoleStateMgr:_on_start()
 end
 
 function GameLogicEntity:_on_map_remote_call_handle_fns()
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.launch_role] = Functional.make_closure(self._on_rpc_launch_role, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.logout_role] = Functional.make_closure(self._on_rpc_logout_role, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.reconnect_role] = Functional.make_closure(self._on_rpc_reconnect_role, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.gate_client_quit] = Functional.make_closure(self._on_rpc_gate_client_quit, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.notify_release_game_roles] = Functional.make_closure(self._on_rpc_notify_release_game_roles, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.transfer_world_role] = Functional.make_closure(self._on_rpc_transfer_world_role, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.check_match_world_roles] = Functional.make_closure(self._on_rpc_check_match_world_roles, self)
-    self._method_name_to_remote_call_handle_fns[Rpc.world.method.query_game_role_location] = Functional.make_closure(self._on_rpc_query_game_role_location, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.launch_role] = Functional.make_closure(self._on_rpc_launch_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.logout_role] = Functional.make_closure(self._on_rpc_logout_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.reconnect_role] = Functional.make_closure(self._on_rpc_reconnect_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.gate_client_quit] = Functional.make_closure(self._on_rpc_gate_client_quit, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.notify_release_game_roles] = Functional.make_closure(self._on_rpc_notify_release_game_roles, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.transfer_world_role] = Functional.make_closure(self._on_rpc_transfer_world_role, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.check_match_world_roles] = Functional.make_closure(self._on_rpc_check_match_world_roles, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.world.query_game_role_location] = Functional.make_closure(self._on_rpc_query_game_role_location, self)
 
 end
 
@@ -108,7 +108,7 @@ function RoleStateMgr:_on_rpc_launch_role(rpc_rsp, gate_netid, auth_sn, user_id,
         self._role_id_to_role_state[role_state.role_id] = role_state
         self._session_id_to_role_state[role_state.session_id] = role_state
         self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, role_state.session_id),
-                role_state.game_server_key, Rpc.game.method.launch_role, user_id, role_id)
+                role_state.game_server_key, Rpc.game.launch_role, user_id, role_id)
         role_state.state = World_Role_State.launch
         old_session_id = role_state.session_id
     else
@@ -128,14 +128,14 @@ function RoleStateMgr:_on_rpc_launch_role(rpc_rsp, gate_netid, auth_sn, user_id,
                 rpc_rsp:response(Error.launch_role.repeat_launch, role_state.game_server_key, role_state.session_id)
             else
                 if role_state.gate_server_key and role_state.gate_netid then
-                    self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
+                    self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.kick_client, role_state.gate_netid)
                     role_state.gate_server_key = nil
                     role_state.gate_netid = nil
                 end
                 role_state.session_id = self:_next_session_id()
                 rpc_rsp:response(Error_None, role_state.game_server_key, role_state.session_id)
                 -- todo: 这里很可能game暂时和world断开连接，得想个修复策略，gate信息不一致，那么就向world请求下gate信息
-                self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.method.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
+                self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
             end
         end
 
@@ -150,7 +150,7 @@ function RoleStateMgr:_on_rpc_launch_role(rpc_rsp, gate_netid, auth_sn, user_id,
                 role_state.cached_rpc_rsp = rpc_rsp
                 role_state.session_id = self:_next_session_id()
                 self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_launch_role, self, role_id, role_state.session_id),
-                    role_state.game_server_key, Rpc.game.method.launch_role, user_id, role_id)
+                    role_state.game_server_key, Rpc.game.launch_role, user_id, role_id)
             end
         end
 
@@ -161,7 +161,7 @@ function RoleStateMgr:_on_rpc_launch_role(rpc_rsp, gate_netid, auth_sn, user_id,
             role_state.idle_begin_sec = nil
             rpc_rsp:response(Error_None, role_state.game_server_key, role_state.session_id)
             -- todo: 这里很可能game暂时和world断开连接，得想个修复策略，gate信息不一致，那么就向world请求下gate信息
-            self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.method.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
+            self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.change_gate_client, role_state.role_id, false, rpc_rsp.from_host, gate_netid)
         end
 
         -- 最后维护好gate_server_key、gate_netid、auth_sn和self._session_id_to_role_state数据正确
@@ -204,7 +204,7 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
         role_state.cached_rpc_rsp = nil
 
         if role_state.gate_server_key and role_state.gate_netid then
-            self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
+            self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.kick_client, role_state.gate_netid)
         end
         if Error_None == picked_error then
             self:try_release_role(role_id, "launch_role_unexpected_error")
@@ -226,7 +226,7 @@ function RoleStateMgr:_rpc_rsp_launch_role(role_id, session_id, rpc_error_num, e
     else
         self._rpc_svc_proxy:call(
                 Functional.make_closure(self._rpc_rsp_bind_game_role_to_gate_client_after_launch, self, role_id, session_id),
-                role_state.game_server_key, Rpc.game.method.change_gate_client,
+                role_state.game_server_key, Rpc.game.change_gate_client,
                 role_state.role_id, false, role_state.gate_server_key, role_state.gate_netid)
     end
 end
@@ -255,7 +255,7 @@ function RoleStateMgr:_rpc_rsp_bind_game_role_to_gate_client_after_launch(role_i
         role_state.cached_rpc_rsp = nil
 
         if role_state.gate_server_key and role_state.gate_netid then
-            self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
+            self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.kick_client, role_state.gate_netid)
         end
         self:try_release_role(role_id, "after_luanch_bind_game_fail")
         return
@@ -289,11 +289,11 @@ function RoleStateMgr:try_release_role(role_id, reason)
     local opera_id = self:_next_opera_id()
     role_state.release_opera_ids[opera_id] = true
     if role_state.gate_server_key and role_state.gate_netid then
-        self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.method.kick_client, role_state.gate_netid)
+        self._rpc_svc_proxy:call(nil, role_state.gate_server_key, Rpc.gate.kick_client, role_state.gate_netid)
     end
     self._rpc_svc_proxy:call(
             Functional.make_closure(self._rpc_rsp_try_release_role, self, role_state.role_id, opera_id),
-            role_state.game_server_key, Rpc.game.method.release_role, role_state.role_id)
+            role_state.game_server_key, Rpc.game.release_role, role_state.role_id)
 end
 
 function RoleStateMgr:_rpc_rsp_try_release_role(role_id, opera_id, rpc_error_num, error_num)
@@ -354,7 +354,7 @@ function RoleStateMgr:_on_rpc_reconnect_role(rpc_rsp, gate_netid, role_id, auth_
         self._session_id_to_role_state[role_state.session_id] = role_state
         self._rpc_svc_proxy:call(
                 Functional.make_closure(self._rpc_rsp_bind_game_role_to_gate_client_for_reconnect_role, self, rpc_rsp, role_state.session_id, role_id),
-                role_state.game_server_key, Rpc.game.method.change_gate_client, role_state.role_id, false, role_state.gate_server_key, role_state.gate_netid)
+                role_state.game_server_key, Rpc.game.change_gate_client, role_state.role_id, false, role_state.gate_server_key, role_state.gate_netid)
     until true
 
     if Error_None ~= error_num then
@@ -407,7 +407,7 @@ function RoleStateMgr:_on_rpc_gate_client_quit(rpc_rsp, session_id)
         if World_Role_State.using == old_role_state then
             role_state.state = World_Role_State.idle
             role_state.idle_begin_sec = logic_sec()
-            self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.method.change_gate_client, true, nil, nil)
+            self._rpc_svc_proxy:call(nil, role_state.game_server_key, Rpc.game.change_gate_client, true, nil, nil)
         elseif World_Role_State.launch == role_state then
             self:try_release_role(role_state.role_id, "gate_client_quit_and_role_state_unexpecte")
         else
@@ -461,7 +461,7 @@ function RoleStateMgr:_on_rpc_transfer_world_role(rpc_rsp, role_state_data)
     rpc_rsp:response(Error_None)
     log_print("RoleStateMgr:_on_rpc_transfer_world_role 22222")
     self._rpc_svc_proxy:call(Functional.make_closure(self._rpc_rsp_bind_world, self, session_id),
-        role_state.game_server_key, Rpc.game.method.bind_world, role_id)
+        role_state.game_server_key, Rpc.game.bind_world, role_id)
 end
 
 function RoleStateMgr:_on_rpc_check_match_world_roles(rpc_rsp, role_ids)
@@ -511,7 +511,7 @@ function RoleStateMgr:try_transfer_world_role(role_id, try_times)
     role_state_data.auth_sn = role_state.auth_sn
     role_state_data.idle_begin_sec = role_state.idle_begin_sec
     self._rpc_svc_proxy:call(Functional.make_closure(self.rpc_rsp_transfer_world_role, self, role_state.session_id, try_times),
-            target_server_key, Rpc.world.method.transfer_world_role, role_state_data)
+            target_server_key, Rpc.world.transfer_world_role, role_state_data)
 
 end
 
@@ -642,7 +642,7 @@ function RoleStateMgr:_do_check_match_game_roles(try_times, game_server_key, rol
                 self:try_release_role(role_id, "game_role_mismatch_world_server_key")
             end
         end
-    end, game_server_key, Rpc.game.method.check_match_game_roles, role_ids)
+    end, game_server_key, Rpc.game.check_match_game_roles, role_ids)
 end
 
 function RoleStateMgr:_on_rpc_query_game_role_location(rpc_rsp, role_ids, left_redirect_times)
@@ -674,7 +674,7 @@ function RoleStateMgr:_on_rpc_query_game_role_location(rpc_rsp, role_ids, left_r
             local other_world_server_key = k
             self._rpc_svc_proxy:call(
                     Functional.make_closure(self._on_cb_batch_query_role_location, self, rpc_rsp, game_role_locations, role_ids_group_by_world, other_world_server_key),
-                    other_world_server_key, Rpc.world.method.query_game_role_location, v, left_redirect_times - 1)
+                    other_world_server_key, Rpc.world.query_game_role_location, v, left_redirect_times - 1)
         end
     end
 end

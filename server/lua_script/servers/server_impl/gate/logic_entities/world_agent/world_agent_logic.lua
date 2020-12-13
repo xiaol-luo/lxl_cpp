@@ -60,7 +60,7 @@ function WorldAgentLogic:_on_msg_launch_role(gate_client, pid, msg)
         gate_client.state = Gate_Client_State.launch_role
         self._rpc_svc_proxy:call(
                 Functional.make_closure(self._rpc_rsp_req_launch_role, self, gate_client.netid, msg.role_id),
-                selected_world_key, Rpc.world.method.launch_role, gate_client.netid, gate_client.auth_sn, gate_client.user_id, msg.role_id
+                selected_world_key, Rpc.world.launch_role, gate_client.netid, gate_client.auth_sn, gate_client.user_id, msg.role_id
         )
     until true
 
@@ -113,7 +113,7 @@ function WorldAgentLogic:_on_msg_logout_role(gate_client, pid, msg)
         end
         self._rpc_svc_proxy:call(
                 Functional.make_closure(self._rpc_rsp_logout_role, self, gate_client.netid, gate_client.session_id),
-                selected_world_key, Rpc.world.method.logout_role, gate_client.session_id)
+                selected_world_key, Rpc.world.logout_role, gate_client.session_id)
     until true
 
     if Error_None ~= error_num then
@@ -171,7 +171,7 @@ function WorldAgentLogic:_on_msg_reconnect_role(gate_client, pid, msg)
                 gate_client.state = Gate_Client_State.launch_role
                 self._rpc_svc_proxy:call(
                         Functional.make_closure(self._rpc_rsp_reconnect_role, self, gate_client.netid, msg.role_id),
-                        selected_world_key, Rpc.world.method.reconnect_role, gate_client.netid, msg.role_id, gate_client.auth_sn
+                        selected_world_key, Rpc.world.reconnect_role, gate_client.netid, msg.role_id, gate_client.auth_sn
                 )
             end
             if Error_None ~= error_num then
