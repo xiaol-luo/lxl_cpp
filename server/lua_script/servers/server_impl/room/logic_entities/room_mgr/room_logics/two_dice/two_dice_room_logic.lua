@@ -8,10 +8,7 @@ end
 
 
 function TwoDiceRoomLogic:create_room(room_key, setup_data)
-    local room = TwoDiceRoom:new()
-    room.room_key = setup_data.room_key
-    room.match_theme = setup_data.match_theme
-    room.room_camps = setup_data.room_camps
+    local room = TwoDiceRoom:new(room_key, setup_data)
     return room
 end
 
@@ -23,13 +20,12 @@ function TwoDiceRoomLogic:_check_can_setup_room(room)
 end
 
 function TwoDiceRoomLogic:_on_setup_room(room)
-
+    
 end
 
 function TwoDiceRoomLogic:_on_release_room(room)
 
 end
-
 
 function TwoDiceRoomLogic:_on_init(...)
 

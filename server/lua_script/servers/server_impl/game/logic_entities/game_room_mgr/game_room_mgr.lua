@@ -51,7 +51,9 @@ end
 function GameRoomMgr:_on_map_remote_call_handle_fns()
     GameRoomMgr.super._on_map_remote_call_handle_fns()
     self._method_name_to_remote_call_handle_fns[Rpc.game.ask_accept_enter_room] = Functional.make_closure(self._on_rpc_ask_accept_enter_room, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.notify_enter_room] = Functional.make_closure(self._on_rpc_notify_enter_room, self)
     self._method_name_to_remote_call_handle_fns[Rpc.game.notify_room_over] = Functional.make_closure(self._on_rpc_notify_room_over, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.game.sync_room_state] = Functional.make_closure(self._on_rpc_sync_room_state, self)
 end
 
 ---@param rpc_rsp RpcRsp
@@ -67,11 +69,31 @@ function GameRoomMgr:_on_rpc_ask_accept_enter_room(rpc_rsp, role_id, room_key)
 end
 
 ---@param rpc_rsp RpcRsp
+function GameRoomMgr:_on_rpc_notify_enter_room(rpc_rsp, role_id, room_key)
+    log_print("GameRoomMgr:_on_rpc_notify_enter_room", role_id, room_key)
+    local is_accept = math.random() > 0.5 and true or false
+    rpc_rsp:response(Error_None, is_accept)
+    if is_accept then
+
+    end
+end
+
+---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_notify_room_over(rpc_rsp, role_id, room_key)
     log_print("GameRoomMgr:_on_rpc_notify_room_over", role_id, room_key)
     rpc_rsp:response(Error_None)
     local room = self._role_id_to_room[role_id]
     if room and room.room_key == room_key then
         self._role_id_to_room[role_id] = nil
+    end
+end
+
+---@param rpc_rsp RpcRsp
+function GameRoomMgr:_on_rpc_sync_room_state(rpc_rsp, role_id, room_key, room_state)
+    log_print("GameRoomMgr:_on_rpc_sync_room_state", role_id, room_key)
+    local is_accept = math.random() > 0.5 and true or false
+    rpc_rsp:response(Error_None, is_accept)
+    if is_accept then
+
     end
 end
