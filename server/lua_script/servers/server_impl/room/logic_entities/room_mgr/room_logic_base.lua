@@ -10,6 +10,10 @@ function RoomLogicBase:ctor(room_mgr, match_theme, logic_setting)
     self._match_theme = match_theme
     ---@type table<string, RoomBase>
     self._key_to_room ={}
+    ---@type EventProxy
+    self._event_proxy = EventProxy:new()
+    ---@type RpcServiceProxy
+    self._rpc_svc_proxy = self._room_mgr.server.rpc:create_proxy()
 end
 
 function RoomLogicBase:init()

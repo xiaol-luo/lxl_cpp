@@ -14,12 +14,13 @@ end
 function MatchGameBase:collect_setup_room_data()
     local ret = {}
     ret.match_theme = self.match_theme
-    ret.camp_roles = {}
-    for _, match_camp in pairs(self.camp_roles) do
-        local camp_role = {}
-        table.insert(ret.camp_roles, camp_role)
+    ret.room_camps = {}
+    for _, match_camp in pairs(self.match_camps) do
+        local camp = {}
+        camp.role_ids = {}
+        table.insert(ret.room_camps, camp)
         for _, match_team in pairs(match_camp.match_teams) do
-            table.append(camp_role, match_team.teammate_role_ids)
+            table.append(camp.role_ids, match_team.teammate_role_ids)
         end
     end
     return ret
