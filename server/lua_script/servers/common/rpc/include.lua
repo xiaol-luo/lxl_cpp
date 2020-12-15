@@ -12,6 +12,7 @@ return
 			"rpc_match",
 			"rpc_world",
 			"rpc_room",
+			"rpc_fight",
 
         },
         includes =

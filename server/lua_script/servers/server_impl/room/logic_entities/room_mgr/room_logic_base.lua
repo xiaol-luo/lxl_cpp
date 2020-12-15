@@ -69,6 +69,11 @@ function RoomLogicBase:get_room(room_key)
     return self._key_to_room[room_key]
 end
 
+function RoomLogicBase:notify_fight_over(room_key, fight_result)
+    local ret = self:_on_notify_fight_over(room_key, fight_result)
+    return ret
+end
+
 function RoomLogicBase:_on_init(...)
     -- override by subclass
 end
@@ -101,5 +106,18 @@ end
 function RoomLogicBase:_on_release_room(room)
     -- override by subclass
 end
+
+function RoomLogicBase:_on_notify_fight_over(room_key, fight_result)
+    -- override by subclass
+    return Error_None
+end
+
+---@param room RoomBase
+function RoomLogicBase:sync_room_state(role_id, room)
+    self._rpc_svc_proxy:call_game_server(nil, role_id,
+            Rpc.game.sync_room_state,
+            role_id, room.room_key, room:collect_sync_room_state())
+end
+
 
 

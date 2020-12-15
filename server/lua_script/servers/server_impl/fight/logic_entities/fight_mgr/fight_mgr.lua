@@ -27,6 +27,13 @@ function FightMgr:_on_update()
     -- log_print("FightMgr:_on_update")
 end
 
+
+--- rpc函数
+
+function RoomMgr:_on_map_remote_call_handle_fns()
+    self._method_name_to_remote_call_handle_fns[Rpc.room.setup_room] = Functional.make_closure(self._on_rpc_setup_room, self)
+end
+
 ---@param rpc_rsp RpcRsp
 function FightMgr:_handle_remote_call_create_role(rpc_rsp, user_id)
     if not user_id then

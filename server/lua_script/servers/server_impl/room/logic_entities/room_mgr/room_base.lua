@@ -39,5 +39,23 @@ function RoomBase.gen_base_room(room, room_key, setup_data)
     end
 end
 
+---@class room RoomBase
+function RoomBase:collect_sync_room_state()
+    local ret = {}
+    ret.room_key = self.room_key
+    ret.state = self.state
+    ret.room_camps = {}
+    for camp_k, camp_v in pairs(self.room_camps) do
+        local camp = {}
+        ret.room_camps[camp_k] = camp
+        for role_id, _ in pairs(camp_v.id_to_role) do
+            local role_data = {}
+            camp[role_id] = role_data
+            role_data.role_id = role_id
+        end
+    end
+    return ret
+end
+
 
 

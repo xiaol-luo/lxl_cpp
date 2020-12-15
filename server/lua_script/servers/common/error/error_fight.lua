@@ -23,6 +23,17 @@ Error.setup_room = {}
 Error.setup_room.no_fit_theme = 1
 Error.setup_room.room_key_clash = 2
 
+---@class Error.query_room_state
+---@field not_find_room number
+Error.query_room_state {}
+Error.query_room_state.not_find_room = 1
+
+
+---@class Error.notify_fight_over
+---@field not_find_room number
+Error.notify_fight_over {}
+Error.notify_fight_over.not_find_room = 1
+
 
 
 

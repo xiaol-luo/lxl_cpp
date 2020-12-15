@@ -61,6 +61,8 @@ end
 
 function RoomMgr:_on_map_remote_call_handle_fns()
     self._method_name_to_remote_call_handle_fns[Rpc.room.setup_room] = Functional.make_closure(self._on_rpc_setup_room, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.room.query_room_state] = Functional.make_closure(self._on_rpc_query_room_state, self)
+    self._method_name_to_remote_call_handle_fns[Rpc.room.notify_fight_over] = Functional.make_closure(self._on_rpc_notify_fight_over, self)
 end
 
 ---@param rpc_rsp RpcRsp
@@ -72,6 +74,33 @@ function RoomMgr:_on_rpc_setup_room(rpc_rsp, room_key, msg)
     if not room then
         error_num, room = self:setup_room(room_key, msg.match_theme, msg)
     end
+    rpc_rsp:response(error_num)
+end
+
+function RoomMgr:_on_rpc_query_room_state(rpc_rsp, room_key)
+    local room = self:get_room(room_key)
+    if not room then
+        rpc_rsp:response(Error.query_room_state.not_find_room, nil)
+    else
+        rpc_rsp:response(Error_None, room:collect_sync_room_state())
+    end
+end
+
+function RoomMgr:_on_rpc_notify_fight_over(rpc_rsp, room_key, fight_result)
+    local error_num = Error_None
+    repeat
+        local room = self:get_room(room_key)
+        if not room then
+            error_num = Error.notify_fight_over.not_find_room
+            break
+        end
+        local room_logic = self._theme_to_logic[room.match_theme]
+        if not room_logic then
+            error_num = Error_Unknown
+            break
+        end
+        error_num = room_logic:notify_fight_over(room.room_key, fight_result)
+    until true
     rpc_rsp:response(error_num)
 end
 
