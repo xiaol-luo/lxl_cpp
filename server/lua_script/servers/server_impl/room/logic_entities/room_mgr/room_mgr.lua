@@ -86,12 +86,16 @@ function RoomMgr:_on_rpc_query_room_state(rpc_rsp, room_key)
     end
 end
 
-function RoomMgr:_on_rpc_notify_fight_over(rpc_rsp, room_key, fight_result)
+function RoomMgr:_on_rpc_notify_fight_over(rpc_rsp, room_key, fight_key, fight_result)
     local error_num = Error_None
     repeat
         local room = self:get_room(room_key)
         if not room then
             error_num = Error.notify_fight_over.not_find_room
+            break
+        end
+        if fight_key ~= room.fight_key then
+            error_num = Error.notify_fight_over.fight_key_mismatch
             break
         end
         local room_logic = self._theme_to_logic[room.match_theme]
@@ -100,7 +104,9 @@ function RoomMgr:_on_rpc_notify_fight_over(rpc_rsp, room_key, fight_result)
             break
         end
         error_num = room_logic:notify_fight_over(room.room_key, fight_result)
+        self:remove_room(room_key)
     until true
+
     rpc_rsp:response(error_num)
 end
 

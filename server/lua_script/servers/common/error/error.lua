@@ -2,6 +2,7 @@
 ---@class Error
 ---@field fight Error_Fight
 ---@field setup_room Error.setup_room
+---@field notify_fight_over Error.notify_fight_over
 Error = {}
 
 Error_None = 0

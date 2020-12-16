@@ -6,12 +6,16 @@ function FightMgr:_on_init()
     FightMgr.super._on_init(self)
     ---@type MatchServiceMgr
     self.server = self.server
+    ---@type table<string, FightBase>
+    self._key_to_fight = {}
+    ---@type table<string, FightBase>
+    self._room_key_to_fight = {}
+
+    self._over_fights = {}
 end
 
 function FightMgr:_on_start()
     FightMgr.super._on_start(self)
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.query_roles, Functional.make_closure(self._handle_remote_call_query_roles, self))
-    -- self._rpc_svc_proxy:set_remote_call_handle_fn(Rpc.create_role.create_role, Functional.make_closure(self._handle_remote_call_create_role, self))
 end
 
 function FightMgr:_on_stop()
@@ -25,8 +29,19 @@ end
 
 function FightMgr:_on_update()
     -- log_print("FightMgr:_on_update")
+    for k, v in pairs(self._key_to_fight) do
+        v:update()
+        if v.is_over then
+            table.insert(self._over_fights, k)
+        end
+    end
+    if next(self._over_fights) then
+        for _, v in ipairs(self._over_fights) do
+            self:remove_fight(v)
+        end
+        self._over_fights = {}
+    end
 end
-
 
 --- rpc函数
 
@@ -35,61 +50,34 @@ function RoomMgr:_on_map_remote_call_handle_fns()
 end
 
 ---@param rpc_rsp RpcRsp
-function FightMgr:_handle_remote_call_create_role(rpc_rsp, user_id)
-    if not user_id then
-        rpc_rsp:report_error("user_id is nil")
-        return
-    end
-    local new_role_id = self.server.db_uuid:apply(DB_Uuid_Names.role_id)
-    if not new_role_id then
-        rpc_rsp:report_error("apply new role id fail")
-        return
-    end
-    local doc = {
-        user_id = user_id,
-        role_id = new_role_id,
-    }
-
-    --
-    self._db_client:count_document(user_id, self.server.zone_name, Const.mongo.collection_name.role, { user_id = user_id }, function(db_ret)
-        if 0 == db_ret.error_num then
-            if db_ret.matched_count < Const.role_count_per_user then
-                self._db_client:insert_one(user_id, self.server.zone_name, Const.mongo.collection_name.role, doc, function(db_ret)
-                    if 0 == db_ret.error_num then
-                        rpc_rsp:response(Error_None, doc.role_id)
-                    else
-                        rpc_rsp:response(db_ret.error_num, string.format("insert role fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg))
-                    end
-                end)
-            else
-                rpc_rsp:response(20, string.format("user has role num is %s, more than %s", db_ret.matched_count, Const.role_count_per_user))
-            end
-        else
-            rpc_rsp:response(db_ret.error_num, string.format("query role count fail, error_num is %s, error_msg is %s", db_ret.error_num, db_ret.error_msg))
-        end
-    end)
+function FightMgr:_on_rpc_setup_room(rpc_rsp, room_key, room_msg)
+    room_msg.room_server_key = rpc_rsp.from_host
+    room_msg.room_key = room_key
+    local fight = TwoDiceFight:new(self, room_msg)
+    fight:init()
+    self._key_to_fight[fight.fight_key] = fight
+    self._room_key_to_fight[room_key] = fight
+    fight:start()
 end
 
----@param rpc_rsp RpcRsp
-function FightMgr:_handle_remote_call_query_roles(rpc_rsp, user_id, role_id)
-    -- log_print("FightMgr:_handle_remote_call_query_roles",  user_id, role_id)
-    local find_opt = MongoOptFind:new()
-    find_opt:set_max_time(5 * 1000)
-    local filter = {}
-    filter.user_id = user_id
-    if role_id and role_id > 0 then
-        filter.role_id = role_id
-    end
-    self._db_client:find_many(user_id, self.server.zone_name, Const.mongo.collection_name.role, filter, function(db_ret)
-        if 0 == db_ret.error_num then
-            local ret = {}
-            for _, v in pairs(db_ret.val) do
-                table.insert(ret, { role_id = v.role_id })
-            end
-            rpc_rsp:response(Error_None, ret)
-        else
-            rpc_rsp:report_error(db_ret.error_num, string.format("error_num:%s, error_msg:%s", db_ret.error_num, db_ret.error_msg))
-        end
-    end, find_opt)
+function FightMgr:get_fight(fight_key)
+    local ret = self._key_to_fight[fight_key]
+    return ret
 end
+
+function FightMgr:get_fight_by_room_key(room_key)
+    local ret = self._room_key_to_fight[room_key]
+    return room
+end
+
+function FightMgr:remove_fight(fight_key)
+    local fight = self:get_fight(fight_key)
+    if fight then
+        fight:stop()
+        fight:release()
+        self._key_to_fight[fight_key] = nil
+        self._room_key_to_fight[fight.room_key] = nil
+    end
+end
+
 

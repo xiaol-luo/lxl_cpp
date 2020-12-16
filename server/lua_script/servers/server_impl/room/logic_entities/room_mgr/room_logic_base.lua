@@ -75,7 +75,11 @@ function RoomLogicBase:get_room(room_key)
 end
 
 function RoomLogicBase:notify_fight_over(room_key, fight_result)
-    local ret = self:_on_notify_fight_over(room_key, fight_result)
+    local room = self:get_room(room_key)
+    if not room then
+        return Error.notify_fight_over.not_find_room
+    end
+    local ret = self:_on_notify_fight_over(room, fight_result)
     return ret
 end
 
@@ -112,7 +116,7 @@ function RoomLogicBase:_on_release_room(room)
     -- override by subclass
 end
 
-function RoomLogicBase:_on_notify_fight_over(room_key, fight_result)
+function RoomLogicBase:_on_notify_fight_over(room, fight_result)
     -- override by subclass
     return Error_None
 end

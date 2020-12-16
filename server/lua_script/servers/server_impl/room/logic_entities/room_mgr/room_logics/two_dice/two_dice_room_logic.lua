@@ -89,8 +89,9 @@ function TwoDiceRoomLogic:_on_init(...)
 
 end
 
-function TwoDiceRoomLogic:_on_notify_fight_over(room_key, fight_result)
-
+function TwoDiceRoomLogic:_on_notify_fight_over(room, fight_result)
+    room.state = Room_State.all_over
+    self:sync_room_state(room)
 end
 
 function TwoDiceRoomLogic:_on_update()
@@ -125,12 +126,14 @@ function TwoDiceRoomLogic:_try_apply_fight(room)
                 room.fight_server_key = nil
                 room.try_apply_fight_timestamp = logic_sec() + 5
             else
-                room.fight.fight_key = fight_msg.fight_key
+                room.fight_key = fight_msg.fight_key
                 room.fight.ip = fight_msg.ip
                 room.fight.port = fight_msg.port
                 room.token = fight_msg.token
-                room.state = Room_State.wait_fight_over
-                self:sync_room_state(room)
+                if Room_State.apply_fight == room.state then
+                    room.state = Room_State.wait_fight_over
+                    self:sync_room_state(room)
+                end
             end
         until true
     end, room.fight_server_key, Rpc.fight.setup_fight, room:collect_sync_room_state())

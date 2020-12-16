@@ -21,6 +21,9 @@ function RoomBase:ctor()
     self.room_key = nil
     self.room_camps = {}
     self.id_to_role = {}
+    self.fight_server_key = nil
+    self.fight_key = nil
+    self.fight = {}
 end
 
 ---@field room RoomBase
@@ -54,6 +57,9 @@ function RoomBase:collect_sync_room_state()
             role_data.role_id = role_id
         end
     end
+    ret.fight_key = self.fight_key
+    ret.fight_server_key = self.fight_server_key
+    ret.fight = self.fight
     return ret
 end
 
