@@ -64,7 +64,7 @@ function TwoDiceRoomLogic:_on_cb_notify_enter_room(room_key, role_id, rpc_error_
             if all_accept then
                 room.state = Room_State.wait_apply_fight
                 for k, v in pairs(room.role_replys) do
-                    self:sync_room_state(k, room)
+                    self:sync_room_state(room, k)
                 end
                 -- todo:马上申请房间了， 其实可以考虑让他们在房间内先玩耍一会
                 room.state = Room_State.apply_fight
@@ -74,7 +74,7 @@ function TwoDiceRoomLogic:_on_cb_notify_enter_room(room_key, role_id, rpc_error_
                 self._room_mgr:remove_room(room_key)
                 for k, v in pairs(room.role_replys) do
                     self._rpc_svc_proxy:call_game_server(nil, k, Rpc.game.notify_room_over, k, room_key)
-                    self:sync_room_state(k, room)
+                    self:sync_room_state(room, k)
                 end
             end
         end
@@ -119,7 +119,20 @@ function TwoDiceRoomLogic:_try_apply_fight(room)
         return
     end
     self._rpc_svc_proxy:call(function(rpc_error_num, error_num, fight_msg)
-
+        local picked_error_num = pick_error_num(rpc_error_num, error_num)
+        repeat
+            if Error_None ~= picked_error_num then
+                room.fight_server_key = nil
+                room.try_apply_fight_timestamp = logic_sec() + 5
+            else
+                room.fight.fight_key = fight_msg.fight_key
+                room.fight.ip = fight_msg.ip
+                room.fight.port = fight_msg.port
+                room.token = fight_msg.token
+                room.state = Room_State.wait_fight_over
+                self:sync_room_state(room)
+            end
+        until true
     end, room.fight_server_key, Rpc.fight.setup_fight, room:collect_sync_room_state())
 end
 

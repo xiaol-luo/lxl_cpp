@@ -14,6 +14,8 @@ function RoomLogicBase:ctor(room_mgr, match_theme, logic_setting)
     self._event_proxy = EventProxy:new()
     ---@type RpcServiceProxy
     self._rpc_svc_proxy = self._room_mgr.server.rpc:create_proxy()
+    ---@type TimerProxy
+    self._timer_proxy = TimerProxy:new()
 end
 
 function RoomLogicBase:init()
@@ -29,6 +31,9 @@ function RoomLogicBase:stop()
 end
 
 function RoomLogicBase:release()
+    self._event_proxy:release_all()
+    self._rpc_svc_proxy:clear_remote_call()
+    self._timer_proxy:release_all()
     self:_on_release()
 end
 
@@ -113,10 +118,19 @@ function RoomLogicBase:_on_notify_fight_over(room_key, fight_result)
 end
 
 ---@param room RoomBase
-function RoomLogicBase:sync_room_state(role_id, room)
-    self._rpc_svc_proxy:call_game_server(nil, role_id,
-            Rpc.game.sync_room_state,
-            role_id, room.room_key, room:collect_sync_room_state())
+function RoomLogicBase:sync_room_state(room, role_id)
+    if role_id then
+        self._rpc_svc_proxy:call_game_server(nil, role_id,
+                Rpc.game.sync_room_state,
+                role_id, room.room_key, room:collect_sync_room_state())
+    else
+        local room_msg = room:collect_sync_room_state()
+        for k, _ in pairs(room.id_to_role) do
+            self._rpc_svc_proxy:call_game_server(nil, k,
+                    Rpc.game.sync_room_state,
+                    k, room.room_key, room_msg)
+        end
+    end
 end
 
 
