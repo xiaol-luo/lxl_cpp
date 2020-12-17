@@ -5,13 +5,13 @@ return
         -- dir = ".",
         files =
         {
-			"logic_entity_def",
+			"fight_client",
+			"fight_client_def",
+			"fight_client_mgr",
 
         },
         includes =
         {
-			"fight_mgr.include",
-			"fight_client_mgr.include",
         },
     },
 }

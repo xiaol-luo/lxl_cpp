@@ -36,6 +36,19 @@ Error.notify_fight_over {}
 Error.notify_fight_over.not_find_room = 1
 Error.notify_fight_over.fight_key_mismatch = 2
 
+---@class Error.bind_fight
+---@field not_find_fight number
+Error.bind_fight = {}
+Error.bind_fight.not_find_fight = 1
+
+---@class Error.opera_fight
+---@field not_find_fight number
+Error.opera_fight = {}
+Error.opera_fight.not_find_fight = 1
+Error.opera_fight.not_find_role = 2
+Error.opera_fight.netid_mismatch = 3
+
+
 
 
 

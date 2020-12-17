@@ -1,6 +1,6 @@
 
 ---@class Error
----@field fight Error_Fight
+---@field fight Error.fight
 ---@field setup_room Error.setup_room
 ---@field notify_fight_over Error.notify_fight_over
 Error = {}

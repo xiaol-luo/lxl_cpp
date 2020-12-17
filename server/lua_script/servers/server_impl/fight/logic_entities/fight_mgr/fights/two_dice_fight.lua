@@ -7,21 +7,31 @@ function TwoDiceFight:ctor(fight_mgr, setup_data)
 end
 
 function TwoDiceFight:_on_init(...)
-    -- override by subclass
+    TwoDiceFight.super._on_init(self)
 end
 
 function TwoDiceFight:_on_start()
-    -- override by subclass
+    TwoDiceFight.super._on_start(self)
 end
 
 function TwoDiceFight:_on_stop()
-    -- override by subclass
+    TwoDiceFight.super._on_stop(self)
 end
 
 function TwoDiceFight:_on_release()
-    -- override by subclass
+    TwoDiceFight.super._on_release(self)
 end
 
 function TwoDiceFight:_on_update()
+    TwoDiceFight.super._on_update(self)
+end
+
+function TwoDiceFight:_on_opera(fight_role, msg)
+    -- override by subclass
+    return Error_None
+end
+
+---@param fight_client FightClient
+function TwoDiceFight:sync_fight_state(fight_client)
     -- override by subclass
 end

@@ -25,6 +25,27 @@ Fight_Pid.req_match_state = 5 + Pto_Const.fight_min_pto_id
 Fight_Pid.sync_match_state = 6 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_match_state, "SyncMatchState")
 
+-- 绑定战斗
+Fight_Pid.req_bind_fight = 51 + Pto_Const.fight_min_pto_id
+Fight_Pid.rsp_bind_fight = 52 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.req_bind_fight, "ReqBindFight")
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rsp_bind_fight, "RspBindFight")
+
+-- 同步战斗状态
+Fight_Pid.pull_fight_state = 53 + Pto_Const.fight_min_pto_id
+Fight_Pid.sync_fight_state_two_dice = 54 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.pull_fight_state, "PullFightState")
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_fight_state_two_dice, "SyncFightStateTwoDice")
+
+-- 战斗操作
+Fight_Pid.req_fight_opera = 55 + Pto_Const.fight_min_pto_id
+Fight_Pid.rsp_fight_opera = 56 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.pull_fight_state, "ReqFightOpera")
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_fight_state_two_dice, "RspFightOpera")
+
+
+
+
 
 
 

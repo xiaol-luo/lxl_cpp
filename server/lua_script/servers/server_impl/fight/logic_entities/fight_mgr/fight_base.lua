@@ -16,6 +16,9 @@ function FightBase:ctor(fight_mgr, setup_data)
     self._timer_proxy = TimerProxy:new()
 
     self.is_over = false
+
+    ---@type table<number, FightRole>
+    self._id_to_role = {}
 end
 
 function FightBase:init()
@@ -37,6 +40,13 @@ function FightBase:release()
     self._event_proxy:release_all()
     self._timer_proxy:release_all()
     self:_on_release()
+    for k, v in pairs(self._id_to_role) do
+        ---@type FightClient
+        local client = v.wt.client
+        if client then
+            client:disconnect()
+        end
+    end
 end
 
 function FightBase:update()
@@ -62,3 +72,40 @@ end
 function FightBase:_on_update()
     -- override by subclass
 end
+
+function FightBase:_on_opera(fight_role, msg)
+    -- override by subclass
+    return Error_None
+end
+
+---@param fight_client FightClient
+function FightBase:sync_fight_state(fight_client)
+    -- override by subclass
+end
+
+---@param fight_role FightRole
+function FightBase:bind_role(fight_role)
+    -- 简单处理，后边加校验
+    local old_fight_role = self._id_to_role[fight_role.role_id]
+    if old_fight_role and old_fight_role.netid ~= fight_role.netid then
+        ---@type FightClient
+        local client = old_fight_role.wt.client
+        if client then
+            client:disconnect()
+        end
+    end
+    self._id_to_role[fight_role.role_id] = fight_role
+    return Error_None
+end
+
+---@param fight_role FightRole
+function FightBase:handle_role_opera(fight_role, msg)
+    local now_fight_role = self._id_to_role[fight_role.role_id]
+    if now_fight_role.netid ~= fight_role.netid then
+        return Error.fight.netid_mismatch
+    end
+    local ret = self:_on_opera(fight_role, msg)
+    return ret
+end
+
+

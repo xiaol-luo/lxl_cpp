@@ -78,9 +78,9 @@ message SyncRemoteRoomState
 
 message ReqBindFight
 {
-	int64 fight_id = 1;
-	int64 fight_session_id = 2;
-	int64 role_id = 3;
+	string fight_key = 1;
+	string token = 2;
+	int64 role_id = 3
 }
 
 message RspBindFight
@@ -96,7 +96,6 @@ message ReqQuitFight
 message RspQuitFight
 {
 	int32 error_num = 1;
-	string error_msg = 2;
 }
 
 message PullFightState
@@ -106,19 +105,27 @@ message PullFightState
 
 message ReqFightOpera
 {
-	string opera = 1;
-	string opera_params = 2;
+	int64 unique_id = 1
+	string opera = 2;
+	string opera_params = 3;
 }
 
 message RspFightOpera
 {
-	int32 error_num = 1;
-	string opera_ret = 2;
+	int64 unique_id = 1
+	int32 error_num = 2;
 }
 
-message SyncRollPointResult
+message TwoDiceRound
 {
-	map<int64, int32> role_roll_points = 1;
+	int32 round = 1;
+	map<int64, int32> roll_points = 2;
+}
+
+message SyncFightStateTwoDice
+{
+	repeated TwoDiceRound rounds = 1;
+	repeated int64 role_ids = 2;
 }
 
 
