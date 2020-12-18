@@ -12,10 +12,15 @@ GameRoom = GameRoom or class("GameRoom")
 function GameRoom:ctor()
     self.role_id = 0
     self.state = Game_Room_Item_State.idle
-    self.match_server_key = nil
+    self.room_server_key = nil
     self.room_key = nil
-    self.match_theme = nil
-    self.leader_role_id = 0
-    self.teammate_role_ids = {}
+
+    self.remote_room = {}
+    self.remote_room.state = Room_State.idle
+    self.remote_room.match_theme = nil
+    self.remote_room.fight_key = nil
+    self.remote_room.fight_server_key = nil
+    self.remote_room.fight = nil
+    self.remote_room.raw_msg = nil
 end
 

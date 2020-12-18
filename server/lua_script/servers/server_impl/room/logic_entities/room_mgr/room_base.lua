@@ -1,12 +1,4 @@
 
----@class Room_State
-Room_State = {}
-Room_State.setup = "setup"
-Room_State.ask_enter_room = "ask_enter_room"
-Room_State.wait_apply_fight = "wait_start_fight"
-Room_State.apply_fight = "apply_fight"
-Room_State.wait_fight_over = "wait_fight_over"
-Room_State.all_over = "all_over"
 
 ---@class RoomBase
 ---@field room_key string
@@ -47,6 +39,7 @@ function RoomBase:collect_sync_room_state()
     local ret = {}
     ret.room_key = self.room_key
     ret.state = self.state
+    ret.match_theme = self.match_theme
     ret.room_camps = {}
     for camp_k, camp_v in pairs(self.room_camps) do
         local camp = {}

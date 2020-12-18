@@ -127,9 +127,10 @@ function TwoDiceRoomLogic:_try_apply_fight(room)
                 room.try_apply_fight_timestamp = logic_sec() + 5
             else
                 room.fight_key = fight_msg.fight_key
+                room.fight = {}
                 room.fight.ip = fight_msg.ip
                 room.fight.port = fight_msg.port
-                room.token = fight_msg.token
+                room.fight.token = fight_msg.token
                 if Room_State.apply_fight == room.state then
                     room.state = Room_State.wait_fight_over
                     self:sync_room_state(room)

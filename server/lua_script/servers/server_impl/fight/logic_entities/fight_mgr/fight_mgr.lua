@@ -45,6 +45,7 @@ function FightMgr:_on_release()
 end
 
 function FightMgr:_on_update()
+    FightMgr.super._on_update(self)
     -- log_print("FightMgr:_on_update")
     for k, v in pairs(self._key_to_fight) do
         v:update()

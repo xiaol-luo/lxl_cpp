@@ -31,49 +31,17 @@ message SyncMatchState
 }
 
 
-message SyncFightState
+message SyncRoomState
 {
-	int32 state = 1;
-	string token = 2;
-	string fight_type = 3;
-	string fight_service_ip = 4;
-	int32 fight_service_port = 5;
-	int64 fight_battle_id = 6;
+	string state = 1;
+	string room_key = 2;
+	string remote_room_state = 3;
+	string match_theme = 4;
+	string fight_key = 5;
+	string fight_server_ip = 6;
+	int fight_server_port = 7;
+	string fight_token = 8;
 }
-
-message NotifyBindRoom
-{
-	string session_id = 1;
-	int64 room_id = 2;
-}
-
-message NotifyUnbindRoom
-{
-	string session_id = 1;
-	int64 room_id = 2;
-}
-
-message NotifyTerminateRoom
-{
-	string session_id = 1;
-	int64 room_id = 2;
-}
-
-message RemoteRoomCommonHead
-{
-    int32 rpc_error_num = 1;    // 记录game和room之间的rpc通信机制错误
-    int32 error_num = 2;        // 记录game与room之间的逻辑错误
-}
-
-message SyncRemoteRoomState
-{
-    RemoteRoomCommonHead head = 1;
-    int64 room_id = 2;
-    int32 state = 3;
-    int32 fight_type = 4;
-}
-
-
 
 
 message ReqBindFight
@@ -127,6 +95,68 @@ message SyncFightStateTwoDice
 	repeated TwoDiceRound rounds = 1;
 	repeated int64 role_ids = 2;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+message SyncFightState
+{
+	int32 state = 1;
+	string token = 2;
+	string fight_type = 3;
+	string fight_service_ip = 4;
+	int32 fight_service_port = 5;
+	int64 fight_battle_id = 6;
+}
+
+message NotifyBindRoom
+{
+	string session_id = 1;
+	int64 room_id = 2;
+}
+
+message NotifyUnbindRoom
+{
+	string session_id = 1;
+	int64 room_id = 2;
+}
+
+message NotifyTerminateRoom
+{
+	string session_id = 1;
+	int64 room_id = 2;
+}
+
+message RemoteRoomCommonHead
+{
+    int32 rpc_error_num = 1;    // 记录game和room之间的rpc通信机制错误
+    int32 error_num = 2;        // 记录game与room之间的逻辑错误
+}
+
+message SyncRemoteRoomState
+{
+    RemoteRoomCommonHead head = 1;
+    int64 room_id = 2;
+    int32 state = 3;
+    int32 fight_type = 4;
+}
+
+
+
+
 
 
 

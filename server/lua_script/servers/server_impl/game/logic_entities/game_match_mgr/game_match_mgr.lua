@@ -51,7 +51,7 @@ function GameMatchMgr:_on_map_client_msg_handle_fns()
     GameMatchMgr.super._on_map_client_msg_handle_fns(self)
     self._pid_to_client_msg_handle_fns[Fight_Pid.req_join_match] = Functional.make_closure(self._on_msg_join_match, self)
     self._pid_to_client_msg_handle_fns[Fight_Pid.req_quit_match] = Functional.make_closure(self._on_msg_quit_match, self)
-    self._pid_to_client_msg_handle_fns[Fight_Pid.req_match_state] = Functional.make_closure(self._on_msg_req_match_state, self)
+    self._pid_to_client_msg_handle_fns[Fight_Pid.pull_match_state] = Functional.make_closure(self._on_msg_pull_match_state, self)
 end
 
 --- rpc函数
@@ -247,8 +247,8 @@ function GameMatchMgr:_on_msg_quit_match(from_gate, gate_netid, role_id, pid, ms
     log_print("GameMatchMgr:_on_msg_quit_match ", role_id, error_num)
 end
 
-function GameMatchMgr:_on_msg_req_match_state(from_gate, gate_netid, role_id, pid, msg)
-    log_debug("GameMatchMgr:_on_msg_req_match_state %s", role_id)
+function GameMatchMgr:_on_msg_pull_match_state(from_gate, gate_netid, role_id, pid, msg)
+    log_debug("GameMatchMgr:_on_msg_pull_match_state %s", role_id)
     self:sync_state(role_id, from_gate, gate_netid)
 end
 

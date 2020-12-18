@@ -17,10 +17,19 @@ Game_Match_Item_State.all_over = "all_over"
 ---@class Game_Room_Item_State
 Game_Room_Item_State = {}
 Game_Room_Item_State.idle = "idle"
-Game_Room_Item_State.wait_enter_confirm = "wait_enter_confirm"
 Game_Room_Item_State.accept_enter = "accept_enter"
 Game_Room_Item_State.in_room = "in_room"
 Game_Room_Item_State.all_over = "all_over"
+
+---@class Room_State
+Room_State = {}
+Room_State.idle = "idle"
+Room_State.setup = "setup"
+Room_State.ask_enter_room = "ask_enter_room"
+Room_State.wait_apply_fight = "wait_start_fight"
+Room_State.apply_fight = "apply_fight"
+Room_State.wait_fight_over = "wait_fight_over"
+Room_State.all_over = "all_over"
 
 
 

@@ -21,9 +21,15 @@ setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.req_quit_match, "ReqQuitMatch"
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rsp_quit_match, "RspQuitMatch")
 
 -- 同步匹配信息
-Fight_Pid.req_match_state = 5 + Pto_Const.fight_min_pto_id
+Fight_Pid.pull_match_state = 5 + Pto_Const.fight_min_pto_id
 Fight_Pid.sync_match_state = 6 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_match_state, "SyncMatchState")
+
+-- 同步房间信息
+Fight_Pid.pull_room_state = 7 + Pto_Const.fight_min_pto_id
+Fight_Pid.sync_room_state = 8 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_room_state, "SyncRoomState")
+
 
 -- 绑定战斗
 Fight_Pid.req_bind_fight = 51 + Pto_Const.fight_min_pto_id

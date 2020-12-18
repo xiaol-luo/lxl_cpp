@@ -35,5 +35,5 @@ function Fight:req_quit_match()
 end
 
 function Fight:req_match_state()
-    self._gate_net:send_msg(Fight_Pid.req_match_state)
+    self._gate_net:send_msg(Fight_Pid.pull_match_state)
 end
