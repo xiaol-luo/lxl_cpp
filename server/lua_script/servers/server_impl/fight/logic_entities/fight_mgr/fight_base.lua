@@ -3,26 +3,28 @@
 FightBase = FightBase or class("FightBase")
 
 function FightBase:ctor(fight_mgr, setup_data)
+    ---@type FightMgr
     self._fight_mgr = fight_mgr
     self.setup_data = setup_data
 
     self.fight_key = nil
+    self.token = nil
     self.room_server_key = nil
     self.room_key = nil
 
-    ---@type EventProxy
-    self._event_proxy = EventProxy:new()
+    ---@type EventBinder
+    self._event_binder = EventBinder:new()
     ---@type TimerProxy
     self._timer_proxy = TimerProxy:new()
-
-    self.is_over = false
-
+    ---@type RpcServiceProxy
+    self._rpc_svc_proxy = self._fight_mgr.server.rpc:create_svc_proxy()
     ---@type table<number, FightRole>
     self._id_to_role = {}
 end
 
 function FightBase:init()
     self.fight_key = gen_uuid()
+    self.token = gen_uuid()
     self.room_key = self.setup_data.room_key
     self.room_server_key = self.setup_data.room_server_key
     self:_on_init()
@@ -37,7 +39,7 @@ function FightBase:stop()
 end
 
 function FightBase:release()
-    self._event_proxy:release_all()
+    self._event_binder:release_all()
     self._timer_proxy:release_all()
     self:_on_release()
     for k, v in pairs(self._id_to_role) do
@@ -51,6 +53,11 @@ end
 
 function FightBase:update()
     self:_on_update()
+end
+
+function FightBase:is_over()
+    -- override by subclass
+    return false
 end
 
 function FightBase:_on_init()

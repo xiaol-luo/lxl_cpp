@@ -39,7 +39,7 @@ message SyncRoomState
 	string match_theme = 4;
 	string fight_key = 5;
 	string fight_server_ip = 6;
-	int fight_server_port = 7;
+	int32 fight_server_port = 7;
 	string fight_token = 8;
 }
 

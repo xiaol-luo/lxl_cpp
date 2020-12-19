@@ -6,6 +6,7 @@ function TwoDiceRoomLogic:ctor(room_mgr, match_theme, logic_setting)
     TwoDiceRoomLogic.super.ctor(self, room_mgr, match_theme, logic_setting)
 
     self._last_check_apply_fight_sec = 0
+    self.Try_Apply_Fight_Max_Times = 3
 end
 
 
@@ -28,10 +29,9 @@ function TwoDiceRoomLogic:_on_setup_room(room)
         local role_id = key
         local room_role = val
         room.role_replys[role_id] = Reply_State.pending
-        self._rpc_svc_proxy:call_game_server(function(rpc_error_num, error_num, is_accept)
-
-        end, role_id, Rpc.game.notify_enter_room, role_id, room.room_key)
-
+        self._rpc_svc_proxy:call_game_server(
+                Functional.make_closure(self._on_cb_notify_enter_room, self, room.room_key, role_id),
+                role_id, Rpc.game.notify_enter_room, role_id, room.room_key)
     end
 end
 
@@ -68,13 +68,11 @@ function TwoDiceRoomLogic:_on_cb_notify_enter_room(room_key, role_id, rpc_error_
                 end
                 -- todo:马上申请房间了， 其实可以考虑让他们在房间内先玩耍一会
                 room.state = Room_State.apply_fight
-                room.try_apply_fight_timestamp = logic_sec() + 5
+                room.try_apply_fight_sec = logic_sec() + 5
             else
-                room.state = Room_State.all_over
                 self._room_mgr:remove_room(room_key)
                 for k, v in pairs(room.role_replys) do
                     self._rpc_svc_proxy:call_game_server(nil, k, Rpc.game.notify_room_over, k, room_key)
-                    self:sync_room_state(room, k)
                 end
             end
         end
@@ -82,7 +80,7 @@ function TwoDiceRoomLogic:_on_cb_notify_enter_room(room_key, role_id, rpc_error_
 end
 
 function TwoDiceRoomLogic:_on_release_room(room)
-    self._key_to_room[room.room_key] = nil
+    self:sync_room_state(room)
 end
 
 function TwoDiceRoomLogic:_on_init(...)
@@ -90,8 +88,11 @@ function TwoDiceRoomLogic:_on_init(...)
 end
 
 function TwoDiceRoomLogic:_on_notify_fight_over(room, fight_result)
-    room.state = Room_State.all_over
-    self:sync_room_state(room)
+    self._room_mgr:remove_room(room.room_key)
+    for k, _ in pairs(room.id_to_role) do
+        self._rpc_svc_proxy:call_game_server(nil, k, Rpc.game.notify_room_over, k, room.room_key)
+    end
+    return Error_None
 end
 
 function TwoDiceRoomLogic:_on_update()
@@ -99,12 +100,22 @@ function TwoDiceRoomLogic:_on_update()
     if now_sec > self._last_check_apply_fight_sec then
         self._last_check_apply_fight_sec = now_sec
 
+        local to_remove_rooms = {}
         for room_key, room in pairs(self._key_to_room) do
             if Room_State.apply_fight == room.state
-                    and room.try_apply_fight_timestamp
-                    and now_sec >= room.try_apply_fight_timestamp then
-                room.try_apply_fight_timestamp = nil
-                self:_try_apply_fight(room)
+                    and room.try_apply_fight_sec
+                    and now_sec >= room.try_apply_fight_sec then
+                room.try_apply_fight_sec = nil
+                if room.try_apply_fight_times >= self.Try_Apply_Fight_Max_Times then
+                    table.insert(to_remove_rooms, room)
+                else
+                    self:_try_apply_fight(room)
+                end
+            end
+        end
+        if next(to_remove_rooms) then
+            for _, room in ipairs(to_remove_rooms) do
+                self:release_room(room)
             end
         end
     end
@@ -112,11 +123,12 @@ end
 
 ---@param room RoomBase
 function TwoDiceRoomLogic:_try_apply_fight(room)
+    room.try_apply_fight_times = room.try_apply_fight_times + 1
     if not room.fight_server_key then
         room.fight_server_key = self._room_mgr.server.peer_net:random_server_key(Server_Role.Fight)
     end
     if not room.fight_server_key then
-        room.try_apply_fight_timestamp = logic_sec() + 5 -- 5秒后再试
+        room.try_apply_fight_sec = logic_sec() + 5 -- 5秒后再试
         return
     end
     self._rpc_svc_proxy:call(function(rpc_error_num, error_num, fight_msg)
@@ -124,7 +136,7 @@ function TwoDiceRoomLogic:_try_apply_fight(room)
         repeat
             if Error_None ~= picked_error_num then
                 room.fight_server_key = nil
-                room.try_apply_fight_timestamp = logic_sec() + 5
+                room.try_apply_fight_sec = logic_sec() + 5
             else
                 room.fight_key = fight_msg.fight_key
                 room.fight = {}
@@ -132,12 +144,12 @@ function TwoDiceRoomLogic:_try_apply_fight(room)
                 room.fight.port = fight_msg.port
                 room.fight.token = fight_msg.token
                 if Room_State.apply_fight == room.state then
-                    room.state = Room_State.wait_fight_over
+                    room.state = Room_State.in_fight
                     self:sync_room_state(room)
                 end
             end
         until true
-    end, room.fight_server_key, Rpc.fight.setup_fight, room:collect_sync_room_state())
+    end, room.fight_server_key, Rpc.fight.setup_fight, room.room_key, room:collect_sync_room_state())
 end
 
 

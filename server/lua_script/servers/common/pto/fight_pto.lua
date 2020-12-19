@@ -46,8 +46,8 @@ setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_fight_state_two_dice, "Sy
 -- 战斗操作
 Fight_Pid.req_fight_opera = 55 + Pto_Const.fight_min_pto_id
 Fight_Pid.rsp_fight_opera = 56 + Pto_Const.fight_min_pto_id
-setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.pull_fight_state, "ReqFightOpera")
-setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_fight_state_two_dice, "RspFightOpera")
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.req_fight_opera, "ReqFightOpera")
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rsp_fight_opera, "RspFightOpera")
 
 
 

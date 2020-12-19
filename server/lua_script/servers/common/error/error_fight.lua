@@ -25,14 +25,20 @@ Error.setup_room.room_key_clash = 2
 
 ---@class Error.query_room_state
 ---@field not_find_room number
-Error.query_room_state {}
+Error.query_room_state = {}
 Error.query_room_state.not_find_room = 1
+
+---@class Error.setup_fight
+---@field no_fit_theme number
+---@field room_key_clash number
+Error.setup_fight = {}
+Error.setup_fight.no_fit_theme = 1
 
 
 ---@class Error.notify_fight_over
 ---@field not_find_room number
 ---@field fight_key_mismatch number
-Error.notify_fight_over {}
+Error.notify_fight_over = {}
 Error.notify_fight_over.not_find_room = 1
 Error.notify_fight_over.fight_key_mismatch = 2
 

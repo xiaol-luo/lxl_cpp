@@ -55,7 +55,7 @@ function EventMgr:cancel_all()
     self.event_map = {}
 end
 
----@return EventProxySet
+---@return EventProxy
 function EventMgr:create_proxy()
     local ret = EventProxy:new(self)
     return ret

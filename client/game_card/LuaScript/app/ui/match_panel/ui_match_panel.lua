@@ -45,7 +45,7 @@ function UIMatchPanel:_update_match_view()
 end
 
 function UIMatchPanel:_on_click_join_match_btn()
-    self._app.data_mgr.fight:req_join_match("two_dice", {})
+    self._app.data_mgr.fight:req_join_match(Match_Theme.two_dice, {})
 end
 
 function UIMatchPanel:_on_click_quit_match_btn()

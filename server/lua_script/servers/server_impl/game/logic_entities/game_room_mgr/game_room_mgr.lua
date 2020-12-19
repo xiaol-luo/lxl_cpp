@@ -58,7 +58,7 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_ask_accept_enter_room(rpc_rsp, role_id, room_key)
-    log_print("GameRoomMgr:_on_rpc_ask_accept_enter_room", role_id, room_key)
+    -- log_print("GameRoomMgr:_on_rpc_ask_accept_enter_room", role_id, room_key)
     local is_accept = true
     rpc_rsp:response(Error_None, is_accept)
     if is_accept then
@@ -73,7 +73,6 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_notify_enter_room(rpc_rsp, role_id, room_key)
-    log_print("GameRoomMgr:_on_rpc_notify_enter_room", role_id, room_key)
     local is_accept = true
     local room = self:get_room(role_id)
     if not room then
@@ -82,6 +81,7 @@ function GameRoomMgr:_on_rpc_notify_enter_room(rpc_rsp, role_id, room_key)
     if room and room.room_key and room.room_key ~= room_key then
         is_accept = false
     end
+    -- log_print("GameRoomMgr:_on_rpc_notify_enter_room", room_key, room, is_accept)
     rpc_rsp:response(Error_None, is_accept)
     if is_accept then
         room.room_server_key = rpc_rsp.from_host
@@ -94,7 +94,7 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_notify_room_over(rpc_rsp, role_id, room_key)
-    log_print("GameRoomMgr:_on_rpc_notify_room_over", role_id, room_key)
+    -- log_print("GameRoomMgr:_on_rpc_notify_room_over", role_id, room_key)
     rpc_rsp:response(Error_None)
     local room  = self:get_room(role_id, room_key)
     if room then
@@ -107,18 +107,18 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_sync_room_state(rpc_rsp, role_id, room_key, room_state)
-    log_print("GameRoomMgr:_on_rpc_sync_room_state", role_id, room_key)
+    -- log_print("GameRoomMgr:_on_rpc_sync_room_state", role_id, room_key, room_state)
     rpc_rsp:response(Error_None)
     local room = self:get_room(role_id, room_key)
     if not room then
         return
     end
-    self.remote_room.state = room_state.state
-    self.remote_room.match_theme = room_state.match_theme
-    self.remote_room.fight_key = room_state.fight_key
-    self.remote_room.fight_server_key = room_state.fight_server_key
-    self.remote_room.fight = room_state.fight
-    self.remote_room.raw_msg = room_state.room_state
+    room.remote_room.state = room_state.state
+    room.remote_room.match_theme = room_state.match_theme
+    room.remote_room.fight_key = room_state.fight_key
+    room.remote_room.fight_server_key = room_state.fight_server_key
+    room.remote_room.fight = room_state.fight
+    room.remote_room.raw_msg = room_state.room_state
     self:sync_state(role_id)
 end
 
@@ -141,26 +141,26 @@ function GameRoomMgr:remove_room(role_id, room_key)
     return room
 end
 
-function GameMatchMgr:_on_msg_pull_room_state(from_gate, gate_netid, role_id, pid, msg)
+function GameRoomMgr:_on_msg_pull_room_state(from_gate, gate_netid, role_id, pid, msg)
     self:sync_state(role_id, from_gate, gate_netid)
 end
 
-function GameMatchMgr:sync_state(role_id, from_gate, gate_netid)
+function GameRoomMgr:sync_state(role_id, from_gate, gate_netid)
     local msg = {
         state = Game_Room_Item_State.idle
     }
     local room = self:get_room(role_id)
     if room then
+        -- log_print("GameRoomMgr:sync_state", room)
         msg.state = room.state
         msg.room_key = room.room_key
-        msg.match_key = match.match_key
-        msg.remote_room_state = self.remote_room.state
-        msg.match_theme = self.remote_room.match_theme
-        msg.fight_key = self.remote_room.fight_key
-        if self.remote_room.fight then
-            msg.fight_server_ip = self.remote_room.fight.ip
-            msg.fight_server_port = self.remote_room.fight.port
-            msg.fight_token = self.remote_room.fight.token
+        msg.remote_room_state = room.remote_room.state
+        msg.match_theme = room.remote_room.match_theme
+        msg.fight_key = room.remote_room.fight_key
+        if room.remote_room.fight then
+            msg.fight_server_ip = room.remote_room.fight.ip
+            msg.fight_server_port = room.remote_room.fight.port
+            msg.fight_token = room.remote_room.fight.token
         end
     end
     if from_gate and gate_netid then

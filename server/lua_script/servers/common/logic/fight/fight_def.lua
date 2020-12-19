@@ -28,7 +28,7 @@ Room_State.setup = "setup"
 Room_State.ask_enter_room = "ask_enter_room"
 Room_State.wait_apply_fight = "wait_start_fight"
 Room_State.apply_fight = "apply_fight"
-Room_State.wait_fight_over = "wait_fight_over"
+Room_State.in_fight = "in_fight"
 Room_State.all_over = "all_over"
 
 

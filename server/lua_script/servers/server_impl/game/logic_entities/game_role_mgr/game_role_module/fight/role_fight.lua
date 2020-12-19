@@ -15,7 +15,7 @@ function RoleFight:ctor(role)
     ---@type RoleFightRoomData
     self._room_data = nil
     ---@type RpcServiceProxy
-    self._rpc_proxy = self._server.rpc:create_svc_proxy()
+    self._rpc_svc_proxy = self._server.rpc:create_svc_proxy()
 end
 
 function RoleFight:_on_init_from_db(db_ret)
@@ -45,7 +45,7 @@ function RoleFight:on_msg_req_join_match(pid, msg)
         return
     end
     local token = gen_uuid()
-    self._rpc_proxy:call(function(rpc_error_num, error_num)
+    self._rpc_svc_proxy:call(function(rpc_error_num, error_num)
         local picked_error_num = pick_error_num(rpc_error_num, error_num)
         self._role:send_msg(Fight_Pid.rsp_join_match, { error_num = picked_error_num })
         if Error_None == picked_error_num then

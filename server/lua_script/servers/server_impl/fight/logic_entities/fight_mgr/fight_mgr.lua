@@ -46,14 +46,14 @@ end
 
 function FightMgr:_on_update()
     FightMgr.super._on_update(self)
-    -- log_print("FightMgr:_on_update")
     for k, v in pairs(self._key_to_fight) do
         v:update()
-        if v.is_over then
+        if v:is_over() then
             table.insert(self._over_fights, k)
         end
     end
     if next(self._over_fights) then
+        -- log_print("FightMgr:_on_update 1", self._over_fights)
         for _, v in ipairs(self._over_fights) do
             self:remove_fight(v)
         end
@@ -63,19 +63,33 @@ end
 
 --- rpc函数
 
-function RoomMgr:_on_map_remote_call_handle_fns()
-    self._method_name_to_remote_call_handle_fns[Rpc.room.setup_room] = Functional.make_closure(self._on_rpc_setup_room, self)
+function FightMgr:_on_map_remote_call_handle_fns()
+    self._method_name_to_remote_call_handle_fns[Rpc.fight.setup_fight] = Functional.make_closure(self._on_rpc_setup_fight, self)
 end
 
 ---@param rpc_rsp RpcRsp
-function FightMgr:_on_rpc_setup_room(rpc_rsp, room_key, room_msg)
+function FightMgr:_on_rpc_setup_fight(rpc_rsp, room_key, room_msg)
+    local error_num = Error.setup_fight.no_fit_theme
+    local msg = {}
     room_msg.room_server_key = rpc_rsp.from_host
     room_msg.room_key = room_key
-    local fight = TwoDiceFight:new(self, room_msg)
-    fight:init()
-    self._key_to_fight[fight.fight_key] = fight
-    self._room_key_to_fight[room_key] = fight
-    fight:start()
+    if not self:get_fight_by_room_key(room_key) then
+        if Match_Theme.two_dice == room_msg.match_theme then
+            local fight = TwoDiceFight:new(self, room_msg)
+            fight:init()
+            self._key_to_fight[fight.fight_key] = fight
+            self._room_key_to_fight[room_key] = fight
+            fight:start()
+            error_num = Error_None
+            msg = {
+                fight_key = fight.fight_key,
+                token = fight.token,
+                ip = self.logics.server.init_setting.advertise_client_ip,
+                port = self.logics.server.init_setting.advertise_client_port,
+            }
+        end
+    end
+    rpc_rsp:response(error_num, msg)
 end
 
 function FightMgr:get_fight(fight_key)
@@ -95,6 +109,7 @@ function FightMgr:remove_fight(fight_key)
         fight:release()
         self._key_to_fight[fight_key] = nil
         self._room_key_to_fight[fight.room_key] = nil
+
     end
 end
 

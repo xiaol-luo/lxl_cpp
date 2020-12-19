@@ -67,7 +67,7 @@ end
 
 ---@param rpc_rsp RpcRsp
 function RoomMgr:_on_rpc_setup_room(rpc_rsp, room_key, msg)
-    log_print("MatchRoomMgr:_on_rpc_setup_room", room_key, msg)
+    -- log_print("MatchRoomMgr:_on_rpc_setup_room", room_key, msg)
 
     local error_num = Error_None
     local room = self:get_room(room_key)
@@ -87,6 +87,7 @@ function RoomMgr:_on_rpc_query_room_state(rpc_rsp, room_key)
 end
 
 function RoomMgr:_on_rpc_notify_fight_over(rpc_rsp, room_key, fight_key, fight_result)
+    -- log_print("RoomMgr:_on_rpc_notify_fight_over", room_key, fight_key, fight_result)
     local error_num = Error_None
     repeat
         local room = self:get_room(room_key)
