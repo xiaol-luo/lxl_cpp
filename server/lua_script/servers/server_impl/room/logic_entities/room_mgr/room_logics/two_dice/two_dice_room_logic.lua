@@ -68,7 +68,7 @@ function TwoDiceRoomLogic:_on_cb_notify_enter_room(room_key, role_id, rpc_error_
                 end
                 -- todo:马上申请房间了， 其实可以考虑让他们在房间内先玩耍一会
                 room.state = Room_State.apply_fight
-                room.try_apply_fight_sec = logic_sec() + 5
+                room.try_apply_fight_sec = logic_sec()
             else
                 self._room_mgr:remove_room(room_key)
                 for k, v in pairs(room.role_replys) do

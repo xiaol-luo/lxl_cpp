@@ -212,7 +212,7 @@ function MatchMgr:_on_rpc_join_match(rpc_rsp, msg)
         end
     until true
 
-    log_print("MatchMgr:_handle_remote_call_join_match", error_num, msg)
+    -- log_print("MatchMgr:_handle_remote_call_join_match", error_num, msg)
     rpc_rsp:response(error_num)
 end
 

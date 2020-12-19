@@ -58,7 +58,6 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_ask_accept_enter_room(rpc_rsp, role_id, room_key)
-    -- log_print("GameRoomMgr:_on_rpc_ask_accept_enter_room", role_id, room_key)
     local is_accept = true
     rpc_rsp:response(Error_None, is_accept)
     if is_accept then
@@ -69,6 +68,7 @@ function GameRoomMgr:_on_rpc_ask_accept_enter_room(rpc_rsp, role_id, room_key)
         self._role_id_to_room[role_id] = room
         self:sync_state(role_id)
     end
+    log_print("GameRoomMgr:_on_rpc_ask_accept_enter_room", role_id, room_key, is_accept)
 end
 
 ---@param rpc_rsp RpcRsp
@@ -81,7 +81,7 @@ function GameRoomMgr:_on_rpc_notify_enter_room(rpc_rsp, role_id, room_key)
     if room and room.room_key and room.room_key ~= room_key then
         is_accept = false
     end
-    -- log_print("GameRoomMgr:_on_rpc_notify_enter_room", room_key, room, is_accept)
+    log_print("GameRoomMgr:_on_rpc_notify_enter_room", role_id, room_key, is_accept)
     rpc_rsp:response(Error_None, is_accept)
     if is_accept then
         room.room_server_key = rpc_rsp.from_host
@@ -94,7 +94,7 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_notify_room_over(rpc_rsp, role_id, room_key)
-    -- log_print("GameRoomMgr:_on_rpc_notify_room_over", role_id, room_key)
+    log_print("GameRoomMgr:_on_rpc_notify_room_over", role_id, room_key)
     rpc_rsp:response(Error_None)
     local room  = self:get_room(role_id, room_key)
     if room then
@@ -107,7 +107,7 @@ end
 
 ---@param rpc_rsp RpcRsp
 function GameRoomMgr:_on_rpc_sync_room_state(rpc_rsp, role_id, room_key, room_state)
-    -- log_print("GameRoomMgr:_on_rpc_sync_room_state", role_id, room_key, room_state)
+    log_print("GameRoomMgr:_on_rpc_sync_room_state", role_id, room_key, room_state.state)
     rpc_rsp:response(Error_None)
     local room = self:get_room(role_id, room_key)
     if not room then
@@ -151,7 +151,6 @@ function GameRoomMgr:sync_state(role_id, from_gate, gate_netid)
     }
     local room = self:get_room(role_id)
     if room then
-        -- log_print("GameRoomMgr:sync_state", room)
         msg.state = room.state
         msg.room_key = room.room_key
         msg.remote_room_state = room.remote_room.state
