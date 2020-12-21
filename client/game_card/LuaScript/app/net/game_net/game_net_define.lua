@@ -12,3 +12,7 @@ Game_Net_Event.game_login_done = "game_login_done"
 Game_Net_Event.gate_connect_start = "gate_connect_start"
 Game_Net_Event.gate_connect_done = "gate_connect_done"
 Game_Net_Event.gate_connect_ready_change = "gate_connect_ready_change"
+
+Game_Net_Event.fight_connect_start = "fight_connect_start"
+Game_Net_Event.fight_connect_done = "fight_connect_done"
+Game_Net_Event.fight_connect_ready_change = "fight_connect_ready_change"

@@ -115,6 +115,7 @@ end
 
 ---@param client FightClient
 function FightMgr:_on_msg_req_bind_fight(client, pid, msg)
+    log_print("FightMgr:_on_msg_req_bind_fight ", pid, msg)
     local error_num = Error_None
     repeat
         local fight = self:get_fight(msg.fight_key)

@@ -9,6 +9,7 @@ return
 			"game_login_net_base",
 			"game_net_define",
 			"game_platform_net_base",
+			"fight_net_base",
 
         },
         includes =

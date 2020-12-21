@@ -10,7 +10,6 @@ return
         },
         includes =
         {
-			"fight_net.include",
 			"game_net.include",
         },
     },

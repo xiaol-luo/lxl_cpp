@@ -68,8 +68,8 @@ function GameGateNetBase:notify_connect_start()
     self._net_mgr:fire(Game_Net_Event.gate_connect_start)
 end
 
-function GameGateNetBase:notify_ready_change()
-    self._net_mgr:fire(Game_Net_Event.gate_connect_ready_change, self, self:is_ready())
+function GameGateNetBase:notify_ready_state()
+    self._net_mgr:fire(Game_Net_Event.gate_connect_ready_change, self:is_ready())
 end
 
 -- to gate

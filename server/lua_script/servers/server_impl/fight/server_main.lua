@@ -19,6 +19,10 @@ function FightServer:_on_init()
     if not ret then
         return false
     end
+
+    -- 加载协议
+    self.pto_parser:load_files(Fight_Pto.pto_files)
+    self.pto_parser:setup_id_to_protos(Fight_Pto.id_to_pto)
     return true
 end
 

@@ -22,6 +22,7 @@ function NetMgr:init()
         self.game_platform_net = GamePlatformNetEditor:new(self)
         self.game_login_net = GameLoginNetEditor:new(self)
         self.game_gate_net = GameGateNetEditor:new(self)
+        self.fight_net = FightNetEditor:new(self)
     else
 
     end
@@ -29,6 +30,7 @@ function NetMgr:init()
     self.game_platform_net:init()
     self.game_login_net:init()
     self.game_gate_net:init()
+    self.fight_net:init()
 end
 
 function NetMgr:game_login()
@@ -76,9 +78,10 @@ function NetMgr:_fight_reset()
 end
 
 function NetMgr:release()
-    self._game_platform_net:release()
-    self._game_login_net:release()
-    self._game_gate_net:release()
+    self.game_platform_net:release()
+    self.game_login_net:release()
+    self.game_gate_net:release()
+    self.fight_net:release()
     self:cancel_all()
 end
 

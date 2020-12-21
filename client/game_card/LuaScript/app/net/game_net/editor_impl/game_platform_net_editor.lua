@@ -63,7 +63,7 @@ function GamePlatformNetEditor:_set_is_ready(is_ready, error_msg)
     self._is_ready = is_ready
     self._error_msg = error_msg
     if old_is_ready ~= self._is_ready then
-        self:notify_ready_change()
+        self:notify_ready_state()
     end
 end
 

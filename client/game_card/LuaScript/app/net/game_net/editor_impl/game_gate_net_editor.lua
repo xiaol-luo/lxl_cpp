@@ -32,7 +32,7 @@ function GameGateNetEditor:connect()
     self._error_num = nil
     self._error_msg = nil
     if old_is_ready ~= self:is_ready() then
-        self:notify_ready_change()
+        self:notify_ready_state()
     end
 
     local gate_ip, gate_port = self:get_gate_host()
@@ -146,7 +146,7 @@ function GameGateNetEditor:on_event_net_recv_msg(connect_op_seq, pto_id, bytes, 
         local old_is_ready = self:is_ready()
         self._error_num = msg.error_num
         if old_is_ready ~= self:is_ready() then
-            self:notify_ready_change()
+            self:notify_ready_state()
         end
         self:notify_connect_done()
         return
