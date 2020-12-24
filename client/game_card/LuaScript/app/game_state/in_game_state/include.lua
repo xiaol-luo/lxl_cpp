@@ -11,7 +11,8 @@ return
 			"in_game_state_exit",
 			"in_game_state_manage_role",
 			"in_game_state_mgr",
-			"in_game_state_run",
+			"in_game_state_in_lobby",
+			"in_game_state_fight",
 
         },
         includes =
