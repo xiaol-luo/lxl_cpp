@@ -26,3 +26,7 @@ function AppStateMgr:init()
     assert(self.in_game_state_mgr)
 end
 
+function AppStateMgr:change_in_game_state(in_game_state_name, params)
+    self:change_child_state({App_State_Name.in_game, in_game_state_name}, params)
+end
+

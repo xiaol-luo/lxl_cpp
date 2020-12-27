@@ -63,7 +63,7 @@ end
 function UIMainPanel:_on_click_pick_role_btn()
     self._app.data_mgr.game_user:logout_role()
     self._app.net_mgr.game_gate_net:disconnect()
-    self._app.state_mgr.in_game_state_mgr:change_state(In_Game_State_Name.manage_role)
+    self._app.state_mgr.change_in_game_state(In_Game_State_Name.manage_role)
 end
 
 function UIMainPanel:_on_click_match_panel_btn()

@@ -47,6 +47,26 @@ function StateMgr:change_state(state_name, params)
     self.active_state:enter(params)
 end
 
+function StateMgr:change_child_state(state_path, params)
+    assert(is_table(state_path) and #state_path > 1)
+    local ret = false
+    local parent_state_mgr = self
+    for i=1, #state_path - 1 do
+        if nil == parent_state_mgr or nil == parent_state_mgr.active_state then
+            break
+        end
+        if parent_state_mgr.active_state:get_name() == state_path[i] then
+            parent_state_mgr = parent_state_mgr.active_state.child_state_mgr
+        end
+    end
+    if parent_state_mgr then
+        local to_state_name = state_path[#state_path]
+        parent_state_mgr:change_state(to_state_name, params)
+        ret = true
+    end
+    return ret
+end
+
 function StateMgr:get_active_state_name()
     local ret = nil
     if self.active_state then

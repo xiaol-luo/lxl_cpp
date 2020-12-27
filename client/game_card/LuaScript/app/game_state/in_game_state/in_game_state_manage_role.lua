@@ -55,7 +55,7 @@ end
 
 function InGameStateManageRole:_on_event_role_reachable_change(is_role_reachable)
     if is_role_reachable then
-        self.app.state_mgr.in_game_state_mgr:change_state(In_Game_State_Name.in_lobby)
+        self.state_mgr:change_state(In_Game_State_Name.in_lobby)
     end
 end
 
