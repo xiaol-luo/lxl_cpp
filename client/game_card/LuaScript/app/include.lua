@@ -14,6 +14,7 @@ return
 			"game_state.include",
 			"net.include",
 			"ui.include",
+			"logic.include",
         },
     },
 }

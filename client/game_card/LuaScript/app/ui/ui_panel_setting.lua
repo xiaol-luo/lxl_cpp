@@ -9,9 +9,21 @@ UI_Panel_Name.platform_panel = "platform_panel"
 UI_Panel_Name.manage_role_panel = "manage_role_panel"
 UI_Panel_Name.select_gate_panel = "select_gate_panel"
 UI_Panel_Name.match_panel = "match_panel"
+UI_Panel_Name.room_panel = "room_panel"
+UI_Panel_Name.fight_panel = "fight_panel"
 
 
 UI_Panel_Setting = {
+    [UI_Panel_Name.fight_panel]= {
+        belong_layer = Panel_Layer.coexist_0,
+        res_path = "Assets/Res/UI/PanelMgr/FightPanel/FightPanel.prefab",
+        panel_cls = UIFightPanel,
+    },
+    [UI_Panel_Name.room_panel]= {
+        belong_layer = Panel_Layer.coexist_0,
+        res_path = "Assets/Res/UI/PanelMgr/RoomPanel/RoomPanel.prefab",
+        panel_cls = UIRoomPanel,
+    },
     [UI_Panel_Name.match_panel]= {
         belong_layer = Panel_Layer.coexist_0,
         res_path = "Assets/Res/UI/PanelMgr/MatchPanel/MatchPanel.prefab",

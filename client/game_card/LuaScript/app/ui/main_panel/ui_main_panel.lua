@@ -32,6 +32,9 @@ function UIMainPanel:_on_attach_panel()
     self._match_panel_btn = UIHelp.attach_ui(UIButton, self._panel_root, "function_view/line_1/match")
     self._match_panel_btn:set_onclick(Functional.make_closure(self._on_click_match_panel_btn, self))
     ---@type UIButton
+    self._room_panel_btn = UIHelp.attach_ui(UIButton, self._panel_root, "function_view/line_1/room")
+    self._room_panel_btn:set_onclick(Functional.make_closure(self._on_click_room_panel_btn, self))
+    ---@type UIButton
     self.rank_panel_btn = UIHelp.attach_ui(UIButton, self._panel_root, "function_view/line_1/rank")
     self.rank_panel_btn:set_onclick(Functional.make_closure(self._on_click_rank_panel_btn, self))
 
@@ -64,8 +67,11 @@ function UIMainPanel:_on_click_pick_role_btn()
 end
 
 function UIMainPanel:_on_click_match_panel_btn()
-    -- g_ins.gate_cnn_logic:send_msg_to_game(ProtoId.req_quit_match, {  })
     g_ins.panel_mgr:open_panel(UI_Panel_Name.match_panel, {})
+end
+
+function UIMainPanel:_on_click_room_panel_btn()
+    g_ins.panel_mgr:open_panel(UI_Panel_Name.room_panel, {})
 end
 
 function UIMainPanel:_on_click_rank_panel_btn()

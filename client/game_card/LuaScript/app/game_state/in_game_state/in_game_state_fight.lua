@@ -4,13 +4,12 @@ InGameStateFight = InGameStateFight or class("InGameStateFight", InGameStateBase
 
 function InGameStateFight:ctor(state_mgr, in_game_state)
     InGameStateFight.super.ctor(self, state_mgr, In_Game_State_Name.fight, in_game_state)
-    self.gate_last_reconnect_sec = 0
-    self.fight_last_reconnect_sec = 0
 end
 
 function InGameStateFight:on_enter(params)
     InGameStateFight.super.on_enter(self, params)
-    self.app.panel_mgr:open_panel(UI_Panel_Name.main_panel, {})
+    self.app.panel_mgr:open_panel(UI_Panel_Name.fight_panel, {})
+    self.app.data_mgr.fight:req_bind_fight()
 end
 
 function InGameStateFight:on_update()

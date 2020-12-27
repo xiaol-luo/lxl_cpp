@@ -16,6 +16,8 @@ return
 			"match_panel.include",
 			"platform_panel.include",
 			"select_gate.include",
+			"fight_panel.include",
+			"room_panel.include",
         },
     },
 }

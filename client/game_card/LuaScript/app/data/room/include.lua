@@ -5,8 +5,8 @@ return
         -- dir = ".",
         files =
         {
-			"fight_data",
-			"fight_data_def",
+			"room_data",
+			"room_data_def",
 
         },
         includes =

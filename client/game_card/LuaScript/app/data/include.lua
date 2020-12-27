@@ -11,9 +11,11 @@ return
         },
         includes =
         {
-			"fight.include",
 			"game_user.include",
 			"main_role.include",
+			"fight.include",
+			"match.include",
+			"room.include",
         },
     },
 }

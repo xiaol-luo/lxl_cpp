@@ -1,3 +1,5 @@
 
-Main_Role_Event = {}
-Main_Role_Event.sync_role_data = "Main_Role_Event.sync_role_data"
+---@class Fight_Data_Event
+Fight_Data_Event = {}
+
+Fight_Data_Event.bind_fight_succ = "Fight_Data_Event.bind_fight_succ"

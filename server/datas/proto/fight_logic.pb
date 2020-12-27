@@ -1,5 +1,12 @@
 syntax="proto3"
 
+message SyncMatchState
+{
+	string state = 1;
+	string match_theme = 2;
+	string match_key = 3;
+}
+
 message ReqJoinMatch
 {
 	string match_theme = 1;
@@ -9,7 +16,7 @@ message ReqJoinMatch
 message RspJoinMatch
 {
 	int32 error_num = 1;
-	string match_key = 2;
+	SyncMatchState match_state = 2;
 }
 
 message ReqQuitMatch
@@ -22,14 +29,6 @@ message RspQuitMatch
 {
 	int32 error_num = 1;
 }
-
-message SyncMatchState
-{
-	string state = 1;
-	string match_theme = 2;
-	string match_key = 3;
-}
-
 
 message SyncRoomState
 {
