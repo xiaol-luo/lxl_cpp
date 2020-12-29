@@ -65,11 +65,6 @@ message RspQuitFight
 	int32 error_num = 1;
 }
 
-message PullFightState
-{
-
-}
-
 message ReqFightOpera
 {
 	int64 unique_id = 1
@@ -81,6 +76,11 @@ message RspFightOpera
 {
 	int64 unique_id = 1
 	int32 error_num = 2;
+}
+
+message PullFightState
+{
+
 }
 
 message TwoDiceRound

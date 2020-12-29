@@ -10,14 +10,17 @@ function FightData:ctor(data_mgr)
     self._gate_net = self._app.net_mgr.game_gate_net
     ---@type FightNetBase
     self._fight_net = self._app.net_mgr.fight_net
+    ---@type RoomData
+    self._room_data = nil
 
     self.server_ip = nil
     self.server_port = 0
     self.fight_key = ""
     self.token = ""
     self.room_key = ""
-    ---@type RoomData
-    self._room_data = nil
+    self._is_bind_fight = false
+
+    self.fight_state = {}
 end
 
 function FightData:_on_init()
@@ -29,6 +32,7 @@ function FightData:_on_init()
     self._event_binder:bind(self._app.net_mgr, Fight_Pid.sync_fight_state_two_dice, Functional.make_closure(self._on_msg_sync_fight_state_two_dice, self))
     self._event_binder:bind(self._app.net_mgr, Fight_Pid.rsp_fight_opera, Functional.make_closure(self._on_msg_rsp_fight_opera, self))
     self._event_binder:bind(self._app.net_mgr, Game_Net_Event.fight_connect_done, Functional.make_closure(self._on_event_fight_net_connect_done, self))
+    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.fight_connect_ready_change, Functional.make_closure(self._on_event_fight_connect_ready_change, self))
 
     self._event_binder:bind(self._app.data_mgr.room, Room_Data_Event.room_start, Functional.make_closure(self._on_event_room_start, self))
     self._event_binder:bind(self._app.data_mgr.room, Room_Data_Event.room_state_change, Functional.make_closure(self._on_event_room_state_change, self))
@@ -39,8 +43,6 @@ function FightData:_on_release()
     RoomData.super._on_release(self)
 end
 
----@param match_theme Match_Theme
----@param teammate_role_ids table<number, number>
 function FightData:req_bind_fight()
     self._fight_net:set_host(self.server_ip, self.server_port)
     self._fight_net:connect()
@@ -83,8 +85,12 @@ function FightData:_on_event_fight_net_connect_done(is_ready, error_msg)
             role_id = self._data_mgr.main_role:get_role_id(),
         })
     else
-
+        self:fire(Fight_Data_Event.bind_fight_done, false)
     end
+end
+
+function FightData:_on_event_fight_connect_ready_change(is_ready)
+
 end
 
 function FightData:_on_event_room_start(room_key)
