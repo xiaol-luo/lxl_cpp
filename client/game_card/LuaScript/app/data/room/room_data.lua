@@ -36,11 +36,6 @@ end
 
 function RoomData:_on_msg_sync_room_state(pid, msg)
     log_print("RoomData:_on_msg_sync_room_state(pid, msg)", pid, msg)
-
-    if msg.remote_room_state == Room_State.in_fight then
-        -- self._fight_net:set_host(msg.fight_server_ip, msg.fight_server_port)
-        -- self._fight_net:connect()
-    end
     self:_handle_room_state_pto(msg)
 end
 

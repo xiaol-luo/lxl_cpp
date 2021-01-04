@@ -3,6 +3,7 @@
 ---@field panel_mgr UIPanelMgr
 ---@field net_mgr NetMgr
 ---@field data_mgr DataMgr
+---@field logic_mgr LogicMgr
 ---@field pto_parser ProtoParser
 LuaApp = LuaApp or class("LuaApp", EventMgr)
 
@@ -14,6 +15,7 @@ function LuaApp:ctor()
     self.pto_parser = nil
     self.net_mgr = nil
     self.data_mgr = nil
+    self.logic_mgr = nil
 end
 
 function LuaApp:init(arg)
@@ -35,7 +37,10 @@ function LuaApp:init(arg)
     self.net_mgr:init()
 
     self.data_mgr = DataMgr:new(self)
+    self.logic_mgr = LogicMgr:new(self)
+
     self.data_mgr:init()
+    self.logic_mgr:init()
 
     self.state_mgr = AppStateMgr:new(self)
     self.state_mgr:init()

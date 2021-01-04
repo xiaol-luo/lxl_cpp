@@ -22,7 +22,6 @@ function MatchData:_on_init()
     self._event_binder:bind(self._app.net_mgr, Fight_Pid.rsp_join_match, Functional.make_closure(self._on_msg_rsp_join_match, self))
     self._event_binder:bind(self._app.net_mgr, Fight_Pid.rsp_quit_match, Functional.make_closure(self._on_msg_sync_rsp_quit_match, self))
     self._event_binder:bind(self._app.net_mgr, Fight_Pid.sync_match_state, Functional.make_closure(self._on_msg_sync_match_state, self))
-
 end
 
 function MatchData:_on_release()

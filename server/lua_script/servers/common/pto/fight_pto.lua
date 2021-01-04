@@ -30,6 +30,9 @@ Fight_Pid.pull_room_state = 7 + Pto_Const.fight_min_pto_id
 Fight_Pid.sync_room_state = 8 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_room_state, "SyncRoomState")
 
+Fight_Pid.ask_cli_accept_enter_room = 9 + Pto_Const.fight_min_pto_id
+Fight_Pid.rpl_svr_accept_enter_room = 10 + Pto_Const.fight_min_pto_id
+
 
 -- 绑定战斗
 Fight_Pid.req_bind_fight = 51 + Pto_Const.fight_min_pto_id

@@ -11,15 +11,15 @@ function DataMgr:ctor(_app)
     DataMgr.super.ctor(self)
     self._app = _app
     self._data_list = {}
-end
 
-function DataMgr:init()
     self:_add_data_base_help(GameUser)
     self:_add_data_base_help(MainRole)
     self:_add_data_base_help(FightData)
     self:_add_data_base_help(RoomData)
     self:_add_data_base_help(MatchData)
+end
 
+function DataMgr:init()
     for _, v in pairs(self._data_list) do
         v:init()
     end

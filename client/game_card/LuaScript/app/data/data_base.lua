@@ -23,6 +23,7 @@ end
 
 function DataBase:release()
     self:cancel_all()
+    self._event_binder:release_all()
     self:_on_release()
 end
 
