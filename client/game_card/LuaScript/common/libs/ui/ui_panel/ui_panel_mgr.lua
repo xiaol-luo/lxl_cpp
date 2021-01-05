@@ -86,11 +86,15 @@ function UIPanelMgr:disable_all_panel()
     end
 end
 
-function UIPanelMgr:close_panel(panel_name)
-    local panel_data = self:_get_cached_panel_data(panel_name)
-    if panel_data then
-        self:_do_release_panel(panel_data)
-        self._cached_panel_datas[panel_name] = nil
+function UIPanelMgr:close_panel(panel_name, is_cache)
+    if not is_cache then
+        local panel_data = self:_get_cached_panel_data(panel_name)
+        if panel_data then
+            self:_do_release_panel(panel_data)
+            self._cached_panel_datas[panel_name] = nil
+        end
+    else
+        self:disable_panel(panel_name)
     end
 end
 

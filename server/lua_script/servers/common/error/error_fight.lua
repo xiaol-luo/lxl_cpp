@@ -16,6 +16,11 @@ Error.quit_match = {}
 Error.quit_match.match_key_not_same = 1
 Error.quit_match.can_not_quit_when_match_succ = 2
 
+---@class Error.ask_accept_enter_room
+Error.ask_accept_enter_room = {}
+Error.ask_accept_enter_room.not_find_room = 1
+Error.ask_accept_enter_room.role_not_in_room = 2
+
 ---@class Error.setup_room
 ---@field no_fit_theme number
 ---@field room_key_clash number

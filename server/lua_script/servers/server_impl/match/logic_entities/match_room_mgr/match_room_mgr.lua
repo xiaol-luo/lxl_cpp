@@ -70,50 +70,9 @@ function MatchRoomMgr:handle_match_game(match_game)
                 local role_id = v
                 match_room.role_replys[role_id] = Reply_State.pending
                 self._rpc_svc_proxy:call_game_server(
-                        Functional.make_closure(self._on_cb_ask_accept_enter_room, self, match_room.room_key, role_id),
+                        Functional.make_closure(nil, self, match_room.room_key, role_id),
                         v, Rpc.game.ask_accept_enter_room, v, match_room.room_key)
             end
-        end
-    end
-end
-
-function MatchRoomMgr:_on_cb_ask_accept_enter_room(room_key, role_id, rpc_error_num, error_num, is_accept)
-    log_print("MatchRoomMgr:_on_cb_ask_accept_enter_room", room_key, role_id, rpc_error_num, error_num, is_accept)
-    local match_room = self:get_room(room_key)
-    if not match_room then
-        return
-    end
-    if not match_room.role_replys[role_id] then
-        return
-    end
-    local real_accept = true
-    local picked_error_num = pick_error_num(rpc_error_num, error_num)
-    if Error_None ~= picked_error_num then
-        real_accept = false
-    end
-    if not is_accept then
-        real_accept = false
-    end
-    match_room.role_replys[role_id] = real_accept and Reply_State.accept or Reply_State.reject
-    local no_paneding = true
-    local reject_role_ids = {}
-    for role_id, reply_state in pairs(match_room.role_replys) do
-        if Reply_State.pending == reply_state then
-            no_paneding = false
-        end
-        if Reply_State.reject == reply_state then
-            table.insert(reject_role_ids, role_id)
-        end
-    end
-    if no_paneding then
-        if next(reject_role_ids) then
-            self:remove_room(room_key)
-            self._match_mgr:notify_handle_game_fail(match_room.match_game, reject_role_ids)
-        else
-            -- self._match_mgr:notify_handle_game_succ(match_room.match_game)
-            -- todo: 2.向room_server申请room
-            match_room.timeout_timestamp = logic_sec() + self._wait_sec_for_setup_room
-            self:try_setup_room(match_room.room_key, 1, Functional.make_closure(self._on_cb_setup_room, self))
         end
     end
 end
@@ -188,49 +147,46 @@ function MatchRoomMgr:_on_map_remote_call_handle_fns()
 end
 
 ---@param rpc_rsp RpcRsp
-function MatchRoomMgr:_on_rpc_join_match(rpc_rsp, msg)
-    log_print("MatchRoomMgr:_handle_remote_call_join_match", msg)
-    rpc_rsp:response(Error_None)
-end
-
----@param rpc_rsp RpcRsp
 function MatchRoomMgr:_on_rpc_rpl_ask_accept_enter_room(rpc_rsp, room_key, role_id, is_accept)
     log_print("MatchRoomMgr:_on_rpc_rpl_ask_accept_enter_room", room_key, role_id, is_accept)
-    local match_room = self:get_room(room_key)
-    if not match_room then
-        return
-    end
-    if not match_room.role_replys[role_id] then
-        return
-    end
-    local real_accept = true
-    local picked_error_num = pick_error_num(rpc_error_num, error_num)
-    if Error_None ~= picked_error_num then
-        real_accept = false
-    end
-    if not is_accept then
-        real_accept = false
-    end
-    match_room.role_replys[role_id] = real_accept and Reply_State.accept or Reply_State.reject
-    local no_paneding = true
-    local reject_role_ids = {}
-    for role_id, reply_state in pairs(match_room.role_replys) do
-        if Reply_State.pending == reply_state then
-            no_paneding = false
+    local error_num = Error_None
+    local match_room = nil
+    repeat
+        match_room = self:get_room(room_key)
+        if not match_room then
+            error_num = Error.ask_accept_enter_room.not_find_room
+            break
         end
-        if Reply_State.reject == reply_state then
-            table.insert(reject_role_ids, role_id)
+        if not match_room.role_replys[role_id] then
+            error_num = Error.ask_accept_enter_room.role_not_in_room
+            break
         end
-    end
-    if no_paneding then
-        if next(reject_role_ids) then
-            self:remove_room(room_key)
-            self._match_mgr:notify_handle_game_fail(match_room.match_game, reject_role_ids)
-            -- 通知room over
-        else
-            -- todo: 2.向room_server申请room
-            match_room.timeout_timestamp = logic_sec() + self._wait_sec_for_setup_room
-            self:try_setup_room(match_room.room_key, 1, Functional.make_closure(self._on_cb_setup_room, self))
+        match_room.role_replys[role_id] = is_accept and Reply_State.accept or Reply_State.reject
+    until true
+    rpc_rsp:response(error_num)
+
+    if Error_None == error_num then
+        local no_paneding = true
+        local reject_role_ids = {}
+        for role_id, reply_state in pairs(match_room.role_replys) do
+            if Reply_State.pending == reply_state then
+                no_paneding = false
+            end
+            if Reply_State.reject == reply_state then
+                table.insert(reject_role_ids, role_id)
+            end
+        end
+        if no_paneding then
+            if next(reject_role_ids) then
+                self:remove_room(room_key)
+                self._match_mgr:notify_handle_game_fail(match_room.match_game, reject_role_ids)
+                for role_id, _ in pairs(match_room.role_replys) do
+                    self._rpc_svc_proxy:call_game_server(nil,  role_id, Rpc.game.notify_room_over, match_room.room_key)
+                end
+            else
+                match_room.timeout_timestamp = logic_sec() + self._wait_sec_for_setup_room
+                self:try_setup_room(match_room.room_key, 1, Functional.make_closure(self._on_cb_setup_room, self))
+            end
         end
     end
 end

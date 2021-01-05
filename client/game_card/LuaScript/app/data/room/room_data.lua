@@ -24,6 +24,7 @@ function RoomData:_on_init()
     RoomData.super._on_init(self)
 
     self._event_binder:bind(self._app.net_mgr, Fight_Pid.sync_room_state, Functional.make_closure(self._on_msg_sync_room_state, self))
+    self._event_binder:bind(self._app.net_mgr, Fight_Pid.ask_cli_accept_enter_room, Functional.make_closure(self._on_msg_ask_cli_accept_enter_room, self))
 end
 
 function RoomData:_on_release()
@@ -36,7 +37,9 @@ end
 
 function RoomData:_on_msg_sync_room_state(pid, msg)
     log_print("RoomData:_on_msg_sync_room_state(pid, msg)", pid, msg)
-    self:_handle_room_state_pto(msg)
+    if #self.room_key <= 0 or msg.room_key == self.room_key then
+        self:_handle_room_state_pto(msg)
+    end
 end
 
 function RoomData:_handle_room_state_pto(msg)
@@ -79,7 +82,43 @@ function RoomData:_handle_room_state_pto(msg)
             self:fire(Room_Data_Event.room_state_change)
         end
     end
+    if Game_Room_Item_State.all_over == self.state then
+        self.room_key = ""
+        self.state = Game_Room_Item_State.idle
+    end
 end
+
+function RoomData:_on_msg_ask_cli_accept_enter_room(pid, msg)
+    --[[
+    local is_accept = true
+    if self._room_data.room_key ~= msg.room_key then
+        if Game_Room_Item_State.idle ~= self._room_data.state
+                and Game_Room_Item_State.all_over ~= self._room_data.state  then
+            is_accept = false
+        end
+    end
+    if is_accept then
+        self._room_data:_handle_room_state_pto(nil)
+    end
+    self._app.net_mgr.game_gate_net:send_msg(Fight_Pid.rpl_svr_accept_enter_room, {
+        room_key = msg.room_key,
+        match_server_key = msg.match_server_key,
+        is_accept = is_accept,
+    })
+    log_print("FightLogic:_on_msg_ask_cli_accept_enter_room", msg.room_key, is_accept)
+    ]]
+    if self.room_key ~= msg.room_key then
+        self:fire(Room_Data_Event.ask_enter_room, msg)
+    else
+        self._app.net_mgr.game_gate_net:send_msg(Fight_Pid.rpl_svr_accept_enter_room, {
+            room_key = msg.room_key,
+            match_server_key = msg.match_server_key,
+            is_accept = true,
+        })
+    end
+end
+
+
 
 
 

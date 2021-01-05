@@ -42,12 +42,24 @@ message SyncRoomState
 	string fight_token = 8;
 }
 
+message AskCliAcceptEnterRoom
+{
+	string room_key = 1;
+	string match_server_key = 2;
+}
+
+message RplSvrAcceptEnterRoom
+{
+	string room_key = 1;
+	string match_server_key = 2;
+	bool is_accept = 3;
+}
 
 message ReqBindFight
 {
 	string fight_key = 1;
 	string token = 2;
-	int64 role_id = 3
+	int64 role_id = 3;
 }
 
 message RspBindFight

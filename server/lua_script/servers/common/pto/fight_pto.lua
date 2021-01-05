@@ -30,9 +30,11 @@ Fight_Pid.pull_room_state = 7 + Pto_Const.fight_min_pto_id
 Fight_Pid.sync_room_state = 8 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_room_state, "SyncRoomState")
 
+-- 询问前端进入房间
 Fight_Pid.ask_cli_accept_enter_room = 9 + Pto_Const.fight_min_pto_id
 Fight_Pid.rpl_svr_accept_enter_room = 10 + Pto_Const.fight_min_pto_id
-
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.ask_cli_accept_enter_room, "AskCliAcceptEnterRoom")
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rpl_svr_accept_enter_room, "RplSvrAcceptEnterRoom")
 
 -- 绑定战斗
 Fight_Pid.req_bind_fight = 51 + Pto_Const.fight_min_pto_id

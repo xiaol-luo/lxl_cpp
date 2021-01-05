@@ -3,7 +3,7 @@
 UI_Panel_Name = {}
 UI_Panel_Name.main_panel = "main_panel"
 UI_Panel_Name.loading_panel = "loading_panel"
-UI_Panel_Name.confirm_panel = "confirm_panel"
+UI_Panel_Name.message_box = "message_box"
 UI_Panel_Name.login_panel = "login_panel"
 UI_Panel_Name.platform_panel = "platform_panel"
 UI_Panel_Name.manage_role_panel = "manage_role_panel"
@@ -14,6 +14,11 @@ UI_Panel_Name.fight_panel = "fight_panel"
 
 
 UI_Panel_Setting = {
+    [UI_Panel_Name.message_box]= {
+        belong_layer = Panel_Layer.upon_full_screen,
+        res_path = "Assets/Res/UI/PanelMgr/MessageBox/MessageBox.prefab",
+        panel_cls = UIMessageBox,
+    },
     [UI_Panel_Name.fight_panel]= {
         belong_layer = Panel_Layer.coexist_0,
         res_path = "Assets/Res/UI/PanelMgr/FightPanel/FightPanel.prefab",
@@ -49,6 +54,11 @@ UI_Panel_Setting = {
         belong_layer = Panel_Layer.coexist_0,
         res_path = "Assets/Res/UI/PanelMgr/LoginPanel/EditorSelectGate.prefab",
         panel_cls = UISelectGatePanel,
+    },
+    [UI_Panel_Name.manage_role_panel] = {
+        belong_layer = Panel_Layer.coexist_0,
+        res_path = "Assets/Res/UI/PanelMgr/ManageRolePanel/ManageRolePanel.prefab",
+        panel_cls = UIManageRolePanel,
     },
     [UI_Panel_Name.manage_role_panel] = {
         belong_layer = Panel_Layer.coexist_0,
