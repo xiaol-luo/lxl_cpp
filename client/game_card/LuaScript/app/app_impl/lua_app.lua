@@ -5,6 +5,7 @@
 ---@field data_mgr DataMgr
 ---@field logic_mgr LogicMgr
 ---@field pto_parser ProtoParser
+---@field ui_mgr UIMgr
 LuaApp = LuaApp or class("LuaApp", EventMgr)
 
 function LuaApp:ctor()
@@ -16,6 +17,7 @@ function LuaApp:ctor()
     self.net_mgr = nil
     self.data_mgr = nil
     self.logic_mgr = nil
+    self.ui_mgr = nil
 end
 
 function LuaApp:init(arg)
@@ -32,6 +34,9 @@ function LuaApp:init(arg)
     log_assert(CSharpHelp.not_null(ui_root), "not found CS.Utopia.UIRoot")
     self.panel_mgr = UIPanelMgr:new()
     self.panel_mgr:init(ui_root.gameObject)
+
+    self.ui = UIMgr:new(self.panel_mgr)
+    self.ui:init()
 
     self.net_mgr = NetMgr:new(self)
     self.net_mgr:init()
@@ -61,7 +66,10 @@ function LuaApp:_on_stop()
 end
 
 function LuaApp:_on_release()
-
+    self.net_mgr:release()
+    self.data_mgr:release()
+    self.logic_mgr:release()
+    self.panel_mgr:release()
 end
 
 function LuaApp:start()

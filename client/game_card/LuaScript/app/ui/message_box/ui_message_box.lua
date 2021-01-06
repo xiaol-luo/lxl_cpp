@@ -4,7 +4,6 @@ UIMessageBox = UIMessageBox or class("UIMessageBox", UIPanelBase)
 
 function UIMessageBox:ctor(panel_mgr, panel_setting)
     self.super.ctor(self, panel_mgr, panel_setting)
-
 end
 
 function UIMessageBox:_on_init()
@@ -13,6 +12,11 @@ end
 
 function UIMessageBox:_on_attach_panel()
     UIMessageBox.super._on_attach_panel(self)
+
+    self._confirm_btn = nil
+    self._cancel_btn = nil
+    self._close_btn = nil
+    self._content_txt = nil
 end
 
 function UIMessageBox:_on_open(panel_data)
