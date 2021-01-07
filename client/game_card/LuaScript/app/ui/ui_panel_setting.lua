@@ -4,6 +4,7 @@ UI_Panel_Name = {}
 UI_Panel_Name.main_panel = "main_panel"
 UI_Panel_Name.loading_panel = "loading_panel"
 UI_Panel_Name.message_box = "message_box"
+UI_Panel_Name.tips_panel = "tips_panel"
 UI_Panel_Name.login_panel = "login_panel"
 UI_Panel_Name.platform_panel = "platform_panel"
 UI_Panel_Name.manage_role_panel = "manage_role_panel"
@@ -14,6 +15,11 @@ UI_Panel_Name.fight_panel = "fight_panel"
 
 
 UI_Panel_Setting = {
+    [UI_Panel_Name.tips_panel]= {
+        belong_layer = Panel_Layer.upon_full_screen,
+        res_path = "Assets/Res/UI/PanelMgr/TipsPanel/TipsPanel.prefab",
+        panel_cls = UITipsPanel,
+    },
     [UI_Panel_Name.message_box]= {
         belong_layer = Panel_Layer.upon_full_screen,
         res_path = "Assets/Res/UI/PanelMgr/MessageBox/MessageBox.prefab",

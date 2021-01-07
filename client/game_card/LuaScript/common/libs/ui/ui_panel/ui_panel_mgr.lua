@@ -48,6 +48,7 @@ function UIPanelMgr:prepare_assets()
 end
 
 function UIPanelMgr:open_panel(panel_name, open_param)
+    self:close_panel(panel_name, true)
     ---@type UIPanelBase
     local panel_data = self:_get_cached_panel_data(panel_name)
     if not panel_data then

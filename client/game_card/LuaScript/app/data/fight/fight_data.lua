@@ -40,7 +40,7 @@ function FightData:_on_init()
 end
 
 function FightData:_on_release()
-    RoomData.super._on_release(self)
+    FightData.super._on_release(self)
 end
 
 function FightData:req_bind_fight()

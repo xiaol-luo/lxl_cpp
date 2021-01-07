@@ -22,23 +22,27 @@ function UIMessageData:ctor()
     self.confirm_cb = nil
     self.cancel_cb = nil
     self.close_cb = nil
-    self.str_content = nil
-    self.str_confirm = nil
-    self.str_cancel = nil
+    self.str_content = ""
+    self.str_confirm = "confirm"
+    self.str_cancel = "cancel"
 end
 
 ---@class UIMessageDataWrap
----@field msg_data UIMessageData
+---@field data UIMessageData
 ---@field confirm_cb fun():void
 ---@field cancel_cb fun():void
 ---@field close_cb fun():void
 UIMessageDataWrap = UIMessageDataWrap or class("UIMessageDataWrap")
 
 function UIMessageDataWrap:ctor()
-    self.msg_data = nil
+    self.data = nil
     self.confirm_cb = nil
     self.cancel_cb = nil
     self.close_cb = nil
 end
 
+
+---@class UIMessageDataQueueElem
+---@field next_ptr UIMessageData
+---@field data UIMessageData
 

@@ -1,10 +1,12 @@
 
+Forever_Execute_Timer = -1
+
 function timer_firm(fn, execute_span_sec, execute_times)
-    timer_add(fn, 0, execute_span_sec, execute_times)
+    return timer_add(fn, 0, execute_span_sec, execute_times)
 end
 
 function timer_delay(fn, delay_sec)
-    timer_add(fn, delay_sec, 0, 0)
+    return timer_add(fn, delay_sec, 0, 0)
 end
 
 function timer_add(fn, delay_sec, execute_span_sec, execute_times)
@@ -20,4 +22,8 @@ end
 
 function logic_sec()
     return os.time()
+end
+
+function logic_ms()
+    return os.time() * 1000
 end

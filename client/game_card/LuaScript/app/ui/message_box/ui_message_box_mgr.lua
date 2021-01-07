@@ -7,7 +7,9 @@ UIMessageBoxMgr = UIMessageBoxMgr or class("UIMessageBoxMgr")
 function UIMessageBoxMgr:ctor(ui_mgr)
     self.ui_mgr = ui_mgr
     self.panel_mgr = ui_mgr.panel_mgr
+    ---@type UIMessageDataListElem
     self._msg_box_data_head = nil
+    ---@type UIMessageDataListElem
     self._msg_box_data_tail = nil
     self._next_id = 0
     ---@type UIMessageDataWrap
@@ -33,6 +35,7 @@ function UIMessageBoxMgr:add_msg_box(msg_box_data)
         self:remove_msg_box(msg_box_data.unique_id)
     end
     msg_box_data.unique_id = self:_gen_id()
+    ---@type UIMessageDataQueueElem
     local node = {
         data = msg_box_data,
         next_ptr = nil
@@ -53,10 +56,10 @@ function UIMessageBoxMgr:remove_msg_box(unique_id)
         return nil
     end
     local cmp_node = self._msg_box_data_head
-    if cmp_node.unique_id == unique_id then
+    if cmp_node.data.unique_id == unique_id then
         self._msg_box_data_head = cmp_node.next_ptr
         cmp_node.next_ptr = nil
-        cmp_node.unique_id = nil
+        cmp_node.data.unique_id = nil
         if self._msg_box_data_tail == cmp_node then
             self._msg_box_data_tail = nil
         end
@@ -69,7 +72,7 @@ function UIMessageBoxMgr:remove_msg_box(unique_id)
         if not cmp_node then
             break
         end
-        if cmp_node.unique_id == unique_id then
+        if cmp_node.data.unique_id == unique_id then
             break
         end
         pre_ptr = cmp_node
@@ -78,16 +81,16 @@ function UIMessageBoxMgr:remove_msg_box(unique_id)
     if cmp_node then
         pre_ptr.next_ptr = cmp_node.next_ptr
         cmp_node.next_ptr = nil
-        cmp_node.unique_id = nil
+        cmp_node.data.unique_id = nil
         if self._msg_box_data_tail == cmp_node then
-            self._msg_box_data_tail = nil
+            self._msg_box_data_tail = pre_ptr
         end
     end
-    return cmp_node.data
+    return cmp_node and cmp_node.data or nil
 end
 
 function UIMessageBoxMgr:_check_show_msg_box()
-    if self._data_wrap.msg_data then
+    if self._data_wrap.data then
         return
     end
     if not self._msg_box_data_head then
@@ -95,31 +98,37 @@ function UIMessageBoxMgr:_check_show_msg_box()
     end
     local data = self._msg_box_data_head.data
     self:remove_msg_box(data.unique_id)
-    self._data_wrap.msg_data = data
+    self._data_wrap.data = data
     -- show 面板
+    self.panel_mgr:open_panel(UI_Panel_Name.message_box, self._data_wrap)
 end
 
 function UIMessageBoxMgr:_close_msg_box()
-    self._data_wrap.msg_data = nil
+    self._data_wrap.data = nil
     -- 关闭面板
+    self.panel_mgr:close_panel(UI_Panel_Name.message_box, true)
+    self:_check_show_msg_box()
 end
 
 function UIMessageBoxMgr:_on_click_confirm()
-    if self._data_wrap.msg_data and self._data_wrap.msg_data.confirm_cb then
-        self._data_wrap.msg_data.confirm_cb()
+    if self._data_wrap.data and self._data_wrap.data.confirm_cb then
+        self._data_wrap.data.confirm_cb()
     end
+    self:_close_msg_box()
 end
 
 function UIMessageBoxMgr:_on_click_cancel()
-    if self._data_wrap.msg_data and self._data_wrap.msg_data.cancel_cb then
-        self._data_wrap.msg_data.cancel_cb()
+    if self._data_wrap.data and self._data_wrap.data.cancel_cb then
+        self._data_wrap.data.cancel_cb()
     end
+    self:_close_msg_box()
 end
 
 function UIMessageBoxMgr:_on_click_close()
-    if self._data_wrap.msg_data and self._data_wrap.msg_data.close_cb then
-        self._data_wrap.msg_data.close_cb()
+    if self._data_wrap.data and self._data_wrap.data.close_cb then
+        self._data_wrap.data.close_cb()
     end
+    self:_close_msg_box()
 end
 
 function UIMessageBoxMgr:_gen_id()

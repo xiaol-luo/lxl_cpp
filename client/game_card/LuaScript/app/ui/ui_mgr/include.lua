@@ -5,13 +5,11 @@ return
         -- dir = ".",
         files =
         {
-			"logic_base",
-			"logic_mgr",
+			"ui_mgr",
 
         },
         includes =
         {
-			"fight.include",
         },
     },
 }

@@ -35,8 +35,8 @@ function LuaApp:init(arg)
     self.panel_mgr = UIPanelMgr:new()
     self.panel_mgr:init(ui_root.gameObject)
 
-    self.ui = UIMgr:new(self.panel_mgr)
-    self.ui:init()
+    self.ui_mgr = UIMgr:new(self.panel_mgr)
+    self.ui_mgr:init()
 
     self.net_mgr = NetMgr:new(self)
     self.net_mgr:init()
@@ -69,7 +69,8 @@ function LuaApp:_on_release()
     self.net_mgr:release()
     self.data_mgr:release()
     self.logic_mgr:release()
-    self.panel_mgr:release()
+    self.ui_mgr:release()
+    self.panel_mgr:release_self()
 end
 
 function LuaApp:start()

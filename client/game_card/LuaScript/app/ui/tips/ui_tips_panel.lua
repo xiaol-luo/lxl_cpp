@@ -4,6 +4,8 @@ UITipsPanel = UITipsPanel or class("UITipsPanel", UIPanelBase)
 
 function UITipsPanel:ctor(panel_mgr, panel_setting)
     self.super.ctor(self, panel_mgr, panel_setting)
+    ---@type UITipsDataWrap
+    self._wrap_data = nil
 end
 
 function UITipsPanel:_on_init()
@@ -13,25 +15,17 @@ end
 function UITipsPanel:_on_attach_panel()
     UITipsPanel.super._on_attach_panel(self)
 
-    self._confirm_btn = nil
-    self._cancel_btn = nil
-    self._content_txt = nil
+    ---@type UIText
+    self._content_txt = UIHelp.attach_ui(UIText, self._panel_root, "ContentTxt")
 end
 
 function UITipsPanel:_on_open(panel_data)
     UITipsPanel.super._on_open(self, panel_data)
+    self._wrap_data = panel_data
 end
 
-function UITipsPanel:_on_enable()
-    UITipsPanel.super._on_enable(self)
-end
-
-function UITipsPanel:_on_disable()
-    UITipsPanel.super._on_disable(self)
-end
-
-function UITipsPanel:_on_release()
-    UITipsPanel.super._on_release(self)
+function UITipsPanel:_on_show_panel()
+    self._content_txt:set_text(self._wrap_data.data.str_content)
 end
 
 

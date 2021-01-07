@@ -18,6 +18,9 @@ return
 			"select_gate.include",
 			"fight_panel.include",
 			"room_panel.include",
+			"message_box.include",
+			"tips.include",
+			"ui_mgr.include",
         },
     },
 }

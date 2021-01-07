@@ -72,6 +72,11 @@ function UIPanelBase:_attach_panel(panel_go)
     self._panel_root.name = self._panel_setting.panel_name
     UIHelp.set_parent(self._panel_root, self._panel_root_parent)
     self:_on_attach_panel()
+    self:_show_panel()
+end
+
+function UIPanelBase:_show_panel()
+    self:_on_show_panel()
 end
 
 function UIPanelBase:enable()
@@ -84,6 +89,9 @@ function UIPanelBase:enable()
     self:fire(Panel_Event.pre_enable, self)
     self:_on_enable()
     self:fire(Panel_Event.enable, self)
+    if self._is_attached_panel then
+        self:_show_panel()
+    end
 end
 
 function UIPanelBase:disable()
@@ -147,6 +155,10 @@ function UIPanelBase:_on_init()
 end
 
 function UIPanelBase:_on_attach_panel()
+
+end
+
+function UIPanelBase:_on_show_panel()
 
 end
 

@@ -28,7 +28,7 @@ function RoomData:_on_init()
 end
 
 function RoomData:_on_release()
-    Fight.super._on_release(self)
+    RoomData.super._on_release(self)
 end
 
 function RoomData:pull_room_state()

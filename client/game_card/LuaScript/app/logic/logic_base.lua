@@ -3,7 +3,7 @@
 LogicBase = LogicBase or class("LogicBase", EventMgr)
 
 function LogicBase:ctor(logic_mgr, name)
-    EventMgr.super.ctor(self)
+    LogicBase.super.ctor(self)
     self._name = name
     ---@type LogicMgr
     self._logic_mgr = logic_mgr

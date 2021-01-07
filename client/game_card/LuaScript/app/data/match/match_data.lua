@@ -25,7 +25,7 @@ function MatchData:_on_init()
 end
 
 function MatchData:_on_release()
-    Fight.super._on_release(self)
+    MatchData.super._on_release(self)
 end
 
 ---@param match_theme Match_Theme
