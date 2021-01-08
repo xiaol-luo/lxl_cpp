@@ -67,17 +67,17 @@ function GameRoomMgr:rpl_accept_enter_room(role_id, match_server_key, room_key, 
     end
 end
 
-function GameRoleMgr:_on_cb_rpl_accept_enter_room(role_id, room_key, rpc_error_num, error_num)
+function GameRoomMgr:_on_cb_rpl_accept_enter_room(role_id, room_key, rpc_error_num, error_num)
     local picked_error_num = pick_error_num(rpc_error_num, error_num)
-    if Error_None ~= picked_error_num then
+    if Error_None == picked_error_num then
         local room = GameRoom:new()
         room.role_id = role_id
         room.room_key = room_key
         room.state = Game_Room_Item_State.accept_enter
         self._role_id_to_room[role_id] = room
         self:sync_state(role_id)
+        -- log_print("GameRoomMgr:_on_cb_rpl_accept_enter_room", role_id, room_key, rpc_error_num, error_num, room)
     end
-    log_print("GameRoomMgr:_on_cb_rpl_accept_enter_room", role_id, room_key, rpc_error_num, error_num)
 end
 
 ---@param rpc_rsp RpcRsp
@@ -99,12 +99,12 @@ function GameRoomMgr:_on_rpc_notify_enter_room(rpc_rsp, role_id, room_key)
     local is_accept = true
     local room = self:get_room(role_id)
     if not room then
-        is_accept = false
+        is_accept = true
     end
     if room and room.room_key and room.room_key ~= room_key then
         is_accept = false
     end
-    log_print("GameRoomMgr:_on_rpc_notify_enter_room", role_id, room_key, is_accept)
+    -- log_print("GameRoomMgr:_on_rpc_notify_enter_room", role_id, room_key, is_accept, room)
     rpc_rsp:response(Error_None, is_accept)
     if is_accept then
         room.room_server_key = rpc_rsp.from_host
@@ -148,7 +148,7 @@ end
 ---@return GameRoom
 function GameRoomMgr:get_room(role_id, room_key)
     local room = self._role_id_to_room[role_id]
-    if room_key then
+    if room and room_key then
         if room_key ~= room.room_key then
             room = nil
         end

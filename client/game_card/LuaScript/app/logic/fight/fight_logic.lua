@@ -18,6 +18,22 @@ function FightLogic:_on_event_ask_enter_room(ev_data)
     local room_key = ev_data.room_key
     local match_server_key = ev_data.match_server_key
 
+
+    ---@type UIMessageData
+    local msg_data = UIMessageData:new()
+    msg_data.str_content = "进入新的房间"
+    msg_data.cancel_cb = Functional.make_closure(self._on_cb_choose_enter_room, self, ev_data, false)
+    msg_data.confirm_cb = Functional.make_closure(self._on_cb_choose_enter_room, self, ev_data, true)
+    self._app.ui_mgr.msg_box:add_msg_box(msg_data)
+end
+
+function FightLogic:_on_cb_choose_enter_room(ev_data, is_accept)
+    self._app.net_mgr.game_gate_net:send_msg(Fight_Pid.rpl_svr_accept_enter_room, {
+        room_key = ev_data.room_key,
+        match_server_key = ev_data.match_server_key,
+        is_accept = is_accept,
+    })
+    self._room_data:_handle_room_state_pto(nil)
 end
 
 

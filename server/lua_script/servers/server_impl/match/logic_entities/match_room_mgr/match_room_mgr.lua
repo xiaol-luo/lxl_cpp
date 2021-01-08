@@ -69,9 +69,7 @@ function MatchRoomMgr:handle_match_game(match_game)
             for _, v in pairs(match_team.teammate_role_ids) do
                 local role_id = v
                 match_room.role_replys[role_id] = Reply_State.pending
-                self._rpc_svc_proxy:call_game_server(
-                        Functional.make_closure(nil, self, match_room.room_key, role_id),
-                        v, Rpc.game.ask_accept_enter_room, v, match_room.room_key)
+                self._rpc_svc_proxy:call_game_server(nil, v, Rpc.game.ask_accept_enter_room, v, match_room.room_key)
             end
         end
     end
