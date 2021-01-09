@@ -18,7 +18,7 @@ function FightData:ctor(data_mgr)
     self.fight_key = ""
     self.token = ""
     self.room_key = ""
-    self._is_bind_fight = false
+    self.bind_fight_state = Bind_Fight_State.idle
 
     self.fight_state = {}
 end
@@ -46,9 +46,6 @@ end
 function FightData:req_bind_fight()
     self._fight_net:set_host(self.server_ip, self.server_port)
     self._fight_net:connect()
-    --[[
-
-    --]]
 end
 
 function FightData:pull_fight_state()
@@ -85,7 +82,7 @@ function FightData:_on_event_fight_net_connect_done(is_ready, error_msg)
             role_id = self._data_mgr.main_role:get_role_id(),
         })
     else
-        self:fire(Fight_Data_Event.bind_fight_done, false)
+        self:fire(Fight_Data_Event.bind_fight_state_chanage, self.bind_fight_state)
     end
 end
 
