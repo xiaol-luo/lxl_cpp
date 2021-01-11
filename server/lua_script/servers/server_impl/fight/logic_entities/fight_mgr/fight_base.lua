@@ -55,9 +55,40 @@ function FightBase:update()
     self:_on_update()
 end
 
+---@param fight_client FightClient
+function FightBase:sync_fight_state(fight_client)
+    if fight_client then
+        local msg_id, msg = self:_collect_fight_state_data()
+        fight_client:send_msg(msg_id, msg)
+    end
+end
+
+---@param fight_role FightRole
+function FightBase:bind_role(fight_role)
+    -- 简单处理，后边加校验
+    local old_fight_role = self._id_to_role[fight_role.role_id]
+    self._id_to_role[fight_role.role_id] = fight_role
+    self:_on_bind_role(fight_role, old_fight_role)
+    return Error_None
+end
+
+function FightBase:offline_role(role_id, netid)
+    self:_on_offline_role(role_id, netid)
+end
+
+---@param fight_role FightRole
+function FightBase:handle_role_opera(fight_role, msg)
+    local now_fight_role = self._id_to_role[fight_role.role_id]
+    if now_fight_role.netid ~= fight_role.netid then
+        return Error.fight.netid_mismatch
+    end
+    local ret = self:_on_opera(fight_role, msg)
+    return ret
+end
+
 function FightBase:is_over()
     -- override by subclass
-    return false
+    return true
 end
 
 function FightBase:_on_init()
@@ -85,34 +116,18 @@ function FightBase:_on_opera(fight_role, msg)
     return Error_None
 end
 
----@param fight_client FightClient
-function FightBase:sync_fight_state(fight_client)
+function FightBase:_on_bind_role(new_fight_role, old_fight_role)
     -- override by subclass
 end
 
----@param fight_role FightRole
-function FightBase:bind_role(fight_role)
-    -- 简单处理，后边加校验
-    local old_fight_role = self._id_to_role[fight_role.role_id]
-    if old_fight_role and old_fight_role.netid ~= fight_role.netid then
-        ---@type FightClient
-        local client = old_fight_role.wt.client
-        if client then
-            client:disconnect()
-        end
-    end
-    self._id_to_role[fight_role.role_id] = fight_role
-    return Error_None
+function FightBase:_on_offline_role(role_id, netid)
+    -- override by subclass
 end
 
----@param fight_role FightRole
-function FightBase:handle_role_opera(fight_role, msg)
-    local now_fight_role = self._id_to_role[fight_role.role_id]
-    if now_fight_role.netid ~= fight_role.netid then
-        return Error.fight.netid_mismatch
-    end
-    local ret = self:_on_opera(fight_role, msg)
-    return ret
+function FightBase:_collect_fight_state_data()
+    -- override by subclass
+    -- return msg_id, msg
 end
+
 
 

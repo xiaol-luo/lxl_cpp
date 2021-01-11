@@ -69,6 +69,7 @@ function FightClientMgr:_client_net_svc_cnn_on_close(client_net_svc, netid, erro
     end
     self._fight_clients[netid] = nil
     -- 抛事件
+    self:fire(Fight_Client_Event.fight_client_disconnect, netid)
 end
 
 function FightClientMgr:_client_net_svc_cnn_on_recv(client_net_svc, netid, pid, bin)

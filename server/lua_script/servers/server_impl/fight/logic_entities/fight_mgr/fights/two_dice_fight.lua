@@ -39,17 +39,24 @@ function TwoDiceFight:_on_update()
     end
 end
 
+function TwoDiceFight:is_over()
+    return self._fight_over
+end
+
 function TwoDiceFight:_on_opera(fight_role, msg)
     -- override by subclass
     return Error_None
 end
 
----@param fight_client FightClient
-function TwoDiceFight:sync_fight_state(fight_client)
+function TwoDiceFight:_collect_fight_state_data()
     -- override by subclass
+    local msg = {
+        common_state = {
+          fight_key = self.fight_key,
+          is_over = self:is_over()
+        },
+    }
+    return Fight_Pid.sync_fight_state_two_dice, msg
 end
 
-function TwoDiceFight:is_over()
-    return self._fight_over
-end
 

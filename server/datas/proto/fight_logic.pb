@@ -92,20 +92,35 @@ message RspFightOpera
 
 message PullFightState
 {
-
+	int64 int_param = 1;
+	string str_param = 2;
 }
 
+message FightCommonState
+{
+	string fight_key = 1;
+	bool is_over = 2;
+}
+
+message TwoDiceRollResult
+{
+	bool is_system = 1
+	int64 role_id = 2;
+	int32 roll_point = 3;
+}
 message TwoDiceRound
 {
 	int32 round = 1;
-	map<int64, int32> roll_points = 2;
+	map<int64, TwoDiceRollResult> roll_results = 2;
 }
 
 message SyncFightStateTwoDice
 {
-	repeated TwoDiceRound rounds = 1;
-	repeated int64 role_ids = 2;
+	FightCommonState common_state = 1
+	repeated TwoDiceRound rounds = 2;
+	repeated int64 role_ids = 3;
 }
+
 
 
 

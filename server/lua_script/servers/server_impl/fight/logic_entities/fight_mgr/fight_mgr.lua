@@ -29,6 +29,9 @@ function FightMgr:_on_start()
     for k, v in pairs(self._msg_handler_tb) do
         self.logics.client_mgr:set_msg_handler(k, v)
     end
+
+    self._event_binder:bind(self.logics.client_mgr, Fight_Client_Event.fight_client_disconnect,
+            Functional.make_closure(self._on_event_fight_client_disconnect, self))
 end
 
 function FightMgr:_on_stop()
@@ -156,6 +159,7 @@ function FightMgr:remove_fight_role(netid)
     end
 end
 
+---@return FightRole
 function FightMgr:get_fight_role(netid)
     local ret = self._netid_to_role[netid]
     return ret
@@ -188,6 +192,18 @@ function FightMgr:_on_msg_req_fight_opera(client, pid, msg)
         unique_id = msg.unique_id,
         error_num = error_num,
     })
+end
+
+---@param fight_client FightClient
+function FightMgr:_on_event_fight_client_disconnect(netid)
+    local fight_role = self:get_fight_role(netid)
+    if fight_role then
+        if fight_role.wt.fight then
+            fight_role.wt.fight:offline_role(fight_role.role_id, fight_role.netid)
+        end
+    end
+    -- self._netid_to_role[netid] = nil
+    self:remove_fight_role(netid)
 end
 
 
