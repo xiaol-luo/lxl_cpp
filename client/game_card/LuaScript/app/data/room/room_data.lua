@@ -18,6 +18,8 @@ function RoomData:ctor(data_mgr)
     self.fight_data.ip = nil
     self.fight_data.port = 0
     self.fight_data.token = ""
+
+    self.accepted_room_key = nil
 end
 
 function RoomData:_on_init()
@@ -37,7 +39,7 @@ end
 
 function RoomData:_on_msg_sync_room_state(pid, msg)
     log_print("RoomData:_on_msg_sync_room_state(pid, msg)", pid, msg)
-    if #self.room_key <= 0 or msg.room_key == self.room_key then
+    if self.accepted_room_key and msg.room_key == self.accepted_room_key then
         self:_handle_room_state_pto(msg)
     end
 end
@@ -72,14 +74,14 @@ function RoomData:_handle_room_state_pto(msg)
         end
         if #self.room_key > 0 then
             self:fire(Room_Data_Event.room_start, self.room_key)
-            self:fire(Room_Data_Event.room_state_change)
+            self:fire(Room_Data_Event.room_state_change, self.room_key)
         end
     else
         if #self.match_theme then
             if old_state ~= self.state and Game_Room_Item_State.all_over == self.state then
                 self:fire(Room_Data_Event.room_over, self.room_key)
             end
-            self:fire(Room_Data_Event.room_state_change)
+            self:fire(Room_Data_Event.room_state_change, self.room_key)
         end
     end
     if Game_Room_Item_State.all_over == self.state then
@@ -89,25 +91,7 @@ function RoomData:_handle_room_state_pto(msg)
 end
 
 function RoomData:_on_msg_ask_cli_accept_enter_room(pid, msg)
-    --[[
-    local is_accept = true
-    if self._room_data.room_key ~= msg.room_key then
-        if Game_Room_Item_State.idle ~= self._room_data.state
-                and Game_Room_Item_State.all_over ~= self._room_data.state  then
-            is_accept = false
-        end
-    end
-    if is_accept then
-        self._room_data:_handle_room_state_pto(nil)
-    end
-    self._app.net_mgr.game_gate_net:send_msg(Fight_Pid.rpl_svr_accept_enter_room, {
-        room_key = msg.room_key,
-        match_server_key = msg.match_server_key,
-        is_accept = is_accept,
-    })
-    log_print("FightLogic:_on_msg_ask_cli_accept_enter_room", msg.room_key, is_accept)
-    ]]
-    if self.room_key ~= msg.room_key then
+    if self.accepted_room_key and self.accepted_room_key ~= msg.room_key then
         self:fire(Room_Data_Event.ask_enter_room, msg)
     else
         self._app.net_mgr.game_gate_net:send_msg(Fight_Pid.rpl_svr_accept_enter_room, {
@@ -115,7 +99,12 @@ function RoomData:_on_msg_ask_cli_accept_enter_room(pid, msg)
             match_server_key = msg.match_server_key,
             is_accept = true,
         })
+        self.accepted_room_key = msg.room_key
     end
+end
+
+function RoomData:set_accepted_room_key(val)
+    self.accepted_room_key = val
 end
 
 

@@ -7,35 +7,36 @@ UIMessageBoxMgr = UIMessageBoxMgr or class("UIMessageBoxMgr")
 function UIMessageBoxMgr:ctor(ui_mgr)
     self.ui_mgr = ui_mgr
     self.panel_mgr = ui_mgr.panel_mgr
-    ---@type UIMessageDataListElem
+    ---@type UIMessageBoxDataQueueElem
     self._msg_box_data_head = nil
-    ---@type UIMessageDataListElem
+    ---@type UIMessageBoxDataQueueElem
     self._msg_box_data_tail = nil
     self._next_id = 0
-    ---@type UIMessageDataWrap
+    ---@type UIMessageBoxDataWrap
     self._wrap_data = nil
 end
 
 function UIMessageBoxMgr:init()
-    self._data_wrap = UIMessageDataWrap:new()
-    self._data_wrap.confirm_cb = Functional.make_closure(self._on_click_confirm, self)
-    self._data_wrap.cancel_cb = Functional.make_closure(self._on_click_cancel, self)
-    self._on_click_close = Functional.make_closure(self._on_click_close, self)
+    self._data_wrap = UIMessageBoxDataWrap:new()
+    self._data_wrap.cb_confirm = Functional.make_closure(self._on_click_confirm, self)
+    self._data_wrap.cb_refuse = Functional.make_closure(self._on_click_refuse, self)
+    self._data_wrap.cb_ignore = Functional.make_closure(self._on_click_ignore, self)
 end
 
 function UIMessageBoxMgr:release()
     self._msg_box_data_head = nil
     self._msg_box_data_tail = nil
     self._wrap_data = nil
+    self:_close_msg_box()
 end
 
----@param msg_box_data UIMessageData
+---@param msg_box_data UIMessageBoxData
 function UIMessageBoxMgr:add_msg_box(msg_box_data)
     if msg_box_data.unique_id then
         self:remove_msg_box(msg_box_data.unique_id)
     end
     msg_box_data.unique_id = self:_gen_id()
-    ---@type UIMessageDataQueueElem
+    ---@type UIMessageBoxDataQueueElem
     local node = {
         data = msg_box_data,
         next_ptr = nil
@@ -49,6 +50,7 @@ function UIMessageBoxMgr:add_msg_box(msg_box_data)
     end
 
     self:_check_show_msg_box()
+    return msg_box_data.unique_id
 end
 
 function UIMessageBoxMgr:remove_msg_box(unique_id)
@@ -111,22 +113,22 @@ function UIMessageBoxMgr:_close_msg_box()
 end
 
 function UIMessageBoxMgr:_on_click_confirm()
-    if self._data_wrap.data and self._data_wrap.data.confirm_cb then
-        self._data_wrap.data.confirm_cb()
+    if self._data_wrap.data and self._data_wrap.data.cb_confirm then
+        self._data_wrap.data.cb_confirm()
     end
     self:_close_msg_box()
 end
 
-function UIMessageBoxMgr:_on_click_cancel()
-    if self._data_wrap.data and self._data_wrap.data.cancel_cb then
-        self._data_wrap.data.cancel_cb()
+function UIMessageBoxMgr:_on_click_refuse()
+    if self._data_wrap.data and self._data_wrap.data.cb_refuse then
+        self._data_wrap.data.cb_refuse()
     end
     self:_close_msg_box()
 end
 
-function UIMessageBoxMgr:_on_click_close()
-    if self._data_wrap.data and self._data_wrap.data.close_cb then
-        self._data_wrap.data.close_cb()
+function UIMessageBoxMgr:_on_click_ignore()
+    if self._data_wrap.data and self._data_wrap.data.cb_ignore then
+        self._data_wrap.data.cb_ignore()
     end
     self:_close_msg_box()
 end
@@ -134,6 +136,76 @@ end
 function UIMessageBoxMgr:_gen_id()
     self._next_id = self._next_id + 1
     return self._next_id
+end
+
+
+function UIMessageBoxMgr:show_confirm(str_content, str_confirm, cb_confirm)
+    local msg_box_data = UIMessageBoxData:new()
+    msg_box_data.view_type = MessageBoxViewType.refuse_confirm
+    msg_box_data.str_content = str_content or msg_box_data.str_content
+    msg_box_data.str_confirm = str_confirm or msg_box_data.str_confirm
+    msg_box_data.cb_confirm = cb_confirm or msg_box_data.cb_confirm
+    return self:add_msg_box(msg_box_data)
+end
+
+function UIMessageBoxMgr:show_confirm_refuse(str_content, str_confirm, cb_confirm, str_refuse, cb_refuse)
+    local msg_box_data = UIMessageBoxData:new()
+    msg_box_data.view_type = MessageBoxViewType.refuse_confirm
+    msg_box_data.str_content = str_content or msg_box_data.str_content
+    msg_box_data.str_confirm = str_confirm or msg_box_data.str_confirm
+    msg_box_data.cb_confirm = cb_confirm or msg_box_data.cb_confirm
+    msg_box_data.str_refuse = str_refuse or msg_box_data.str_refuse
+    msg_box_data.cb_refuse = cb_refuse or msg_box_data.cb_refuse
+    return self:add_msg_box(msg_box_data)
+end
+
+function UIMessageBoxMgr:show_confirm_refuse_ignore(str_content, str_confirm, cb_confirm, str_refuse, cb_refuse, str_ignore, cb_ignore)
+    local msg_box_data = UIMessageBoxData:new()
+    msg_box_data.view_type = MessageBoxViewType.refuse_ignore_confirm
+    msg_box_data.str_content = str_content or msg_box_data.str_content
+    msg_box_data.str_confirm = str_confirm or msg_box_data.str_confirm
+    msg_box_data.cb_confirm = cb_confirm or msg_box_data.cb_confirm
+    msg_box_data.str_refuse = str_refuse or msg_box_data.str_refuse
+    msg_box_data.cb_refuse = cb_refuse or msg_box_data.cb_refuse
+    msg_box_data.str_ignore = str_ignore or msg_box_data.str_ignore
+    msg_box_data.cb_ignore = cb_ignore or msg_box_data.cb_ignore
+    return self:add_msg_box(msg_box_data)
+end
+
+function UIMessageBoxMgr:show_confirm_with_title(str_title, str_content, str_confirm, cb_confirm)
+    local msg_box_data = UIMessageBoxData:new()
+    msg_box_data.view_type = MessageBoxViewType.refuse_confirm
+    msg_box_data.str_title = str_title or msg_box_data.str_title
+    msg_box_data.str_content = str_content or msg_box_data.str_content
+    msg_box_data.str_confirm = str_confirm or msg_box_data.str_confirm
+    msg_box_data.cb_confirm = cb_confirm or msg_box_data.cb_confirm
+    return self:add_msg_box(msg_box_data)
+end
+
+function UIMessageBoxMgr:show_confirm_refuse_with_title(str_title, str_content, str_confirm, cb_confirm, str_refuse, cb_refuse)
+    local msg_box_data = UIMessageBoxData:new()
+    msg_box_data.view_type = MessageBoxViewType.refuse_confirm
+    msg_box_data.str_title = str_title or msg_box_data.str_title
+    msg_box_data.str_content = str_content or msg_box_data.str_content
+    msg_box_data.str_confirm = str_confirm or msg_box_data.str_confirm
+    msg_box_data.cb_confirm = cb_confirm or msg_box_data.cb_confirm
+    msg_box_data.str_refuse = str_refuse or msg_box_data.str_refuse
+    msg_box_data.cb_refuse = cb_refuse or msg_box_data.cb_refuse
+    return self:add_msg_box(msg_box_data)
+end
+
+function UIMessageBoxMgr:show_confirm_refuse_ignore_with_title(str_title, str_content, str_confirm, cb_confirm, str_refuse, cb_refuse, str_ignore, cb_ignore)
+    local msg_box_data = UIMessageBoxData:new()
+    msg_box_data.view_type = MessageBoxViewType.refuse_ignore_confirm
+    msg_box_data.str_title = str_title or msg_box_data.str_title
+    msg_box_data.str_content = str_content or msg_box_data.str_content
+    msg_box_data.str_confirm = str_confirm or msg_box_data.str_confirm
+    msg_box_data.cb_confirm = cb_confirm or msg_box_data.cb_confirm
+    msg_box_data.str_refuse = str_refuse or msg_box_data.str_refuse
+    msg_box_data.cb_refuse = cb_refuse or msg_box_data.cb_refuse
+    msg_box_data.str_ignore = str_ignore or msg_box_data.str_ignore
+    msg_box_data.cb_ignore = cb_ignore or msg_box_data.cb_ignore
+    return self:add_msg_box(msg_box_data)
 end
 
 

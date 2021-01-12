@@ -94,6 +94,13 @@ function UIPlatformPanel:_on_click_gate_data_item(gate_data)
 end
 
 function UIPlatformPanel:on_click_confirm_btn()
+
+    self._app.ui_mgr.msg_box:show_confirm_refuse_ignore_with_title("title test", "content test",
+            "confirm btn", function() log_print("click confirm btn") end,
+            "refuse btn", function() log_print("click refuse btn") end,
+            "ignore btn", function() log_print("click ignore btn") end
+    )
+
     local account_id = self._account_id_if:get_text()
     if #account_id <= 0 then
         self:_notify_error(string.format("account is not valid, %s", self._account_id_if:get_text()))

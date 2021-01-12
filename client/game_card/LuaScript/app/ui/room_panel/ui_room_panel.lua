@@ -45,7 +45,9 @@ function UIRoomPanel:_on_attach_panel()
     -- Bind Event
     self._event_binder:bind(self._room_data, Room_Data_Event.room_state_change,
             Functional.make_closure(self._on_event_room_state_change, self))
+end
 
+function UIRoomPanel:_on_show_panel()
     self:_update_view()
 end
 

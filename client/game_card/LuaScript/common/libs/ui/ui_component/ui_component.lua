@@ -1,4 +1,5 @@
 
+---@class UIComponent
 UIComponent = UIComponent or class("UIComponent")
 
 function UIComponent:ctor(go)
@@ -32,7 +33,7 @@ function UIComponent:set_active(is_active)
     if not self:is_available() then
         return false
     end
-    self.comp.gameObjcet:SetActive(is_active and true or false)
+    self.comp.gameObject:SetActive(is_active and true or false)
     return true
 end
 
@@ -40,7 +41,7 @@ function UIComponent:get_active()
     if not self:is_available() then
         return false
     end
-    return self.comp.gameObjcet.activeSelf
+    return self.comp.gameObject.activeSelf
 end
 
 function UIComponent:is_available()

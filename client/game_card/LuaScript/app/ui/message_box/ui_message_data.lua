@@ -2,47 +2,53 @@
 ---@class MessageBoxViewType
 MessageBoxViewType = {}
 MessageBoxViewType.confirm = "confirm"
-MessageBoxViewType.cancel_confirm = "cancel_confirm"
+MessageBoxViewType.refuse_confirm = "refuse_confirm"
+MessageBoxViewType.ignore_confirm = "ignore_confirm"
+MessageBoxViewType.refuse_ignore_confirm = "refuse_ignore_confirm"
 
 
----@class UIMessageData
+---@class UIMessageBoxData
 ---@field unique_id number
 ---@field view_type MessageBoxViewType
----@field confirm_cb fun():void
----@field cancel_cb fun():void
----@field close_cb fun():void
+---@field cb_confirm fun():void
+---@field cb_refuse fun():void
+---@field cb_ignore fun():void
+---@field str_title string
 ---@field str_content string
 ---@field str_confirm string
----@field str_cancel string
-UIMessageData = UIMessageData or class("UIMessageData")
+---@field str_refuse string
+---@field str_ignore string
+UIMessageBoxData = UIMessageBoxData or class("UIMessageBoxData")
 
-function UIMessageData:ctor()
+function UIMessageBoxData:ctor()
     self.unique_id = nil
     self.view_type = MessageBoxViewType.confirm
-    self.confirm_cb = nil
-    self.cancel_cb = nil
-    self.close_cb = nil
+    self.cb_confirm = nil
+    self.cb_refuse = nil
+    self.cb_ignore = nil
+    self.str_title = "notice"
     self.str_content = ""
     self.str_confirm = "confirm"
-    self.str_cancel = "cancel"
+    self.str_refuse = "refuse"
+    self.str_ignore = ""
 end
 
----@class UIMessageDataWrap
----@field data UIMessageData
----@field confirm_cb fun():void
----@field cancel_cb fun():void
----@field close_cb fun():void
-UIMessageDataWrap = UIMessageDataWrap or class("UIMessageDataWrap")
+---@class UIMessageBoxDataWrap
+---@field data UIMessageBoxData
+---@field cb_confirm fun():void
+---@field cb_refuse fun():void
+---@field cb_ignore fun():void
+UIMessageBoxDataWrap = UIMessageBoxDataWrap or class("UIMessageBoxDataWrap")
 
-function UIMessageDataWrap:ctor()
+function UIMessageBoxDataWrap:ctor()
     self.data = nil
-    self.confirm_cb = nil
-    self.cancel_cb = nil
-    self.close_cb = nil
+    self.cb_confirm = nil
+    self.cb_refuse = nil
+    self.cb_ignore = nil
 end
 
 
----@class UIMessageDataQueueElem
----@field next_ptr UIMessageData
----@field data UIMessageData
+---@class UIMessageBoxDataQueueElem
+---@field next_ptr UIMessageBoxData
+---@field data UIMessageBoxData
 

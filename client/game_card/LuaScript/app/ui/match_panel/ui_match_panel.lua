@@ -57,7 +57,7 @@ end
 
 function UIMatchPanel:_on_click_query_btn()
     self._app.data_mgr.match:pull_match_state()
-    local msg_data = UIMessageData:new()
+    local msg_data = UIMessageBoxData:new()
     msg_data.str_content = "test test"
     self._app.ui_mgr.msg_box:add_msg_box(msg_data)
 end

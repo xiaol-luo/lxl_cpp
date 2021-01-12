@@ -1,5 +1,5 @@
 
----@class UIButton
+---@class UIButton:UIComponent
 UIButton = UIButton or class("UIButton", UIComponent)
 
 function UIButton:ctor(go)

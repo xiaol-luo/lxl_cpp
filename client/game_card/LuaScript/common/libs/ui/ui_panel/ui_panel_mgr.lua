@@ -154,6 +154,17 @@ function UIPanelMgr:_bind_panel_events(panel_data, is_bind)
     end
 end
 
+function UIPanelMgr:is_panel_enable(panel_name)
+    local ret = false
+    local panel_data = self:_get_cached_panel_data(panel_name)
+    if panel_data then
+        ---@type UIPanelBase
+        local panel = panel_data.panel
+        ret = panel:is_enable()
+    end
+    return ret
+end
+
 
 
 
