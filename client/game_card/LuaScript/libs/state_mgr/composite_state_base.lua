@@ -18,6 +18,11 @@ function CompositeStateBase:init()
     self.child_state_mgr:init()
 end
 
+function CompositeStateBase:release()
+    self.child_state_mgr:release()
+    CompositeStateBase.super.release(self)
+end
+
 function CompositeStateBase:_prepare_child_states()
 
 end

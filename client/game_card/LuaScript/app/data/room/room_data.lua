@@ -99,12 +99,15 @@ function RoomData:_on_msg_ask_cli_accept_enter_room(pid, msg)
             match_server_key = msg.match_server_key,
             is_accept = true,
         })
-        self.accepted_room_key = msg.room_key
+        self:set_accepted_room_key(msg.room_key)
     end
 end
 
 function RoomData:set_accepted_room_key(val)
     self.accepted_room_key = val
+    if nil == self.accepted_room_key or self.accepted_room_key ~= self.room_key then
+        self:_handle_room_state_pto(nil)
+    end
 end
 
 

@@ -15,6 +15,10 @@ function StateBase:init()
 
 end
 
+function StateBase:release()
+
+end
+
 function StateBase:get_name()
     return self.state_name
 end

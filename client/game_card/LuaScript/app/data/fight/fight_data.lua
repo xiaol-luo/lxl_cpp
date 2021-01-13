@@ -18,9 +18,12 @@ function FightData:ctor(data_mgr)
     self.fight_key = ""
     self.token = ""
     self.room_key = ""
+    ---@type Bind_Fight_State
     self.bind_fight_state = Bind_Fight_State.idle
 
     self.fight_state = {}
+
+    self.accept_fight_key = nil
 end
 
 function FightData:_on_init()
@@ -43,9 +46,14 @@ function FightData:_on_release()
     FightData.super._on_release(self)
 end
 
-function FightData:req_bind_fight()
+function FightData:bind_fight()
     self._fight_net:set_host(self.server_ip, self.server_port)
     self._fight_net:connect()
+    self:_set_bind_fight_state(Bind_Fight_State.binding)
+end
+
+function FightData:unbind_fight()
+    self._fight_net:disconnect()
 end
 
 function FightData:pull_fight_state()
@@ -82,20 +90,28 @@ function FightData:_on_event_fight_net_connect_done(is_ready, error_msg)
             role_id = self._data_mgr.main_role:get_role_id(),
         })
     else
-        self:fire(Fight_Data_Event.bind_fight_state_chanage, self.bind_fight_state)
+        self:_set_bind_fight_state(Bind_Fight_State.net_error)
     end
 end
 
 function FightData:_on_event_fight_connect_ready_change(is_ready)
-
+    if Bind_Fight_State.ready == self.bind_fight_state then
+        self:_set_bind_fight_state(Bind_Fight_State.net_error)
+    end
 end
 
 function FightData:_on_event_room_start(room_key)
 
 end
 
-function FightData:_on_event_room_state_change()
-    if Room_State.in_fight == self._room_data.remote_room_state then
+function FightData:_on_event_room_state_change(room_key)
+    self:try_extract_fight_data()
+end
+
+function FightData:try_extract_fight_data()
+    if self.accept_fight_key
+            and self._room_data.fight_data.fight_key == self.accept_fight_key
+            and Room_State.in_fight == self._room_data.remote_room_state then
         self.server_ip = self._room_data.fight_data.ip
         self.server_port = self._room_data.fight_data.port
         self.fight_token = self._room_data.fight_data.token
@@ -106,6 +122,18 @@ end
 
 function FightData:_on_event_room_over(room_key)
 
+end
+
+
+---@param val Bind_Fight_State
+function FightData:_set_bind_fight_state(val)
+    self.bind_fight_state = val
+    self:fire(Fight_Data_Event.bind_fight_state_chanage, self.bind_fight_state)
+end
+
+function FightData:set_accept_fight_key(fight_key)
+    local old_fight_key = self.accept_fight_key
+    self.accept_fight_key = fight_key
 end
 
 

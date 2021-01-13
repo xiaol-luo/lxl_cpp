@@ -1,10 +1,11 @@
 
----@class StateMgr
+---@class StateMgr:EventMgr
 ---@field active_state StateBase
 ---@field last_state string
-StateMgr = StateMgr or class("StateMgr")
+StateMgr = StateMgr or class("StateMgr", EventMgr)
 
 function StateMgr:ctor()
+    StateMgr.super.ctor(self)
     self.last_state = nil
     self.active_state = nil
     self.state_map = {}
@@ -15,6 +16,13 @@ function StateMgr:init()
     for _, v in pairs(self.state_map) do
         v:init()
     end
+end
+
+function StateMgr:release()
+    for _, v in pairs(self.state_map) do
+        v:release()
+    end
+    self:cancel_all()
 end
 
 function StateMgr:_prepare_all_states()
@@ -44,10 +52,12 @@ function StateMgr:change_state(state_name, params)
     end
     if self.active_state then
         self.active_state:exit()
+        self:fire(State_Event.exit_state, self.active_state:get_name())
     end
     self.last_state = self.active_state
     self.active_state = next_state
     self.active_state:enter(params)
+    self:fire(State_Event.exit_state, self.active_state:get_name(), params)
     return true
 end
 

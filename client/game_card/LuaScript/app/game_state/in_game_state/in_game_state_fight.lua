@@ -8,8 +8,7 @@ end
 
 function InGameStateFight:on_enter(params)
     InGameStateFight.super.on_enter(self, params)
-    self.app.panel_mgr:open_panel(UI_Panel_Name.fight_panel, {})
-    self.app.data_mgr.fight:req_bind_fight()
+    self.app:fire()
 end
 
 function InGameStateFight:on_update()

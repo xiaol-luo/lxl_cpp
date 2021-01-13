@@ -71,6 +71,7 @@ function LuaApp:_on_release()
     self.logic_mgr:release()
     self.ui_mgr:release()
     self.panel_mgr:release_self()
+    self.state_mgr:release()
 end
 
 function LuaApp:start()
