@@ -9,5 +9,6 @@ Bind_Fight_State = {}
 Bind_Fight_State.ready = 0
 Bind_Fight_State.idle = -1
 Bind_Fight_State.binding = -2
-Bind_Fight_State.net_error = -2
+Bind_Fight_State.connect_fail = -3
+Bind_Fight_State.net_error = -4
 -- 其他值就是错误码

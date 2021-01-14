@@ -19,9 +19,9 @@ function FightLogic:_on_init()
             Functional.make_closure(self._on_event_ask_enter_room, self))
     self._event_binder:bind(self._room_data, Room_Data_Event.room_start,
             Functional.make_closure(self._on_event_room_start, self))
-    self._event_binder:bind(self._room_data, Room_Data_Event.room_start,
+    self._event_binder:bind(self._room_data, Room_Data_Event.room_over,
             Functional.make_closure(self._on_event_room_over, self))
-    self._event_binder:bind(self._room_data, Room_Data_Event.room_start,
+    self._event_binder:bind(self._room_data, Room_Data_Event.room_state_change,
             Functional.make_closure(self._on_event_room_change, self))
 end
 

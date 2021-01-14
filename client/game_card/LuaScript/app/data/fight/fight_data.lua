@@ -20,9 +20,6 @@ function FightData:ctor(data_mgr)
     self.room_key = ""
     ---@type Bind_Fight_State
     self.bind_fight_state = Bind_Fight_State.idle
-
-    self.fight_state = {}
-
     self.accept_fight_key = nil
 end
 
@@ -37,9 +34,7 @@ function FightData:_on_init()
     self._event_binder:bind(self._app.net_mgr, Game_Net_Event.fight_connect_done, Functional.make_closure(self._on_event_fight_net_connect_done, self))
     self._event_binder:bind(self._app.net_mgr, Game_Net_Event.fight_connect_ready_change, Functional.make_closure(self._on_event_fight_connect_ready_change, self))
 
-    self._event_binder:bind(self._app.data_mgr.room, Room_Data_Event.room_start, Functional.make_closure(self._on_event_room_start, self))
     self._event_binder:bind(self._app.data_mgr.room, Room_Data_Event.room_state_change, Functional.make_closure(self._on_event_room_state_change, self))
-    self._event_binder:bind(self._app.data_mgr.room, Room_Data_Event.room_over, Functional.make_closure(self._on_event_room_over, self))
 end
 
 function FightData:_on_release()
@@ -54,6 +49,9 @@ end
 
 function FightData:unbind_fight()
     self._fight_net:disconnect()
+    self.accept_fight_key = nil
+    self.fight_key = nil
+    self.bind_fight_state = Bind_Fight_State.idle
 end
 
 function FightData:pull_fight_state()
@@ -90,18 +88,16 @@ function FightData:_on_event_fight_net_connect_done(is_ready, error_msg)
             role_id = self._data_mgr.main_role:get_role_id(),
         })
     else
-        self:_set_bind_fight_state(Bind_Fight_State.net_error)
+        self:_set_bind_fight_state(Bind_Fight_State.connect_fail)
     end
 end
 
 function FightData:_on_event_fight_connect_ready_change(is_ready)
-    if Bind_Fight_State.ready == self.bind_fight_state then
-        self:_set_bind_fight_state(Bind_Fight_State.net_error)
+    if not is_ready then
+        if Bind_Fight_State.ready == self.bind_fight_state then
+            self:_set_bind_fight_state(Bind_Fight_State.net_error)
+        end
     end
-end
-
-function FightData:_on_event_room_start(room_key)
-
 end
 
 function FightData:_on_event_room_state_change(room_key)
@@ -120,20 +116,15 @@ function FightData:try_extract_fight_data()
     end
 end
 
-function FightData:_on_event_room_over(room_key)
-
-end
-
-
 ---@param val Bind_Fight_State
 function FightData:_set_bind_fight_state(val)
     self.bind_fight_state = val
-    self:fire(Fight_Data_Event.bind_fight_state_chanage, self.bind_fight_state)
+    self:fire(Fight_Data_Event.bind_fight_state_chanage, self.bind_fight_state, self.fight_key)
 end
 
 function FightData:set_accept_fight_key(fight_key)
-    local old_fight_key = self.accept_fight_key
     self.accept_fight_key = fight_key
+    self:try_extract_fight_data()
 end
 
 
