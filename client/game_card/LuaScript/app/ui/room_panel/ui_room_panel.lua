@@ -61,7 +61,8 @@ function UIRoomPanel:_update_view()
 end
 
 function UIRoomPanel:_on_click_enter_fight_btn()
-    self._app.state_mgr:change_in_game_state(In_Game_State_Name.fight, {})
+    -- self._app.state_mgr:change_in_game_state(In_Game_State_Name.fight, {})
+    self._app.logic_mgr.fight:enter_fight(self._room_data.room_key, self._room_data.fight_data.fight_key)
 end
 
 function UIRoomPanel:_on_click_query_btn()

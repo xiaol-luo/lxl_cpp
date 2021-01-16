@@ -1,4 +1,3 @@
-
 return {
     "common.define.system_info_def",
     "common.libs.ui.ui_help",

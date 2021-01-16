@@ -23,6 +23,13 @@ function FightLogic:_on_init()
             Functional.make_closure(self._on_event_room_over, self))
     self._event_binder:bind(self._room_data, Room_Data_Event.room_state_change,
             Functional.make_closure(self._on_event_room_change, self))
+
+    --[[
+    self._event_binder:bind(self._app.state_mgr, In_Game_State_Event.enter_state,
+            self._on_event_in_game_state_enter, self)
+    self._event_binder:bind(self._app.state_mgr, In_Game_State_Event.exit_state,
+            self._on_event_in_game_state_exit, self)
+            --]]
 end
 
 function FightLogic:_on_event_ask_enter_room(ev_data)
@@ -52,6 +59,7 @@ function FightLogic:_on_event_room_start(room_key)
         end
     end
     self.curr_room_key = room_key
+    log_print("++++++++++++ FightLogic:_on_event_room_start", self.curr_room_key)
     if not self._app.panel_mgr:is_panel_enable(UI_Panel_Name.room_panel) then
         self._app.panel_mgr:open_panel(UI_Panel_Name.room_panel)
     end
@@ -75,25 +83,34 @@ function FightLogic:_on_event_room_change(room_key)
 end
 
 function FightLogic:enter_fight(room_key, fight_key)
+    log_print("!!!!!!!!!!!!!!!!!!! FightLogic:enter_fight", room_key, self.curr_room_key, fight_key, self.curr_fight_key)
     if room_key == self.curr_room_key and nil == self.curr_fight_key then
         self.curr_fight_key = fight_key
         self._fight_data:set_accept_fight_key(self.curr_fight_key)
         self._fight_data:try_extract_fight_data()
-
         self._app.state_mgr:change_in_game_state(In_Game_State_Name.fight)
-        self._app.panel_mgr:open_panel(UI_Panel_Name.fight_panel, {})
         self._app.data_mgr.fight:bind_fight()
+        self._app.panel_mgr:open_panel(UI_Panel_Name.fight_panel, {})
     end
 end
 
 function FightLogic:exit_fight()
-    if self._app.state_mgr:in_state(App_State_Name.in_game, In_Game_State_Name.fight) then
-        self._app.state_mgr:change_in_game_state(In_Game_State_Name.in_lobby)
-    end
     self.curr_fight_key = nil
     self.curr_room_key = nil
     self._room_data:set_accepted_room_key(nil)
     self._fight_data:unbind_fight()
+    if self._app.state_mgr:in_state(App_State_Name.in_game, In_Game_State_Name.fight) then
+        self._app.state_mgr:change_in_game_state(In_Game_State_Name.in_lobby)
+    end
+    self._app.panel_mgr:close_panel(UI_Panel_Name.fight_panel, {})
+end
+
+function FightLogic:_on_event_in_game_state_enter(state_name, ev_param)
+    self._app.panel_mgr:open_panel(UI_Panel_Name.fight_panel, {})
+end
+
+function FightLogic:_on_event_in_game_state_exit(state_name)
+    self._app.panel_mgr:close_panel(UI_Panel_Name.fight_panel)
 end
 
 
