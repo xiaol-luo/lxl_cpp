@@ -1,12 +1,12 @@
 
----@class NetMgr:EventMgr
+---@class NetMgr:LuaAppLogicBase
 ---@field game_platform_net GamePlatformNetBase
 ---@field game_login_net GameLoginNetBase
 ---@field game_gate_net GameGateNetBase
-NetMgr = NetMgr or class("NetMgr", EventMgr)
+NetMgr = NetMgr or class("NetMgr", LuaAppLogicBase)
 
-function NetMgr:ctor(_app)
-    NetMgr.super.ctor(self)
+function NetMgr:ctor(_app, logic_name)
+    NetMgr.super.ctor(self, _app, logic_name)
     ---@type LuaApp
     self._app = _app
     self._pto_parser = self._app.pto_parser
@@ -16,7 +16,7 @@ function NetMgr:ctor(_app)
     self.fight_net = nil
 end
 
-function NetMgr:init()
+function NetMgr:_on_init()
 
     if SystemInfo.is_editor then
         self.game_platform_net = GamePlatformNetEditor:new(self)
@@ -31,6 +31,14 @@ function NetMgr:init()
     self.game_login_net:init()
     self.game_gate_net:init()
     self.fight_net:init()
+end
+
+function NetMgr:_on_release()
+    self.game_platform_net:release()
+    self.game_login_net:release()
+    self.game_gate_net:release()
+    self.fight_net:release()
+    self:cancel_all()
 end
 
 function NetMgr:game_login()
@@ -77,12 +85,5 @@ function NetMgr:_fight_reset()
 
 end
 
-function NetMgr:release()
-    self.game_platform_net:release()
-    self.game_login_net:release()
-    self.game_gate_net:release()
-    self.fight_net:release()
-    self:cancel_all()
-end
 
 

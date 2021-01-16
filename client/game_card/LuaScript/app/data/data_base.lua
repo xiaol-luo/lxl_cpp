@@ -21,6 +21,14 @@ function DataBase:init()
     self:_on_init()
 end
 
+function DataBase:start()
+    self:_on_start()
+end
+
+function DataBase:stop()
+    self:_on_stop()
+end
+
 function DataBase:release()
     self:cancel_all()
     self._event_binder:release_all()
@@ -28,6 +36,14 @@ function DataBase:release()
 end
 
 function DataBase:_on_init()
+
+end
+
+function DataBase:_on_start()
+
+end
+
+function DataBase:_on_stop()
 
 end
 

@@ -34,24 +34,39 @@ function LuaApp:_on_init(arg)
 
     local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
     log_assert(CSharpHelp.not_null(ui_root), "not found CS.Utopia.UIRoot")
+    self.panel_mgr = UIPanelMgr:new()
+    self.panel_mgr:init(ui_root.gameObject)
 
     self.state_mgr = AppStateMgr:new(self)
     self.state_mgr:init()
 
-    self.panel_mgr = UIPanelMgr:new()
-    self.panel_mgr:init(ui_root.gameObject)
-
     self.ui_mgr = UIMgr:new(self.panel_mgr)
     self.ui_mgr:init()
 
-    self.net_mgr = NetMgr:new(self)
-    self.net_mgr:init()
+    do
+        local app_logic = NetMgr:new(self, Lua_App_Logic_Name.net_mgr)
+        app_logic:init()
+        self:_add_logic(app_logic)
+    end
 
-    self.data_mgr = DataMgr:new(self)
-    self.logic_mgr = LogicMgr:new(self)
+    do
+        local app_logic = DataMgr:new(self, Lua_App_Logic_Name.data_mgr)
+        app_logic:init()
+        self:_add_logic(app_logic)
+    end
 
-    self.data_mgr:init()
-    self.logic_mgr:init()
+    do
+        local app_logic = LogicMgr:new(self, Lua_App_Logic_Name.logic_mgr)
+        app_logic:init()
+        self:_add_logic(app_logic)
+    end
+
+    -- self.net_mgr = NetMgr:new(self)
+    -- self.net_mgr:init()
+    -- self.data_mgr = DataMgr:new(self)
+    -- self.logic_mgr = LogicMgr:new(self)
+    -- self.data_mgr:init()
+    -- self.logic_mgr:init()
 end
 
 function LuaApp:_on_started()

@@ -1,8 +1,8 @@
 
----@class LogicMgr:EventMgr
+---@class LogicMgr:LuaAppLogicBase
 ---@field fight FightLogic
 
-LogicMgr = LogicMgr or class("LogicMgr", EventMgr)
+LogicMgr = LogicMgr or class("LogicMgr", LuaAppLogicBase)
 
 function LogicMgr:ctor(_app)
     LogicMgr.super.ctor(self)
@@ -12,9 +12,31 @@ function LogicMgr:ctor(_app)
     self:_add_logic_base_help(FightLogic)
 end
 
-function LogicMgr:init()
-    for _, v in pairs(self._logic_list) do
+function LogicMgr:_on_init()
+    LogicMgr.super._on_init(self)
+    for _, v in pairs(self._data_list) do
         v:init()
+    end
+end
+
+function LogicMgr:_on_start()
+    LogicMgr.super._on_init(self)
+    for _, v in pairs(self._data_list) do
+        v:start()
+    end
+end
+
+function LogicMgr:_on_stop()
+    LogicMgr.super._on_init(self)
+    for _, v in pairs(self._data_list) do
+        v:stop()
+    end
+end
+
+function LogicMgr:_on_release()
+    LogicMgr.super._on_release(self)
+    for _, v in pairs(self._data_list) do
+        v:release()
     end
 end
 
@@ -27,12 +49,6 @@ function LogicMgr:_add_logic_base_help(cls)
     self._logic_list[logic_name] = logic
 end
 
-function LogicMgr:release()
-    for _, v in pairs(self._logic_list) do
-        v:release()
-    end
-    self:cancel_all()
-end
 
 
 

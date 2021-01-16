@@ -21,6 +21,14 @@ function LogicBase:init()
     self:_on_init()
 end
 
+function LogicBase:start()
+    self:_on_start()
+end
+
+function LogicBase:stop()
+    self:_on_stop()
+end
+
 function LogicBase:release()
     self:cancel_all()
     self._event_binder:release_all()
@@ -31,6 +39,15 @@ function LogicBase:_on_init()
 
 end
 
+function LogicBase:_on_start()
+
+end
+
+function LogicBase:_on_stop()
+
+end
+
 function LogicBase:_on_release()
 
 end
+
