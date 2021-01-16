@@ -7,7 +7,7 @@ assert(DataBase)
 function MatchData:ctor(data_mgr)
     MatchData.super.ctor(self, data_mgr, "match")
     ---@type GameGateNetBase
-    self._gate_net = self._app.net_mgr.game_gate_net
+    self._gate_net = self.app.net_mgr.game_gate_net
 
     self.match_key = ""
     self.match_theme = ""
@@ -19,9 +19,9 @@ end
 function MatchData:_on_init()
     MatchData.super._on_init(self)
 
-    self._event_binder:bind(self._app.net_mgr, Fight_Pid.rsp_join_match, Functional.make_closure(self._on_msg_rsp_join_match, self))
-    self._event_binder:bind(self._app.net_mgr, Fight_Pid.rsp_quit_match, Functional.make_closure(self._on_msg_sync_rsp_quit_match, self))
-    self._event_binder:bind(self._app.net_mgr, Fight_Pid.sync_match_state, Functional.make_closure(self._on_msg_sync_match_state, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.rsp_join_match, Functional.make_closure(self._on_msg_rsp_join_match, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.rsp_quit_match, Functional.make_closure(self._on_msg_sync_rsp_quit_match, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.sync_match_state, Functional.make_closure(self._on_msg_sync_match_state, self))
 end
 
 function MatchData:_on_release()

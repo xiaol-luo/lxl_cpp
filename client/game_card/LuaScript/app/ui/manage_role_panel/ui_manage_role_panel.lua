@@ -18,11 +18,11 @@ function UIManageRolePanel:ctor(panel_mgr, panel_setting)
     self._role_detail_role_id_txt = nil
 
     ---@type GamePlatformNetEditor
-    self._platform_net = self._app.net_mgr.game_platform_net
+    self._platform_net = self.app.net_mgr.game_platform_net
     ---@type GameLoginNetEditor
-    self._login_net = self._app.net_mgr.game_login_net
+    self._login_net = self.app.net_mgr.game_login_net
     ---@type GameGateNetEditor
-    self._gate_net = self._app.net_mgr.game_gate_net
+    self._gate_net = self.app.net_mgr.game_gate_net
 
     self._selected_role_id = nil
 end
@@ -55,10 +55,10 @@ function UIManageRolePanel:_on_attach_panel()
 
     self._role_detail_role_id_txt = UIHelp.attach_ui(UIText, self._panel_root, "role_view/role_detail/role_id/content")
 
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_done, Functional.make_closure(self._update_gate_state_txt, self))
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_ready_change, Functional.make_closure(self._update_gate_state_txt, self))
-    self._event_binder:bind(self._app.data_mgr.game_user, Game_User_Event.role_digiests_change, Functional.make_closure(self._update_role_digiests, self))
-    self._event_binder:bind(self._app.data_mgr.game_user, Game_User_Event.role_reachable_change, Functional.make_closure(self._on_event_role_reachable_change, self))
+    self._event_binder:bind(self.app.net_mgr, Game_Net_Event.gate_connect_done, Functional.make_closure(self._update_gate_state_txt, self))
+    self._event_binder:bind(self.app.net_mgr, Game_Net_Event.gate_connect_ready_change, Functional.make_closure(self._update_gate_state_txt, self))
+    self._event_binder:bind(self.app.data_mgr.game_user, Game_User_Event.role_digiests_change, Functional.make_closure(self._update_role_digiests, self))
+    self._event_binder:bind(self.app.data_mgr.game_user, Game_User_Event.role_reachable_change, Functional.make_closure(self._on_event_role_reachable_change, self))
 
     self:_update_ui()
 end
@@ -104,12 +104,12 @@ function UIManageRolePanel:_on_click_re_login_btn()
     self._platform_net:logout()
     self._login_net:logout()
     self._gate_net:disconnect()
-    self._app.state_mgr:change_state(App_State_Name.login)
+    self.app.state_mgr:change_state(App_State_Name.login)
 end
 
 function UIManageRolePanel:_on_click_create_role_btn()
     if self._gate_net:is_ready() then
-        self._app.data_mgr.game_user:create_role("")
+        self.app.data_mgr.game_user:create_role("")
     else
         self:_notify_error("is not ready to create role")
     end
@@ -117,7 +117,7 @@ end
 
 function UIManageRolePanel:_on_click_launch_role_btn()
     if self._gate_net:is_ready() and self._selected_role_id then
-        self._app.data_mgr.game_user:launch_role(self._selected_role_id)
+        self.app.data_mgr.game_user:launch_role(self._selected_role_id)
     else
         self:_notify_error("is not ready to launch role")
     end
@@ -151,7 +151,7 @@ function UIManageRolePanel:_update_role_digiests()
         UIHelp.destroy_gameobject(v.go)
     end
     self._role_list_items = {}
-    local role_digiests = self._app.data_mgr.game_user:get_role_digests()
+    local role_digiests = self.app.data_mgr.game_user:get_role_digests()
     if role_digiests then
         for role_id, role_digiest in pairs(role_digiests) do
             local curr_role_id = role_id

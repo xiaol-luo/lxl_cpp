@@ -4,11 +4,11 @@ UIRoomPanel = UIRoomPanel or class("UIRoomPanel", UIPanelBase)
 
 function UIRoomPanel:ctor(panel_mgr, panel_setting, root_go)
     self.super.ctor(self, panel_mgr, panel_setting, root_go)
-    self._match_data = self._app.data_mgr.match
+    self._match_data = self.app.data_mgr.match
     ---@type RoomData
-    self._room_data = self._app.data_mgr.room
+    self._room_data = self.app.data_mgr.room
     ---@type FightData
-    self._fight_data = self._app.data_mgr.fight
+    self._fight_data = self.app.data_mgr.fight
 end
 
 function UIRoomPanel:_on_init()
@@ -61,8 +61,8 @@ function UIRoomPanel:_update_view()
 end
 
 function UIRoomPanel:_on_click_enter_fight_btn()
-    -- self._app.state_mgr:change_in_game_state(In_Game_State_Name.fight, {})
-    self._app.logic_mgr.fight:enter_fight(self._room_data.room_key, self._room_data.fight_data.fight_key)
+    -- self.app.state_mgr:change_in_game_state(In_Game_State_Name.fight, {})
+    self.app.logic_mgr.fight:enter_fight(self._room_data.room_key, self._room_data.fight_data.fight_key)
 end
 
 function UIRoomPanel:_on_click_query_btn()
@@ -70,7 +70,7 @@ function UIRoomPanel:_on_click_query_btn()
 end
 
 function UIRoomPanel:_on_click_close_btn()
-    self._app.panel_mgr:close_panel(UI_Panel_Name.room_panel)
+    self.app.panel_mgr:close_panel(UI_Panel_Name.room_panel)
 end
 
 function UIRoomPanel:_on_event_room_state_change()

@@ -12,9 +12,9 @@ function UILoginPanel:ctor(panel_mgr, panel_setting)
     self._account_id_txt = nil
 
     ---@type GamePlatformNetEditor
-    self._game_platform_net = self._app.net_mgr.game_platform_net
+    self._game_platform_net = self.app.net_mgr.game_platform_net
     ---@type GameLoginNetEditor
-    self._game_login_net = self._app.net_mgr.game_login_net
+    self._game_login_net = self.app.net_mgr.game_login_net
 
 end
 
@@ -40,7 +40,7 @@ function UILoginPanel:_on_attach_panel()
     UILoginPanel.super._on_attach_panel(self)
     self._notify_txt = UIHelp.attach_ui(UIText, self._panel_root, "notify_txt")
     self._account_id_txt = UIHelp.attach_ui(UIText, self._panel_root, "login_view/account_id")
-    self._account_id_txt:set_text(self._app.net_mgr.game_platform_net:get_account_id())
+    self._account_id_txt:set_text(self.app.net_mgr.game_platform_net:get_account_id())
     self._confirm_btn = UIHelp.attach_ui(UIButton, self._panel_root, "login_view/confirm_btn")
     self._confirm_btn:set_onclick(Functional.make_closure(self.on_click_confirm_btn, self))
     self._ip_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "login_view/login_ip")

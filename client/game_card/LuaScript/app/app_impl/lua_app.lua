@@ -60,13 +60,6 @@ function LuaApp:_on_init(arg)
         app_logic:init()
         self:_add_logic(app_logic)
     end
-
-    -- self.net_mgr = NetMgr:new(self)
-    -- self.net_mgr:init()
-    -- self.data_mgr = DataMgr:new(self)
-    -- self.logic_mgr = LogicMgr:new(self)
-    -- self.data_mgr:init()
-    -- self.logic_mgr:init()
 end
 
 function LuaApp:_on_started()

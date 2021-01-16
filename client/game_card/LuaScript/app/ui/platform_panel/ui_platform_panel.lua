@@ -13,9 +13,9 @@ function UIPlatformPanel:ctor(panel_mgr, panel_setting)
     self._account_id_txt = nil
 
     ---@type GamePlatformNetEditor
-    self._game_platform_net = self._app.net_mgr.game_platform_net
+    self._game_platform_net = self.app.net_mgr.game_platform_net
     ---@type GameLoginNetEditor
-    self._game_login_net = self._app.net_mgr.game_login_net
+    self._game_login_net = self.app.net_mgr.game_login_net
 
 end
 

@@ -7,7 +7,7 @@ function UIPanelBase:ctor(panel_mgr, panel_setting)
     ---@type UIPanelMgr
     self._panel_mgr = panel_mgr
     ---@type LuaApp
-    self._app = g_ins
+    self.app = g_ins
     self._panel_setting = panel_setting
     self._panel_state = Panel_State.free
 

@@ -7,9 +7,9 @@ assert(DataBase)
 function FightData:ctor(data_mgr)
     FightData.super.ctor(self, data_mgr, "fight")
     ---@type GameGateNetBase
-    self._gate_net = self._app.net_mgr.game_gate_net
+    self._gate_net = nil
     ---@type FightNetBase
-    self._fight_net = self._app.net_mgr.fight_net
+    self._fight_net = nil
     ---@type RoomData
     self._room_data = nil
 
@@ -23,18 +23,20 @@ function FightData:ctor(data_mgr)
     self.accept_fight_key = nil
 end
 
-function FightData:_on_init()
+function FightData:_on_start()
     FightData.super._on_init(self)
 
-    self._room_data = self._app.data_mgr.room
+    self._room_data = self.app.data_mgr.room
+    self._gate_net = self.app.net_mgr.game_gate_net
+    self._fight_net = self.app.net_mgr.fight_net
 
-    self._event_binder:bind(self._app.net_mgr, Fight_Pid.rsp_bind_fight, Functional.make_closure(self._on_msg_rsp_bind_fight, self))
-    self._event_binder:bind(self._app.net_mgr, Fight_Pid.sync_fight_state_two_dice, Functional.make_closure(self._on_msg_sync_fight_state_two_dice, self))
-    self._event_binder:bind(self._app.net_mgr, Fight_Pid.rsp_fight_opera, Functional.make_closure(self._on_msg_rsp_fight_opera, self))
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.fight_connect_done, Functional.make_closure(self._on_event_fight_net_connect_done, self))
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.fight_connect_ready_change, Functional.make_closure(self._on_event_fight_connect_ready_change, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.rsp_bind_fight, Functional.make_closure(self._on_msg_rsp_bind_fight, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.sync_fight_state_two_dice, Functional.make_closure(self._on_msg_sync_fight_state_two_dice, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.rsp_fight_opera, Functional.make_closure(self._on_msg_rsp_fight_opera, self))
+    self._event_binder:bind(self.app.net_mgr, Game_Net_Event.fight_connect_done, Functional.make_closure(self._on_event_fight_net_connect_done, self))
+    self._event_binder:bind(self.app.net_mgr, Game_Net_Event.fight_connect_ready_change, Functional.make_closure(self._on_event_fight_connect_ready_change, self))
 
-    self._event_binder:bind(self._app.data_mgr.room, Room_Data_Event.room_state_change, Functional.make_closure(self._on_event_room_state_change, self))
+    self._event_binder:bind(self.app.data_mgr.room, Room_Data_Event.room_state_change, Functional.make_closure(self._on_event_room_state_change, self))
 end
 
 function FightData:_on_release()

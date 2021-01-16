@@ -12,7 +12,7 @@ function UISelectGatePanel:ctor(panel_mgr, panel_setting)
     self._user_id_txt = nil
 
     ---@type GameGateNetEditor
-    self._game_gate_net = self._app.net_mgr.game_gate_net
+    self._game_gate_net = self.app.net_mgr.game_gate_net
 
 end
 
@@ -38,7 +38,7 @@ function UISelectGatePanel:_on_attach_panel()
     UISelectGatePanel.super._on_attach_panel(self)
     self._notify_txt = UIHelp.attach_ui(UIText, self._panel_root, "notify_txt")
     self._user_id_txt = UIHelp.attach_ui(UIText, self._panel_root, "gate_view/user_id")
-    self._user_id_txt:set_text(self._app.net_mgr.game_login_net:get_user_id())
+    self._user_id_txt:set_text(self.app.net_mgr.game_login_net:get_user_id())
     self._confirm_btn = UIHelp.attach_ui(UIButton, self._panel_root, "gate_view/confirm_btn")
     self._confirm_btn:set_onclick(Functional.make_closure(self.on_click_confirm_btn, self))
     self._ip_if = UIHelp.attach_ui(UIInputIField, self._panel_root, "gate_view/gate_ip")

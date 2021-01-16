@@ -5,7 +5,7 @@ LuaAppBase = LuaAppBase or class("LuaAppBase", EventMgr)
 function LuaAppBase:ctor()
     LuaAppBase.super.ctor(self)
     ---@type table<number, LogicBaseTemplate>
-    self._logics = {}
+    self._logic_list = {}
     ---@type Lua_App_State
     self._curr_state = Lua_App_State.Free
     self._error_num = nil
@@ -16,7 +16,7 @@ end
 function LuaAppBase:_add_logic(logic)
     local name = logic:get_name()
     self:_set_as_field(name, logic)
-    table.insert(self._logics, logic)
+    table.insert(self._logic_list, logic)
 end
 
 function LuaAppBase:_set_as_field(field_name, obj)
@@ -39,22 +39,22 @@ end
 function LuaAppBase:start()
     if self._curr_state < Lua_App_State.Starting then
         self._curr_state = Lua_App_State.Starting
-        self:fire(Lua_App_Event.State_Starting, self)
-        for _, logic in pairs(self._logics) do
+        for _, logic in pairs(self._logic_list) do
             logic:start()
         end
         self:_on_start()
+        self:fire(Lua_App_Event.State_Starting, self)
     end
 end
 
 function LuaAppBase:stop()
     if self._curr_state >= Lua_App_State.Starting and self._curr_state < Lua_App_State.Stopping then
         self._curr_state = Lua_App_State.Stopping
-        self:fire(Lua_App_Event.State_Stopping, self)
-        for _, logic in pairs(self._logics) do
+        for _, logic in pairs(self._logic_list) do
             logic:stop()
         end
         self:_on_stop()
+        self:fire(Lua_App_Event.State_Stopping, self)
     end
 end
 
@@ -63,12 +63,12 @@ function LuaAppBase:release()
         return
     end
     self._curr_state = Lua_App_State.Released
-    for _, logic in pairs(self._logics) do
+    for _, logic in pairs(self._logic_list) do
         logic:release()
     end
-    self:fire(Lua_App_Event.State_Released, self)
     self:cancel_all()
     self:_on_release()
+    self:fire(Lua_App_Event.State_Released, self)
 end
 
 function LuaAppBase:get_error()
@@ -80,7 +80,7 @@ function LuaAppBase:get_curr_state()
 end
 
 function LuaAppBase:print_logic_state()
-    for _, v in pairs(self._logics) do
+    for _, v in pairs(self._logic_list) do
         log_debug("logic state: %s is %s", v:get_name(), v:get_curr_state())
     end
 end
@@ -88,7 +88,7 @@ end
 function LuaAppBase:update()
     if not self._error_num then
         if Lua_App_State.Update == self._curr_state then
-            for _, m in pairs(self._logics) do
+            for _, m in pairs(self._logic_list) do
                 m:update()
             end
             self:_on_update()
@@ -96,13 +96,13 @@ function LuaAppBase:update()
         if Lua_App_State.Started == self._curr_state then
             self._curr_state = Lua_App_State.Update
             self:fire(Lua_App_Event.State_To_Update, self)
-            for _, m in pairs(self._logics) do
+            for _, m in pairs(self._logic_list) do
                 m:to_update_state()
             end
         end
         if Lua_App_State.Starting == self._curr_state then
             local all_started = true
-            for _, m in pairs(self._logics) do
+            for _, m in pairs(self._logic_list) do
                 local e_num, e_msg = m:get_error()
                 local m_curr_state = m:get_curr_state()
                 if e_num then
@@ -119,14 +119,14 @@ function LuaAppBase:update()
             end
             if all_started then
                 self._curr_state = Lua_App_State.Started
-                self:fire(Lua_App_Event.State_Started, self)
                 self:_on_started()
+                self:fire(Lua_App_Event.State_Started, self)
             end
         end
     end
     if Lua_App_State.Stopping == self._curr_state then
         local all_stoped = true
-        for _, m in pairs(self._logics) do
+        for _, m in pairs(self._logic_list) do
             local m_curr_state = m:get_curr_state()
             if Lua_App_Logic_State.Stopped ~= m_curr_state then
                 all_stoped = false
@@ -135,8 +135,8 @@ function LuaAppBase:update()
         end
         if all_stoped then
             self._curr_state = Lua_App_State.Stopped
-            self:fire(Lua_App_Event.State_Stopped, self)
             self:_on_stoped()
+            self:fire(Lua_App_Event.State_Stopped, self)
         end
     end
 end

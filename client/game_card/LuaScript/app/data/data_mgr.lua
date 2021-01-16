@@ -7,9 +7,8 @@
 ---@field room RoomData
 DataMgr = DataMgr or class("DataMgr", LuaAppLogicBase)
 
-function DataMgr:ctor(_app)
-    DataMgr.super.ctor(self)
-    self._app = _app
+function DataMgr:ctor(_app, logic_name)
+    DataMgr.super.ctor(self, _app, logic_name)
     ---@type table<string, DataBase>
     self._data_list = {}
 

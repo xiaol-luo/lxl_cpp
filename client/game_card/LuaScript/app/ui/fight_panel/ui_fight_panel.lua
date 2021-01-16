@@ -4,7 +4,7 @@ UIFightPanel = UIFightPanel or class("UIFightPanel", UIPanelBase)
 
 function UIFightPanel:ctor(panel_mgr, panel_setting, root_go)
     self.super.ctor(self, panel_mgr, panel_setting, root_go)
-    self._main_role = self._app.data_mgr.main_role
+    self._main_role = self.app.data_mgr.main_role
 end
 
 function UIFightPanel:_on_init()

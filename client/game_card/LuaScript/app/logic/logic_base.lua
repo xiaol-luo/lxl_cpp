@@ -1,5 +1,5 @@
 
----@class LogicBase:EventMgr
+---@class LogicBase:LuaAppLogicBase
 LogicBase = LogicBase or class("LogicBase", EventMgr)
 
 function LogicBase:ctor(logic_mgr, name)
@@ -8,7 +8,7 @@ function LogicBase:ctor(logic_mgr, name)
     ---@type LogicMgr
     self._logic_mgr = logic_mgr
     ---@type LuaApp
-    self._app = self._logic_mgr._app
+    self.app = self._logic_mgr.app
     ---@type EventBinder
     self._event_binder = EventBinder:new()
 end

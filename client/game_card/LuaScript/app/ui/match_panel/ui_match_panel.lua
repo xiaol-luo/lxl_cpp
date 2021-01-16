@@ -4,8 +4,8 @@ UIMatchPanel = UIMatchPanel or class("UIMatchPanel", UIPanelBase)
 
 function UIMatchPanel:ctor(panel_mgr, panel_setting, root_go)
     self.super.ctor(self, panel_mgr, panel_setting, root_go)
-    self._match_data = self._app.data_mgr.match
-    self._room_data = self._app.data_mgr.room
+    self._match_data = self.app.data_mgr.match
+    self._room_data = self.app.data_mgr.room
 end
 
 function UIMatchPanel:_on_init()
@@ -48,23 +48,23 @@ function UIMatchPanel:_update_view()
 end
 
 function UIMatchPanel:_on_click_join_match_btn()
-    self._app.data_mgr.match:req_join_match(Match_Theme.two_dice, {})
+    self.app.data_mgr.match:req_join_match(Match_Theme.two_dice, {})
 end
 
 function UIMatchPanel:_on_click_quit_match_btn()
-    self._app.data_mgr.match:req_quit_match()
+    self.app.data_mgr.match:req_quit_match()
 end
 
 function UIMatchPanel:_on_click_query_btn()
-    self._app.data_mgr.match:pull_match_state()
+    self.app.data_mgr.match:pull_match_state()
     local msg_data = UIMessageBoxData:new()
     msg_data.str_content = "test test"
-    self._app.ui_mgr.msg_box:add_msg_box(msg_data)
+    self.app.ui_mgr.msg_box:add_msg_box(msg_data)
 end
 
 function UIMatchPanel:_on_click_close_btn()
     self:_on_click_quit_match_btn()
-    self._app.panel_mgr:close_panel(UI_Panel_Name.match_panel)
+    self.app.panel_mgr:close_panel(UI_Panel_Name.match_panel)
 end
 
 function UIMatchPanel:_on_event_match_state_change()

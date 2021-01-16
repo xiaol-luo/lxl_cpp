@@ -7,16 +7,18 @@ assert(DataBase)
 function MainRole:ctor(data_mgr)
     MainRole.super.ctor(self, data_mgr, "main_role")
     ---@type NetMgr
-    self._net_mgr = self._app.net_mgr
+    self._net_mgr = nil
     self._role_id = nil
     self._role_name = nil
 end
 
-function MainRole:_on_init()
-    MainRole.super._on_init(self)
-    self._event_binder:bind(self._app.data_mgr.game_user, Game_User_Event.role_reachable_change,
+function MainRole:_on_start()
+    MainRole.super._on_start(self)
+
+    self._net_mgr = self.app.net_mgr
+    self._event_binder:bind(self.app.data_mgr.game_user, Game_User_Event.role_reachable_change,
             Functional.make_closure(self._on_event_role_reachable_change, self))
-    self._event_binder:bind(self._app.net_mgr, Main_Role_Pid.sync_role_data,
+    self._event_binder:bind(self.app.net_mgr, Main_Role_Pid.sync_role_data,
             Functional.make_closure(self._on_msg_sync_role_data, self))
 end
 

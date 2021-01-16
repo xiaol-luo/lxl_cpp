@@ -4,7 +4,7 @@ UIMainPanel = UIMainPanel or class("UIMainPanel", UIPanelBase)
 
 function UIMainPanel:ctor(panel_mgr, panel_setting, root_go)
     self.super.ctor(self, panel_mgr, panel_setting, root_go)
-    self._main_role = self._app.data_mgr.main_role
+    self._main_role = self.app.data_mgr.main_role
 end
 
 function UIMainPanel:_on_init()
@@ -53,17 +53,17 @@ function UIMainPanel:_on_click_query_role_btn()
 end
 
 function UIMainPanel:_on_click_logout_btn()
-    self._app.data_mgr.game_user:logout_role()
-    self._app.net_mgr.game_platform_net:logout()
-    self._app.net_mgr.game_login_net:logout()
-    self._app.net_mgr.game_gate_net:disconnect()
-    self._app.state_mgr:change_state(App_State_Name.login)
+    self.app.data_mgr.game_user:logout_role()
+    self.app.net_mgr.game_platform_net:logout()
+    self.app.net_mgr.game_login_net:logout()
+    self.app.net_mgr.game_gate_net:disconnect()
+    self.app.state_mgr:change_state(App_State_Name.login)
 end
 
 function UIMainPanel:_on_click_pick_role_btn()
-    self._app.data_mgr.game_user:logout_role()
-    self._app.net_mgr.game_gate_net:disconnect()
-    self._app.state_mgr.change_in_game_state(In_Game_State_Name.manage_role)
+    self.app.data_mgr.game_user:logout_role()
+    self.app.net_mgr.game_gate_net:disconnect()
+    self.app.state_mgr.change_in_game_state(In_Game_State_Name.manage_role)
 end
 
 function UIMainPanel:_on_click_match_panel_btn()

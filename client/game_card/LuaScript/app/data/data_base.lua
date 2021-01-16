@@ -7,7 +7,7 @@ function DataBase:ctor(data_mgr, name)
     ---@type DataMgr
     self._data_mgr = data_mgr
     ---@type LuaApp
-    self._app = self._data_mgr._app
+    self.app = self._data_mgr.app
     self._name = name
     ---@type EventBinder
     self._event_binder = EventBinder:new()

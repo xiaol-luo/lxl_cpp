@@ -1,14 +1,14 @@
 
 ---@class LuaAppLogicBase: EventMgr
----@field logic_mgr ServiceMgrBase
----@field server GameServerBase
+---@field app LuaApp
 LuaAppLogicBase = LuaAppLogicBase or class("LuaAppLogicBase", EventMgr)
 
 function LuaAppLogicBase:ctor(logic_mgr, logic_name)
     LuaAppLogicBase.super.ctor(self)
-    self.logic_mgr = logic_mgr
+    self.app = logic_mgr
+    self._logic_mgr = logic_mgr
     self._logic_name = logic_name
-    ---@type Logic_Mgr_Template_State
+    ---@type Lua_App_Logic_State
     self._curr_state = Lua_App_Logic_State.Free
     self._event_binder = EventBinder:new()
     self._timer_proxy = TimerProxy:new()

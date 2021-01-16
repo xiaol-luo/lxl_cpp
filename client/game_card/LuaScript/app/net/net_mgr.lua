@@ -7,9 +7,7 @@ NetMgr = NetMgr or class("NetMgr", LuaAppLogicBase)
 
 function NetMgr:ctor(_app, logic_name)
     NetMgr.super.ctor(self, _app, logic_name)
-    ---@type LuaApp
-    self._app = _app
-    self._pto_parser = self._app.pto_parser
+    self._pto_parser = self.app.pto_parser
     self.game_platform_net = nil
     self.game_login_net = nil
     self.game_gate_net = nil

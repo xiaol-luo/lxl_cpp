@@ -6,7 +6,7 @@ function FightNetBase:ctor(net_mgr)
     ---@type NetMgr
     self._net_mgr = net_mgr
     ---@type LuaApp
-    self._app = self._net_mgr.app
+    self.app = self._net_mgr.app
     ---@type ProtoParser
     self._pto_parser = self._net_mgr._pto_parser
 end

@@ -7,7 +7,7 @@ function GameLoginNetBase:ctor(net_mgr)
     ---@type NetMgr
     self._net_mgr = net_mgr
     ---@type LuaApp
-    self._app = self._net_mgr.app
+    self.app = self._net_mgr.app
 end
 
 function GameLoginNetBase:init()

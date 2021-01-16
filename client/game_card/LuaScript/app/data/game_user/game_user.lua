@@ -5,7 +5,7 @@ GameUser = GameUser or class("GameUser", DataBase)
 function GameUser:ctor(data_mgr)
     GameUser.super.ctor(self, data_mgr, "game_user")
     ---@type NetMgr
-    self._net_mgr = self._app.net_mgr
+    self._net_mgr = self.app.net_mgr
     self._user_id = -1
     self._launch_role_id = -1
     self._last_try_launch_role_id = -1
@@ -15,21 +15,21 @@ end
 
 function GameUser:_on_init()
     GameUser.super._on_init(self)
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.game_login_ready_change,
+    self._event_binder:bind(self.app.net_mgr, Game_Net_Event.game_login_ready_change,
             Functional.make_closure(self._on_event_game_login_done, self))
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_done,
+    self._event_binder:bind(self.app.net_mgr, Game_Net_Event.gate_connect_done,
             Functional.make_closure(self._on_event_gate_connect_done, self))
-    self._event_binder:bind(self._app.net_mgr, Game_Net_Event.gate_connect_ready_change,
+    self._event_binder:bind(self.app.net_mgr, Game_Net_Event.gate_connect_ready_change,
             Functional.make_closure(self._on_event_gate_connect_ready_change, self))
-    self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_pull_role_digest,
+    self._event_binder:bind(self.app.net_mgr, Login_Pid.rsp_pull_role_digest,
             Functional.make_closure(self._on_msg_rsp_pull_role_digest, self))
-    self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_create_role,
+    self._event_binder:bind(self.app.net_mgr, Login_Pid.rsp_create_role,
             Functional.make_closure(self._on_msg_rsp_create_role, self))
-    self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_launch_role,
+    self._event_binder:bind(self.app.net_mgr, Login_Pid.rsp_launch_role,
             Functional.make_closure(self._on_msg_rsp_launch_role, self))
-    self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_logout_role,
+    self._event_binder:bind(self.app.net_mgr, Login_Pid.rsp_logout_role,
             Functional.make_closure(self._on_msg_rsp_logout_role, self))
-    self._event_binder:bind(self._app.net_mgr, Login_Pid.rsp_reconnect_role,
+    self._event_binder:bind(self.app.net_mgr, Login_Pid.rsp_reconnect_role,
             Functional.make_closure(self._on_msg_rsp_reconnect_role, self))
 end
 
@@ -74,7 +74,7 @@ function GameUser:_on_event_gate_connect_ready_change(is_ready)
 end
 
 function GameUser:pull_role_digest(role_id)
-    return self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_pull_role_digest, {role_id = role_id })
+    return self.app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_pull_role_digest, {role_id = role_id })
 end
 
 function GameUser:_on_msg_rsp_pull_role_digest(pto_id, msg)
@@ -92,7 +92,7 @@ function GameUser:_on_msg_rsp_pull_role_digest(pto_id, msg)
 end
 
 function GameUser:create_role(params)
-    return self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_create_role, { params = params })
+    return self.app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_create_role, { params = params })
 end
 
 function GameUser:_on_msg_rsp_create_role(pto_id, msg)
@@ -105,7 +105,7 @@ function GameUser:launch_role(role_id)
         return false
     end
 
-    local ret = self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_launch_role, { role_id = role_id } )
+    local ret = self.app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_launch_role, { role_id = role_id } )
     if ret then
         self._last_try_launch_role_id = role_id
     end
@@ -125,7 +125,7 @@ function GameUser:_on_msg_rsp_launch_role(pto_id, msg)
 end
 
 function GameUser:logout_role()
-    self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_logout_role, role_id)
+    self.app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_logout_role, role_id)
     self._launch_role_id = nil
     self:_set_role_reachable(false)
     self:fire(Game_User_Event.logout_role)
@@ -140,7 +140,7 @@ function GameUser:reconnect_role()
         return false
     end
 
-    local net_mgr = self._app.net_mgr
+    local net_mgr = self.app.net_mgr
     local user_id = net_mgr.game_login_net:get_user_id()
     local app_id = net_mgr.game_platform_net:get_app_id()
     local token, token_timestamp = net_mgr.game_login_net:get_token()
@@ -153,7 +153,7 @@ function GameUser:reconnect_role()
         auth_ip = auth_ip,
         auth_port = auth_port,
     }
-    local ret = self._app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_reconnect_role, {
+    local ret = self.app.net_mgr.game_gate_net:send_msg_to_gate(Login_Pid.req_reconnect_role, {
         role_id = self._launch_role_id, login_gate_data = login_gate_data })
     return ret
 end
