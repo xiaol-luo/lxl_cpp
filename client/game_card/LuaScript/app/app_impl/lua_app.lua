@@ -1,4 +1,4 @@
----@class LuaApp:EventMgr
+---@class LuaApp:LuaAppBase
 ---@field state_mgr AppStateMgr
 ---@field panel_mgr UIPanelMgr
 ---@field net_mgr NetMgr
@@ -6,7 +6,7 @@
 ---@field logic_mgr LogicMgr
 ---@field pto_parser ProtoParser
 ---@field ui_mgr UIMgr
-LuaApp = LuaApp or class("LuaApp", EventMgr)
+LuaApp = LuaApp or class("LuaApp", LuaAppBase)
 
 function LuaApp:ctor()
     LuaApp.super.ctor(self)
@@ -20,7 +20,9 @@ function LuaApp:ctor()
     self.ui_mgr = nil
 end
 
-function LuaApp:init(arg)
+function LuaApp:_on_init(arg)
+    LuaApp.super._on_init(self, arg)
+
     for _, v in pairs(require("app.app_impl.lua_app_pre_require_server_files")) do
         include_file(v)
     end
@@ -32,6 +34,10 @@ function LuaApp:init(arg)
 
     local ui_root = CS.UnityEngine.GameObject.FindObjectOfType(typeof(CS.Utopia.UIRoot))
     log_assert(CSharpHelp.not_null(ui_root), "not found CS.Utopia.UIRoot")
+
+    self.state_mgr = AppStateMgr:new(self)
+    self.state_mgr:init()
+
     self.panel_mgr = UIPanelMgr:new()
     self.panel_mgr:init(ui_root.gameObject)
 
@@ -46,49 +52,35 @@ function LuaApp:init(arg)
 
     self.data_mgr:init()
     self.logic_mgr:init()
-
-    self.state_mgr = AppStateMgr:new(self)
-    self.state_mgr:init()
 end
 
-function LuaApp:_on_start()
+function LuaApp:_on_started()
+    LuaApp.super._on_started(self)
+
     self.state_mgr:change_state(App_State_Name.init)
 end
 
-function LuaApp:_on_update()
-    if self.state_mgr then
-        self.state_mgr:update_state()
-    end
-end
-
 function LuaApp:_on_stop()
-
+    LuaApp.super._on_stop(self)
 end
 
 function LuaApp:_on_release()
+    LuaApp.super._on_release(self)
+
     self.net_mgr:release()
     self.data_mgr:release()
     self.logic_mgr:release()
+
     self.ui_mgr:release()
     self.panel_mgr:release_self()
     self.state_mgr:release()
 end
 
-function LuaApp:start()
-    self:_on_start()
-end
-
-function LuaApp:update()
-    self:_on_update()
-end
-
-function LuaApp:release()
-    self:_on_release()
-    self:cancel_all()
-end
-
-function LuaApp:stop()
-    self:_on_stop()
+function LuaApp:_on_update()
+    LuaApp.super._on_update(self)
+    if self.state_mgr then
+        self.state_mgr:update_state()
+    end
 end
 
 function LuaApp:init_proto_parser()

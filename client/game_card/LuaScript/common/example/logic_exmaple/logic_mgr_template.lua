@@ -78,7 +78,7 @@ end
 
 function LogicMgrTemplate:print_logic_state()
     for _, v in pairs(self._logics) do
-        log_debug("service state: %s is %s", v:get_name(), v:get_curr_state())
+        log_debug("logic state: %s is %s", v:get_name(), v:get_curr_state())
     end
 end
 
@@ -105,7 +105,7 @@ function LogicMgrTemplate:update_logic()
                     all_started = false
                     self.error_num = e_num
                     self.error_msg = e_msg
-                    log_error("LogicMgrTemplate Start Fail! service=%s, error_num=%s, error_msg=%s", m:get_service_name(), self.error_num, self.error_msg)
+                    log_error("LogicMgrTemplate Start Fail! logic=%s, error_num=%s, error_msg=%s", m:get_name(), self.error_num, self.error_msg)
                     break
                 end
                 if Logic_Template_State.Started ~= m_curr_state then

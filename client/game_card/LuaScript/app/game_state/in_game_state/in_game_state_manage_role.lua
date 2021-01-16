@@ -7,16 +7,23 @@ function InGameStateManageRole:ctor(state_mgr, in_game_state)
     self.launch_error_num = nil
     -- self.event_subscriber = self.main_logic.event_mgr:create_subscriber()
     ---@type GamePlatformNetEditor
-    self._game_platform_net = self.app.net_mgr.game_platform_net
+    self._game_platform_net = nil
     ---@type GameLoginNetEditor
-    self._game_login_net = self.app.net_mgr.game_login_net
+    self._game_login_net = nil
     ---@type GameGateNetEditor
-    self._game_gate_net = self.app.net_mgr._game_gate_net
+    self._game_gate_net = nil
 end
 
 
 function InGameStateManageRole:on_enter(params)
     InGameStateManageRole.super.on_enter(self, params)
+
+    self.launch_error_num = nil
+    self._game_platform_net = self.app.net_mgr.game_platform_net
+    ---@type GameLoginNetEditor
+    self._game_login_net = self.app.net_mgr.game_login_net
+    ---@type GameGateNetEditor
+    self._game_gate_net = self.app.net_mgr._game_gate_net
 
     --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.open, Functional.make_closure(self._on_event_gate_cnn_open, self))
     --self.event_subscriber:subscribe(Event_Set__Gate_Cnn_Logic.close, Functional.make_closure(self._on_event_gate_cnn_close, self))

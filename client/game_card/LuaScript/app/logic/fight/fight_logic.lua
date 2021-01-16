@@ -49,6 +49,7 @@ function FightLogic:_on_cb_choose_enter_room(ev_data, is_accept)
     })
     if is_accept then
         self._room_data:set_accepted_room_key(ev_data.room_key)
+        self._room_data:pull_room_state()
     end
 end
 

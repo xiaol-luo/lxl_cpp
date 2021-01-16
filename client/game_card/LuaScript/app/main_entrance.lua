@@ -28,13 +28,7 @@ end
 
 function on_native_drive_update()
     if g_ins then
-        -- print("reach on_native_drive_update")
         g_ins:update()
-
-        --UnityHttpClient.get("http://127.0.0.1:30002/login_platform?platform_account_id=12345&game_id=2234&password=12345", function(...)
-        --        log_print("11111111111111111111111111111111111111111", ...)
-        --    end, { a="111", b="ccc" })
-
     end
 end
 
