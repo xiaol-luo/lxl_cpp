@@ -9,6 +9,9 @@ function UIRoomPanel:ctor(panel_mgr, panel_setting, root_go)
     self._room_data = self.app.data_mgr.room
     ---@type FightData
     self._fight_data = self.app.data_mgr.fight
+
+    self._room_key = nil
+    self._fight_key = nil
 end
 
 function UIRoomPanel:_on_init()
@@ -33,8 +36,8 @@ function UIRoomPanel:_on_attach_panel()
     self._fight_host_content_txt = UIHelp.attach_ui(UIText, self._panel_root, "view/room_state/fight_host/content")
 
     ---@type UIButton
-    self._join_match_btn = UIHelp.attach_ui(UIButton, self._panel_root, "view/opera_btns/enter_fight")
-    self._join_match_btn:set_onclick(Functional.make_closure(self._on_click_enter_fight_btn, self))
+    self._enter_fight_btn = UIHelp.attach_ui(UIButton, self._panel_root, "view/opera_btns/enter_fight")
+    self._enter_fight_btn:set_onclick(Functional.make_closure(self._on_click_enter_fight_btn, self))
     ---@type UIButton
     self._query_btn = UIHelp.attach_ui(UIButton, self._panel_root, "view/opera_btns/query")
     self._query_btn:set_onclick(Functional.make_closure(self._on_click_query_btn, self))
@@ -52,6 +55,7 @@ function UIRoomPanel:_on_show_panel()
 end
 
 function UIRoomPanel:_update_view()
+    self._enter_fight_btn:set_active(self._fight_key)
     self._match_theme_content_txt:set_text(self._room_data.match_theme)
     self._room_key_content_txt:set_text(self._room_data.room_key)
     self._room_state_content_txt:set_text(self._room_data.state)
@@ -61,8 +65,7 @@ function UIRoomPanel:_update_view()
 end
 
 function UIRoomPanel:_on_click_enter_fight_btn()
-    -- self.app.state_mgr:change_in_game_state(In_Game_State_Name.fight, {})
-    self.app.logic_mgr.fight:enter_fight(self._room_data.room_key, self._room_data.fight_data.fight_key)
+    self.app.logic_mgr.fight:enter_fight(self._room_key, self._fight_key)
 end
 
 function UIRoomPanel:_on_click_query_btn()
@@ -74,6 +77,8 @@ function UIRoomPanel:_on_click_close_btn()
 end
 
 function UIRoomPanel:_on_event_room_state_change()
+    self._room_key = self._room_data.room_key
+    self._fight_key = self._room_data.fight_data.fight_key
     self:_update_view()
 end
 

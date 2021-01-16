@@ -65,7 +65,7 @@ function MatchData:_on_msg_sync_rsp_quit_match(pid, msg)
 end
 
 function MatchData:_on_msg_sync_match_state(pid, msg)
-    log_print("MatchData:_on_msg_sync_match_state(pid, msg)", pid, msg)
+    -- log_print("MatchData:_on_msg_sync_match_state(pid, msg)", pid, msg)
     self:_handle_match_state_pto(msg)
 end
 

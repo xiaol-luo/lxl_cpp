@@ -126,7 +126,7 @@ function StateMgr:in_state(...)
             ret = false
             break
         end
-        curr_state_mgr = curr_state_mgr.child_state_mgr
+        curr_state_mgr = curr_state_mgr.active_state.child_state_mgr
     end
     return ret
 end

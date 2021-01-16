@@ -71,7 +71,7 @@ function UIMatchPanel:_on_event_match_state_change()
     self:_update_view()
 end
 
-function UIMatchPanel:_on_event_room_start()
+function UIMatchPanel:_on_event_room_start(room_key)
     self._panel_mgr:close_panel(UI_Panel_Name.match_panel)
     self._panel_mgr:open_panel(UI_Panel_Name.room_panel, {})
 end

@@ -11,6 +11,7 @@ end
 
 function InGameStateInLobby:on_enter(params)
     InGameStateInLobby.super.on_enter(self, params)
+    self.app.panel_mgr:close_all_panel()
     self.app.panel_mgr:open_panel(UI_Panel_Name.main_panel, {})
 end
 

@@ -49,6 +49,7 @@ function FightLogic:_on_cb_choose_enter_room(ev_data, is_accept)
         is_accept = is_accept,
     })
     if is_accept then
+        self:exit_fight()
         self._room_data:set_accepted_room_key(ev_data.room_key)
         self._room_data:pull_room_state()
     end
@@ -79,13 +80,12 @@ function FightLogic:_on_event_room_change(room_key)
     end
     if Room_State.in_fight == self._room_data.remote_room_state then
         self.app.ui_mgr.msg_box:show_confirm("enter fight", nil,
-                Functional.make_closure(self.enter_fight, self, self._room_data.curr_room_key,
+                Functional.make_closure(self.enter_fight, self, room_key,
                         self._room_data.fight_data.fight_key))
     end
 end
 
 function FightLogic:enter_fight(room_key, fight_key)
-    log_print("!!!!!!!!!!!!!!!!!!! FightLogic:enter_fight", room_key, self.curr_room_key, fight_key, self.curr_fight_key)
     if room_key == self.curr_room_key and nil == self.curr_fight_key then
         self.curr_fight_key = fight_key
         self._fight_data:set_accept_fight_key(self.curr_fight_key)
@@ -104,17 +104,14 @@ function FightLogic:exit_fight()
     if self.app.state_mgr:in_state(App_State_Name.in_game, In_Game_State_Name.fight) then
         self.app.state_mgr:change_in_game_state(In_Game_State_Name.in_lobby)
     end
-    self.app.panel_mgr:close_panel(UI_Panel_Name.fight_panel, {})
+    self.app.panel_mgr:close_panel(UI_Panel_Name.fight_panel)
 end
 
 function FightLogic:_on_event_in_game_state_enter(state_name, ev_param)
-    log_print("++++++++++++ FightLogic:_on_event_in_game_state_enter", self)
     self.app.panel_mgr:open_panel(UI_Panel_Name.fight_panel, {})
 end
 
 function FightLogic:_on_event_in_game_state_exit(state_name)
-    log_print("-------- FightLogic:_on_event_in_game_state_exit", self, self.app)
-    log_debug("xxxxxxxxxx FightLogic:_on_event_in_game_state_exit %s aa %s", self, self.app)
     self.app.panel_mgr:close_panel(UI_Panel_Name.fight_panel)
 end
 
