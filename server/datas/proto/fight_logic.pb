@@ -104,9 +104,8 @@ message FightCommonState
 
 message TwoDiceRollResult
 {
-	bool is_system = 1
-	int64 role_id = 2;
-	int32 roll_point = 3;
+	int64 role_id = 1;
+	int32 roll_point = 2;
 }
 message TwoDiceRound
 {
@@ -114,12 +113,23 @@ message TwoDiceRound
 	map<int64, TwoDiceRollResult> roll_results = 2;
 }
 
+message TwoDiceNotifyRound
+{
+	int32 round = 1;
+	int32 left_secs = 2;
+}
+
 message SyncFightStateTwoDice
 {
 	FightCommonState common_state = 1
 	repeated TwoDiceRound rounds = 2;
 	repeated int64 role_ids = 3;
+	TwoDiceNotifyRound curr_round = 4;
 }
+
+
+
+
 
 
 

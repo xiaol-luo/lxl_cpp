@@ -4,9 +4,28 @@ TwoDiceFight = TwoDiceFight or class("TwoDiceFight", FightBase)
 
 function TwoDiceFight:ctor(fight_mgr, setup_data)
     TwoDiceFight.super.ctor(self, fight_mgr, setup_data)
-
     self._fight_start_sec = nil
     self._fight_over = false
+
+    self._curr_round = {
+        round = 0,
+        round_end_sec = 0,
+        round_start = false,
+        roll_points = {
+            -- [role_id] = roll_point,
+        },
+    }
+
+    self._round_history = {}
+
+    log_print("TwoDiceFight:ctor", setup_data)
+    self._join_role_ids = {}
+    for _, camp in pairs(setup_data.room_camps) do
+        for role_id, role_data in pairs(camp) do
+            self._join_role_ids[role_id] = role_data
+        end
+    end
+    log_print("TwoDiceFight:ctor self._join_role_ids", self._join_role_ids)
 end
 
 function TwoDiceFight:_on_init(...)
@@ -25,7 +44,6 @@ end
 
 function TwoDiceFight:_on_release()
     TwoDiceFight.super._on_release(self)
-    -- log_print("TwoDiceFight:_on_release")
     self._rpc_svc_proxy:call(nil, self.room_server_key, Rpc.room.notify_fight_over, self.room_key, self.fight_key, {})
 end
 
@@ -37,6 +55,10 @@ function TwoDiceFight:_on_update()
             self._fight_over = true
         end
     end
+end
+
+function TwoDiceFight:_on_bind_role(new_fight_role, old_fight_role)
+    -- override by subclass
 end
 
 function TwoDiceFight:is_over()

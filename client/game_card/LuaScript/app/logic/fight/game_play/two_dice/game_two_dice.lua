@@ -13,6 +13,8 @@ end
 function GameTwoDice:_on_init(setup_data)
     self._event_binder:bind(self._fight_data, Fight_Data_Event.rsp_fight_opera,
             Functional.make_closure(self._on_msg_rsp_fight_opera, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.sync_fight_state_two_dice,
+            Functional.make_closure(self._on_msg_sync_fight_state_two_dice, self))
 end
 
 function GameTwoDice:_on_resume()
@@ -45,14 +47,14 @@ function GameTwoDice:req_roll()
 end
 
 function GameTwoDice:pull_state()
-    self.app.data_mgr.fight:req_fight_opera({
-        unique_id = self:next_seq(),
-        opera = Two_Dice_Opera.pull_state,
-    })
+    self.app.data_mgr.fight:pull_fight_state()
 end
 
 function GameTwoDice:_on_msg_rsp_fight_opera(msg)
     log_print("GameTwoDice:_on_msg_rsp_fight_opera", msg)
 end
 
+function GameTwoDice:_on_msg_sync_fight_state_two_dice(pid, msg)
+    log_print("GameTwoDice:_on_msg_sync_fight_state_two_dice", pid, msg)
+end
 

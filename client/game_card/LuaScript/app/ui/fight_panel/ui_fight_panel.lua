@@ -37,6 +37,11 @@ function UIFightPanel:_on_attach_panel()
     self._roll_btn:set_onclick(Functional.make_closure(self._on_click_roll_btn, self))
     self._roll_btn:set_active(false)
 
+    ---@type UIButton
+    self._pull_btn = UIHelp.attach_ui(UIButton, self._panel_root, "main_content/fight_view/pull_btn")
+    self._pull_btn:set_onclick(Functional.make_closure(self._on_click_pull_btn, self))
+    self._pull_btn:set_active(false)
+
     ---@type UIText
     self._bind_fight_state_txt = UIHelp.attach_ui(UIText, self._panel_root, "main_content/bind_fight_view/bind_fight_state")
     ---@type UIText
@@ -70,6 +75,7 @@ function UIFightPanel:_update_view()
     end
     self._bind_fight_btn:set_active(show_bind_fight_btn)
     self._roll_btn:set_active(self._game_play)
+    self._pull_btn:set_active(self._game_play)
 end
 
 function UIFightPanel:_on_release()
@@ -99,6 +105,12 @@ end
 function UIFightPanel:_on_click_roll_btn()
     if self._game_play then
         self._game_play:req_roll()
+    end
+end
+
+function UIFightPanel:_on_click_pull_btn()
+    if self._game_play then
+        self._game_play:pull_state()
     end
 end
 

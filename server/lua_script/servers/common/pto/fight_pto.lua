@@ -55,6 +55,14 @@ setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.req_fight_opera, "ReqFightOper
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rsp_fight_opera, "RspFightOpera")
 
 
+-- Two Dice Pto
+Fight_Pid.two_dice_sync_round = 100 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_sync_round, "TwoDiceRound")
+
+Fight_Pid.two_dice_notify_round = 101 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_notify_round, "TwoDiceNotifyRound")
+
+
 
 
 
