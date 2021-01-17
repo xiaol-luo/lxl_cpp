@@ -9,6 +9,8 @@ function FightLogic:ctor(logic_mgr)
     self._fight_data = nil
     self.curr_room_key = nil
     self.curr_fight_key = nil
+    ---@type GamePlayBase
+    self._game_play = nil
 end
 
 function FightLogic:_on_start()
@@ -31,6 +33,9 @@ function FightLogic:_on_start()
             Functional.make_closure(self._on_event_in_game_state_enter, self))
     self._event_binder:bind(self.app.state_mgr, In_Game_State_Event.exit_state,
             Functional.make_closure(self._on_event_in_game_state_exit, self))
+
+    self._event_binder:bind(self._fight_data, Fight_Data_Event.bind_fight_state_change,
+            Functional.make_closure(self._on_event_bind_fight_state_change, self))
 end
 
 function FightLogic:_on_event_ask_enter_room(ev_data)
@@ -92,7 +97,7 @@ function FightLogic:enter_fight(room_key, fight_key)
         self._fight_data:try_extract_fight_data()
         self.app.state_mgr:change_in_game_state(In_Game_State_Name.fight)
         self.app.data_mgr.fight:bind_fight()
-        self.app.panel_mgr:open_panel(UI_Panel_Name.fight_panel, {})
+        self:setup_game_play(true, self._fight_data.match_theme, {})
     end
 end
 
@@ -104,7 +109,7 @@ function FightLogic:exit_fight()
     if self.app.state_mgr:in_state(App_State_Name.in_game, In_Game_State_Name.fight) then
         self.app.state_mgr:change_in_game_state(In_Game_State_Name.in_lobby)
     end
-    self.app.panel_mgr:close_panel(UI_Panel_Name.fight_panel)
+    self:setup_game_play(false, nil, nil)
 end
 
 function FightLogic:_on_event_in_game_state_enter(state_name, ev_param)
@@ -113,6 +118,38 @@ end
 
 function FightLogic:_on_event_in_game_state_exit(state_name)
     self.app.panel_mgr:close_panel(UI_Panel_Name.fight_panel)
+end
+
+---@param bind_fight_state Bind_Fight_State
+function FightLogic:_on_event_bind_fight_state_change(bind_fight_state, fight_key)
+    if self.curr_fight_key ~= fight_key then
+        return
+    end
+    if not self._game_play then
+        return
+    end
+    if Bind_Fight_State.ready == bind_fight_state then
+        self._game_play:resume()
+    else
+        self._game_play:pause()
+    end
+end
+
+function FightLogic:setup_game_play(is_setup, game_id, setup_data)
+    if self._game_play then
+        self._game_play:pause()
+        self._game_play:release()
+        self._game_play = nil
+    end
+    if not is_setup then
+        return
+    end
+    if game_id == "two_dice" then
+        self._game_play = GameTwoDice:new(self)
+        self._game_play:init(setup_data)
+        return
+    end
+    return nil
 end
 
 

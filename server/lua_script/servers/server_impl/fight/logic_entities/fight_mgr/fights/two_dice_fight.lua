@@ -33,7 +33,7 @@ function TwoDiceFight:_on_update()
     TwoDiceFight.super._on_update(self)
 
     if self._fight_start_sec and not self._fight_over then
-        if logic_sec() > self._fight_start_sec + 15 then
+        if logic_sec() > self._fight_start_sec + 120 then
             self._fight_over = true
         end
     end
@@ -43,8 +43,17 @@ function TwoDiceFight:is_over()
     return self._fight_over
 end
 
+---@param fight_role FightRole
 function TwoDiceFight:_on_opera(fight_role, msg)
-    -- override by subclass
+    local fight_opera = msg.opera
+    log_print("TwoDiceFight:_on_opera", fight_opera, fight_role.role_id)
+
+    if Two_Dice_Opera.roll == fight_opera then
+
+    end
+    if Two_Dice_Opera.pull_state == fight_opera then
+
+    end
     return Error_None
 end
 

@@ -186,7 +186,7 @@ function FightMgr:_on_msg_req_fight_opera(client, pid, msg)
         end
         ---@type FightBase
         local fight = fight_role.wt.fight
-        error_num = fight:handle_role_opera(fight_role)
+        error_num = fight:handle_role_opera(fight_role, msg)
     until true
     client:send_msg(Fight_Pid.rsp_fight_opera, {
         unique_id = msg.unique_id,
@@ -194,7 +194,6 @@ function FightMgr:_on_msg_req_fight_opera(client, pid, msg)
     })
 end
 
----@param fight_client FightClient
 function FightMgr:_on_event_fight_client_disconnect(netid)
     local fight_role = self:get_fight_role(netid)
     if fight_role then

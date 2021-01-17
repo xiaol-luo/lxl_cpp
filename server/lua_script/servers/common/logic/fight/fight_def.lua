@@ -32,4 +32,8 @@ Room_State.in_fight = "in_fight"
 Room_State.all_over = "all_over"
 
 
+---@class Two_Dice_Opera
+Two_Dice_Opera = {}
+Two_Dice_Opera.roll = "roll"
+Two_Dice_Opera.pull_state = "pull_state"
 

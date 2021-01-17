@@ -2,7 +2,8 @@
 ---@class Fight_Data_Event
 Fight_Data_Event = {}
 
-Fight_Data_Event.bind_fight_state_chanage = "Fight_Data_Event.bind_fight_state_chanage"
+Fight_Data_Event.bind_fight_state_change = "Fight_Data_Event.bind_fight_state_change"
+Fight_Data_Event.rsp_fight_opera = "Fight_Data_Event.rsp_fight_opera"
 
 ---@class Bind_Fight_State
 Bind_Fight_State = {}

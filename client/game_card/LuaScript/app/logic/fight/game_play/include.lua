@@ -5,13 +5,13 @@ return
         -- dir = ".",
         files =
         {
-			"fight_logic",
-			"fight_logic_def",
+			"game_play_base",
+			"game_play_def",
 
         },
         includes =
         {
-			"game_play.include",
+			"two_dice.include",
         },
     },
 }

@@ -1,5 +1,13 @@
 
 ---@class FightData:DataBase
+---@field server_ip
+---@field server_port
+---@field fight_key
+---@field token
+---@field room_key
+---@field match_theme
+---@field accept_fight_key
+---@field bind_fight_state Bind_Fight_State
 FightData = FightData or class("Fight", DataBase)
 
 assert(DataBase)
@@ -18,6 +26,7 @@ function FightData:ctor(data_mgr)
     self.fight_key = ""
     self.token = ""
     self.room_key = ""
+    self.match_theme = nil
     ---@type Bind_Fight_State
     self.bind_fight_state = Bind_Fight_State.idle
     self.accept_fight_key = nil
@@ -57,19 +66,22 @@ function FightData:unbind_fight()
 end
 
 function FightData:pull_fight_state()
-    self._gate_net:send_msg(Fight_Pid.pull_fight_state, {
+    self._fight_net:send_msg(Fight_Pid.pull_fight_state, {
 
     })
 end
 
-function FightData:req_fight_opera()
-    self._gate_net:send_msg(Fight_Pid.req_fight_opera, {
-
-    })
+function FightData:req_fight_opera(msg)
+    self._fight_net:send_msg(Fight_Pid.req_fight_opera, msg or {})
 end
 
 function FightData:_on_msg_rsp_bind_fight(pid, msg)
     log_print("FightData:_on_msg_rsp_bind_fight(pid, msg)", pid, msg)
+    if Error_None == msg.error_num then
+        self:_set_bind_fight_state(Bind_Fight_State.ready)
+    else
+        self:_set_bind_fight_state(msg.error_num)
+    end
 end
 
 function FightData:_on_msg_sync_fight_state_two_dice(pid, msg)
@@ -79,6 +91,7 @@ end
 
 function FightData:_on_msg_rsp_fight_opera(pid, msg)
     log_print("FightData:_on_msg_rsp_fight_opera(pid, msg)", pid, msg)
+    self:fire(Fight_Data_Event.rsp_fight_opera, msg)
 end
 
 function FightData:_on_event_fight_net_connect_done(is_ready, error_msg)
@@ -115,13 +128,14 @@ function FightData:try_extract_fight_data()
         self.fight_token = self._room_data.fight_data.token
         self.fight_key = self._room_data.fight_data.fight_key
         self.room_key = self._room_data.room_key
+        self.match_theme = self._room_data.match_theme
     end
 end
 
 ---@param val Bind_Fight_State
 function FightData:_set_bind_fight_state(val)
     self.bind_fight_state = val
-    self:fire(Fight_Data_Event.bind_fight_state_chanage, self.bind_fight_state, self.fight_key)
+    self:fire(Fight_Data_Event.bind_fight_state_change, self.bind_fight_state, self.fight_key)
 end
 
 function FightData:set_accept_fight_key(fight_key)
