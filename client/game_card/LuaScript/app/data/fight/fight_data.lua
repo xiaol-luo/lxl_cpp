@@ -85,12 +85,10 @@ function FightData:_on_msg_rsp_bind_fight(pid, msg)
 end
 
 function FightData:_on_msg_sync_fight_state_two_dice(pid, msg)
-    log_print("FightData:_on_msg_sync_fight_state_two_dice(pid, msg)", pid, msg)
 
 end
 
 function FightData:_on_msg_rsp_fight_opera(pid, msg)
-    log_print("FightData:_on_msg_rsp_fight_opera(pid, msg)", pid, msg)
     self:fire(Fight_Data_Event.rsp_fight_opera, msg)
 end
 
