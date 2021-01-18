@@ -129,5 +129,26 @@ function FightBase:_collect_fight_state_data()
     -- return msg_id, msg
 end
 
+function FightBase:_broadcast_to_roles(pid, msg)
+    for _, fight_role in pairs(self._id_to_role) do
+        if fight_role.wt.client then
+            fight_role.wt.client:send_msg(pid, msg)
+        end
+    end
+end
+
+function FightBase:_send_to_role(role_id, pid, msg)
+    local fight_role = self:get_fight_role(role_id)
+    if fight_role then
+        if fight_role.wt.client then
+            fight_role.wt.client:send_msg(pid, msg)
+        end
+    end
+end
+
+function FightBase:get_fight_role(role_id)
+    return self._id_to_role[role_id]
+end
+
 
 

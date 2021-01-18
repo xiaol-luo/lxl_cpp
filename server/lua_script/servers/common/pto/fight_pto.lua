@@ -44,9 +44,7 @@ setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rsp_bind_fight, "RspBindFight"
 
 -- 同步战斗状态
 Fight_Pid.pull_fight_state = 53 + Pto_Const.fight_min_pto_id
-Fight_Pid.sync_fight_state_two_dice = 54 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.pull_fight_state, "PullFightState")
-setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.sync_fight_state_two_dice, "SyncFightStateTwoDice")
 
 -- 战斗操作
 Fight_Pid.req_fight_opera = 55 + Pto_Const.fight_min_pto_id
@@ -56,14 +54,14 @@ setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.rsp_fight_opera, "RspFightOper
 
 
 -- Two Dice Pto
-Fight_Pid.two_dice_sync_round = 100 + Pto_Const.fight_min_pto_id
-setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_sync_round, "TwoDiceRound")
+Fight_Pid.two_dice_sync_curr_round = 100 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_sync_curr_round, "TwoDiceRound")
 
-Fight_Pid.two_dice_notify_round = 101 + Pto_Const.fight_min_pto_id
+Fight_Pid.two_dice_sync_brief_state = 101 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_notify_round, "TwoDiceNotifyRound")
 
-
-
+Fight_Pid.two_dice_sync_fight_state = 102 + Pto_Const.fight_min_pto_id
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_sync_fight_state, "TwoDiceSyncFightState")
 
 
 

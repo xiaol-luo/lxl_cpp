@@ -86,7 +86,7 @@ message ReqFightOpera
 
 message RspFightOpera
 {
-	int64 unique_id = 1
+	int64 unique_id = 1;
 	int32 error_num = 2;
 }
 
@@ -110,27 +110,25 @@ message TwoDiceRollResult
 message TwoDiceRound
 {
 	int32 round = 1;
-	map<int64, TwoDiceRollResult> roll_results = 2;
+	repeated TwoDiceRollResult roll_results = 2;
 }
 
-message TwoDiceNotifyRound
-{
-	int32 round = 1;
-	int32 left_secs = 2;
-}
-
-message SyncFightStateTwoDice
+message TwoDiceSyncFightState
 {
 	FightCommonState common_state = 1
-	repeated TwoDiceRound rounds = 2;
-	repeated int64 role_ids = 3;
-	TwoDiceNotifyRound curr_round = 4;
+	repeated int64 join_role_ids = 2;
+	repeated TwoDiceRound history_rounds = 2;
+	TwoDiceRound curr_round = 4;
+	int32 fight_start_sec = 5;
+	string fight_state = 6;
 }
 
-
-
-
-
+message TwoDiceBriefState
+{
+	int32 fight_start_sec = 1;
+	string fight_state = 2;
+	int32 curr_round = 3;
+}
 
 
 

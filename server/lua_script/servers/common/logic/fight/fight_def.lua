@@ -34,6 +34,18 @@ Room_State.all_over = "all_over"
 
 ---@class Two_Dice_Opera
 Two_Dice_Opera = {}
+Two_Dice_Opera.notify_ready_to_fight = "notify_ready_to_fight"
 Two_Dice_Opera.roll = "roll"
 Two_Dice_Opera.pull_state = "pull_state"
+
+---@class Two_Dice_Fight_State
+Two_Dice_Fight_State = {}
+Two_Dice_Fight_State.idle = "idle"
+Two_Dice_Fight_State.wait_role_ready_to_fight = "wait_role_ready_to_fight"
+Two_Dice_Fight_State.fighting = "fighting"
+Two_Dice_Fight_State.all_over = "all_over"
+
+Two_Dice_Max_Round = 3
+
+
 

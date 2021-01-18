@@ -13,12 +13,17 @@ end
 function GameTwoDice:_on_init(setup_data)
     self._event_binder:bind(self._fight_data, Fight_Data_Event.rsp_fight_opera,
             Functional.make_closure(self._on_msg_rsp_fight_opera, self))
-    self._event_binder:bind(self.app.net_mgr, Fight_Pid.sync_fight_state_two_dice,
-            Functional.make_closure(self._on_msg_sync_fight_state_two_dice, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.two_dice_sync_fight_state,
+            Functional.make_closure(self._on_msg_sync_fight_state, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.two_dice_sync_brief_state,
+            Functional.make_closure(self._on_msg_sync_brief_state, self))
+    self._event_binder:bind(self.app.net_mgr, Fight_Pid.two_dice_sync_curr_round,
+            Functional.make_closure(self._on_msg_sync_curr_round, self))
 end
 
 function GameTwoDice:_on_resume()
-    self:check_show_figh_panel(true)
+    self:check_show_fight_panel(true)
+    self:notify_ready_to_fight()
 end
 
 function GameTwoDice:_on_pause()
@@ -26,10 +31,10 @@ function GameTwoDice:_on_pause()
 end
 
 function GameTwoDice:_on_release()
-    self:check_show_figh_panel(false)
+    self:check_show_fight_panel(false)
 end
 
-function GameTwoDice:check_show_figh_panel(is_show)
+function GameTwoDice:check_show_fight_panel(is_show)
     if not is_show then
         self.app.panel_mgr:close_panel(UI_Panel_Name.fight_panel)
     else
@@ -50,11 +55,26 @@ function GameTwoDice:pull_state()
     self.app.data_mgr.fight:pull_fight_state()
 end
 
+function GameTwoDice:notify_ready_to_fight()
+    self.app.data_mgr.fight:req_fight_opera({
+        unique_id = self:next_seq(),
+        opera = Two_Dice_Opera.notify_ready_to_fight,
+    })
+end
+
 function GameTwoDice:_on_msg_rsp_fight_opera(msg)
     log_print("GameTwoDice:_on_msg_rsp_fight_opera", msg)
 end
 
-function GameTwoDice:_on_msg_sync_fight_state_two_dice(pid, msg)
-    log_print("GameTwoDice:_on_msg_sync_fight_state_two_dice", pid, msg)
+function GameTwoDice:_on_msg_sync_fight_state(pid, msg)
+    log_print("GameTwoDice:_on_msg_sync_fight_state", pid, msg)
+end
+
+function GameTwoDice._on_msg_sync_brief_state(pid, msg)
+    log_print("GameTwoDice:_on_msg_sync_brief_state", pid, msg)
+end
+
+function GameTwoDice:_on_msg_sync_curr_round(pid, msg)
+    log_print("GameTwoDice:_on_msg_sync_brief_state", pid, msg)
 end
 

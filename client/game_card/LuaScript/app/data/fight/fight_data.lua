@@ -40,7 +40,7 @@ function FightData:_on_start()
     self._fight_net = self.app.net_mgr.fight_net
 
     self._event_binder:bind(self.app.net_mgr, Fight_Pid.rsp_bind_fight, Functional.make_closure(self._on_msg_rsp_bind_fight, self))
-    -- self._event_binder:bind(self.app.net_mgr, Fight_Pid.sync_fight_state_two_dice, Functional.make_closure(self._on_msg_sync_fight_state_two_dice, self))
+    -- self._event_binder:bind(self.app.net_mgr, Fight_Pid.two_dice_sync_fight_state, Functional.make_closure(self._on_msg_sync_fight_state_two_dice, self))
     self._event_binder:bind(self.app.net_mgr, Fight_Pid.rsp_fight_opera, Functional.make_closure(self._on_msg_rsp_fight_opera, self))
     self._event_binder:bind(self.app.net_mgr, Game_Net_Event.fight_connect_done, Functional.make_closure(self._on_event_fight_net_connect_done, self))
     self._event_binder:bind(self.app.net_mgr, Game_Net_Event.fight_connect_ready_change, Functional.make_closure(self._on_event_fight_connect_ready_change, self))
