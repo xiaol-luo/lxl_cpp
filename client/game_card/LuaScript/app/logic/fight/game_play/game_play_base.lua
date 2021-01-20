@@ -15,11 +15,12 @@ function GamePlayBase:ctor(fight_logic, game_name)
 end
 
 function GamePlayBase:init(setup_data)
-    self._game_state = Game_Play_State.pause
     self:_on_init(setup_data)
+    self._game_state = Game_Play_State.pause
 end
 
 function GamePlayBase:resume()
+    log_print("GamePlayBase:resume ", Game_Play_State.pause == self._game_state)
     if Game_Play_State.pause == self._game_state then
         self._game_state = Game_Play_State.resume
         self:_on_resume()

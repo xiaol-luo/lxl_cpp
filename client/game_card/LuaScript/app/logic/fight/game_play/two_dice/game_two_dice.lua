@@ -8,6 +8,15 @@ function GameTwoDice:ctor(fight_logic, game_name)
     self.app = self.fight_logic.app
     self._fight_data = self.app.data_mgr.fight
     self._fight_logic = self.app.logic_mgr.fight
+    self.main_role_id = self.app.data_mgr.main_role:get_role_id()
+
+
+    self.fight_full_state = nil
+    self.fight_brief_state = nil
+    self.curr_round_data = nil
+
+    self.fight_state = Two_Dice_Fight_State.idle
+    self.curr_round = 0
 end
 
 function GameTwoDice:_on_init(setup_data)
@@ -22,6 +31,7 @@ function GameTwoDice:_on_init(setup_data)
 end
 
 function GameTwoDice:_on_resume()
+    log_print("GameTwoDice:_on_resume")
     self:check_show_fight_panel(true)
     self:notify_ready_to_fight()
 end
@@ -68,13 +78,39 @@ end
 
 function GameTwoDice:_on_msg_sync_fight_state(pid, msg)
     log_print("GameTwoDice:_on_msg_sync_fight_state", pid, msg)
+    self.fight_full_state = msg
+    self:set_curr_round(self.fight_full_state.curr_round_data.round)
+    self:set_fight_state(self.fight_full_state.fight_state)
+    self:fire(Game_Two_Dice_Event.fight_data_change)
 end
 
-function GameTwoDice._on_msg_sync_brief_state(pid, msg)
+function GameTwoDice:_on_msg_sync_brief_state(pid, msg)
     log_print("GameTwoDice:_on_msg_sync_brief_state", pid, msg)
+    self.fight_brief_state = msg
+    self:set_curr_round(self.fight_brief_state.curr_round)
+    self:set_fight_state(self.fight_brief_state.fight_state)
+    self:fire(Game_Two_Dice_Event.fight_data_change)
 end
 
 function GameTwoDice:_on_msg_sync_curr_round(pid, msg)
-    log_print("GameTwoDice:_on_msg_sync_brief_state", pid, msg)
+    log_print("GameTwoDice:_on_msg_sync_curr_round", pid, msg)
+    self.curr_round_data = msg
+    self:set_curr_round(self.curr_round_data.round)
+    self:fire(Game_Two_Dice_Event.fight_data_change)
 end
 
+function GameTwoDice:set_fight_state(fight_state)
+    local old_val = self.fight_state
+    self.fight_state = fight_state
+    if self.fight_state ~= old_val then
+        self:fire(Game_Two_Dice_Event.fight_state_change, self.fight_state)
+    end
+end
+
+function GameTwoDice:set_curr_round(round)
+    local old_val = self.curr_round
+    self.curr_round = round
+    if self.curr_round ~= old_val then
+        self:fire(Game_Two_Dice_Event.curr_round_change, self.curr_round)
+    end
+end

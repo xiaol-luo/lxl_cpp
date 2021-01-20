@@ -129,6 +129,7 @@ function FightLogic:_on_event_bind_fight_state_change(bind_fight_state, fight_ke
         return
     end
     if Bind_Fight_State.ready == bind_fight_state then
+        log_print("FightLogic:_on_event_bind_fight_state_change resume")
         self._game_play:resume()
     else
         self._game_play:pause()

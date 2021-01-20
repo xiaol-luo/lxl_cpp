@@ -23,7 +23,7 @@ function UIText:set_text(text_str)
         return false
     end
     local real_text_str = tostring(text_str)
-    self.text_comp.text = tostring(real_text_str)
+    self.text_comp.text = real_text_str
     return true
 end
 
