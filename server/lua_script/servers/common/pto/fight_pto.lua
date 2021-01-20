@@ -58,13 +58,10 @@ Fight_Pid.two_dice_sync_curr_round = 100 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_sync_curr_round, "TwoDiceRound")
 
 Fight_Pid.two_dice_sync_brief_state = 101 + Pto_Const.fight_min_pto_id
-setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_notify_round, "TwoDiceNotifyRound")
+setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_sync_brief_state, "TwoDiceBriefState")
 
 Fight_Pid.two_dice_sync_fight_state = 102 + Pto_Const.fight_min_pto_id
 setup_id_to_pb_pto(Fight_Pto.id_to_pto, Fight_Pid.two_dice_sync_fight_state, "TwoDiceSyncFightState")
-
-
-
 
 
 

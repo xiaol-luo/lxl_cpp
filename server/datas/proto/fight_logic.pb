@@ -117,7 +117,7 @@ message TwoDiceSyncFightState
 {
 	FightCommonState common_state = 1
 	repeated int64 join_role_ids = 2;
-	repeated TwoDiceRound history_rounds = 2;
+	repeated TwoDiceRound history_rounds = 3;
 	TwoDiceRound curr_round = 4;
 	int32 fight_start_sec = 5;
 	string fight_state = 6;

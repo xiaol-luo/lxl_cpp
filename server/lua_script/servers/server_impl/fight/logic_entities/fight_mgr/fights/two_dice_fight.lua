@@ -62,7 +62,7 @@ function TwoDiceFight:_on_update()
     if self._fight_start_sec and not self:is_over() then
         if logic_sec() > self._fight_start_sec + 120 then
             self._fight_state = Two_Dice_Fight_State.all_over
-            self:sync_brief_state()
+            self:_sync_brief_state()
         end
     end
 
@@ -81,15 +81,15 @@ function TwoDiceFight:_on_opera(fight_role, msg)
 
     local ret = Error_Unknown
     if Two_Dice_Opera.notify_ready_to_fight == fight_opera then
-        ret = self:_on_opera_notify_ready_to_fight(fight_opera, opera_params)
+        ret = self:_on_opera_notify_ready_to_fight(fight_role, opera_params)
     end
 
     if Two_Dice_Opera.roll == fight_opera then
-        ret = self:_on_opera_roll(fight_opera, opera_params)
+        ret = self:_on_opera_roll(fight_role, opera_params)
     end
 
     if Two_Dice_Opera.pull_state == fight_opera then
-        ret = self:_on_opera_pull_state(fight_opera, opera_params)
+        ret = self:_on_opera_pull_state(fight_role, opera_params)
     end
     return ret
 end
@@ -112,7 +112,8 @@ function TwoDiceFight:_collect_fight_state_data()
 end
 
 ---@param fight_role FightRole
-function TwoDiceFight._on_opera_notify_ready_to_fight(fight_role, opera_param)
+function TwoDiceFight:_on_opera_notify_ready_to_fight(fight_role, opera_param)
+    log_print("TwoDiceFight:_on_opera_notify_ready_to_fight", fight_role.role_id)
     local role_id = fight_role.role_id
     if not self._can_join_role_map[role_id] then
         return Error_Unknown
@@ -129,13 +130,14 @@ function TwoDiceFight._on_opera_notify_ready_to_fight(fight_role, opera_param)
         end
         if all_ready then
             self._fight_state = Two_Dice_Fight_State.fighting
+            self:_check_next_round(true)
         end
     end
     return Error_None
 end
 
 ---@param fight_role FightRole
-function TwoDiceFight._on_opera_roll(fight_role, opera_param)
+function TwoDiceFight:_on_opera_roll(fight_role, opera_param)
     local ret = Error_None
     local role_id = fight_role.role_id
     if not self._can_join_role_map[role_id] then
@@ -151,7 +153,7 @@ function TwoDiceFight._on_opera_roll(fight_role, opera_param)
 end
 
 ---@param fight_role FightRole
-function TwoDiceFight._on_opera_pull_state(fight_role, opera_param)
+function TwoDiceFight:_on_opera_pull_state(fight_role, opera_param)
     self:_sync_brief_state(fight_role.role_id)
     return Error_None
 end
@@ -161,6 +163,7 @@ function TwoDiceFight:_on_offline_role(role_id, netid)
 end
 
 function TwoDiceFight:_check_next_round(is_force_next)
+    log_print("TwoDiceFight:_check_next_round", is_force_next, self._fight_state)
     if Two_Dice_Fight_State.fighting ~= self._fight_state then
         return
     end
@@ -215,9 +218,9 @@ end
 function TwoDiceFight:_round_to_msg(round)
     local msg = {}
     msg.round = round.round
-    self.roll_results = {}
+    msg.roll_results = {}
     for role_id, roll_point in pairs(round.roll_points) do
-        table.insert(self.roll_results, {
+        table.insert(msg.roll_results, {
             role_id = role_id,
             roll_point = roll_point,
         })
