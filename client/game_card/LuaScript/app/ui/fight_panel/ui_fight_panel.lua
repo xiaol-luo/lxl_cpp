@@ -133,9 +133,16 @@ function UIFightPanel:_update_view()
     then
         show_bind_fight_btn = false
     end
+
+    self._bind_fight_state_txt:set_text(string.format("state: %s", self._fight_data.bind_fight_state))
+
     self._bind_fight_btn:set_active(show_bind_fight_btn)
     self._roll_btn:set_active(self._game_play)
     self._pull_btn:set_active(self._game_play)
+
+    if not self._game_play then
+        return
+    end
 
     self._round_txt:set_text(self._game_play.curr_round)
     local roll_point = 0
