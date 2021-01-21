@@ -101,14 +101,14 @@ function TwoDiceFight:_collect_fight_state_data()
         is_over = self:is_over()
     }
     msg.join_role_ids = table.keys(self._can_join_role_map)
-    msg.history_round = {}
+    msg.history_rounds = {}
     for _, v in ipairs(self._history_rounds) do
-        table.insert(msg.history_round, self:_round_to_msg(v))
+        table.insert(msg.history_rounds, self:_round_to_msg(v))
     end
-    self._curr_round = self:_round_to_msg(self._curr_round)
+    msg.curr_round = self:_round_to_msg(self._curr_round)
     msg.fight_start_sec = self._fight_start_sec
     msg.fight_state = self._fight_state
-    return Fight_Pid.two_dice_sync_fight_state, msg
+    return Fight_Pid.two_dice_sync_fight_state , msg
 end
 
 ---@param fight_role FightRole

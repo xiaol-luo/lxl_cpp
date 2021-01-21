@@ -68,6 +68,8 @@ function UIFightPanel:_on_open(panel_data)
             Functional.make_closure(self._on_event_fight_state_change, self))
     self._game_play_event_binder:bind(self._game_play, Game_Two_Dice_Event.fight_data_change,
             Functional.make_closure(self._on_event_fight_data_change, self))
+
+    self._game_play:pull_state()
 end
 
 function UIFightPanel:_on_show_panel()
@@ -102,6 +104,7 @@ function UIFightPanel:_on_click_roll_btn()
     if self._game_play then
         -- self._game_play:notify_ready_to_fight()
         self._game_play:req_roll()
+        self._game_play:pull_state()
     end
 end
 
@@ -137,8 +140,7 @@ function UIFightPanel:_update_view()
     self._round_txt:set_text(self._game_play.curr_round)
     local roll_point = 0
     if self._game_play.curr_round_data then
-        log_print("self._game_play.curr_round_data.roll_results", self._game_play.curr_round_data.roll_results)
-        for _, elem in pairs(self._game_play.curr_round_data.roll_results) do
+        for _, elem in pairs(self._game_play.curr_round_data.roll_results or {}) do
             if elem.role_id == self._game_play.main_role_id then
                 roll_point = elem.roll_point
                 break
@@ -148,22 +150,22 @@ function UIFightPanel:_update_view()
     self._roll_point_txt:set_text(roll_point)
 
     local log_str_list = {}
-    if self._game_play.history_rounds then
-        for round in ipairs(self._game_play.history_rounds) do
+    if self._game_play.fight_full_state then
+        for _, round in ipairs(self._game_play.fight_full_state.history_rounds or {}) do
             local win_role_id = 0
             local win_point = 0
             local round_str_list = {}
-            table.insert(tostring(round_str_list, round.round))
-            for roll_result in ipairs(round.roll_results) do
+            for _, roll_result in ipairs(round.roll_results or {}) do
                 table.insert(round_str_list, string.format("%s->%s", roll_result.role_id, roll_result.roll_point))
                 if roll_result.roll_point > win_point then
                     win_role_id = roll_result.role_id
+                    win_point = roll_result.roll_point
                 end
             end
-            table.insert(log_str_list, string.format("winner:%s->%s, full_info:%s", win_role_id, win_point, table.concat(round_str_list, " ")))
+            table.insert(log_str_list, string.format("round:%s -- winner:%s->%s -- full_info:%s", round.round, win_role_id, win_point, table.concat(round_str_list, ";")))
         end
     end
-    self._log_txt = table.concat(log_str_list, "\n")
+    self._log_txt:set_text(table.concat(log_str_list, "\n"))
 end
 
 

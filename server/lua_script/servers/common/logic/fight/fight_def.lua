@@ -45,7 +45,7 @@ Two_Dice_Fight_State.wait_role_ready_to_fight = "wait_role_ready_to_fight"
 Two_Dice_Fight_State.fighting = "fighting"
 Two_Dice_Fight_State.all_over = "all_over"
 
-Two_Dice_Max_Round = 3
+Two_Dice_Max_Round = 20
 
 
 
