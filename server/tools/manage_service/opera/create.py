@@ -139,40 +139,38 @@ class ServiceHelper(object):
         return ret
 
 
-def create_zone(parse_ret):
-    zone_dir = config.cal_zone_dir_path(parse_ret)
-    os.makedirs(zone_dir, exist_ok=True)
-    zone_share_dir = config.cal_zone_share_dir_path(parse_ret)
-    os.makedirs(zone_share_dir, exist_ok=True)
-    setting_dir = config.cal_zone_setting_dir_path(parse_ret)
-    os.makedirs(setting_dir, exist_ok=True)
-    setting = config.get_service_setting(parse_ret.zone)
-    print(setting)
-    tt_all_service_config = auto_gen.get_template("service_setting/all_service_config.xml")
-    print(tt_all_service_config.render(setting))
-    config.write_file(config.cal_zone_all_config_file_path(parse_ret), tt_all_service_config.render(setting))
+def create_etcd_cluster(parse_ret):
+    setting = config.gen_etcd_setting(parse_ret)
+    for node in setting.node_map.values():
+        auto_gen.render("etcd/etcd.conf.yaml", {
+            "node": node,
+            "cluster": setting,
+        })
 
+
+def create_redis_cluster(parse_ret):
+    pass
+
+
+def create_mongo_cluster(parse_ret):
+    pass
+
+
+def create_game_server(parse_ret):
+    pass
+
+
+def create_zone(parse_ret):
+    os.makedirs(config.cal_zone_dir_path(parse_ret), exist_ok=True)
+
+    os.makedirs(os.path.dirname(config.cal_zone_dir_path(parse_ret)), exist_ok=True)
     config.relink(config.cal_zone_script_dir_path(parse_ret), os.path.join(parse_ret.code_dir, "lua_script"), True)
+
+    os.makedirs(os.path.dirname(config.cal_zone_proto_dir_path(parse_ret)), exist_ok=True)
     config.relink(config.cal_zone_proto_dir_path(parse_ret), os.path.join(parse_ret.code_dir, "datas/proto"), True)
 
-    service_helps = {
-        config.Service_Type.platform: ServiceHelper("platform", parse_ret, setting),
-        config.Service_Type.auth: ServiceHelper("auth", parse_ret, setting),
-        config.Service_Type.login: ServiceHelper("login", parse_ret, setting),
-        config.Service_Type.gate: ServiceHelper("gate", parse_ret, setting),
-        config.Service_Type.world: ServiceHelper("world", parse_ret, setting),
-        config.Service_Type.game: ServiceHelper("game", parse_ret, setting),
-        config.Service_Type.robot: ServiceHelper("robot", parse_ret, setting),
-        config.Service_Type.match: ServiceHelper("match", parse_ret, setting),
-        config.Service_Type.fight: ServiceHelper("fight", parse_ret, setting),
-        config.Service_Type.room: ServiceHelper("room", parse_ret, setting),
-    }
-    service_Infos = []
-    for service_type, service_data in service_helps.items():
-        service_data.setup_services()
-        service_Infos.extend(service_data.extract_info())
-    render_ret, render_content = auto_gen.render("service_setting/do_manage_service.txt", service_Infos=service_Infos)
-    assert (render_ret)
-    config.write_file(config.cal_zone_manage_service_file_path(parse_ret), render_content)
-    print(service_Infos)
+    create_etcd_cluster(parse_ret)
+    create_redis_cluster(parse_ret)
+    create_mongo_cluster(parse_ret)
+    create_game_server(parse_ret)
 

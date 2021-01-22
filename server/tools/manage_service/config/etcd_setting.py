@@ -21,6 +21,13 @@ class EtcdClusterSetting(object):
         self.auth_pwd = ""
         self.ttl = 10
 
+    def get_peer_hosts(self):
+        str_list = []
+        for node in self.node_map.values():
+            str_list.append("{}=http://{}:{}".format(node.name, node.peer_ip, node.peer_port))
+        ret = str.join(str_list, ",")
+        return ret
+
 
 def gen_setting(parse_ret):
     ret = EtcdClusterSetting()
@@ -36,7 +43,7 @@ def gen_setting(parse_ret):
     for i in range(0, 2):
         node = EtcdNodeSetting()
         node.name = "etcd_{}".format(i)
-        node.data_dir = "{}/run/{}".format(cluster_dir, node.name)
+        node.data_dir = "{}/{}".format(cluster_dir, node.name)
         node.client_port = begin_client_port + port_advance_step * i
         node.peer_port = begin_peer_port + i + port_advance_step * i
         node.client_ip = "127.0.0.1"
