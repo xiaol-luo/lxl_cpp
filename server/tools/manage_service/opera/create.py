@@ -1,5 +1,6 @@
 import auto_gen
 import platform
+import os
 from .common import *
 import config
 import stat
@@ -11,7 +12,6 @@ class ServiceHelper(object):
         self.parse_ret = parse_ret
         self.setting = setting
 
-
     @property
     def run_setting_file(self):
         return "run_setting.xml"
@@ -22,7 +22,7 @@ class ServiceHelper(object):
 
     @property
     def bin_file_name(self):
-        if is_win_platform():
+        if config.is_win_platform():
             return "service.exe"
         else:
             return "service"
@@ -48,7 +48,7 @@ class ServiceHelper(object):
         return "proto"
 
     def setup_cmds(self, params):
-        if is_win_platform():
+        if config.is_win_platform():
             self.setup_win_cmds(params)
         else:
             self.setup_linux_cmds(params)
@@ -63,12 +63,11 @@ class ServiceHelper(object):
             params["script_dir"],
             params["bin_dir"]
         )
-        write_file(os.path.join(params["service_dir"], "run.bat"), run_cmd)
+        config.write_file(os.path.join(params["service_dir"], "run.bat"), run_cmd)
         stop_cmd = "taskkill /f /t /im service.exe"
-        write_file(os.path.join(params["service_dir"], "stop.bat"), stop_cmd)
+        config.write_file(os.path.join(params["service_dir"], "stop.bat"), stop_cmd)
         ps_cmd = """ tasklist /fi "imagename eq service.exe" """
-        write_file(os.path.join(params["service_dir"], "ps.bat"), ps_cmd)
-
+        config.write_file(os.path.join(params["service_dir"], "ps.bat"), ps_cmd)
 
     def setup_linux_cmds(self, params):
         run_cmd = "{0} {1} {2} {3} {4} {5} --lua_args_begin-- -lua_path . -c_path . {6} -require_files services.main  -execute_fns start_script 2>&1 1>/dev/null &".format(
@@ -82,38 +81,38 @@ class ServiceHelper(object):
         )
         sh_mod = stat.S_IRWXU | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH
         run_sh_path = os.path.join(params["service_dir"], "run.sh")
-        write_file(run_sh_path, run_cmd)
+        config.write_file(run_sh_path, run_cmd)
         os.chmod(run_sh_path, mode=sh_mod)
-        stop_cmd = """ for pid in `ps -ef | grep '{0}' | grep -v 'grep' | awk '{1}' `; do kill -9 $pid; done """.format(params["bin_file"], "{print $2}")
+        stop_cmd = """ for pid in `ps -ef | grep '{0}' | grep -v 'grep' | awk '{1}' `; do kill -9 $pid; done """.format(
+            params["bin_file"], "{print $2}")
         stop_sh_path = os.path.join(params["service_dir"], "stop.sh")
-        write_file(stop_sh_path, stop_cmd)
+        config.write_file(stop_sh_path, stop_cmd)
         os.chmod(stop_sh_path, mode=sh_mod)
         ps_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(params["bin_file"])
         ps_sh_path = os.path.join(params["service_dir"], "ps.sh")
-        write_file(ps_sh_path, ps_cmd)
+        config.write_file(ps_sh_path, ps_cmd)
         os.chmod(ps_sh_path, mode=sh_mod)
-
 
     def setup_services(self):
         for i, cfg in enumerate(self.setting[self.config_name]):
             idx = cfg.get("idx", i)
-            service_dir = cal_zone_service_dir_path(self.parse_ret, self.role, idx)
+            service_dir = config.cal_zone_service_dir_path(self.parse_ret, self.role, idx)
             os.makedirs(service_dir, exist_ok=True)
             datas_dir = os.path.join(service_dir, self.datas_dir)
             os.makedirs(datas_dir, exist_ok=True)
             setting_dir = os.path.join(datas_dir, self.setting_dir)
-            relink(setting_dir, cal_zone_setting_dir_path(self.parse_ret), True)
+            config.relink(setting_dir, config.cal_zone_setting_dir_path(self.parse_ret), True)
             script_dir = os.path.join(service_dir, self.script_dir)
-            relink(script_dir, cal_zone_script_dir_path(self.parse_ret), True)
+            config.relink(script_dir, config.cal_zone_script_dir_path(self.parse_ret), True)
             proto_dir = os.path.join(datas_dir, self.proto_dir)
-            relink(proto_dir, cal_zone_proto_dir_path(self.parse_ret), True)
+            config.relink(proto_dir, config.cal_zone_proto_dir_path(self.parse_ret), True)
             setting_tt_path = "service_setting/{0}.xml".format(self.role)
             ret, setting_content = auto_gen.render(setting_tt_path, cfg)
-            assert(ret)
+            assert (ret)
             run_setting_file = os.path.join(datas_dir, self.run_setting_file)
-            write_file(run_setting_file, setting_content)
+            config.write_file(run_setting_file, setting_content)
             bin_dir = os.path.join(service_dir, self.bin_dir)
-            relink(bin_dir, self.parse_ret.exe_dir, True)
+            config.relink(bin_dir, self.parse_ret.exe_dir, True)
             cmd_params = {
                 "service_dir": service_dir,
                 "bin_dir": os.path.abspath(bin_dir).replace("\\", "/"),
@@ -130,7 +129,8 @@ class ServiceHelper(object):
         ret = []
         for i, cfg in enumerate(self.setting[self.config_name]):
             idx = cfg.get("idx", i)
-            service_dir = os.path.abspath(cal_zone_service_dir_path(self.parse_ret, self.role, idx)).replace("\\", "/")
+            service_dir = os.path.abspath(
+                config.cal_zone_service_dir_path(self.parse_ret, self.role, idx)).replace("\\", "/")
             ret.append({
                 "role": cfg["role"],
                 "idx": idx,
@@ -139,36 +139,21 @@ class ServiceHelper(object):
         return ret
 
 
-
-def write_file(file_path, content):
-    if content is not None:
-        with open(file_path, "w") as f:
-            f.write(content)
-
-
-def relink(link_path, real_path, is_dir):
-    if os.path.lexists(link_path):
-        assert(os.path.islink(link_path))
-        os.remove(link_path)
-    assert(os.path.lexists(real_path))
-    os.symlink(real_path, link_path, is_dir)
-
-
-
 def create_zone(parse_ret):
-    zone_dir = cal_zone_dir_path(parse_ret)
+    zone_dir = config.cal_zone_dir_path(parse_ret)
     os.makedirs(zone_dir, exist_ok=True)
-    zone_share_dir = cal_zone_share_dir_path(parse_ret)
+    zone_share_dir = config.cal_zone_share_dir_path(parse_ret)
     os.makedirs(zone_share_dir, exist_ok=True)
-    setting_dir = cal_zone_setting_dir_path(parse_ret)
+    setting_dir = config.cal_zone_setting_dir_path(parse_ret)
     os.makedirs(setting_dir, exist_ok=True)
     setting = config.get_service_setting(parse_ret.zone)
     print(setting)
     tt_all_service_config = auto_gen.get_template("service_setting/all_service_config.xml")
     print(tt_all_service_config.render(setting))
-    write_file(cal_zone_all_config_file_path(parse_ret), tt_all_service_config.render(setting))
-    relink(cal_zone_script_dir_path(parse_ret), os.path.join(parse_ret.code_dir, "lua_script"), True)
-    relink(cal_zone_proto_dir_path(parse_ret), os.path.join(parse_ret.code_dir, "datas/proto"), True)
+    config.write_file(config.cal_zone_all_config_file_path(parse_ret), tt_all_service_config.render(setting))
+
+    config.relink(config.cal_zone_script_dir_path(parse_ret), os.path.join(parse_ret.code_dir, "lua_script"), True)
+    config.relink(config.cal_zone_proto_dir_path(parse_ret), os.path.join(parse_ret.code_dir, "datas/proto"), True)
 
     service_helps = {
         config.Service_Type.platform: ServiceHelper("platform", parse_ret, setting),
@@ -187,12 +172,7 @@ def create_zone(parse_ret):
         service_data.setup_services()
         service_Infos.extend(service_data.extract_info())
     render_ret, render_content = auto_gen.render("service_setting/do_manage_service.txt", service_Infos=service_Infos)
-    assert(render_ret)
-    write_file(cal_zone_manage_service_file_path(parse_ret), render_content)
+    assert (render_ret)
+    config.write_file(config.cal_zone_manage_service_file_path(parse_ret), render_content)
     print(service_Infos)
 
-
-
-def __execute2(parse_ret):
-    print("opera create execute2")
-    pass
