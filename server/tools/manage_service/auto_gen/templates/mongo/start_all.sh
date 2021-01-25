@@ -6,15 +6,6 @@
 
 mongodb_keyfile=./mongodb-keyfile
 
-root_dir="{{ cluster.work_dir }}"
-run_dir="{{ cluster.run_dir }}"
-
-replica_num=3
-declare -a rs_names=("rs_cfg" "rs_1" "rs_2" "rs_3")
-declare -a rs_froms=(9000 9100 9200 9300)
-
-
-
 is_init=false
 
 typeset -l low_case_str
@@ -26,7 +17,7 @@ if [ $# -ge 1 ];then
 fi
 
 pre_dir=`pwd`
-cd ${root_dir}
+cd {{ cluster.work_dir }}
 
 sh stop_all.sh
 
