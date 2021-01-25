@@ -74,7 +74,7 @@ def cal_path_redis_cluster_dir(parse_ret):
 
 
 def cal_path_mongo_cluster_dir(parse_ret):
-    return os.path.join(cal_zone_dir_path(parse_ret), "redis_cluster")
+    return os.path.join(cal_zone_dir_path(parse_ret), "mongo_cluster")
 
 
 def is_win_platform():
@@ -98,6 +98,8 @@ def next_num_fn(next_num):
 
 def write_file(file_path, content):
     if content is not None:
+        dir_path = os.path.dirname(file_path)
+        os.makedirs(dir_path, exist_ok=True)
         with open(file_path, "w") as f:
             f.write(content)
 
