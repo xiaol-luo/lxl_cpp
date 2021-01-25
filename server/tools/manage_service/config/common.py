@@ -19,7 +19,6 @@ class Service_Type(IntEnum):
     create_role = 11
 
 
-
 def parse_zone_name(zone_name):
     print("parse_zone_name {}".format(zone_name))
     ret = re.match(r"(\S+)_(\d+)", zone_name)
@@ -33,48 +32,51 @@ def cal_zone_name(zone, id):
     return "{0}_{1}".format(zone, id)
 
 
+def fix_path(path_val):
+    return path_val.replace("\\", "/")
+
 def cal_zone_dir_path(parse_ret):
-    return os.path.abspath(os.path.join(parse_ret.work_dir, parse_ret.zone))
+    return os.path.abspath(os.path.join(parse_ret.work_dir, parse_ret.zone)).replace("\\", "/")
 
 
 def cal_zone_service_dir_path(parse_ret, service_name, idx):
-    return os.path.join(cal_zone_dir_path(parse_ret), "{}_{}".format(service_name, idx))
+    return os.path.join(cal_zone_dir_path(parse_ret), "{}_{}".format(service_name, idx)).replace("\\", "/")
 
 
 def cal_zone_share_dir_path(parse_ret):
-    return os.path.join(cal_zone_dir_path(parse_ret), "share")
+    return os.path.join(cal_zone_dir_path(parse_ret), "share").replace("\\", "/")
 
 
 def cal_zone_setting_dir_path(parse_ret):
-    return os.path.join(cal_zone_share_dir_path(parse_ret), "setting")
+    return os.path.join(cal_zone_share_dir_path(parse_ret), "setting").replace("\\", "/")
 
 
 def cal_zone_all_config_file_path(parse_ret):
-    return os.path.join(cal_zone_setting_dir_path(parse_ret), "all_service_config.xml")
+    return os.path.join(cal_zone_setting_dir_path(parse_ret), "all_service_config.xml").replace("\\", "/")
 
 
 def cal_zone_proto_dir_path(parse_ret):
-    return os.path.join(cal_zone_share_dir_path(parse_ret), "proto")
+    return os.path.join(cal_zone_share_dir_path(parse_ret), "proto").replace("\\", "/")
 
 
 def cal_zone_script_dir_path(parse_ret):
-    return os.path.join(cal_zone_share_dir_path(parse_ret), "lua_script")
+    return os.path.join(cal_zone_share_dir_path(parse_ret), "lua_script").replace("\\", "/")
 
 
 def cal_zone_manage_service_file_path(parse_ret):
-    return os.path.join(cal_zone_dir_path(parse_ret), "do_manage_service.py")
+    return os.path.join(cal_zone_dir_path(parse_ret), "do_manage_service.py").replace("\\", "/")
 
 
 def cal_path_etcd_cluster_dir(parse_ret):
-    return os.path.join(cal_zone_dir_path(parse_ret), "etcd_cluster")
+    return os.path.join(cal_zone_dir_path(parse_ret), "etcd_cluster").replace("\\", "/")
 
 
 def cal_path_redis_cluster_dir(parse_ret):
-    return os.path.join(cal_zone_dir_path(parse_ret), "redis_cluster")
+    return os.path.join(cal_zone_dir_path(parse_ret), "redis_cluster").replace("\\", "/")
 
 
 def cal_path_mongo_cluster_dir(parse_ret):
-    return os.path.join(cal_zone_dir_path(parse_ret), "mongo_cluster")
+    return os.path.join(cal_zone_dir_path(parse_ret), "redis_cluster").replace("\\", "/")
 
 
 def is_win_platform():
@@ -98,8 +100,7 @@ def next_num_fn(next_num):
 
 def write_file(file_path, content):
     if content is not None:
-        dir_path = os.path.dirname(file_path)
-        os.makedirs(dir_path, exist_ok=True)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, "w") as f:
             f.write(content)
 
@@ -109,4 +110,5 @@ def relink(link_path, real_path, is_dir):
         assert (os.path.islink(link_path))
         os.remove(link_path)
     assert (os.path.lexists(real_path))
-    os.symlink(real_path, link_path, is_dir)
+    os.makedirs(os.path.dirname(real_path), exist_ok=True)
+    # os.symlink(real_path, link_path, is_dir)

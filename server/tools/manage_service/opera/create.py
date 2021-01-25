@@ -142,14 +142,25 @@ class ServiceHelper(object):
 def create_etcd_cluster(parse_ret):
     setting = config.gen_etcd_setting(parse_ret)
     for node in setting.node_map.values():
-        auto_gen.render("etcd/etcd.conf.yaml", {
+        is_ok, ret_txt = auto_gen.render("etcd/etcd.conf.yaml", {
             "node": node,
             "cluster": setting,
         })
+        ret_file_path = os.path.join(setting.work_dir, "{}.conf.yaml".format(node.name))
+        config.write_file(ret_file_path, ret_txt)
+        print(ret_txt)
 
 
 def create_redis_cluster(parse_ret):
-    pass
+    setting = config.gen_redis_setting(parse_ret)
+    for node in setting.node_map.values():
+        is_ok, ret_txt = auto_gen.render("redis/redis.conf", {
+            "node": node,
+            "cluster": setting,
+        })
+        ret_file_path = os.path.join(setting.work_dir, "{}.conf".format(node.name))
+        config.write_file(ret_file_path, ret_txt)
+        print(ret_txt)
 
 
 def create_mongo_cluster(parse_ret):
@@ -197,8 +208,8 @@ def create_zone(parse_ret):
     # os.makedirs(os.path.dirname(config.cal_zone_proto_dir_path(parse_ret)), exist_ok=True)
     # config.relink(config.cal_zone_proto_dir_path(parse_ret), os.path.join(parse_ret.code_dir, "datas/proto"), True)
 
-    # create_etcd_cluster(parse_ret)
-    # create_redis_cluster(parse_ret)
+    create_etcd_cluster(parse_ret)
+    create_redis_cluster(parse_ret)
     create_mongo_cluster(parse_ret)
     # create_game_server(parse_ret)
 

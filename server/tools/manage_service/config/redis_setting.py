@@ -44,11 +44,11 @@ def gen_setting(parse_ret):
         node.port = port
         node.client_ip = "127.0.0.1"
         node.peer_ip = "127.0.0.1"
-        node.pid_file = "{}/pid_file{}.log".format(node.dir, node.name)
-        node.log_file = "{}/log_file_{}.log".format(node.dir, node.name)
-        node.cluster_config_file = "{}/config_{}.log".format(node.dir, node.name)
-        node.db_file_name = "{}/data_base_{}.log".format(node.dir, node.name)
-        node.append_file_name = "{}/data_base_append_{}.log".format(node.dir, node.name)
+        node.pid_file = "{}/pid_file_{}.pid".format(node.dir, node.port)
+        node.log_file = "{}/log_file_{}.log".format(node.dir, node.port)
+        node.cluster_config_file = "{}/config_{}.conf".format(node.dir, node.port)
+        node.db_file_name = "{}/db_{}.rdb".format(node.dir, node.port)
+        node.append_file_name = "{}/db_aof_{}.aof".format(node.dir, node.port)
         ret.node_map[node.name] = node
     return ret
 

@@ -1,3 +1,4 @@
+
 # This is the configuration file for the etcd server.
 
 # Human-readable name for this member.
@@ -39,7 +40,7 @@ cors:
 
 # List of this member's peer URLs to advertise to the rest of the cluster.
 # The URLs needed to be a comma-separated list.
-initial-advertise-peer-urls: http://127.0.0.1:{{ node.peer_port }}
+initial-advertise-peer-urls: http://{{ node.peer_ip }}:{{ node.peer_port }}
 
 # List of this member's client URLs to advertise to the public.
 # The URLs needed to be a comma-separated list.
@@ -61,7 +62,7 @@ discovery-srv:
 initial-cluster: "{{ cluster.get_peer_hosts() }}"
 
 # Initial cluster token for the etcd cluster during bootstrap.
-initial-cluster-token: 'etcd-cluster_lxl_cpp'
+initial-cluster-token: '{{ cluster.cluster_token }}'
 
 # Initial cluster state ('new' or 'existing').
 initial-cluster-state: 'new'
