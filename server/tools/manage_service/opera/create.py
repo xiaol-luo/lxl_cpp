@@ -148,7 +148,6 @@ def create_etcd_cluster(parse_ret):
         })
         ret_file_path = os.path.join(cluster_setting.work_dir, node.name)
         config.write_file(ret_file_path, ret_txt)
-        print(ret_txt)
     is_ok, cfg_content = auto_gen.render("etcd/start_all.sh", {
         "cluster": cluster_setting,
     })

@@ -9,7 +9,7 @@ static std::tuple<bool, std::string> Wrap_Find_Address(ConsistentHash &hash, sol
 	{
 	case sol::type::string:
 	{
-		std::string &str = lua_obj.as<std::string>();
+		const std::string &str = lua_obj.as<std::string>();
 		ret = hash.FindAddress(str.data(), str.size());
 	}
 	break;
