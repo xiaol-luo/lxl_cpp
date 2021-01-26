@@ -18,8 +18,9 @@ class RedisNodeSetting(object):
 
 class RedisClusterSetting(object):
     def __init__(self):
-        self.node_map = {}
+        self.node_list = []
         self.work_dir = ""
+        self.run_dir = ""
         self.auth_pwd = ""
         self.thread_num = 3
         self.cnn_timeout_ms = 3000
@@ -29,7 +30,9 @@ class RedisClusterSetting(object):
 def gen_setting(parse_ret):
     ret = RedisClusterSetting()
     cluster_dir = cal_path_redis_cluster_dir(parse_ret)
+    run_dir = "{}/{}".format(cluster_dir, "run")
     ret.work_dir = cluster_dir
+    ret.run_dir = run_dir
     ret.auth_pwd = "xiaolzz"
     ret.thread_num = 3
     ret.cnn_timeout_ms = 3000
@@ -40,15 +43,15 @@ def gen_setting(parse_ret):
         port = begin_port + i
         node = RedisNodeSetting()
         node.name = "redis_{}".format(port)
-        node.dir = cluster_dir
+        node.dir = run_dir
         node.port = port
         node.client_ip = "127.0.0.1"
         node.peer_ip = "127.0.0.1"
-        node.pid_file = "{}/pid_file_{}.pid".format(node.dir, node.port)
-        node.log_file = "{}/log_file_{}.log".format(node.dir, node.port)
-        node.cluster_config_file = "{}/config_{}.conf".format(node.dir, node.port)
-        node.db_file_name = "{}/db_{}.rdb".format(node.dir, node.port)
-        node.append_file_name = "{}/db_aof_{}.aof".format(node.dir, node.port)
-        ret.node_map[node.name] = node
+        node.pid_file = "{}/{}.pid".format(node.dir, node.name)
+        node.log_file = "{}/{}.log".format(node.dir, node.name)
+        node.cluster_config_file = "{}/{}.conf".format(node.dir, node.name)
+        node.db_file_name = "{}/{}.rdb".format(node.dir, node.name)
+        node.append_file_name = "{}/{}.aof".format(node.dir, node.name)
+        ret.node_list.append(node)
     return ret
 

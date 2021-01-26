@@ -140,27 +140,58 @@ class ServiceHelper(object):
 
 
 def create_etcd_cluster(parse_ret):
-    setting = config.gen_etcd_setting(parse_ret)
-    for node in setting.node_map.values():
-        is_ok, ret_txt = auto_gen.render("etcd/etcd.conf.yaml", {
+    cluster_setting = config.gen_etcd_setting(parse_ret)
+    for node in cluster_setting.node_list:
+        is_ok, ret_txt = auto_gen.render("etcd/etcd.conf", {
             "node": node,
-            "cluster": setting,
+            "cluster": cluster_setting,
         })
-        ret_file_path = os.path.join(setting.work_dir, "{}.conf.yaml".format(node.name))
+        ret_file_path = os.path.join(cluster_setting.work_dir, node.name)
         config.write_file(ret_file_path, ret_txt)
         print(ret_txt)
+    is_ok, cfg_content = auto_gen.render("etcd/start_all.sh", {
+        "cluster": cluster_setting,
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "start_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("etcd/stop_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "stop_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("etcd/ps_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "ps_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("etcd/clear_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "clear_all.sh"), cfg_content)
 
 
 def create_redis_cluster(parse_ret):
-    setting = config.gen_redis_setting(parse_ret)
-    for node in setting.node_map.values():
+    cluster_setting = config.gen_redis_setting(parse_ret)
+    for node in cluster_setting.node_list:
         is_ok, ret_txt = auto_gen.render("redis/redis.conf", {
             "node": node,
-            "cluster": setting,
+            "cluster": cluster_setting,
         })
-        ret_file_path = os.path.join(setting.work_dir, "{}.conf".format(node.name))
+        ret_file_path = os.path.join(cluster_setting.work_dir, node.name)
         config.write_file(ret_file_path, ret_txt)
-        print(ret_txt)
+    is_ok, cfg_content = auto_gen.render("redis/start_all.sh", {
+        "cluster": cluster_setting,
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "start_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("redis/stop_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "stop_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("redis/ps_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "ps_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("redis/clear_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "clear_all.sh"), cfg_content)
 
 
 def create_mongo_cluster(parse_ret):
@@ -194,6 +225,19 @@ def create_mongo_cluster(parse_ret):
         "pwd": "xiaolzz",
     })
     config.write_file("{}/{}".format(cluster_setting.work_dir, "start_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("mongo/stop_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "stop_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("mongo/ps_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "ps_all.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("mongo/clear_all.sh", {
+        "cluster": cluster_setting
+    })
+    config.write_file("{}/{}".format(cluster_setting.work_dir, "clear_all.sh"), cfg_content)
+
 
 def create_game_server(parse_ret):
     pass

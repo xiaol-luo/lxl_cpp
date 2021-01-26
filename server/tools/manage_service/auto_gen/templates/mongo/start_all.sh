@@ -79,8 +79,7 @@ if [ ${is_init} = true ];then
 else
 	echo "execute cmd on database testsh db.role.count({}), retsult is:"
 	mongo -port {{ client.port }} -u lxl -p xiaolzz --authenticationDatabase admin testsh --eval 'db.role.count({})'
-	sh ps.sh
+	sh ps_all.sh
 fi
 
 cd ${pre_dir}
-

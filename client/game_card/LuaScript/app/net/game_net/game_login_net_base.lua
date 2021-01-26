@@ -48,11 +48,11 @@ function GameLoginNetBase:notify_ready_state()
 end
 
 function GameLoginNetBase:notify_login_done()
-    self._net_mgr:fire(Game_Net_Event.platform_login_done, self:is_ready(), self:get_error_msg())
+    self._net_mgr:fire(Game_Net_Event.game_login_done, self:is_ready(), self:get_error_msg())
 end
 
 function GameLoginNetBase:notify_login_start()
-    self._net_mgr:fire(Game_Net_Event.platform_login_start)
+    self._net_mgr:fire(Game_Net_Event.game_login_start)
 end
 
 -- get fields

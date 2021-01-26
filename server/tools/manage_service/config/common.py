@@ -76,7 +76,7 @@ def cal_path_redis_cluster_dir(parse_ret):
 
 
 def cal_path_mongo_cluster_dir(parse_ret):
-    return os.path.join(cal_zone_dir_path(parse_ret), "redis_cluster").replace("\\", "/")
+    return os.path.join(cal_zone_dir_path(parse_ret), "mongo_cluster").replace("\\", "/")
 
 
 def is_win_platform():
