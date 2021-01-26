@@ -5,8 +5,7 @@ cd {{ cluster.work_dir }}
 
 {%- for node in cluster.node_list  %}
 
-pid=`ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:{{ node.port }} | awk '{ print $2}' `
-kill -9 ${pid}
+ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:{{ node.port }} | awk '{ print $2}' | xargs -rt kill -9
 
 {%- endfor %}
 
