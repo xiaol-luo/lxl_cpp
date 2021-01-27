@@ -25,15 +25,25 @@ sh stop_all.sh
 {%- for replica in cluster.data_replica_list  %}
   {%- for node in replica.node_list  %}
 mkdir -p {{ node.db_file_path }}
-cfg_file="{{ cluster.work_dir }}/{{ node.name }}"
 if [ ${is_init} = true ]; then
-  mongod -f ${cfg_file}
+  mongod -f {{ cluster.work_dir }}/{{ node.name }}
 else
-  mongod  --keyFile ${mongodb_keyfile} -f ${cfg_file}
+  mongod  --keyFile ${mongodb_keyfile} -f {{ cluster.work_dir }}/{{ node.name }}
 fi
 
   {%- endfor %}
 {%- endfor %}
+
+{%- for node in cluster.cfg_replica.node_list  %}
+mkdir -p {{ node.db_file_path }}
+if [ ${is_init} = true ]; then
+  mongod -f {{ cluster.work_dir }}/{{ node.name }}
+else
+  mongod  --keyFile ${mongodb_keyfile} -f {{ cluster.work_dir }}/{{ node.name }}
+fi
+
+{%- endfor %}
+
 
 if [ ${is_init} = true ];then
 {%- for replica in cluster.data_replica_list  %}
