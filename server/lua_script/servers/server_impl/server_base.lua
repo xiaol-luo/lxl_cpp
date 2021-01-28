@@ -42,10 +42,6 @@ end
 function ServerBase:stop()
     self:_on_stop()
     self._service_mgr:stop()
-    if self._on_frame_tid then
-        self._timer_proxy:remove(self._on_frame_tid)
-        self._on_frame_tid = nil
-    end
     CoroutineExMgr.stop()
 end
 
@@ -63,9 +59,12 @@ end
 function ServerBase:release()
     self:_on_release()
     self._service_mgr:release()
-    self._event_binder:cancel_all()
+    self._event_binder:release_all()
     self._timer_proxy:release_all()
-    self._on_frame_tid = nil
+    if self._on_frame_tid then
+        self._timer_proxy:remove(self._on_frame_tid)
+        self._on_frame_tid = nil
+    end
     self:cancel_all()
 end
 
