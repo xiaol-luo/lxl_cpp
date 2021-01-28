@@ -9,6 +9,7 @@ fi
 {% if not is_win_platform %}
   {%- for svr_help in svr_help_list  %}
 if [ ${is_all} = true -o "${server_name}" == "{{ svr_help.get_name() }}"  ]; then
+    {{ svr_help.get_work_dir() }}/stop.sh
     {{ svr_help.get_work_dir() }}/start.sh
 fi
   {%- endfor %}
