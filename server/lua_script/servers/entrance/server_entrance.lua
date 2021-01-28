@@ -18,7 +18,7 @@ local opt_op_fn_map = {
 function start_script(main_args)
     local init_args = ParseArgs.parse_main_args(main_args, ParseArgs.setup_parse_fns(opt_op_fn_map))
     local server_name = init_args[Const.main_args_server]
-    local setting_file = path.combine(init_args[Const.main_args_data_dir], init_args[Const.main_args_config_file])
+    local setting_file = init_args[Const.main_args_config_file]
     local init_setting = xml.parse_file(setting_file)
     
     -- xml.print_table(init_setting)

@@ -48,6 +48,7 @@ class MongoClientSetting(object):
         self.cluster_setting = cluster_setting
         self.name = ""
         self.port = 0
+        self.client_ip = ""
         self.log_file_path = ""
         self.pid_file_path = ""
 
@@ -70,6 +71,7 @@ class MongoClusterSetting(object):
         self.auth_user = ""
         self.auth_pwd = ""
         self.shard_list = []
+        self.thread_num = 3
 
     def get_sharding_config_db(self):
         ret_list = []
@@ -98,6 +100,7 @@ def gen_setting(parse_ret):
     ret.auth_db = "admin"
     ret.auth_user = "lxl"
     ret.auth_pwd = "xiaolzz"
+    ret.thread_num = 3
 
     for i in range(0, 3):
         replica = MongoReplicaSetting(ret)
@@ -129,6 +132,7 @@ def gen_setting(parse_ret):
 
     client_setting = MongoClientSetting(ret)
     client_setting.port = 9400
+    client_setting.client_ip = "127.0.0.1"
     client_setting.name = "mongos_{}".format(client_setting.port)
     client_setting.log_file_path = "{}/mongos_log_file_{}.log".format(run_dir, client_setting.port)
     client_setting.pid_file_path = "{}/mongos_pid_file_{}.pid".format(run_dir, client_setting.port)

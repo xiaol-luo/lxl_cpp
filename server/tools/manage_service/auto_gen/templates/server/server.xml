@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<zone>{{ node.zone }}</zone>
+	<server_role>{{ node.role }}</server_role>
+	<server_name>{{ node.name }}</server_name>
+
+	<etcd_server>
+		<element>for_make_array</element>
+        <element>for_make_array</element>
+{%- for name, cluster_setting in node.etcd_server_map.items()  %}
+        <element>
+			<name>{{ name }}</name>
+			<host>{{ cluster_setting.get_client_hosts() }}</host>
+			<user>{{ cluster_setting.auth_user }}</user>
+			<pwd>{{ cluster_setting.auth_pwd }}</pwd>
+		</element>
+{%- endfor %}
+	</etcd_server>
+
+	<redis_service>
+		<element>for_make_array</element>
+        <element>for_make_array</element>
+
+{%- for name, cluster_setting in node.redis_server_map.items()  %}
+        <element>
+			<name>{{ name }}</name>
+			<is_cluster>1</is_cluster>
+			<host>{{ cluster_setting.get_client_hosts() }}</host>
+			<pwd>{{ cluster_setting.auth_pwd }}</pwd>
+			<thread_num>{{ cluster_setting.thread_num }}</thread_num>
+			<cnn_timeout_ms>{{ cluster_setting.cnn_timeout_ms }}</cnn_timeout_ms>
+			<cmd_timeout_ms>{{ cluster_setting.cmd_timeout_ms }}</cmd_timeout_ms>
+		</element>
+{%- endfor %}
+	</redis_service>
+
+	<mongo_service>
+		<element>for_make_array</element>
+        <element>for_make_array</element>
+{%- for name, cluster_setting in node.mongo_server_map.items()  %}
+		<element>
+			<name>{{ name }}</name>
+			<host>{{ cluster_setting.get_prefer_client().client_ip  }}:{{ cluster_setting.get_prefer_client().port  }}</host>
+			<auth_db>{{ cluster_setting.auth_db }}</auth_db>
+			<user>{{ cluster_setting.auth_user }}</user>
+			<pwd>{{ cluster_setting.auth_pwd }}</pwd>
+			<thread_num>{{ cluster_setting.thread_num }}</thread_num>
+		</element>
+{%- endfor %}
+	</mongo_service>
+
+	<advertise_peer_ip>{{ node.peer_ip }}</advertise_peer_ip>
+	<advertise_peer_port>{{ node.peer_port }}</advertise_peer_port>
+	<advertise_client_ip>{{ node.client_ip }}</advertise_client_ip>
+	<advertise_client_port>{{ node.client_port }}</advertise_client_port>
+	<advertise_http_ip>{{ node.client_ip }}</advertise_http_ip>
+	<advertise_http_port>{{ node.http_port }}</advertise_http_port>
+
+</root>

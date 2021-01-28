@@ -38,6 +38,13 @@ class EtcdClusterSetting(object):
         ret = ",".join(str_list)
         return ret
 
+    def get_client_hosts(self):
+        str_list = []
+        for node in self.node_list:
+            str_list.append("http://{}:{}".format(node.client_ip, node.client_port))
+        ret = ",".join(str_list)
+        return ret
+
 
 def gen_setting(parse_ret):
     ret = EtcdClusterSetting()

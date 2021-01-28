@@ -3,8 +3,6 @@ from .etcd_setting import gen_setting as gen_etcd_setting
 from .mongo_setting import gen_setting as gen_mongo_setting
 from .redis_setting import gen_setting as gen_redis_setting
 
-import copy
-
 
 class RemoteServerHost(object):
     def __init__(self):
@@ -19,8 +17,8 @@ class GameServerSetting(object):
         self.role = ""
         self.name = ""
         self.peer_ip = ""
-        self.peer_port = 0
         self.client_ip = ""
+        self.peer_port = 0
         self.client_port = 0
         self.http_port = 0
         self.remote_server_list = []
@@ -47,7 +45,7 @@ def gen_platform_setting(parse_ret):
     setting.http_port = next_num()
 
     mongo_cluster_setting = gen_mongo_setting(parse_ret)
-    setting.mongo_server_map["platform"] = mongo_cluster_setting.client_map[0]
+    setting.mongo_server_map["platform"] = mongo_cluster_setting
     return ret
 
 
@@ -67,8 +65,8 @@ def gen_auth_setting(parse_ret):
     setting.http_port = next_num()
 
     mongo_cluster_setting = gen_mongo_setting(parse_ret)
-    setting.mongo_server_map["auth"] = mongo_cluster_setting.client_map[0]
-    setting.mongo_server_map["uuid"] = mongo_cluster_setting.client_map[0]
+    setting.mongo_server_map["auth"] = mongo_cluster_setting
+    setting.mongo_server_map["uuid"] = mongo_cluster_setting
 
     remote_sh = RemoteServerHost()
     setting.remote_server_list.append(remote_sh)
@@ -96,7 +94,7 @@ def gen_login_setting(parse_ret):
         setting.http_port = next_num()
 
         mongo_cluster_setting = gen_mongo_setting(parse_ret)
-        setting.mongo_server_map["login"] = mongo_cluster_setting.client_map[0]
+        setting.mongo_server_map["login"] = mongo_cluster_setting
 
         remote_sh = RemoteServerHost()
         setting.remote_server_list.append(remote_sh)
@@ -124,7 +122,7 @@ def gen_create_role_settting(parse_ret):
         setting.http_port = next_num()
 
         mongo_cluster_setting = gen_mongo_setting(parse_ret)
-        setting.mongo_server_map["game"] = mongo_cluster_setting.client_map[0]
+        setting.mongo_server_map["game"] = mongo_cluster_setting
 
         etcd_cluster_setting = gen_etcd_setting(parse_ret)
         setting.etcd_server_map["service_discovery"] = etcd_cluster_setting
@@ -147,7 +145,7 @@ def gen_world_setting(parse_ret):
         setting.http_port = next_num()
 
         mongo_cluster_setting = gen_mongo_setting(parse_ret)
-        setting.mongo_server_map["game"] = mongo_cluster_setting.client_map[0]
+        setting.mongo_server_map["game"] = mongo_cluster_setting
 
         etcd_cluster_setting = gen_etcd_setting(parse_ret)
         setting.etcd_server_map["service_discovery"] = etcd_cluster_setting
@@ -174,7 +172,7 @@ def gen_game_setting(parse_ret):
         setting.http_port = next_num()
 
         mongo_cluster_setting = gen_mongo_setting(parse_ret)
-        setting.mongo_server_map["game"] = mongo_cluster_setting.client_map[0]
+        setting.mongo_server_map["game"] = mongo_cluster_setting
 
         etcd_cluster_setting = gen_etcd_setting(parse_ret)
         setting.etcd_server_map["service_discovery"] = etcd_cluster_setting

@@ -63,7 +63,7 @@ class RunServiceHelp(object):
             self.role,
             self.work_dir,
             self.datas_dir(),
-            self.role_cfg_relate_path,
+            os.path.join(self.datas_dir(), self.role_cfg_relate_path).replace("\\", "/"),
             self.scripts_dir(),
             self.exe_dir
         )

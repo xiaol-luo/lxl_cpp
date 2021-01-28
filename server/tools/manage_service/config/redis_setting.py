@@ -26,6 +26,13 @@ class RedisClusterSetting(object):
         self.cnn_timeout_ms = 3000
         self.cmd_timeout_ms = 3000
 
+    def get_client_hosts(self):
+        str_list = []
+        for node in self.node_list:
+            str_list.append("{}:{}".format(node.client_ip, node.port))
+        ret = ",".join(str_list)
+        return ret
+
 
 def gen_setting(parse_ret):
     ret = RedisClusterSetting()
