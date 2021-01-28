@@ -29,6 +29,11 @@ sleep 5s
 
 if [ ${is_init} = true ]; then
   echo "yes" |  redis-trib create --replicas 1 {%- for node in cluster.node_list  %}  {{ node.peer_ip }}:{{ node.port }} {%- endfor %}
+
+  
+	{%- for node in cluster.node_list  %}
+		redis-cli -p {{ node.port }} -c config set requirepass {{ cluster.auth_pwd }}
+	{%- endfor %}
 fi
 
 sh ps_all.sh
