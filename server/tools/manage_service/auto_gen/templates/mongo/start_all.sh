@@ -21,6 +21,15 @@ cd {{ cluster.work_dir }}
 
 sh stop_all.sh
 
+{%- for node in cluster.cfg_replica.node_list  %}
+mkdir -p {{ node.db_file_path }}
+if [ ${is_init} = true ]; then
+  mongod -f {{ cluster.work_dir }}/{{ node.name }}
+else
+  mongod  --keyFile ${mongodb_keyfile} -f {{ cluster.work_dir }}/{{ node.name }}
+fi
+
+{%- endfor %}
 
 {%- for replica in cluster.data_replica_list  %}
   {%- for node in replica.node_list  %}
@@ -34,15 +43,6 @@ fi
   {%- endfor %}
 {%- endfor %}
 
-{%- for node in cluster.cfg_replica.node_list  %}
-mkdir -p {{ node.db_file_path }}
-if [ ${is_init} = true ]; then
-  mongod -f {{ cluster.work_dir }}/{{ node.name }}
-else
-  mongod  --keyFile ${mongodb_keyfile} -f {{ cluster.work_dir }}/{{ node.name }}
-fi
-
-{%- endfor %}
 
 
 if [ ${is_init} = true ];then
