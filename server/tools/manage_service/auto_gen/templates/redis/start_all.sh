@@ -28,11 +28,7 @@ echo "redis cluster started"
 sleep 5s
 
 if [ ${is_init} = true ]; then
-  echo "yes" | \
-  redis-trib create --replicas 1 \
-{%- for node in cluster.node_list  %}
-    {{ node.peer_ip }}:{{ node.port }} {% if not loop.last %} \ {% endif %}
-{%- endfor %}
+  echo "yes" |  redis-trib create --replicas 1 {%- for node in cluster.node_list  %}  {{ node.peer_ip }}:{{ node.port }} {%- endfor %}
 fi
 
 sh ps_all.sh

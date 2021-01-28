@@ -43,8 +43,14 @@ def cal_zone_service_dir_path(parse_ret, service_name, idx):
     return os.path.join(cal_zone_dir_path(parse_ret), "{}_{}".format(service_name, idx)).replace("\\", "/")
 
 
+def cal_path_zone_server_root_dir(parse_ret):
+    return os.path.join(cal_zone_dir_path(parse_ret), "servers").replace("\\", "/")
+
+
 def cal_path_zone_server_dir(parse_ret, server_name):
-    return os.path.join(cal_zone_dir_path(parse_ret), "servers", server_name).replace("\\", "/")
+    return os.path.join(cal_path_zone_server_root_dir(parse_ret), server_name).replace("\\", "/")
+
+
 
 
 def cal_zone_share_dir_path(parse_ret):

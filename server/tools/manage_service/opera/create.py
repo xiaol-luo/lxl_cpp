@@ -104,18 +104,23 @@ def create_mongo_cluster(parse_ret):
 
 
 def create_game_server(parse_ret):
+    svr_help_list = []
     all_setting = config.gen_server_setting(parse_ret)
     for svr_role, svr_node_list in all_setting.items():
         for svr_node in svr_node_list:
             svr_help = ServerHelper(parse_ret, svr_node)
             svr_help.setup_server()
-            '''
-            is_ok, cfg_content = auto_gen.render("server/server.xml", {
-                "node": svr_node
-            })
-            config.write_file("{}/{}".format(config.cal_path_zone_server_dir(parse_ret, svr_node.name),
-                               "game_config.xml"), cfg_content)
-                               '''
+            svr_help_list.append(svr_help)
+    render_data = {
+        "svr_help_list": svr_help_list,
+        "is_win_platform": config.is_win_platform(),
+    }
+    is_ok, cfg_content = auto_gen.render("server/start.sh", render_data)
+    config.write_file("{}/{}".format(config.cal_path_zone_server_root_dir(parse_ret),  "start.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("server/stop.sh", render_data)
+    config.write_file("{}/{}".format(config.cal_path_zone_server_root_dir(parse_ret),  "stop.sh"), cfg_content)
+    is_ok, cfg_content = auto_gen.render("server/ps.sh", render_data)
+    config.write_file("{}/{}".format(config.cal_path_zone_server_root_dir(parse_ret), "ps.sh"), cfg_content)
 
 
 def create_zone(parse_ret):

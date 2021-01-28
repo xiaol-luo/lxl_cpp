@@ -58,7 +58,7 @@ class ServerHelper(object):
             "exe_dir": self.get_exe_dir(),
         })
 
-        config.write_file(os.path.join(self.get_work_dir(), "run.bat"), run_cmd)
+        config.write_file(os.path.join(self.get_work_dir(), "start.bat"), run_cmd)
         stop_cmd = "taskkill /f /t /im service.exe"
         config.write_file(os.path.join(self.get_work_dir(), "stop.bat"), stop_cmd)
         ps_cmd = """ tasklist /fi "imagename eq service.exe" """
@@ -77,15 +77,15 @@ class ServerHelper(object):
             "exe_dir": self.get_exe_dir(),
         })
         sh_mod = stat.S_IRWXU | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH
-        run_sh_path = os.path.join(self.get_work_dir(), "run.sh")
+        run_sh_path = os.path.join(self.get_work_dir(), "start.sh")
         config.write_file(run_sh_path, run_cmd)
         os.chmod(run_sh_path, mode=sh_mod)
         stop_cmd = """ for pid in `ps -ef | grep '{0}' | grep -v 'grep' | awk '{1}' `; do kill -9 $pid; done """.format(
-            self.get_exe_file(), "{print $2}")
+            self.get_game_config(), "{print $2}")
         stop_sh_path = os.path.join(self.get_work_dir(), "stop.sh")
         config.write_file(stop_sh_path, stop_cmd)
         os.chmod(stop_sh_path, mode=sh_mod)
-        ps_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(self.get_exe_file())
+        ps_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(self.get_game_config())
         ps_sh_path = os.path.join(self.get_work_dir(), "ps.sh")
         config.write_file(ps_sh_path, ps_cmd)
         os.chmod(ps_sh_path, mode=sh_mod)

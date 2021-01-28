@@ -56,4 +56,8 @@
 	<advertise_http_ip>{{ node.client_ip }}</advertise_http_ip>
 	<advertise_http_port>{{ node.http_port }}</advertise_http_port>
 
+{%- for remote_server in node.remote_server_list  %}
+	<{{ remote_server.name }}_ip>{{ remote_server.ip }}</{{ remote_server.name }}_ip>
+	<{{ remote_server.name }}_port>{{ remote_server.port }}</{{ remote_server.name }}_port>
+{%- endfor %}
 </root>

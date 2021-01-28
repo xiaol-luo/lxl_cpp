@@ -128,6 +128,7 @@ def gen_create_role_settting(parse_ret):
         setting.etcd_server_map["service_discovery"] = etcd_cluster_setting
     return ret
 
+
 def gen_world_setting(parse_ret):
     global Client_Ip
     next_num = next_num_fn(33000)
