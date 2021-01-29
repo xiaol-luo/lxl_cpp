@@ -29,7 +29,7 @@ etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/room.room_
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/fight.fight_0 1
 etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_join_servers/fight.fight_1 1
 
-etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world_0 1
-etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world_1 1
+etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world.world_0 1
+etcdctl ${endpoints_flag} set ${zone_setting_path}/allow_work_servers/world.world_1 1
 
 etcdctl ${endpoints_flag} ls -r /${zone_name}

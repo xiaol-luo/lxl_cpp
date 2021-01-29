@@ -275,7 +275,7 @@ def gen_world_sentinel_setting(parse_ret):
     global Client_Ip
     next_num = next_num_fn(34000)
     ret = []
-    for i in range(0, 2):
+    for i in range(0, 1):
         setting = GameServerSetting()
         ret.append(setting)
         setting.zone = parse_ret.zone
