@@ -20,6 +20,7 @@ class EtcdClusterSetting(object):
         self.cluster_token = ""
         self.work_dir = ""
         self.run_dir = ""
+        self.etcd_dirs = []
         self.auth_user = ""
         self.auth_pwd = ""
         self.ttl = 10
@@ -42,7 +43,7 @@ class EtcdClusterSetting(object):
         str_list = []
         for node in self.node_list:
             str_list.append("http://{}:{}".format(node.client_ip, node.client_port))
-        ret = ",".join(str_list)
+        ret = ";".join(str_list)
         return ret
 
 
@@ -54,6 +55,7 @@ def gen_setting(parse_ret):
     ret.run_dir = run_dir
     ret.auth_user = "lxl"
     ret.auth_pwd = "xiaolzz"
+    ret.etcd_dirs.append("/{}/*".format(parse_ret.zone))
     ret.ttl = 10
     ret.cluster_token = "token_lxl_cpp"
 

@@ -39,11 +39,11 @@ function ClientNetService:_on_start()
     self._listen_handler:set_open_cb(Functional.make_closure(self._listen_handler_on_open, self))
     self._listen_handler:set_close_cb(Functional.make_closure(self._listen_handler_on_close, self))
     local ret = Net.listen("0.0.0.0", self._listen_port, self._listen_handler)
-    if not ret then
+    if ret <= 0 then
         self._error_msg = 1
         self._error_msg = string.format("ClientNetService listen prot %s fail", self._listen_port)
     end
-    log_print("ClientNetService:_on_start listen port %s", self._listen_port)
+    log_debug("ClientNetService:_on_start listen port %s ret %s", self._listen_port, ret)
 end
 
 function ClientNetService:_on_stop()

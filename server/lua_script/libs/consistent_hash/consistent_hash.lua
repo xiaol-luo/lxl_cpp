@@ -14,6 +14,7 @@ function ConsistentHash:ctor()
 end
 
 function ConsistentHash:upsert_node(node_name)
+    log_print("ConsistentHash:upsert_node", node_name)
     return self._consistent_hash:set_real_node(node_name, Virtual_Node_Num)
 end
 

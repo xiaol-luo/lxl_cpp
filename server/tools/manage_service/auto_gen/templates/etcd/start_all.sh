@@ -40,7 +40,12 @@ if [ ${is_init} = true ]; then
     etcdctl --endpoints ${end_points} auth enable
     echo "{{ cluster.auth_pwd }}" | etcdctl --endpoints ${end_points} -username root:{{ cluster.auth_pwd }} user add {{ cluster.auth_user }}
     etcdctl --endpoints ${end_points} -username root:{{ cluster.auth_pwd }} role add rw_all
-    etcdctl --endpoints ${end_points} -username root:{{ cluster.auth_pwd }} role grant --readwrite --path / rw_all
+
+
+{%- for dir in cluster.etcd_dirs  %}
+    etcdctl --endpoints ${end_points} -username root:{{ cluster.auth_pwd }} role grant --readwrite --path {{ dir }} rw_all
+{%- endfor %}
+
     etcdctl --endpoints ${end_points} -username root:{{ cluster.auth_pwd }} user grant --roles rw_all {{ cluster.auth_user }}
 fi
 

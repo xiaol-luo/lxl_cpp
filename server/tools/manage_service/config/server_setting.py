@@ -123,6 +123,7 @@ def gen_create_role_settting(parse_ret):
 
         mongo_cluster_setting = gen_mongo_setting(parse_ret)
         setting.mongo_server_map["game"] = mongo_cluster_setting
+        setting.mongo_server_map["uuid"] = mongo_cluster_setting
 
         etcd_cluster_setting = gen_etcd_setting(parse_ret)
         setting.etcd_server_map["service_discovery"] = etcd_cluster_setting
@@ -270,6 +271,30 @@ def gen_fight_setting(parse_ret):
     return ret
 
 
+def gen_world_sentinel_setting(parse_ret):
+    global Client_Ip
+    next_num = next_num_fn(34000)
+    ret = []
+    for i in range(0, 2):
+        setting = GameServerSetting()
+        ret.append(setting)
+        setting.zone = parse_ret.zone
+        setting.role = "world_sentinel"
+        setting.name = "world_sentinel_{}".format(i)
+        setting.client_ip = Client_Ip
+        setting.peer_ip = "127.0.0.1"
+        setting.peer_port = next_num()
+        setting.client_port = next_num()
+        setting.http_port = next_num()
+
+        etcd_cluster_setting = gen_etcd_setting(parse_ret)
+        setting.etcd_server_map["service_discovery"] = etcd_cluster_setting
+
+        redis_cluster_setting = gen_redis_setting(parse_ret)
+        setting.redis_server_map["online_servers"] = redis_cluster_setting
+    return ret
+
+
 def gen_setting(parse_ret):
     ret = dict()
     ret[Service_Type.platform] = gen_platform_setting(parse_ret)
@@ -282,5 +307,6 @@ def gen_setting(parse_ret):
     ret[Service_Type.fight] = gen_fight_setting(parse_ret)
     ret[Service_Type.room] = gen_room_setting(parse_ret)
     ret[Service_Type.create_role] = gen_create_role_settting(parse_ret)
+    ret[Service_Type.world_sentinel] = gen_world_sentinel_setting(parse_ret)
     return ret
 

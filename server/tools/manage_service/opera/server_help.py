@@ -65,6 +65,17 @@ class ServerHelper(object):
         config.write_file(os.path.join(self.get_work_dir(), "ps.bat"), ps_cmd)
 
     def setup_linux_cmds(self):
+        sh_mod = stat.S_IRWXU | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH
+        
+        stop_cmd = """ for pid in `ps -ef | grep '{0}' | grep -v 'grep' | awk '{1}' `; do kill -2 $pid; done """.format(
+            self.get_game_config(), "{print $2}")
+        stop_sh_path = os.path.join(self.get_work_dir(), "stop.sh")
+        config.write_file(stop_sh_path, stop_cmd)
+        os.chmod(stop_sh_path, mode=sh_mod)
+        ps_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(self.get_game_config())
+        ps_sh_path = os.path.join(self.get_work_dir(), "ps.sh")
+        config.write_file(ps_sh_path, ps_cmd)
+        os.chmod(ps_sh_path, mode=sh_mod)
         run_cmd = "{exe_file} {role} {work_dir} {data_dir} {game_config_file} {scrip_dir} \
                 --lua_args_begin-- -lua_path . -c_path . {exe_dir} \
                 -require_files servers.entrance.server_entrance  -execute_fns start_script 2>&1 1>/dev/null &".format_map({
@@ -76,19 +87,10 @@ class ServerHelper(object):
             "scrip_dir": self.get_lua_script(),
             "exe_dir": self.get_exe_dir(),
         })
-        sh_mod = stat.S_IRWXU | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH
         run_sh_path = os.path.join(self.get_work_dir(), "start.sh")
-        config.write_file(run_sh_path, run_cmd)
+        config.write_file(run_sh_path, "{}\n\n{}\n\n".format(stop_cmd, run_cmd))
         os.chmod(run_sh_path, mode=sh_mod)
-        stop_cmd = """ for pid in `ps -ef | grep '{0}' | grep -v 'grep' | awk '{1}' `; do kill -9 $pid; done """.format(
-            self.get_game_config(), "{print $2}")
-        stop_sh_path = os.path.join(self.get_work_dir(), "stop.sh")
-        config.write_file(stop_sh_path, stop_cmd)
-        os.chmod(stop_sh_path, mode=sh_mod)
-        ps_cmd = """ ps -ef | grep '{0}' | grep -v 'grep' """.format(self.get_game_config())
-        ps_sh_path = os.path.join(self.get_work_dir(), "ps.sh")
-        config.write_file(ps_sh_path, ps_cmd)
-        os.chmod(ps_sh_path, mode=sh_mod)
+        
 
     def setup_game_config(self):
         is_ok, cfg_content = auto_gen.render("server/server.xml", {

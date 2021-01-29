@@ -35,7 +35,7 @@ function PeerNetService:_on_start()
     self.listen_handler:set_gen_cnn_cb(Functional.make_closure(PeerNetService._make_accept_cnn, self))
     local advertise_peer_port = tonumber(self.server.init_setting.advertise_peer_port)
     local ret = Net.listen("0.0.0.0", advertise_peer_port, self.listen_handler)
-    if not ret then
+    if ret <= 0 then
         self._error_num = -1
         self._error_msg = string.format("PeerNetService listen advertise_peer_port=%s fail", advertise_peer_port)
     else

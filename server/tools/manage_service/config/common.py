@@ -17,6 +17,7 @@ class Service_Type(IntEnum):
     fight = 9
     room = 10
     create_role = 11
+    world_sentinel = 12
 
 
 def parse_zone_name(zone_name):

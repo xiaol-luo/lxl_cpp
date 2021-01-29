@@ -150,6 +150,8 @@ int main (int argc, char **argv)
 	service = nullptr; // engine own the service
 	engine_loop();
 	ls->collect_garbage();
+	flush_log();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	// mempool_free(ls_mem); ls_mem = nullptr;
 	// ls->~state(); ls = nullptr;
 	stop_log();

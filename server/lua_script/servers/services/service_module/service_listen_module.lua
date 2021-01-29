@@ -18,7 +18,7 @@ function ServiceListenModule:start()
     self.listen_handler:set_open_cb(Functional.make_closure(self._listen_handler_on_open, self))
     self.listen_handler:set_close_cb(Functional.make_closure(self._listen_handler_on_close, self))
     local ret = Net.listen("0.0.0.0", self.listen_port, self.listen_handler)
-    if not ret then
+    if ret <= 0 then
         self.error_num = 1
         self.error_msg = string.format("ServiceListenModule listen on prot %s fail", self.listen_port)
     else
