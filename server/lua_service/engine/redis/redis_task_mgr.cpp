@@ -180,7 +180,7 @@ uint64_t RedisTaskMgr::ExecuteCmdArgv(uint64_t hash_code, RedisTaskCallback cb, 
 uint64_t RedisTaskMgr::ExecuteCmdBinFormat(uint64_t hc, RedisTaskCallback cb, std::string fm, std::vector<std::string> s)
 {
 #define p_l(str) str.data(), str.size()
-	// format Ö»Ö§³Ö%b
+	// format Ö»Ö§ï¿½ï¿½%b
 	switch (s.size())
 	{
 	case 0: return this->ExecuteCmd(hc, cb, fm.c_str());
@@ -297,7 +297,7 @@ void RedisTaskMgr::ThreadLoop(ThreadEnv * env)
 			}
 			else
 			{
-				// ÔÚÖ´ÐÐExecuteCmdµÄÊ±ºòÒÑ¾­Õì²âµ½´íÎó£¬ÎªÁË±£³ÖÒì²½ÐÐÎª£¬°Ñ´íÎó·Åµ½ÕâÀïÀ´»Øµ÷
+				// ï¿½ï¿½Ö´ï¿½ï¿½ExecuteCmdï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½âµ½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ë±ï¿½ï¿½ï¿½ï¿½ì²½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½Åµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½
 			}
 
 			self->m_done_tasks_mtx.lock();
@@ -340,13 +340,20 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 			{
 				redisClusterSetOptionAuth(this->redis_cluster_ctx, this->owner->m_pwd.c_str());
 			}
+			redisClusterSetOptionRouteUseSlots(this->redis_cluster_ctx);
 			redisClusterSetOptionConnectBlock(this->redis_cluster_ctx);
 			redisClusterSetOptionConnectTimeout(this->redis_cluster_ctx, cnn_tv);
 			redisClusterSetOptionTimeout(this->redis_cluster_ctx, cmd_tv);
 			if (REDIS_OK != redisClusterSetOptionAddNodes(this->redis_cluster_ctx, this->owner->m_hosts.c_str()))
+			{
+				log_error("RedisTaskMgr::ThreadEnv::SetupCtx redisClusterSetOptionAddNodes error {}", this->redis_cluster_ctx->errstr);
 				return false;
+			}
 			if (REDIS_OK != redisClusterConnect2(this->redis_cluster_ctx))
+			{
+				log_error("RedisTaskMgr::ThreadEnv::SetupCtx redisClusterConnect2 error {}", this->redis_cluster_ctx->errstr);
 				return false;
+			}
 		}
 		if (REDIS_OK == this->redis_cluster_ctx->err)
 		{
@@ -356,6 +363,7 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 				redisReply *reply = (redisReply *)redisClusterCommand(this->redis_cluster_ctx, "auth %s", this->owner->m_pwd.c_str());
 				if (nullptr == reply || 0 != strcmp(reply->str, "OK"))
 				{
+					log_error("RedisTaskMgr::ThreadEnv::SetupCtx redisClusterCommand to auth error {}", this->redis_cluster_ctx->errstr);
 					return false;
 				}
 			}
@@ -370,7 +378,10 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 		std::smatch match_ret;
 		bool is_match = regex_match(this->owner->m_hosts, match_ret, match_pattern);
 		if (!is_match)
+		{
+			log_error("RedisTaskMgr::ThreadEnv::SetupCtx regex_match hosts fail {}", this->owner->m_hosts);
 			return false;
+		}
 
 		int port = 0;
 		std::string port_str = match_ret[2].str();
@@ -379,12 +390,16 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 		try { port = std::stoi(port_str); }
 		catch (std::exception)
 		{
+			log_error("RedisTaskMgr::ThreadEnv::SetupCtx convert port fail, port_str: {}", port_str);
 			return false;
 		}
 
 		std::string ip = match_ret[1].str();
 		if (ip.size() <= 0)
+		{
+			log_error("RedisTaskMgr::ThreadEnv::SetupCtx no valid ip, ip: {}", ip);
 			return false;
+		}
 		this->redis_ctx = redisConnectWithTimeout(ip.c_str(), port, cnn_tv);
 		if (0 == this->redis_ctx->err)
 		{
@@ -394,6 +409,7 @@ bool RedisTaskMgr::ThreadEnv::SetupCtx()
 				redisReply *reply = (redisReply *)redisCommand(this->redis_ctx, "auth %s", this->owner->m_pwd.c_str());
 				if (nullptr == reply || 0 != strcmp(reply->str, "OK"))
 				{
+					log_error("RedisTaskMgr::ThreadEnv::SetupCtx redisCommand to auth error {}", this->redis_ctx->errstr);
 					return false;
 				}
 			}

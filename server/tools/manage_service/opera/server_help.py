@@ -88,7 +88,7 @@ class ServerHelper(object):
             "exe_dir": self.get_exe_dir(),
         })
         run_sh_path = os.path.join(self.get_work_dir(), "start.sh")
-        config.write_file(run_sh_path, "{}\n\n{}\n\n".format(stop_cmd, run_cmd))
+        config.write_file(run_sh_path, "{}\n\n{}\n\n{}\n\n".format(stop_cmd, "sleep 1", run_cmd))
         os.chmod(run_sh_path, mode=sh_mod)
         
 
