@@ -15,5 +15,5 @@ sh /shared/zone/zone_0/mongo_cluster/clear_all.sh
 sh /shared/zone/zone_0/mongo_cluster/start_all.sh init
 sh /shared/lxl_cpp/server/tools/cluster_setting/set_cluster_setting.sh
 
-mkdir -p /shared/build && cd /shared/build && cmake /shared/lxl_cpp && make -j4
+mkdir -p /shared/build && cd /shared/build && cmake /shared/lxl_cpp/server && make -j4
 sh /shared/zone/zone_0/servers/start.sh
