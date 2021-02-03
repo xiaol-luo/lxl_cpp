@@ -39,6 +39,15 @@ namespace Utopia
                 return ret;
             }
         }
+
+        public static bool IsUseAB()
+        {
+#if USE_AB
+            return true;
+#else
+            return false;
+#endif
+        }
     }
 }
 

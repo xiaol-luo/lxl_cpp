@@ -90,20 +90,17 @@ namespace Lua
             }
         }
 
+#if UNITY_EDITOR
         public static string ScriptRootDir()
         {
-#if UNITY_EDITOR
-            string luaRootDir = Path.Combine(Path.Combine(UnityEngine.Application.dataPath, ".."), "LuaScript");
-            return luaRootDir;
-#else
-            UnityEngine.Debug.Assert(false);
-            return "";
-#endif
+            string ret = Path.Combine(Path.Combine(UnityEngine.Application.dataPath, ".."), "LuaScript");
+            return ret;
         }
+#endif
 
-        public static string[] ScriptSearchDirs()
+        public static List<string> ScriptSearchDirs()
         {
-#if UNITY_EDITOR
+#if !USE_AB
             string scriptRootDir = ScriptRootDir();
             List<string> rets = new List<string>();
             foreach(string item in App.ins.core.lua_search_paths)
@@ -111,20 +108,19 @@ namespace Lua
                 string searchDir = string.Format("{0}/{1}", scriptRootDir, item).Replace('\\', '/');
                 rets.Add(searchDir);
             }
-            return rets.ToArray();
+            return rets;
 #else
-            UnityEngine.Debug.Assert(false);
-            return null;
+            return App.ins.core.lua_search_paths;
 #endif
         }
         public static bool IsFile(string filePath)
         {
-#if UNITY_EDITOR
+#if !USE_AB
             bool ret = File.Exists(filePath);
             return ret;
 #else
             UnityEngine.Debug.Assert(false);
-            return null;
+            return false;
 #endif
         }
 

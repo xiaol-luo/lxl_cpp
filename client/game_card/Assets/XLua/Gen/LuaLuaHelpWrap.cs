@@ -39,9 +39,9 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "TimerRemove", _m_TimerRemove_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "ReloadScripts", _m_ReloadScripts_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "AddLuaSearchPath", _m_AddLuaSearchPath_xlua_st_);
-            Utils.RegisterFunc(L, Utils.CLS_IDX, "ScriptRootDir", _m_ScriptRootDir_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "ScriptSearchDirs", _m_ScriptSearchDirs_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "IsFile", _m_IsFile_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "SafeCall", _m_SafeCall_xlua_st_);
             
 			
             
@@ -268,30 +268,6 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ScriptRootDir_xlua_st_(RealStatePtr L)
-        {
-		    try {
-            
-            
-            
-                
-                {
-                    
-                        string gen_ret = Lua.LuaHelp.ScriptRootDir(  );
-                        LuaAPI.lua_pushstring(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_ScriptSearchDirs_xlua_st_(RealStatePtr L)
         {
 		    try {
@@ -303,7 +279,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string[] gen_ret = Lua.LuaHelp.ScriptSearchDirs(  );
+                        System.Collections.Generic.List<string> gen_ret = Lua.LuaHelp.ScriptSearchDirs(  );
                         translator.Push(L, gen_ret);
                     
                     
@@ -330,6 +306,34 @@ namespace XLua.CSObjectWrap
                     
                         bool gen_ret = Lua.LuaHelp.IsFile( _filePath );
                         LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SafeCall_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    XLua.LuaFunction _luaFn = (XLua.LuaFunction)translator.GetObject(L, 1, typeof(XLua.LuaFunction));
+                    object[] _fnParams = translator.GetParams<object>(L, 2);
+                    
+                        object[] gen_ret = Lua.LuaHelp.SafeCall( _luaFn, _fnParams );
+                        translator.Push(L, gen_ret);
                     
                     
                     

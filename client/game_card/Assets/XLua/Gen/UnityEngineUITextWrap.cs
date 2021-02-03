@@ -21,13 +21,12 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(UnityEngine.UI.Text);
-			Utils.BeginObjectRegister(type, L, translator, 0, 5, 24, 13);
+			Utils.BeginObjectRegister(type, L, translator, 0, 4, 24, 13);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "FontTextureChanged", _m_FontTextureChanged);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetGenerationSettings", _m_GetGenerationSettings);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CalculateLayoutInputHorizontal", _m_CalculateLayoutInputHorizontal);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CalculateLayoutInputVertical", _m_CalculateLayoutInputVertical);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnRebuildRequested", _m_OnRebuildRequested);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "cachedTextGenerator", _g_get_cachedTextGenerator);
@@ -222,33 +221,6 @@ namespace XLua.CSObjectWrap
                 {
                     
                     gen_to_be_invoked.CalculateLayoutInputVertical(  );
-                    
-                    
-                    
-                    return 0;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OnRebuildRequested(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-                UnityEngine.UI.Text gen_to_be_invoked = (UnityEngine.UI.Text)translator.FastGetCSObj(L, 1);
-            
-            
-                
-                {
-                    
-                    gen_to_be_invoked.OnRebuildRequested(  );
                     
                     
                     

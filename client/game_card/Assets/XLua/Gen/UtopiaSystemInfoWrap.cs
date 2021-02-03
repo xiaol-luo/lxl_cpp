@@ -31,8 +31,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 5, 2, 0);
-			
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 6, 2, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "IsUseAB", _m_IsUseAB_xlua_st_);
+            
 			
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Platform_Name_Stand_Unknown", Utopia.SystemInfo.Platform_Name_Stand_Unknown);
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Platform_Name_Stand_Alone", Utopia.SystemInfo.Platform_Name_Stand_Alone);
@@ -59,6 +60,30 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_IsUseAB_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                        bool gen_ret = Utopia.SystemInfo.IsUseAB(  );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
         
         
         

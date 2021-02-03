@@ -14,8 +14,13 @@ namespace Utopia
         void Awake()
         {
             lua_search_paths = new List<string>();
+#if !USE_AB
             lua_search_paths.Add("?.lua");
             lua_search_paths.Add("?/init.lua");
+#else
+            lua_search_paths.Add("?.lua.bytes");
+            lua_search_paths.Add("?/init.lua.bytes");
+#endif
             AppLog.Init(new ConsoleLogImpl(), null);
             DontDestroyOnLoad(gameObject);
             Core.MakeInstance(this);

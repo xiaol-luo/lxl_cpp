@@ -1,11 +1,15 @@
 ﻿
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 namespace Utopia
 {
     public class LuaMainLogic : LogicBase
     {
+#if USE_AB
+        ResourceLoaderProxy m_resLoaderProxy = ResourceLoaderProxy.Create();
+#endif
         XLua.LuaEnv m_lua = null;
 
         public override EAppLogicName GetModuleName()
@@ -44,7 +48,7 @@ namespace Utopia
             }
         }
 
-#if UNITY_EDITOR
+#if !USE_AB
         byte[] LuaFileLoader(ref string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
@@ -52,8 +56,7 @@ namespace Utopia
 
             byte[] bins = null;
 
-            string luaRootDir = Path.Combine(Path.Combine(UnityEngine.Application.dataPath, ".."), "LuaScript");
-
+            string luaRootDir = Lua.LuaHelp.ScriptRootDir();
             foreach (string subDir in Lua.LuaHelp.ScriptSearchDirs())
             {
                 // string absSubDir = Path.Combine(luaRootDir, subDir);
@@ -63,12 +66,34 @@ namespace Utopia
                 {
                     filePath = absLuaFile;
                     bins = File.ReadAllBytes(absLuaFile);
+                    break;
                 }
             }
             return bins;
         }
 #endif
+        byte[] LuaFileLoader(ref string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+                return null;
 
+            byte[] bins = null;
+
+            foreach (string subDir in Lua.LuaHelp.ScriptSearchDirs())
+            {
+                string realFilePath = filePath.Replace('.', '/').Replace('\\', '/');
+                string absLuaFile = subDir.Replace("?", realFilePath);
+
+                ResourceObserver resOb = m_resLoaderProxy.LoadAsset(absLuaFile);
+                if (null != resOb)
+                {
+                    TextAsset ta = resOb.res as TextAsset;
+                    bins = ta.bytes;
+                    break;
+                }
+            }
+            return bins;
+        }
     }
 }
 
