@@ -90,13 +90,15 @@ namespace Lua
             }
         }
 
-#if UNITY_EDITOR
         public static string ScriptRootDir()
         {
+#if UNITY_EDITOR
             string ret = Path.Combine(Path.Combine(UnityEngine.Application.dataPath, ".."), "LuaScript");
             return ret;
-        }
+#else
+            return "";
 #endif
+        }
 
         public static List<string> ScriptSearchDirs()
         {

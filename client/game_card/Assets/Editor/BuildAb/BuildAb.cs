@@ -1,13 +1,13 @@
 
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Utopia;
 
 public static class BuildAb
 {
-    public const string Abs_Out_Dir = "Abs";
-
     public static string ExtractRelativePath(string absPath, string absPrefixPath)
     {
         string tmpAbsPath = absPath.Replace("\\", "/");
@@ -67,7 +67,7 @@ public static class BuildAb
     [UnityEditor.MenuItem("Tools/AssetBundle/Build Win", false, 200)]
     public static void BuildWin()
     {
-        string outDir = Path.Combine(Application.streamingAssetsPath, Abs_Out_Dir);
+        string outDir = Path.Combine(Application.streamingAssetsPath, AssetBundleHelp.Abs_Out_Dir);
         BuildAssetBundleOptions buildOpt = BuildAssetBundleOptions.None;
         BuildTarget buildTarget = BuildTarget.StandaloneWindows;
         List<AssetBundleBuild> buildList = new List<AssetBundleBuild>();
@@ -152,14 +152,35 @@ public static class BuildAb
         Directory.CreateDirectory(outDir);
         AssetBundleManifest buildRet = BuildPipeline.BuildAssetBundles(outDir, buildList.ToArray(), buildOpt, buildTarget);
         {
+            Dictionary<string, AssetBundleMetaData> metaDatas = new Dictionary<string, AssetBundleMetaData>();
+
             var allBundles = buildRet.GetAllAssetBundles();
             foreach (var elem in allBundles)
             {
                 var abDp = buildRet.GetAllDependencies(elem);
-                var abDdp = buildRet.GetAllDependencies(elem);
+                var abDdp = buildRet.GetDirectDependencies(elem);
                 var abHash = buildRet.GetAssetBundleHash(elem);
                 var xx = abHash;
+
+                var metaData = new AssetBundleMetaData();
+                metaData.bundleName = elem;
+                metaData.hash = abHash.ToString();
+                metaData.dependencies = new List<string>(abDp);
+                foreach (var buildInfo in buildList)
+                {
+                    if (buildInfo.assetBundleName == elem)
+                    {
+                        metaData.assetNames = new List<string>(buildInfo.assetNames);
+                        break;
+                    }
+                }
+                metaDatas.Add(metaData.bundleName, metaData);
             }
+
+            // var jsonStr = JsonConvert.SerializeObject(new AssetBundleMetaDataMap() { datas = metaDatas }, Formatting.Indented);
+            var jsonStr = JsonConvert.SerializeObject(metaDatas, Formatting.Indented);
+            // jsonStr = jsonStr + jsonStr;
+            File.WriteAllText(Path.Combine(outDir, AssetBundleHelp.Asset_Bundle_Meta_Data_Name), jsonStr);
         }
     }
 
