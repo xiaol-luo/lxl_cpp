@@ -71,7 +71,7 @@ namespace Utopia
             }
             return bins;
         }
-#endif
+#else
         byte[] LuaFileLoader(ref string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
@@ -94,6 +94,7 @@ namespace Utopia
             }
             return bins;
         }
+#endif
     }
 }
 

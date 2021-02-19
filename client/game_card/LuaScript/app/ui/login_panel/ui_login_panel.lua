@@ -26,12 +26,12 @@ function UILoginPanel:_on_init()
         {
             name = "win本地",
             login_ip = "127.0.0.1",
-            login_port = 31001,
+            login_port = 31002,
         },
         {
             name = "linux虚拟机",
             login_ip = "192.168.0.11",
-            login_port = 31001,
+            login_port = 31002,
         },
     }
 end

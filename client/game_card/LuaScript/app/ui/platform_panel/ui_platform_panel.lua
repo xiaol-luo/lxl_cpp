@@ -26,12 +26,12 @@ function UIPlatformPanel:_on_init()
         {
             name = "win本地",
             platform_ip = "127.0.0.1",
-            platform_port = 30002,
+            platform_port = 30003,
         },
         {
             name = "linux虚拟机",
             platform_ip = "192.168.0.11",
-            platform_port = 30002,
+            platform_port = 30003,
         },
     }
 end

@@ -24,12 +24,12 @@ function UISelectGatePanel:_on_init()
         {
             name = "win本地",
             gate_ip = "127.0.0.1",
-            gate_port = 35001,
+            gate_port = 35002,
         },
         {
             name = "linux虚拟机",
             gate_ip = "192.168.0.11",
-            gate_port = 35001,
+            gate_port = 35002,
         },
     }
 end
