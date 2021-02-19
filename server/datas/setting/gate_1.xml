@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<zone>zone_0</zone>
-	<server_role>fight</server_role>
-	<server_name>fight_0</server_name>
+	<server_role>gate</server_role>
+	<server_name>gate_1</server_name>
 
 	<etcd_server>
 		<element>for_make_array</element>
@@ -18,6 +18,15 @@
 	<redis_service>
 		<element>for_make_array</element>
         <element>for_make_array</element>
+        <element>
+			<name>online_servers</name>
+			<is_cluster>1</is_cluster>
+			<host>127.0.0.1:7000,127.0.0.1:7001,127.0.0.1:7002,127.0.0.1:7003,127.0.0.1:7004,127.0.0.1:7005</host>
+			<pwd>xiaolzz</pwd>
+			<thread_num>3</thread_num>
+			<cnn_timeout_ms>3000</cnn_timeout_ms>
+			<cmd_timeout_ms>3000</cmd_timeout_ms>
+		</element>
 	</redis_service>
 
 	<mongo_service>
@@ -26,9 +35,9 @@
 	</mongo_service>
 
 	<advertise_peer_ip>127.0.0.1</advertise_peer_ip>
-	<advertise_peer_port>42001</advertise_peer_port>
+	<advertise_peer_port>35004</advertise_peer_port>
 	<advertise_client_ip>127.0.0.1</advertise_client_ip>
-	<advertise_client_port>42002</advertise_client_port>
+	<advertise_client_port>35005</advertise_client_port>
 	<advertise_http_ip>127.0.0.1</advertise_http_ip>
-	<advertise_http_port>42003</advertise_http_port>
+	<advertise_http_port>35006</advertise_http_port>
 </root>

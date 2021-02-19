@@ -1,7 +1,10 @@
 #!/bin/bash
 
-typeset -l low_case_str
+# input map:  cluster
+
 is_init=false
+
+typeset -l low_case_str
 if [ $# -ge 1 ];then
 	low_case_str=$1
 	if [ ${low_case_str} = "init" ];then
@@ -9,30 +12,34 @@ if [ $# -ge 1 ];then
 	fi
 fi
 
-source /shared/redis_cluster/config.sh
 pre_dir=`pwd`
-cd ${root_dir}
-
-mkdir -p ${run_dir}
+cd /shared/zone/zone_0/redis_cluster
 
 sh stop_all.sh
 
-echo "execute start_all.sh"
-for (( node_id=${redis_node_from}; node_id<=${redis_node_to}; node_id++ ))
-do
-    redis-server redis_${node_id}.conf
-done 
+
+mkdir -p /shared/zone/zone_0/redis_cluster/run
+redis-server redis_7000
+redis-server redis_7001
+redis-server redis_7002
+redis-server redis_7003
+redis-server redis_7004
+redis-server redis_7005
+
+echo "redis cluster started"
+sleep 5s
 
 if [ ${is_init} = true ]; then
-    echo "yes" | redis-trib create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
+  echo "yes" |  redis-trib create --replicas 1  127.0.0.1:7000  127.0.0.1:7001  127.0.0.1:7002  127.0.0.1:7003  127.0.0.1:7004  127.0.0.1:7005
 fi
+	redis-cli -p 7000 -c config set requirepass xiaolzz
+	redis-cli -p 7001 -c config set requirepass xiaolzz
+	redis-cli -p 7002 -c config set requirepass xiaolzz
+	redis-cli -p 7003 -c config set requirepass xiaolzz
+	redis-cli -p 7004 -c config set requirepass xiaolzz
+	redis-cli -p 7005 -c config set requirepass xiaolzz
 
-for (( node_id=${redis_node_from}; node_id<=${redis_node_to}; node_id++ ))
-do
-    redis-cli -p ${node_id} -c -a xiaolzz config set requirepass xiaolzz
-    redis-cli -p ${node_id} -c -a xiaolzz config set masterauth xiaolzz
-done 
-
-sh ps.sh
+sh ps_all.sh
 
 cd ${pre_dir}
+

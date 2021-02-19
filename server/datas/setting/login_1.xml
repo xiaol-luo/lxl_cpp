@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<zone>zone_0</zone>
-	<server_role>fight</server_role>
-	<server_name>fight_0</server_name>
+	<server_role>login</server_role>
+	<server_name>login_1</server_name>
 
 	<etcd_server>
 		<element>for_make_array</element>
         <element>for_make_array</element>
-        <element>
-			<name>service_discovery</name>
-			<host>http://127.0.0.1:8100;http://127.0.0.1:8200;http://127.0.0.1:8300</host>
-			<user>lxl</user>
-			<pwd>xiaolzz</pwd>
-		</element>
 	</etcd_server>
 
 	<redis_service>
@@ -23,12 +17,22 @@
 	<mongo_service>
 		<element>for_make_array</element>
         <element>for_make_array</element>
+		<element>
+			<name>login</name>
+			<host>127.0.0.1:9400</host>
+			<auth_db>admin</auth_db>
+			<user>lxl</user>
+			<pwd>xiaolzz</pwd>
+			<thread_num>3</thread_num>
+		</element>
 	</mongo_service>
 
 	<advertise_peer_ip>127.0.0.1</advertise_peer_ip>
-	<advertise_peer_port>42001</advertise_peer_port>
+	<advertise_peer_port>31004</advertise_peer_port>
 	<advertise_client_ip>127.0.0.1</advertise_client_ip>
-	<advertise_client_port>42002</advertise_client_port>
+	<advertise_client_port>31005</advertise_client_port>
 	<advertise_http_ip>127.0.0.1</advertise_http_ip>
-	<advertise_http_port>42003</advertise_http_port>
+	<advertise_http_port>31006</advertise_http_port>
+	<auth_http_ip>127.0.0.1</auth_http_ip>
+	<auth_http_port>32003</auth_http_port>
 </root>

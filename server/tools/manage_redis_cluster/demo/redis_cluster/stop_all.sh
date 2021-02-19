@@ -1,17 +1,21 @@
 #!/bin/bash
 
-source /shared/redis_cluster/config.sh
 pre_dir=`pwd`
-cd ${root_dir}
+cd /shared/zone/zone_0/redis_cluster
 
-echo "execute stop_all.sh"
-pid_files=`find ${run_dir} -name '*.pid'`
-for pid_file in ${pid_files} 
-do
-    cat ${pid_file} | xargs kill -9 
-    rm -f ${pid_file}
-done 
+ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:7000 | awk '{ print $2}' | xargs -rt kill -9
 
-sh ps.sh
+ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:7001 | awk '{ print $2}' | xargs -rt kill -9
+
+ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:7002 | awk '{ print $2}' | xargs -rt kill -9
+
+ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:7003 | awk '{ print $2}' | xargs -rt kill -9
+
+ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:7004 | awk '{ print $2}' | xargs -rt kill -9
+
+ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:7005 | awk '{ print $2}' | xargs -rt kill -9
+
+
+sh ps_all.sh
 
 cd ${pre_dir}

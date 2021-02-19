@@ -66,17 +66,28 @@ kill_alive_services()
 in_home = False
 
 if in_home:
-	code_dir = r"F:\github\lxl_cpp\server"
-	exe_file = r"F:\ws\lxl_cpp\Debug\service.exe"
-	work_dir_base = r"F:\ws\lxl_cpp"
+	code_dir = r"D:\work_space\code\lxl_cpp\server"
+	exe_file = r"D:\work_space\ws\lxl_cpp\Debug\service.exe"
+	work_dir_base = r"D:\work_space\ws\lxl_cpp"
 else:
 	code_dir = r"E:\git\code\lxl_cpp\server"
 	exe_file = r"E:\git\ws\lxl_cpp\Debug\service.exe"
 	work_dir_base = r"E:\git\ws\lxl_cpp"
 
 run_cmds = []
-for role_name in ["world_0", "world_1", "world_sentinel_0", "gate_0", "game_0", "create_role_0", 
-        "login_0", "auth_0", "platform_0", "match_0", "room_0", "fight_0" ]:
+for role_name in [
+        "world_sentinel_0", 
+        "world_0", "world_1", 
+        "game_0", "game_1", 
+        "gate_0", "gate_1", 
+        "login_0", "login_1", 
+        "create_role_0", "create_role_1", 
+        "auth_0", 
+        "platform_0", 
+        "match_0", "match_1", 
+        "room_0", "room_1", 
+        "fight_0", "fight_1" 
+        ]:
 # for role_name in ["world_0", "world_sentinel_0", "gate_0", "game_0"]:
     run_cmd = "{} {} {} {}".format(
         exe_file,

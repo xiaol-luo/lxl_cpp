@@ -1,0 +1,16 @@
+cluster-enabled yes
+cluster-node-timeout 5000
+appendonly yes
+
+daemonize yes
+tcp-backlog 128
+bind 0.0.0.0
+dir /shared/zone/zone_0/redis_cluster/run
+
+# different between each redis node
+port 7003
+pidfile redis_7003.pid
+logfile redis_7003.log
+cluster-config-file redis_7003.conf
+dbfilename redis_7003.rdb
+appendfilename redis_7003.aof

@@ -1,10 +1,9 @@
 #!/bin/bash
 
-script_root=`dirname "$0"`
 pre_dir=`pwd`
-cd ${script_root}
+cd /shared/zone/zone_0/etcd_cluster
 
 sh stop_all.sh
-rm -rf run/*
+rm -rf /shared/zone/zone_0/etcd_cluster/run/*
 
 cd ${pre_dir}

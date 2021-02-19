@@ -1,10 +1,9 @@
 #!/bin/bash
 
-source /shared/mongo_cluster/config.sh
 pre_dir=`pwd`
-cd ${root_dir}
+cd /shared/zone/zone_0/mongo_cluster
 
 sh stop_all.sh
-rm -rf ${run_dir}/*
+rm -rf /shared/zone/zone_0/mongo_cluster/run/*
 
 cd ${pre_dir}
