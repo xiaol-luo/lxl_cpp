@@ -35,7 +35,8 @@ namespace Utopia
                 AssetBundleRunTimeData rtData = this.GetAssetBundleRtData(abMeta.bundleName, true);
                 if (null != rtData)
                 {
-                    rtData.refAssets.Add(path);
+                    HandleAssetAddRef(rtData, path);
+
                     var op = rtData.assetBundle.LoadAssetAsync(path);
                     op.completed += (AsyncOperation _req) =>
                     {
@@ -76,7 +77,7 @@ namespace Utopia
                 AssetBundleRunTimeData rtData = this.GetAssetBundleRtData(abMeta.bundleName, true);
                 if (null != rtData)
                 {
-                    rtData.refAssets.Add(path);
+                    HandleAssetAddRef(rtData, path);
                     ret = rtData.assetBundle.LoadAsset(path);
                 }
             }
@@ -95,11 +96,7 @@ namespace Utopia
                 var rtData = this.GetAssetBundleRtData(abMeta.bundleName, false);
                 if (null != rtData && rtData.refAssets.Contains(path))
                 {
-                    rtData.refAssets.Remove(path);
-                    if (rtData.refAssets.Count <= 0)
-                    {
-                        this.CheckUnloadLater();
-                    }
+                    HandleAssetSubRef(rtData, path);
                 }
             }
         }
@@ -124,6 +121,10 @@ namespace Utopia
                     rtData.assetBundle = AssetBundle.LoadFromMemory(fileContent);
                     m_bundleRtDataMap[abMeta.bundleName] = rtData;
                     // 可能需要些错误提示
+                    foreach (string dpAbName in abMeta.directDependencies)
+                    {
+                        this.GetAssetBundleRtData(dpAbName, true);
+                    }
                 }
             }
             return rtData;
@@ -133,15 +134,18 @@ namespace Utopia
         protected ulong m_checkUnloadTid = 0;
         protected void CheckUnloadLater()
         {
+#if !UNITY_EDITOR
             if (m_checkUnloadTid <= 0)
             {
                 m_checkUnloadTid = Core.ins.timer.Delay(() => {
+#endif
+
                     m_checkUnloadTid = 0;
                     List<string> unloadAbs = new List<string>();
                     foreach (var kv in m_bundleRtDataMap)
                     {
                         var rtData = kv.Value;
-                        if (rtData.refAssets.Count <= 0)
+                        if (rtData.refAssets.Count <= 0 && rtData.refBundle.Count <= 0)
                         {
                             unloadAbs.Add(kv.Key);
                             // rtData.
@@ -149,9 +153,52 @@ namespace Utopia
                     }
                     foreach (var abName in unloadAbs)
                     {
+                        if (m_bundleRtDataMap.TryGetValue(abName, out AssetBundleRunTimeData rtData))
+                        {
+                            rtData.assetBundle.Unload(true);
+                        }
+                        m_bundleRtDataMap.Remove(abName);
 
                     }
+
+                    // Resources.UnloadUnusedAssets()
+#if !UNITY_EDITOR
                 }, 1.0f);
+            }
+#endif
+        }
+
+        protected void HandleAssetAddRef(AssetBundleRunTimeData rtData, string path)
+        {
+            int oldCount = rtData.refAssets.Count;
+            rtData.refAssets.Add(path);
+            if (oldCount <= 0)
+            {
+                foreach (string dp in  rtData.metaData.dependencies)
+                {
+                    var dpRtData = this.GetAssetBundleRtData(dp, false);
+                    if (null != dpRtData)
+                    {
+                        dpRtData.refBundle.Add(rtData.metaData.bundleName);
+                    }
+                }
+            }
+        }
+
+        protected void HandleAssetSubRef(AssetBundleRunTimeData rtData, string path)
+        {
+            rtData.refAssets.Remove(path);
+            if (rtData.refAssets.Count <= 0)
+            {
+                foreach (string dp in rtData.metaData.dependencies)
+                {
+                    var dpRtData = this.GetAssetBundleRtData(dp, false);
+                    if (null != dpRtData)
+                    {
+                        dpRtData.refBundle.Remove(rtData.metaData.bundleName);
+                    }
+                }
+                this.CheckUnloadLater();
             }
         }
     }

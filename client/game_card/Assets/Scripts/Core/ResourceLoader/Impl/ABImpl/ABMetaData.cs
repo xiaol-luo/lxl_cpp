@@ -31,6 +31,7 @@ namespace Utopia
         public string bundleName;
         public string hash;
         public List<string> assetNames = new List<string>();
+        public List<string> directDependencies = new List<string>();
         public List<string> dependencies = new List<string>();
     }
 
@@ -39,7 +40,7 @@ namespace Utopia
         public AssetBundleMetaData metaData;
         public AssetBundle assetBundle;
         public HashSet<string> refAssets = new HashSet<string>();
-        
+        public HashSet<string> refBundle = new HashSet<string>();
     }
 }
 

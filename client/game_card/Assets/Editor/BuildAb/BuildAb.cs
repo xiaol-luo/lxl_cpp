@@ -165,7 +165,7 @@ public static class BuildAb
                 var metaData = new AssetBundleMetaData();
                 metaData.bundleName = elem;
                 metaData.hash = abHash.ToString();
-                metaData.dependencies = new List<string>(abDp);
+                metaData.directDependencies = new List<string>(abDp);
                 foreach (var buildInfo in buildList)
                 {
                     if (buildInfo.assetBundleName == elem)
@@ -176,6 +176,34 @@ public static class BuildAb
                 }
                 metaDatas.Add(metaData.bundleName, metaData);
             }
+
+            foreach (var kv in metaDatas)
+            {
+                HashSet<string> dependencies = new HashSet<string>();
+                Stack<string> waitCheckDp = new Stack<string>(kv.Value.directDependencies);
+
+                while (waitCheckDp.Count > 0)
+                {
+                    string dp = waitCheckDp.Pop();
+                    if (!dependencies.Contains(dp))
+                    {
+                        dependencies.Add(dp);
+                        if (metaDatas.TryGetValue(dp, out AssetBundleMetaData dbMetaData))
+                        {
+                            foreach (var relateDp in dbMetaData.directDependencies)
+                            {
+                                if (!dependencies.Contains(relateDp))
+                                {
+                                    waitCheckDp.Push(relateDp);
+                                }
+                            }
+                        }
+                    }
+                }
+                dependencies.Remove(kv.Key);
+                kv.Value.dependencies = new List<string>(dependencies);
+            }
+
 
             // var jsonStr = JsonConvert.SerializeObject(new AssetBundleMetaDataMap() { datas = metaDatas }, Formatting.Indented);
             var jsonStr = JsonConvert.SerializeObject(metaDatas, Formatting.Indented);
