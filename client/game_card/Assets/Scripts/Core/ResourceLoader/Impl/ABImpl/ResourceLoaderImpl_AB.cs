@@ -49,6 +49,7 @@ namespace Utopia
                             this.Unload(path);
                         }
                     };
+                    isOk = true;
                 }
             }
 
@@ -118,7 +119,7 @@ namespace Utopia
                 {
                     rtData = new AssetBundleRunTimeData();
                     rtData.metaData = abMeta;
-                    var filePath = Path.Combine(Application.streamingAssetsPath, abMeta.bundleName);
+                    var filePath = Path.Combine(Application.streamingAssetsPath, Path.Combine(Utopia.AssetBundleHelp.Abs_Out_Dir, abMeta.bundleName));
                     var fileContent = File.ReadAllBytes(filePath);
                     rtData.assetBundle = AssetBundle.LoadFromMemory(fileContent);
                     m_bundleRtDataMap[abMeta.bundleName] = rtData;

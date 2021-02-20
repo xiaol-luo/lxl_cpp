@@ -75,10 +75,13 @@ namespace Lua
         public static void AddLuaSearchPath(string path)
         {
             bool needAdd = true;
-            string tmpPath = path.Replace('\\', '/');
-            foreach (string item in App.ins.core.lua_search_paths)
+            string realPath = Path.Combine(ScriptRootDir(), path).Replace('\\', '/');
+#if USE_AB
+            realPath += ".bytes";
+#endif
+            foreach (string item in Core.ins.root.lua_search_paths)
             {
-                if (tmpPath == item.Replace('\\', '/'))
+                if (realPath == item.Replace('\\', '/'))
                 {
                     needAdd = false;
                     break;
@@ -86,34 +89,23 @@ namespace Lua
             }
             if (needAdd)
             {
-                App.ins.core.lua_search_paths.Add(path);
+                Core.ins.root.lua_search_paths.Add(realPath);
             }
         }
 
         public static string ScriptRootDir()
         {
-#if UNITY_EDITOR
-            string ret = Path.Combine(Path.Combine(UnityEngine.Application.dataPath, ".."), "LuaScript");
-            return ret;
+#if !USE_AB
+            string ret = Path.Combine(UnityEngine.Application.dataPath, "..");
 #else
-            return "";
+            string ret = "Assets/Res/lua_script";
 #endif
+            return ret;
         }
 
         public static List<string> ScriptSearchDirs()
         {
-#if !USE_AB
-            string scriptRootDir = ScriptRootDir();
-            List<string> rets = new List<string>();
-            foreach(string item in App.ins.core.lua_search_paths)
-            {
-                string searchDir = string.Format("{0}/{1}", scriptRootDir, item).Replace('\\', '/');
-                rets.Add(searchDir);
-            }
-            return rets;
-#else
-            return App.ins.core.lua_search_paths;
-#endif
+            return Core.ins.root.lua_search_paths;
         }
         public static bool IsFile(string filePath)
         {

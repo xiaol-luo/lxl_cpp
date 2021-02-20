@@ -12,5 +12,6 @@ ServerData
 LuaScriptServer
 Logs
 LuaScript/share
-client/game_card/Assets/Res/lua_script
-client/game_card/Assets/StreamingAssets/
+Assets/Res/lua_script
+Assets/Res/lua_script.meta
+Assets/StreamingAssets

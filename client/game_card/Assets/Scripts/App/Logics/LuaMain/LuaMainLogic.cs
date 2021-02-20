@@ -56,10 +56,8 @@ namespace Utopia
 
             byte[] bins = null;
 
-            string luaRootDir = Lua.LuaHelp.ScriptRootDir();
             foreach (string subDir in Lua.LuaHelp.ScriptSearchDirs())
             {
-                // string absSubDir = Path.Combine(luaRootDir, subDir);
                 string realFilePath = filePath.Replace('.', '/').Replace('\\', '/');
                 string absLuaFile = subDir.Replace("?", realFilePath);
                 if (File.Exists(absLuaFile))

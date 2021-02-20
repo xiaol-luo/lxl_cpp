@@ -50,7 +50,10 @@ namespace Utopia
                 }
                 else
                 {
-                    ret.Release();
+                    if(null != ret)
+                    {
+                        ret.Release();
+                    }
                     ret = this.GetLoadedResObserver(path);
                 }
             }
@@ -68,7 +71,10 @@ namespace Utopia
                     }
                     else
                     {
-                        ret.Release();
+                        if (null != ret)
+                        {
+                            ret.Release();
+                        }
                     }
                     if (null != cb)
                     {

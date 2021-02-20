@@ -129,10 +129,8 @@ function include_file(input_arg, dir_path)
 end
 
 function ParseArgs.append_lua_search_path(v)
-    if not CS.Utopia.SystemInfo.IsUseAB() then
-        CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?.lua", v))
-        CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?/init.lua", v))
-    end
+    CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?.lua", v))
+    CS.Lua.LuaHelp.AddLuaSearchPath(string.format("%s/?/init.lua", v))
 end
 
 function ParseArgs.make_cmd_prefix(opt_name)
