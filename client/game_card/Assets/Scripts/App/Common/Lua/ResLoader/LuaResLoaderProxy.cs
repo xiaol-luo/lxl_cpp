@@ -39,10 +39,9 @@ namespace Lua
         {
             m_loaderProxy.Release();
         }
-
         public void AsyncLoadScene(string path, bool isAddition,  LuaFunction luaFn)
         {
-            m_loaderProxy.AsyncLoadScene(path, isAddition, (ResourceScene.LoadResult ret, string resPath) => {
+            m_loaderProxy.AsyncLoadScene(path, isAddition, (string resPath, ResourceScene.LoadResult ret) => {
                 if (null != luaFn)
                 {
                     Lua.LuaHelp.SafeCall(luaFn, ret, resPath);
@@ -52,6 +51,10 @@ namespace Lua
         public ResourceScene CoLoadScene(string path, bool isAddition)
         {
             return m_loaderProxy.CoLoadScene(path, isAddition);
+        }
+        public bool LoadScene(string path, bool isAddition)
+        {
+            return m_loaderProxy.LoadScene(path, isAddition);
         }
         public void UnloadScene(string path)
         {

@@ -66,6 +66,21 @@ namespace Utopia
         public void AsyncLoadScene(string path, Action<string, bool> cb)
         {
 
+            bool isOk = false;
+            if (m_assetToBundleMap.TryGetValue(path, out AssetBundleMetaData abMeta))
+            {
+                AssetBundleRunTimeData rtData = this.GetAssetBundleRtData(abMeta.bundleName, true);
+                if (null != rtData)
+                {
+                    HandleAssetAddRef(rtData, path);
+                    isOk = true;
+                }
+            }
+            // Ä£ÄâÒì²½
+            Core.ins.timer.Delay(() =>
+            {
+                cb(path, isOk);
+            }, 0);
         }
 
         public UnityEngine.Object Load(string path)
@@ -86,7 +101,17 @@ namespace Utopia
 
         public bool LoadScene(string path)
         {
-            throw new NotImplementedException();
+            bool isOk = false;
+            if (m_assetToBundleMap.TryGetValue(path, out AssetBundleMetaData abMeta))
+            {
+                AssetBundleRunTimeData rtData = this.GetAssetBundleRtData(abMeta.bundleName, true);
+                if (null != rtData)
+                {
+                    HandleAssetAddRef(rtData, path);
+                    isOk = true;
+                }
+            }
+            return isOk;
         }
 
         public void Unload(string path)
@@ -103,7 +128,7 @@ namespace Utopia
 
         public void UnloadScene(string path)
         {
-            throw new NotImplementedException();
+            this.Unload(path);
         }
 
         protected AssetBundleRunTimeData GetAssetBundleRtData(string bundleName, bool createWhenMiss)

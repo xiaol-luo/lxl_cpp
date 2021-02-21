@@ -149,6 +149,31 @@ public static class BuildAb
             }
         }
 
+        {
+            // test scene
+            AssetBundleBuild abd = new AssetBundleBuild();
+            abd.assetBundleName = "test_scene";
+            List<string> assetNames = new List<string>();
+
+            {
+                string assetDir = "Res/Scene/OtherTest";
+                string absAssetDir = Path.Combine(Application.dataPath, assetDir);
+                string fileFormat = "*.unity";
+                var resFiles = Directory.GetFiles(absAssetDir, fileFormat, SearchOption.AllDirectories);
+                foreach (var elem in resFiles)
+                {
+                    string assetPath = ExtractRelativePath(elem, dataPathParentDir);
+                    assetNames.Add(assetPath);
+                }
+            }
+
+            abd.assetNames = assetNames.ToArray();
+            if (abd.assetNames.Length > 0)
+            {
+                buildList.Add(abd);
+            }
+        }
+
         Directory.CreateDirectory(outDir);
         AssetBundleManifest buildRet = BuildPipeline.BuildAssetBundles(outDir, buildList.ToArray(), buildOpt, buildTarget);
         {

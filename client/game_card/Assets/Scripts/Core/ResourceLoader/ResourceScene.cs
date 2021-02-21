@@ -12,7 +12,6 @@ namespace Utopia
 
         ResourceState m_resState;
         public ResourceState resState { get { return m_resState; } }
-        UnityEngine.AsyncOperation m_resOpera;
         UnityEngine.Coroutine m_resOperaCo;
         public bool isAddition;
 
@@ -101,9 +100,9 @@ namespace Utopia
                 return ret;
             }
         }
-        System.Action<ResourceScene.LoadResult, string> m_cb;
-        public System.Action<ResourceScene.LoadResult, string> cb { get { return m_cb; } }
-        public void SetCb(System.Action<ResourceScene.LoadResult, string> _cb) { m_cb = _cb; }
+        System.Action<string, ResourceScene.LoadResult> m_cb;
+        public System.Action<string, ResourceScene.LoadResult> cb { get { return m_cb; } }
+        public void SetCb(System.Action<string, ResourceScene.LoadResult> _cb) { m_cb = _cb; }
 
         public string sceneName
         {
@@ -133,10 +132,10 @@ namespace Utopia
             if (State.LoadingAsset == m_state)
             {
                 m_state = State.Fail;
-                resState.req.UnloadRes();
+                resState.req.Unload();
                 if (null != m_cb)
                 {
-                    m_cb(LoadResult.Fail, this.sceneName);
+                    m_cb(this.sceneName, LoadResult.Fail);
                     this.SetCb(null);
                 }
             }
@@ -147,22 +146,19 @@ namespace Utopia
 
             if (null != m_cb)
             {
-                m_cb(LoadResult.Cancel, this.sceneName);
+                m_cb(this.sceneName, LoadResult.Cancel);
                 this.SetCb(null);
             }
-            m_resState.req.UnloadRes();
+            m_resState.req.Unload();
             if (null != m_resOperaCo)
             {
                 Core.ins.StopCoroutine(m_resOperaCo);
                 m_resOperaCo = null;
             }
-            if (null != m_resOpera)
-            {
-                m_resOpera = null;
-                SceneManager.UnloadSceneAsync(this.sceneName);
-            }
+
+            SceneManager.UnloadSceneAsync(this.sceneName);
         }
-        public bool ReloadScene(System.Action<ResourceScene.LoadResult, string> newCb)
+        public bool AsyncReloadScene(System.Action<string, ResourceScene.LoadResult> newCb)
         {
             bool ret = false;
             if (this.isLoaded)
@@ -171,52 +167,52 @@ namespace Utopia
                 m_state = State.LoadingScene;
                 this.SetCb(newCb);
                 SceneManager.UnloadSceneAsync(this.sceneName);
-                m_resOpera = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(this.sceneName, this.loadSceneMode);
-                m_resOperaCo = Core.ins.StartCoroutine(CoTryLoadScene());
+                AsyncOperation resOpera = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(this.sceneName, this.loadSceneMode);
+                m_resOperaCo = Core.ins.StartCoroutine(CoLoadScene(resOpera));
             }
             return ret;
         }
-        public bool TryLoadScene()
+        public bool AsyncLoadScene()
         {
             bool ret = false;
             if (State.LoadingAsset == m_state)
             {
                 ret = true;
                 m_state = State.LoadingScene;
-                m_resOpera = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(this.sceneName, this.loadSceneMode);
-                m_resOperaCo = Core.ins.StartCoroutine(CoTryLoadScene());
+                AsyncOperation resOpera = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(this.sceneName, this.loadSceneMode);
+                m_resOperaCo = Core.ins.StartCoroutine(CoLoadScene(resOpera));
             }
             return ret;
         }
-        IEnumerator CoTryLoadScene()
+        IEnumerator CoLoadScene(AsyncOperation resOpera)
         {
             while (true)
             {
-                if (null == m_resOpera || m_resOpera.isDone)
+                if (null == resOpera || resOpera.isDone)
                     break;
                 yield return new WaitForSeconds(0.001f);
             }
-            if (null != m_resOpera && m_resOpera.isDone)
+            if (null != resOpera && resOpera.isDone)
             {
                 m_state = State.Loaded;
                 if (null != m_cb)
                 {
-                    m_cb(LoadResult.Succ, this.sceneName);
+                    m_cb(this.sceneName, LoadResult.Succ);
                     this.SetCb(null);
                 }
             }
-            m_resOpera = null;
+            resOpera = null;
             m_resOperaCo = null;
         }
 
-        public bool TryLoadAsset()
+        public bool AsyncLoadAsset()
         {
             bool ret = false;
             if (State.Inited == m_state)
             {
                 ret = true;
                 m_state = State.LoadingAsset;
-                resState.req.AsyncLoad();
+                resState.req.AsyncLoadScene();
             }
             return ret;
         }

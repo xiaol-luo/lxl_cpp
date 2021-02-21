@@ -93,7 +93,7 @@ namespace Utopia
                 ulong reqId = this.GenReqId();
                 resState.req = ResourceRequest.CreateAsyncRequest(m_resLoader, path, this.ResLoadEndCall, reqId);
                 m_resStates.Add(path, resState);
-                resState.req.AsyncLoad();
+                resState.req.AsyncLoadRes();
             }
             else
             {
@@ -112,7 +112,7 @@ namespace Utopia
                 ulong reqId = this.GenReqId();
                 resState.req = ResourceRequest.CreateAsyncRequest(m_resLoader, path, this.ResLoadEndCall,reqId);
                 m_resStates.Add(path, resState);
-                resState.req.AsyncLoad();
+                resState.req.AsyncLoadRes();
             }
             ResourceObserver ret = resState.AddObserver(null);
             return ret;
@@ -137,7 +137,7 @@ namespace Utopia
                 && resState.refCount <= 0)
             {
                 m_resStates.Remove(path);
-                resState.req.UnloadRes();
+                resState.req.Unload();
                 resState.req = null;
             }
         }
@@ -166,7 +166,7 @@ namespace Utopia
             }
             else
             {
-                req.UnloadRes();
+                req.Unload();
             }
         }
 
@@ -182,7 +182,7 @@ namespace Utopia
             m_resScenes.TryGetValue(path, out ret);
             return ret;
         }
-        public void AsyncLoadScene(string path, bool isAddition, System.Action<ResourceScene.LoadResult, string> cb)
+        public void AsyncLoadScene(string path, bool isAddition, System.Action<string, ResourceScene.LoadResult> cb)
         {
             if (!isAddition)
             {
@@ -205,13 +205,13 @@ namespace Utopia
                     // resScene.isAddition = isAddition; // 这里是否允许改？暂时不允许
                     if (null != resScene.cb)
                     {
-                        resScene.cb(ResourceScene.LoadResult.Cancel, resScene.sceneName);
+                        resScene.cb(resScene.sceneName, ResourceScene.LoadResult.Cancel);
                         resScene.SetCb(cb);
                     }
                 }
                 else if (resScene.isLoaded)
                 {
-                    resScene.ReloadScene(cb);
+                    resScene.AsyncReloadScene(cb);
                 }
             }
             else
@@ -223,7 +223,7 @@ namespace Utopia
                 resScene.isAddition = isAddition;
                 resScene.SetCb(cb);
                 m_resScenes.Add(resScene.sceneName, resScene);
-                resScene.TryLoadAsset();
+                resScene.AsyncLoadAsset();
             }
         }
         public ResourceScene CoLoadScene(string path, bool isAddition)
@@ -243,11 +243,35 @@ namespace Utopia
             ulong reqId = this.GenReqId();
             resState.req = ResourceRequest.CreateAsyncRequest(m_resLoader, path, this.ResLoadSceneEndCall, reqId);
             ResourceScene resScene = new ResourceScene(resState);
-            resScene.TryLoadAsset();
+            resScene.AsyncLoadAsset();
 
             m_resScenes.Add(resScene.sceneName, resScene);
             return resScene;
         }
+        public bool LoadScene(string path, bool isAddition)
+        {
+            ResourceScene resScene = this.GetResScene(path);
+            if (null != resScene)
+            {
+                return resScene.isLoaded;
+            }
+            else
+            {
+                if (m_resLoader.LoadScene(path))
+                {
+                    ResourceState resState = new ResourceState(this);
+                    ulong reqId = this.GenReqId();
+                    resState.req = ResourceRequest.CreateRequest(m_resLoader, path, null, reqId);
+                    resScene = new ResourceScene(resState);
+                    resScene.isAddition = isAddition;
+                    m_resScenes.Add(resScene.sceneName, resScene);
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(path, isAddition ? LoadSceneMode.Additive : LoadSceneMode.Single);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void UnloadScene(string path)
         {
             ResourceScene resScene = this.GetResScene(path);
@@ -271,12 +295,12 @@ namespace Utopia
                 }
                 else
                 {
-                    resScene.TryLoadScene();
+                    resScene.AsyncLoadScene();
                 }
             }
             else
             {
-                req.UnloadRes();
+                req.Unload();
             }
         }
         #endregion
