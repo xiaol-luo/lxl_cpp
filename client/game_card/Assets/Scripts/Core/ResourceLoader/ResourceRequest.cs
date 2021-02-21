@@ -99,12 +99,12 @@ namespace Utopia
         public void AsyncLoadRes()
         {
             loaderImpl.AsyncLoad(path, (string reqPath, UnityEngine.Object res) => {
-                AsyncLoadResEndCall(this, res);
+                AsyncLoadResEndCall(res);
             });
         }
-        static void AsyncLoadResEndCall(ResourceRequest req, UnityEngine.Object res)
+        void AsyncLoadResEndCall(UnityEngine.Object res)
         {
-            req.SetRes(res);
+            this.SetRes(res);
         }
         public void Unload()
         {
@@ -137,11 +137,11 @@ namespace Utopia
         {
             loaderImpl.AsyncLoadScene(path, (string reqPath, bool isSucc) =>
             {
-                AsyncLoadSceneEndCall(this, isSucc);
+                AsyncLoadSceneEndCall(isSucc);
             });
         }
 
-        protected void AsyncLoadSceneEndCall(ResourceRequest req, bool isSucc)
+        protected void AsyncLoadSceneEndCall(bool isSucc)
         {
             if (isSucc)
                 m_state = RequestState.Loaded;
@@ -150,6 +150,16 @@ namespace Utopia
             if (null != loadEndCb)
             {
                 loadEndCb(this);
+            }
+        }
+
+        public void UnloadScene()
+        {
+            if (isDone && !isUnloaded)
+            {
+                m_state = RequestState.Unloaded;
+                res = null;
+                loaderImpl.UnloadScene(path);
             }
         }
     }

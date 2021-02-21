@@ -300,7 +300,7 @@ namespace Utopia
             }
             else
             {
-                req.Unload();
+                req.UnloadScene();
             }
         }
         #endregion
