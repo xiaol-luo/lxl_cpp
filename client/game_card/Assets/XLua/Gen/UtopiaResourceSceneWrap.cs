@@ -26,9 +26,9 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetCb", _m_SetCb);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetLoadAssetFail", _m_SetLoadAssetFail);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Release", _m_Release);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "ReloadScene", _m_ReloadScene);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "TryLoadScene", _m_TryLoadScene);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "TryLoadAsset", _m_TryLoadAsset);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AsyncReloadScene", _m_AsyncReloadScene);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AsyncLoadScene", _m_AsyncLoadScene);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AsyncLoadAsset", _m_AsyncLoadAsset);
 			
 			
 			Utils.RegisterFunc(L, Utils.GETTER_IDX, "resLoader", _g_get_resLoader);
@@ -104,7 +104,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    System.Action<Utopia.ResourceScene.LoadResult, string> __cb = translator.GetDelegate<System.Action<Utopia.ResourceScene.LoadResult, string>>(L, 2);
+                    System.Action<string, Utopia.ResourceScene.LoadResult> __cb = translator.GetDelegate<System.Action<string, Utopia.ResourceScene.LoadResult>>(L, 2);
                     
                     gen_to_be_invoked.SetCb( __cb );
                     
@@ -174,7 +174,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_ReloadScene(RealStatePtr L)
+        static int _m_AsyncReloadScene(RealStatePtr L)
         {
 		    try {
             
@@ -186,9 +186,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    System.Action<Utopia.ResourceScene.LoadResult, string> _newCb = translator.GetDelegate<System.Action<Utopia.ResourceScene.LoadResult, string>>(L, 2);
+                    System.Action<string, Utopia.ResourceScene.LoadResult> _newCb = translator.GetDelegate<System.Action<string, Utopia.ResourceScene.LoadResult>>(L, 2);
                     
-                        bool gen_ret = gen_to_be_invoked.ReloadScene( _newCb );
+                        bool gen_ret = gen_to_be_invoked.AsyncReloadScene( _newCb );
                         LuaAPI.lua_pushboolean(L, gen_ret);
                     
                     
@@ -203,7 +203,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_TryLoadScene(RealStatePtr L)
+        static int _m_AsyncLoadScene(RealStatePtr L)
         {
 		    try {
             
@@ -216,7 +216,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        bool gen_ret = gen_to_be_invoked.TryLoadScene(  );
+                        bool gen_ret = gen_to_be_invoked.AsyncLoadScene(  );
                         LuaAPI.lua_pushboolean(L, gen_ret);
                     
                     
@@ -231,7 +231,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_TryLoadAsset(RealStatePtr L)
+        static int _m_AsyncLoadAsset(RealStatePtr L)
         {
 		    try {
             
@@ -244,7 +244,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        bool gen_ret = gen_to_be_invoked.TryLoadAsset(  );
+                        bool gen_ret = gen_to_be_invoked.AsyncLoadAsset(  );
                         LuaAPI.lua_pushboolean(L, gen_ret);
                     
                     

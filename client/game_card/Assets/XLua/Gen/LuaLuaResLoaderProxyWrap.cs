@@ -21,7 +21,7 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(Lua.LuaResLoaderProxy);
-			Utils.BeginObjectRegister(type, L, translator, 0, 9, 0, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 10, 0, 0);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GetLoadedResState", _m_GetLoadedResState);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadAsset", _m_LoadAsset);
@@ -31,6 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Release", _m_Release);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AsyncLoadScene", _m_AsyncLoadScene);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "CoLoadScene", _m_CoLoadScene);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadScene", _m_LoadScene);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UnloadScene", _m_UnloadScene);
 			
 			
@@ -301,6 +302,36 @@ namespace XLua.CSObjectWrap
                     
                         Utopia.ResourceScene gen_ret = gen_to_be_invoked.CoLoadScene( _path, _isAddition );
                         translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_LoadScene(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                Lua.LuaResLoaderProxy gen_to_be_invoked = (Lua.LuaResLoaderProxy)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _path = LuaAPI.lua_tostring(L, 2);
+                    bool _isAddition = LuaAPI.lua_toboolean(L, 3);
+                    
+                        bool gen_ret = gen_to_be_invoked.LoadScene( _path, _isAddition );
+                        LuaAPI.lua_pushboolean(L, gen_ret);
                     
                     
                     
