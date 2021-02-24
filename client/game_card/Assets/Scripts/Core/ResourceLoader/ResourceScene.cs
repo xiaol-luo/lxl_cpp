@@ -149,14 +149,17 @@ namespace Utopia
                 m_cb(this.sceneName, LoadResult.Cancel);
                 this.SetCb(null);
             }
-            m_resState.req.UnloadScene();
             if (null != m_resOperaCo)
             {
                 Core.ins.StopCoroutine(m_resOperaCo);
                 m_resOperaCo = null;
             }
-
-            SceneManager.UnloadSceneAsync(this.sceneName);
+            if (null != m_resState.req)
+            {
+                m_resState.req.UnloadScene();
+                m_resState.req = null;
+                SceneManager.UnloadSceneAsync(this.sceneName);
+            }
         }
         public bool AsyncReloadScene(System.Action<string, ResourceScene.LoadResult> newCb)
         {

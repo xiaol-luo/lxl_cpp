@@ -1,0 +1,19 @@
+<xml>
+	<bundles>
+	<!-- 
+		<bundle name="panels" src="Res/UI/PanelMgr" subfix="*.prefab" platform="*" >
+			<includes>
+				<elem platform="*|win|android|ios">xxx</elem>
+			</includes>
+			<excludes>
+				<elem platform="*|win|android|ios">xxx</elem>
+			</excludes>
+		</bundle>
+	-->
+	
+		<bundle name="panels" src="Res/UI/PanelMgr" subfix="*.prefab" platform="*" ></bundle>
+		<bundle name="images" src="Res/UI/Images" subfix="*.png" platform="*" ></bundle>
+		<bundle name="script" src="Res/lua_script" subfix="*.bytes" platform="*" ></bundle>
+		<bundle name="test_scene" src="Res/Scene/OtherTest" subfix="*.unity" platform="*" ></bundle>
+	</bundles>
+</xml>
