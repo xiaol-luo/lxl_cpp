@@ -7,7 +7,7 @@
 systemLog:
   destination: file
   logAppend: true
-  path: /shared/zone/zone_0/mongo_cluster/run/mongos_log_file_9400.log
+  path: /shared/mongo_cluster/run/mongos_log_file_9400.log
 #  engine:
 #  mmapv1:
 #  wiredTiger:
@@ -15,7 +15,7 @@ systemLog:
 # how the process runs
 processManagement:
   fork: true  # fork and run in background
-  pidFilePath: /shared/zone/zone_0/mongo_cluster/run/mongos_pid_file_9400.pid  # location of pidfile
+  pidFilePath: /shared/mongo_cluster/run/mongos_pid_file_9400.pid  # location of pidfile
   timeZoneInfo: /usr/share/zoneinfo
 
 # network interfaces

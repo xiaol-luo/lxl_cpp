@@ -7,11 +7,11 @@
 systemLog:
   destination: file
   logAppend: true
-  path: /shared/zone/zone_0/mongo_cluster/run/log_file_9009.log
+  path: /shared/mongo_cluster/run/log_file_9009.log
 
 # Where and how to store data.
 storage:
-  dbPath: /shared/zone/zone_0/mongo_cluster/run/db_file_9009
+  dbPath: /shared/mongo_cluster/run/db_file_9009
   journal:
     enabled: true
 #  engine:
@@ -21,7 +21,7 @@ storage:
 # how the process runs
 processManagement:
   fork: true  # fork and run in background
-  pidFilePath: /shared/zone/zone_0/mongo_cluster/run/pid_file_9009.pid  # location of pidfile
+  pidFilePath: /shared/mongo_cluster/run/pid_file_9009.pid  # location of pidfile
   timeZoneInfo: /usr/share/zoneinfo
 
 # network interfaces

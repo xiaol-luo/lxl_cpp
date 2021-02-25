@@ -17,80 +17,80 @@ if [ $# -ge 1 ];then
 fi
 
 pre_dir=`pwd`
-cd /shared/zone/zone_0/mongo_cluster
+cd /shared/mongo_cluster
 
 sh stop_all.sh
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9010
+mkdir -p /shared/mongo_cluster/run/db_file_9010
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_cfg_9010
+  mongod -f /shared/mongo_cluster/rs_cfg_9010
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_cfg_9010
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_cfg_9010
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9011
+mkdir -p /shared/mongo_cluster/run/db_file_9011
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_cfg_9011
+  mongod -f /shared/mongo_cluster/rs_cfg_9011
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_cfg_9011
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_cfg_9011
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9012
+mkdir -p /shared/mongo_cluster/run/db_file_9012
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_cfg_9012
+  mongod -f /shared/mongo_cluster/rs_cfg_9012
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_cfg_9012
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_cfg_9012
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9001
+mkdir -p /shared/mongo_cluster/run/db_file_9001
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_0_9001
+  mongod -f /shared/mongo_cluster/rs_db_0_9001
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_0_9001
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_0_9001
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9002
+mkdir -p /shared/mongo_cluster/run/db_file_9002
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_0_9002
+  mongod -f /shared/mongo_cluster/rs_db_0_9002
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_0_9002
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_0_9002
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9003
+mkdir -p /shared/mongo_cluster/run/db_file_9003
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_0_9003
+  mongod -f /shared/mongo_cluster/rs_db_0_9003
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_0_9003
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_0_9003
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9004
+mkdir -p /shared/mongo_cluster/run/db_file_9004
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_1_9004
+  mongod -f /shared/mongo_cluster/rs_db_1_9004
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_1_9004
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_1_9004
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9005
+mkdir -p /shared/mongo_cluster/run/db_file_9005
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_1_9005
+  mongod -f /shared/mongo_cluster/rs_db_1_9005
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_1_9005
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_1_9005
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9006
+mkdir -p /shared/mongo_cluster/run/db_file_9006
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_1_9006
+  mongod -f /shared/mongo_cluster/rs_db_1_9006
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_1_9006
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_1_9006
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9007
+mkdir -p /shared/mongo_cluster/run/db_file_9007
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_2_9007
+  mongod -f /shared/mongo_cluster/rs_db_2_9007
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_2_9007
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_2_9007
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9008
+mkdir -p /shared/mongo_cluster/run/db_file_9008
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_2_9008
+  mongod -f /shared/mongo_cluster/rs_db_2_9008
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_2_9008
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_2_9008
 fi
-mkdir -p /shared/zone/zone_0/mongo_cluster/run/db_file_9009
+mkdir -p /shared/mongo_cluster/run/db_file_9009
 if [ ${is_init} = true ]; then
-  mongod -f /shared/zone/zone_0/mongo_cluster/rs_db_2_9009
+  mongod -f /shared/mongo_cluster/rs_db_2_9009
 else
-  mongod  --keyFile ${mongodb_keyfile} -f /shared/zone/zone_0/mongo_cluster/rs_db_2_9009
+  mongod  --keyFile ${mongodb_keyfile} -f /shared/mongo_cluster/rs_db_2_9009
 fi
 
 

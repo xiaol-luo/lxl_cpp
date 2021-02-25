@@ -17,15 +17,15 @@ if [ $# -ge 1 ];then
 fi
 
 pre_dir=`pwd`
-cd /shared/zone/zone_0/etcd_cluster
+cd /shared/etcd_cluster
 
 sh stop_all.sh
-mkdir -p /shared/zone/zone_0/etcd_cluster/run/etcd_0
-mkdir -p /shared/zone/zone_0/etcd_cluster/run/etcd_1
-mkdir -p /shared/zone/zone_0/etcd_cluster/run/etcd_2
-nohup etcd --config-file etcd_0 > /shared/zone/zone_0/etcd_cluster/run/etcd_0.log 2>&1 &
-nohup etcd --config-file etcd_1 > /shared/zone/zone_0/etcd_cluster/run/etcd_1.log 2>&1 &
-nohup etcd --config-file etcd_2 > /shared/zone/zone_0/etcd_cluster/run/etcd_2.log 2>&1 &
+mkdir -p /shared/etcd_cluster/run/etcd_0
+mkdir -p /shared/etcd_cluster/run/etcd_1
+mkdir -p /shared/etcd_cluster/run/etcd_2
+nohup etcd --config-file etcd_0 > /shared/etcd_cluster/run/etcd_0.log 2>&1 &
+nohup etcd --config-file etcd_1 > /shared/etcd_cluster/run/etcd_1.log 2>&1 &
+nohup etcd --config-file etcd_2 > /shared/etcd_cluster/run/etcd_2.log 2>&1 &
 
 echo "etcd cluster started"
 sleep 5s

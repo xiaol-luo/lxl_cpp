@@ -13,12 +13,12 @@ if [ $# -ge 1 ];then
 fi
 
 pre_dir=`pwd`
-cd /shared/zone/zone_0/redis_cluster
+cd /shared/redis_cluster
 
 sh stop_all.sh
 
 
-mkdir -p /shared/zone/zone_0/redis_cluster/run
+mkdir -p /shared/redis_cluster/run
 redis-server redis_7000
 redis-server redis_7001
 redis-server redis_7002

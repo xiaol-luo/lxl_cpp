@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pre_dir=`pwd`
-cd /shared/zone/zone_0/mongo_cluster
+cd /shared/mongo_cluster
 
 echo "current running mongo service:"
 # ps -ef | grep 'mongo' | grep -v 'grep'

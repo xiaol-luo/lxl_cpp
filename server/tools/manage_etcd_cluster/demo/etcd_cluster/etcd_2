@@ -5,7 +5,7 @@
 name: 'etcd_2'
 
 # Path to the data directory.
-data-dir: /shared/zone/zone_0/etcd_cluster/run/etcd_2
+data-dir: /shared/etcd_cluster/run/etcd_2
 
 # Path to the dedicated wal directory.
 wal-dir:

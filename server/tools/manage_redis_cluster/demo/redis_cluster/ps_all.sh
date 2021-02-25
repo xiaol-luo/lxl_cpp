@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pre_dir=`pwd`
-cd /shared/zone/zone_0/redis_cluster
+cd /shared/redis_cluster
 
 ps -ef | grep -v grep | grep redis-server | grep cluster | grep 0.0.0.0:7000
 
