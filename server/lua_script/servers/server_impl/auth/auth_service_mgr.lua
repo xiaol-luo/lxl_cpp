@@ -25,3 +25,12 @@ function AuthServiceMgr:_on_init()
 
     return true
 end
+
+function AuthServiceMgr:on_frame()
+    AuthServiceMgr.super.on_frame(self)
+--[[
+    local x1000 = native.FixNumber.new("1000")
+    local x100 = native.FixNumber.new(100)
+    log_print("aa ", tostring(x1000), x100, native.FixNumber.make(300), native.FixNumber.make("400"));
+    --]]
+end

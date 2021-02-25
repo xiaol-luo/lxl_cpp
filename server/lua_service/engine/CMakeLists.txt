@@ -21,6 +21,8 @@ LINK_LIBRARIES(coro)
 LINK_LIBRARIES(hiredis)
 LINK_LIBRARIES(r3c)
 LINK_LIBRARIES(hiredis_vip)
+LINK_LIBRARIES(fixmath)
+LINK_LIBRARIES(fixed_math)
 
 IF (WIN32)
 	LINK_LIBRARIES(mongocxx-static)

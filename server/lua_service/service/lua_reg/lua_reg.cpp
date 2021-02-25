@@ -133,6 +133,7 @@ void register_native_libs(lua_State *L)
 	lua_reg_mongo(L);
 	lua_reg_redis(L);
 	lua_reg_consistent_hash(L);
+	lua_reg_fix_math(L);
 
 	t.set_function("net_close", net_close);
 	t.set_function("net_connect", net_connect);
