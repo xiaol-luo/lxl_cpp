@@ -18,6 +18,10 @@ function LuaApp:ctor()
     self.data_mgr = nil
     self.logic_mgr = nil
     self.ui_mgr = nil
+
+    self._res_loader = CS.Lua.LuaResLoaderProxy.Create()
+
+    self._tick = 0
 end
 
 function LuaApp:_on_init(arg)
@@ -66,6 +70,13 @@ function LuaApp:_on_started()
     LuaApp.super._on_started(self)
 
     self.state_mgr:change_state(App_State_Name.init)
+--[[
+    self._res_loader:AsyncLoadScene("Assets/Res/Scene/OtherTest/OtherTest.unity", true, function(res_path, ret)
+        log_print("self._res_loader:AsyncLoadScene ", res_path, ret)
+    end)
+--]]
+
+    self._res_loader:LoadScene("Assets/Res/Scene/OtherTest/OtherTest.unity", true)
 end
 
 function LuaApp:_on_stop()

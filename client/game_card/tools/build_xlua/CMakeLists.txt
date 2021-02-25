@@ -38,11 +38,15 @@ MARK_AS_ADVANCED(XLUA_PROJECT_DIR)
 ###### 3rd libs setting begin ######
 
 list(APPEND THIRDPART_INC 3rd_libs)
+list(APPEND THIRDPART_INC 3rd_libs/lua_reg)
+list(APPEND THIRDPART_INC 3rd_libs/sol)
 
 # begin register_3rd_lualibs
 set(
 	register_3rd_lualibs_Src 
-	3rd_libs/register_3rd_lualibs.cpp
+	3rd_libs/lua_reg/register_3rd_lualibs.cpp
+    3rd_libs/lua_reg/lua_reg.cpp
+    3rd_libs/lua_reg/lua_reg_fixed_math.cpp
 )
 set_property(
 	SOURCE ${register_3rd_lualibs_Src} 
@@ -109,6 +113,22 @@ list(APPEND THIRDPART_SRC ${Lpeg_Src})
 list(APPEND THIRDPART_INC 3rd_libs/lpeg)
 
 #end lpeg
+
+# begin fixed_math
+set(
+    fixed_math_Src
+    3rd_libs/fixed_math/fixed_math.cpp
+    3rd_libs/fixed_math/fixed_number.cpp
+)
+list(APPEND THIRDPART_SRC ${fixed_math_Src})
+list(APPEND THIRDPART_INC 3rd_libs/fixed_math)
+
+IF (WIN32)
+    list(APPEND THIRDPART_INC 3rd_libs/boost)
+	ADD_DEFINITIONS(-DBOOST_NO_CXX17_HDR_STRING_VIEW)
+ENDIF (WIN32)
+
+#end fixed_math
 
 ###### 3rd libs setting end ######
 

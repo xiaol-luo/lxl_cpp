@@ -1,3 +1,0 @@
-E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/build64/CMakeFiles/xlua.dir
-E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/build64/CMakeFiles/ALL_BUILD.dir
-E:/git/code/lxl_cpp/client/game_card/tools/build_xlua/build64/CMakeFiles/ZERO_CHECK.dir

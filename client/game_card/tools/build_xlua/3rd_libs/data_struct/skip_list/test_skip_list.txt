@@ -1,0 +1,30 @@
+
+#include "data_struct/skip_list/skip_list.h"
+
+struct skip_node_key_s
+{
+	int a;
+	int b;
+};
+
+bool cmp_skip_node_key(void *n1, void *n2)
+{
+	skip_node_key_t *p_n1 = (skip_node_key_t *)n1;
+	skip_node_key_t *p_n2 = (skip_node_key_t *)n2;
+	if (p_n1->a != p_n2->a)
+		return p_n1->a < p_n2->a;
+	return p_n1->b < p_n2->b;
+}
+
+int main()
+{
+	skip_list_t *list = skip_list_alloc(3, cmp_skip_node_key, free);
+	for (int i = 0; i < 10; ++i)
+	{
+		skip_node_key_t *key = (skip_node_key_t *)calloc(1, sizeof(skip_node_key_t));
+		key->a = rand() % 100;
+		key->b = rand() % 100;
+		skip_list_insert(list, key, NULL);
+	}
+	skip_list_free(list);
+}
