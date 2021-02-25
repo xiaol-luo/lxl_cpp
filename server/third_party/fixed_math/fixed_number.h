@@ -222,10 +222,17 @@ public:
         return fixed_xtoi(data);
     }
 
+	fixed_point raw_data()
+	{
+		return data;
+	}
+
 public:
     static const fixed_number max;
     static const fixed_number epsilon;
     static const fixed_number pi;
+	static const fixed_number one;
+	static const fixed_number zero;
 
 private:
     constexpr fixed_number(const fixed_point& _data)

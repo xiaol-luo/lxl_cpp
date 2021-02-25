@@ -1,7 +1,6 @@
 #include "lua_reg.h"
 #include "fixed_number.h"
 #include <string>
-#include <spdlog/fmt/fmt.h>
 
 static fixed_number OperaSub(const fixed_number &p1, const fixed_number &p2)
 {
@@ -35,8 +34,7 @@ static fixed_number MakeOverLoad_2(const std::string& p)
 
 static std::string ToString(fixed_number &p)
 {
-	std::string ret = fmt::format("{}", float(p));
-	return ret;
+	return std::to_string(float(p));
 }
 
 void lua_reg_fix_math(lua_State *L)
@@ -74,6 +72,12 @@ void lua_reg_fix_math(lua_State *L)
 		"atan", sol::overload(&AtanOverLoad_1, &AtanOverLoad_2),
 		"exp", &fixed_number::exp,
 		"log", &fixed_number::log,
+		"max", sol::var(fixed_number::max),
+		"epsilon", sol::var(fixed_number::epsilon),
+		"one", sol::var(fixed_number::one),
+		"zero", sol::var(fixed_number::zero),
+		"pi", sol::var(fixed_number::pi),
+		"raw_data", sol::property(&fixed_number::raw_data),
 		"make", sol::overload(&MakeOverLoad_1, &MakeOverLoad_2)
 	);
 	native_tb.set_usertype(class_name, meta_table);
