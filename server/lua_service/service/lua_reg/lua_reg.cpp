@@ -134,6 +134,7 @@ void register_native_libs(lua_State *L)
 	lua_reg_redis(L);
 	lua_reg_consistent_hash(L);
 	lua_reg_fix_math(L);
+	lua_reg_lockstep_container(L);
 
 	t.set_function("net_close", net_close);
 	t.set_function("net_connect", net_connect);
@@ -227,4 +228,18 @@ bool lua_table_to_unorder_map(sol::main_table tb, std::unordered_map<std::string
 		}
 	}
 	return true;
+}
+
+bool less_cmp_sol_object(const sol::object & l, const sol::object & r)
+{
+	int l_reg_idx = l.registry_index();
+	int r_reg_idx = r.registry_index();
+	if (l_reg_idx != r_reg_idx)
+		return l_reg_idx < r_reg_idx;
+	return l.lua_state() < r.lua_state();
+}
+
+bool operator<(const sol::object& l, const sol::object& r)
+{
+	return less_cmp_sol_object(l, r);
 }

@@ -28,9 +28,29 @@ end
 
 function AuthServiceMgr:on_frame()
     AuthServiceMgr.super.on_frame(self)
---[[
-    local x1000 = native.FixNumber.new("1000")
+
+    local fn_set = native.LockStepSetLuaObject.new()
+
+    local x1000 = native.FixNumber.new(1000)
     local x100 = native.FixNumber.new(100)
-    log_print("aa ", tostring(x1000), x100, native.FixNumber.make(300), native.FixNumber.make("400"));
-    --]]
+    local x3 = native.FixNumber.make(3)
+
+    -- fn_set:insert(1)
+    local aa = "xxx"
+    fn_set:insert(aa)
+    fn_set:insert(aa)
+    -- fn_set:insert(x1000)
+    -- fn_set:insert(x100)
+
+
+    for k, v in pairs(fn_set) do
+        print("in for ", k, v)
+    end
+    print("-------------------------------")
+--[[
+    log_print("aa ", x1000 + x100, x1000 * x100, x1000 / x100, x1000 % x3);
+    log_print("bb ", x100 ^ x3, x1000 > x100, x1000 < x100, x1000 >= x100, x1000 == x100, x1000 <= x100);
+    log_print("cc", native.FixNumber.sin(x1000))
+--]]
+
 end

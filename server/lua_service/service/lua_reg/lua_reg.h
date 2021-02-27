@@ -23,4 +23,19 @@ bool lua_table_to_unorder_map(sol::main_table tb, std::unordered_map<std::string
 bool lua_object_to_string(sol::object lua_obj, std::string &out_str);
 void lua_reg_consistent_hash(lua_State *L);
 void lua_reg_fix_math(lua_State *L);
+void lua_reg_lockstep_container(lua_State *L);
 
+
+bool less_cmp_sol_object(const sol::object& l, const sol::object& r);
+bool operator<(const sol::object& l, const sol::object& r);
+
+namespace std
+{
+	template<>
+	struct less<sol::object> {
+		bool operator()(const sol::object& l, const sol::object& r) const
+		{
+			return less_cmp_sol_object(l, r);
+		}
+	};
+}

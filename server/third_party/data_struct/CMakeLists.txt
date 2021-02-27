@@ -15,5 +15,5 @@ MakeLib(${project_name} "${all_files}" false)
 
 IF (WIN32)
 ELSE()
-ENDIF (WIN32)
+ENDIF (WIN32) 
 

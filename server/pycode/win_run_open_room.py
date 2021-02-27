@@ -44,7 +44,7 @@ def cleanup_process_datas(process_datas):
         print("cleanup_process_datas joined '{}' ".format(pd.cmd))
 
 
-exit_progress = False
+exit_progress = True
 
 
 def signal_handler(sig_num, handler):
@@ -63,7 +63,7 @@ for sig_num in [signal.SIGINT, signal.SIGTERM]:
 
 kill_alive_services()
 
-in_home = False
+in_home = True
 
 if in_home:
 	code_dir = r"D:\work_space\code\lxl_cpp\server"

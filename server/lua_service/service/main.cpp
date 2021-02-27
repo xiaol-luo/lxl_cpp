@@ -30,23 +30,29 @@ extern "C"
 
 #include "redis/redis_task_mgr.h"
 
-#include "fixed_number.h"
+#include "double_link_list/double_link_list.h"
+#include "lock_step/lock_step_set.hpp"
+
+#include <map>
 
 
-typedef struct skip_node_key_s skip_node_key_t;
-struct skip_node_key_s
+typedef struct dl_list_s dl_list_t;
+struct dl_list_s
 {
 	int a;
 	int b;
+
+	bool operator<(const struct dl_list_s & cmp) const
+	{
+		if (this->a != cmp.a)
+			return this->a < cmp.a;
+		return this->b < cmp.b;
+	}
 };
 
-bool cmp_skip_node_key(void *n1, void *n2)
+bool dl_list_eq_cmp(void *n1, void *n2)
 {
-	skip_node_key_t *p_n1 = (skip_node_key_t *)n1;
-	skip_node_key_t *p_n2 = (skip_node_key_t *)n2;
-	if (p_n1->a != p_n2->a)
-		return p_n1->a < p_n2->a;
-	return p_n1->b < p_n2->b;
+	return n1 == n2;
 }
 
 void QuitGame(int signal)
@@ -62,13 +68,8 @@ int main (int argc, char **argv)
 #endif
 	if (true)
 	{
-		fixed_number a(100);
-		fixed_number b(121);
-		fixed_number c = a + b;
-		c = a * b;
-		c = a / b;
-		c = a - b;
-		c = a - b;
+
+
 	}
 
 	// argv: exe_name work_dir lua_file lua_file_params...
@@ -108,6 +109,7 @@ int main (int argc, char **argv)
 	void *ls_mem = mempool_malloc(sizeof(sol::state));
 	sol::state *ls = new(ls_mem)sol::state(lua_panic_error, LuaAlloc);
 	lua_State *L = ls->lua_state();
+
 	sol::main_protected_function::set_default_handler(sol::object(L, sol::in_place, lua_pcall_error));
 	service->SetLuaState(L);
 
