@@ -5,16 +5,16 @@
 
 #include "double_link_list/double_link_list.h"
 
-template<typename K>
+template<typename value_type>
 class LockStepSet
 {
 public:
-	using size_type = typename std::map<K, double_link_list_node_t *>::size_type;
-	// using value_type = typename K;
+	using size_type = typename std::map<value_type, double_link_list_node_t *>::size_type;
+	// using value_type = typename value_type;
 
 	struct WrapData
 	{
-		K val;
+		value_type val;
 		double_link_list_node_t *dl_node;
 	};
 
@@ -43,14 +43,14 @@ public:
 			return iterator(tmp);
 		}
 
-		K operator*() const {
+		value_type operator*() const {
 			WrapData *wrap_data = (WrapData *)m_ptr->data;
-			return (K)wrap_data->val;
+			return (value_type)wrap_data->val;
 		}
 
-		K * operator->() {
+		value_type * operator->() const {
 			WrapData *wrap_data = (WrapData *)m_ptr->data;
-			return (K *)(&wrap_data->val);
+			return (value_type *)(&wrap_data->val);
 		}
 
 	private:
@@ -96,7 +96,7 @@ public:
 		double_link_list_clear(m_list, free_node_data);
 	}
 
-	iterator find(const K &val)
+	iterator find(const value_type &val)
 	{
 		auto it = m_map.find(val);
 		if (m_map.end() == it)
@@ -108,12 +108,12 @@ public:
 	}
 
 	
-	bool exist(const K &val)
+	bool exist(const value_type &val)
 	{
 		return m_map.end() != m_map.find(val);
 	}
 	
-	std::pair<iterator, bool> insert(const K &val)
+	std::pair<iterator, bool> insert(const value_type &val)
 	{
 		bool ret = false;
 		double_link_list_node_t *node = nullptr;
@@ -129,7 +129,7 @@ public:
 		return std::pair<iterator, bool>(iterator(node), ret);
 	}
 
-	size_t erase(const K &val)
+	size_t erase(const value_type &val)
 	{
 		auto it = m_map.find(val);
 		if (m_map.end() == it)
@@ -156,7 +156,7 @@ public:
 
 private:
 
-	std::map<K, WrapData *> m_map;
+	std::map<value_type, WrapData *> m_map;
 	double_link_list_t *m_list = nullptr;
 };
 

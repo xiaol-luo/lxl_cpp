@@ -10,11 +10,10 @@ class LockStepMap
 {
 public:
 	using size_type = typename std::map<K, double_link_list_node_t *>::size_type;
-	using value_type = typename std::pair<const K, V>;
 
 	struct WrapData
 	{
-		value_type val;
+		std::pair<K, V> val;
 		double_link_list_node_t *dl_node;
 	};
 
@@ -43,14 +42,14 @@ public:
 			return iterator(tmp);
 		}
 
-		value_type operator*() const {
+		std::pair<const K, V> operator*() const {
 			WrapData *wrap_data = (WrapData *)m_ptr->data;
-			return (value_type)wrap_data->val;
+			return (std::pair<const K, V>)wrap_data->val;
 		}
 
-		value_type * operator->() {
+		std::pair<const K, V> * operator->() const {
 			WrapData *wrap_data = (WrapData *)m_ptr->data;
-			return (value_type *)(&wrap_data->val);
+			return (std::pair<const K, V> *)(&wrap_data->val);
 		}
 
 	private:
@@ -59,9 +58,9 @@ public:
 
 	static bool eq_cmp_node_data(void *_p1, void *_p2)
 	{
-		K* p1 = (K*)_p1;
-		K* p2 = (K*)_p2;
-		return !(*p1 < *p2) && !(*p2 < *p1);
+		WrapData * p1 = (WrapData *)_p1;
+		WrapData * p2 = (WrapData *)_p2;
+		return !(p1->val.first < p2->val.first) && !(p2->val.first < p1->val.first);
 	}
 
 	static void free_node_data(void *p)
@@ -107,23 +106,23 @@ public:
 		return iterator(wrap_data->dl_node);
 	}
 
-
 	bool exist(const K &val)
 	{
 		return m_map.end() != m_map.find(val);
 	}
 
-	std::pair<iterator, bool> insert(const K &val)
+	std::pair<iterator, bool> insert(const std::pair<K, V> &val)
 	{
 		bool ret = false;
 		double_link_list_node_t *node = nullptr;
-		if (m_map.end() == m_map.find(val))
+		if (m_map.end() == m_map.find(val.first))
 		{
 			WrapData *wrap_data = new WrapData();
+			// wrap_data->val = std::make_pair(val.first, val.second);
 			wrap_data->val = val;
 			node = double_link_list_append(m_list, (void*)(wrap_data));
 			wrap_data->dl_node = node;
-			m_map.insert(std::make_pair(val, wrap_data));
+			m_map.insert(std::make_pair(val.first, wrap_data));
 			ret = true;
 		}
 		return std::pair<iterator, bool>(iterator(node), ret);
@@ -150,7 +149,7 @@ public:
 			next_node = it.m_ptr->next;
 		}
 
-		erase(*it);
+		erase(it->first);
 		return iterator(next_node);
 	}
 

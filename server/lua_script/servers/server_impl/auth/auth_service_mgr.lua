@@ -29,7 +29,7 @@ end
 function AuthServiceMgr:on_frame()
     AuthServiceMgr.super.on_frame(self)
 
-    local fn_set = native.LockStepSetLuaObject.new()
+    local fn_map_ii = native.LockStepMapSS.new()
 
     local x1000 = native.FixNumber.new(1000)
     local x100 = native.FixNumber.new(100)
@@ -37,13 +37,16 @@ function AuthServiceMgr:on_frame()
 
     -- fn_set:insert(1)
     local aa = "xxx"
-    fn_set:insert(aa)
-    fn_set:insert(aa)
+    fn_map_ii:insert("12", "1")
+    fn_map_ii:insert("23", "1")
+    fn_map_ii:erase("12")
+    fn_map_ii:insert("12", "3")
+
     -- fn_set:insert(x1000)
     -- fn_set:insert(x100)
 
 
-    for k, v in pairs(fn_set) do
+    for k, v in pairs(fn_map_ii) do
         print("in for ", k, v)
     end
     print("-------------------------------")
