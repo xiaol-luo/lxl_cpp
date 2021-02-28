@@ -37,9 +37,9 @@ public:
         return fixed_number(fixed_itox(ival));
     }
 
-	constexpr static fixed_number make(const std::string& strVal)
+	static fixed_number make(const std::string& strVal)
 	{
-		return fixed_number(fixed_atox(strVal.c_str()));
+		return fixed_number(strVal.c_str());
 	}
 
     fixed_number& operator +=(const fixed_number& other)

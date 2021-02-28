@@ -7,7 +7,7 @@
 template <typename T>
 struct reg_set_help
 {
-	using LockStepSetT = typename LockStepSet<T>;
+	using LockStepSetT = LockStepSet<T>;
 	using LockStepSetIt = typename LockStepSetT::iterator;
 
 	struct iterator_state 
@@ -64,7 +64,7 @@ struct reg_set_help
 template <typename K, typename V>
 struct reg_map_help 
 {
-	using LockStepMapT = typename LockStepMap<K, V>;
+	using LockStepMapT = LockStepMap<K, V>;
 	using LockStepMapIt = typename LockStepMapT::iterator;
 
 	struct iterator_state 
