@@ -35,6 +35,8 @@ extern "C"
 
 #include <map>
 
+#include <Box2D/Box2D.h>
+
 void QuitGame(int signal)
 {
 	try_quit_game();
@@ -46,9 +48,20 @@ int main (int argc, char **argv)
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
 #endif
-	if (false)
+	if (true)
 	{
+		b2Vec2 gravity(fixed_number::zero, fixed_number::one);
+		b2World world(gravity);
 
+		b2BodyDef bd;
+		bd.type = b2_dynamicBody;
+		bd.position = b2Vec2(fixed_number::make(100), fixed_number::make("20"));
+		world.CreateBody(&bd);
+		fixed_number step = fixed_number::one / fixed_number::make(60);
+		for (int i = 0; i < 100; ++i)
+		{
+			world.Step(step, 3, 8);
+		}
 	}
 
 	// argv: exe_name work_dir lua_file lua_file_params...

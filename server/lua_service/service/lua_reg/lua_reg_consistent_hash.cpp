@@ -1,5 +1,5 @@
 #include "lua_reg.h"
-#include "third_party/data_struct/consistent_hash/consistent_hash.h"
+#include "consistent_hash/consistent_hash.h"
 #include <string>
 
 static std::tuple<bool, std::string> Wrap_Find_Address(ConsistentHash &hash, sol::object lua_obj)

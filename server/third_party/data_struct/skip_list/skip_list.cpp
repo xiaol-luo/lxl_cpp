@@ -264,6 +264,7 @@ void * skip_list_remove(skip_list_t * list, void * key)
 				skip_list_set_using_max_lvl(list, new_using_max_level);
 			}
 		}
+		skip_list_node_free(remove_node);
 	}
 	return out_data;
 }
